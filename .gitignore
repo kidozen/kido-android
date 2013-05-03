@@ -2,7 +2,8 @@
 .settings/
 bin/
 target/
-
+.metadata
+/.metadata
 /.DS_Store
 /.metadata/.log
 /.metadata/.mylyn/.tasks.xml.zip
