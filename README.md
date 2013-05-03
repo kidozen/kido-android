@@ -1,6 +1,3 @@
-kido-android
-============
-
 #Kidozen SDK for Android Devices
 
 In order to use the Android SDK in your android application
