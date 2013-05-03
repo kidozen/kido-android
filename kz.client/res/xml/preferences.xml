@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExamplePreferences xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory
+        android:key="first_category"
+        android:title="First Category" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="perform_updates"
+            android:summary="Enable or disable data updates"
+            android:title="Enable updates" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="second_category"
+        android:title="Second Category" >
+        <EditTextPreference
+            android:defaultValue="Default welcome message"
+            android:dialogMessage="Provide a message"
+            android:dialogTitle="Welcome Message"
+            android:key="welcome_message"
+            android:summary="Define the Welcome message to be shown"
+            android:title="Welcome Message" />
+    </PreferenceCategory>
+</ExamplePreferences>

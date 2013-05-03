@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="libs/websocket-0.7.jar:/Users/christian/Development/adt/sdk/tools/support/annotations.jar:libs/gcm.jar" destdir="/Users/christian/Development/tellago/kido-android/documentation" doctitle="KidoZen Android SDK" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" sourcefiles="src/main/java/kidozen/client/authentication/IIdentityProvider.java,src/main/java/kidozen/client/SMSSender.java,src/main/java/kidozen/client/PubSubChannel.java,src/main/java/kidozen/client/authentication/WRAPv09IdentityProvider.java,src/main/java/kidozen/client/MailSender.java,src/main/java/kidozen/client/authentication/ADFSWSTrustIdentityProvider.java,src/main/java/kidozen/client/Queue.java,src/main/java/kidozen/client/Logging.java,src/main/java/kidozen/client/authentication/KidoZenUser.java,src/main/java/kidozen/client/Notification.java,src/main/java/kidozen/client/Storage.java,src/main/java/kidozen/client/Configuration.java,src/main/java/kidozen/client/KZApplication.java,src/main/java/kidozen/client/ServiceEvent.java" sourcepath="src/main/java:gen" splitindex="true" use="true" version="true">
+            <link href="http://download.oracle.com/javase/6/docs/api/"/>
+            <link href="http://developer.android.com/reference/"/>
+            <link href="file:/Users/christian/Development/tellago/kido-android/documentation/"/>
+        </javadoc>
+    </target>
+</project>

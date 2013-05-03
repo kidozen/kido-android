@@ -1,0 +1,17 @@
+.plugins/
+.settings/
+bin/
+target/
+
+/.DS_Store
+/.metadata/.log
+/.metadata/.mylyn/.tasks.xml.zip
+/.metadata/.mylyn/tasks.xml.zip
+.DS_Store
+*.DS_Store
+/kz.client.tests/.DS_Store
+/kz.client.tests/src/.DS_Store
+/kz.client.tests/src/kz/.DS_Store
+/kz.client.tests/src/kz/client/.DS_Store
+/KidoZenDemos/gen/kz/
+/kz.client.tests/gen/kz/
