@@ -8,6 +8,49 @@ In order to use the Android SDK in your android application
 
 You can also download the source code and import the project into your Eclipse workspace
 
+##Getting started with the code
+
+One instance of the Application object has one or many instances of each of the services that you can find in the Kidozen platform (Storage, Queue, etc.) SDK API is callback based on all its interfaces, so it will never block the UI. The callback signature is the same for all the methods: 
+
+- `StatusCode` is the http status code response that the service invocation has returned
+- `Response` the response body of the call. It could be an string with the description of the operation such as "Created" or "Internal server error" or a JSON Object with the results of one operation
+- `Exception` the Exception object is there was one
+
+Initialize the Application: During initialization the SDK pulls the application configuration from the cloud services for the specified platform
+  	
+		KZApplication app = new KZApplication(TENANT,APPLICATION, new ServiceEventListener() {
+			@Override
+			public void onFinish(ServiceEvent e) {
+			}
+		});
+
+Authenticate: you must provide the identity provider that you will use the username and the password. The SDK hides all the calls needed to authenticate the user against the selected identity provider and to create a security context to execute all the services call. 
+
+		app.Authenticate(PROVIDER, USER, PASS, new ServiceEventListener() {
+			@Override
+			public void onFinish(ServiceEvent e) {
+			}
+		});
+
+Once the user is authenticated you can start using all the services:
+
+		tasks = app.Storage("tasks");
+		tasks.Create(message, new ServiceEventListener() {
+			@Override
+			public void onFinish(ServiceEvent arg0) {
+				...
+			}
+		});
+		...
+		queue = app.Queue("messages");
+		queue.Enqueue(message, new ServiceEventListener() {
+			@Override
+			public void onFinish(ServiceEvent arg0) {
+				...
+			}
+		});
+		...
+    
 #License 
 
 Copyright (c) 2013 KidoZen, inc.
