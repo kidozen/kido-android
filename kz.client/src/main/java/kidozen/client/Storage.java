@@ -4,16 +4,10 @@ import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
-import kidozen.client.authentication.KidoZenUser;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.util.Log;
 
 /**
  * Storage  service interface
@@ -21,16 +15,11 @@ import android.util.Log;
  * @author kidozen
  * @version 1.00, April 2013
  */
-public class Storage extends KZService implements Observer {
+public class Storage extends KZService {
 	private static final String DATEFORMAT_YYYYMMDDTHHMMSSSSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 	private static final String KEY = "Storage";
 	String _endpoint;
 	String _name;
-	
-	public void update(Observable observable, Object data) {
-		Log.d(KEY, "token updated");
-		this.KidozenUser = (KidoZenUser) data;
-	}
 	
 	/**
 	 * Constructor
@@ -60,21 +49,11 @@ public class Storage extends KZService implements Observer {
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 		headers.put(CONTENT_TYPE,APPLICATION_JSON);
 		headers.put(ACCEPT, APPLICATION_JSON);
-		
-		ServiceEventListener sel = new ServiceEventListener() {
-			@Override
-			public void onFinish(ServiceEvent e) {
-				if(e.Exception==null)
-					callback.onFinish(e);
-			}
-		};
-		
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.POST, params, headers, message, sel, BypassSSLVerification);
-		task.execute(url);
+
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, message, BypassSSLVerification);
 	}
 
-	protected JSONObject cheDateSerialization(JSONObject original)
-	{
+	protected JSONObject checkDateSerialization(JSONObject original) throws JSONException {
 		JSONObject updatedMessage = original;
 		JSONObject updatedMetadata = null;
 		try {
@@ -99,6 +78,7 @@ public class Storage extends KZService implements Observer {
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
+            throw e;
 		}
 		return updatedMessage;
 	}
@@ -110,24 +90,25 @@ public class Storage extends KZService implements Observer {
 	 * @param id The unique identifier of the object
 	 * @param callback The callback with the result of the service call
 	 */
-	public void Update(final JSONObject message, final String id, final ServiceEventListener callback)
-	{
+	public void Update(final String id, final JSONObject message, final ServiceEventListener callback) throws Exception {
 		try {
-			JSONObject serializedMsg = this.cheDateSerialization(message);
+			JSONObject serializedMsg = this.checkDateSerialization(message);
 			String  url = _endpoint + "/" + _name + "/" + id;
 			HashMap<String, String> params = null;
 			HashMap<String, String> headers = new HashMap<String, String>();
 			headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 			headers.put(CONTENT_TYPE,APPLICATION_JSON);
 			headers.put(ACCEPT, APPLICATION_JSON);
-			ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.PUT, params, headers, serializedMsg, callback, BypassSSLVerification);
-			task.execute(url);
-		} catch (Exception e) {
-			ServiceEvent updatedse = new ServiceEvent(this);
-			updatedse.Response = e;
-			updatedse.Body = e.getMessage();
-			updatedse.StatusCode = HttpStatus.SC_BAD_REQUEST;
-			callback.onFinish(updatedse);
+            this.ExecuteTask(url, KZHttpMethod.PUT, params, headers,  callback, serializedMsg, BypassSSLVerification);
+		}
+        catch (Exception e)
+        {
+			ServiceEvent se = new ServiceEvent(this);
+			se.Response = e;
+			se.Body = e.getMessage();
+			se.StatusCode = HttpStatus.SC_BAD_REQUEST;
+            se.Exception = e;
+			callback.onFinish(se);
 		}
 	}
 
@@ -146,6 +127,7 @@ public class Storage extends KZService implements Observer {
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+
 		ServiceEventListener sel = new ServiceEventListener() {
 			@Override
 			public void onFinish(ServiceEvent e) {
@@ -153,9 +135,7 @@ public class Storage extends KZService implements Observer {
 					callback.onFinish(e);
 			}
 		};
-
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.GET, params, headers,sel, BypassSSLVerification);
-		task.execute(url);		
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
 	}
 
 	/**
@@ -169,8 +149,7 @@ public class Storage extends KZService implements Observer {
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
-		task.execute(url);
+        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers,  callback, BypassSSLVerification);
 	}
 
 	/**
@@ -188,8 +167,7 @@ public class Storage extends KZService implements Observer {
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
-		task.execute(url);
+        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers,  callback, BypassSSLVerification);
 	}
 
 	/**
@@ -253,12 +231,6 @@ public class Storage extends KZService implements Observer {
 		params.put("fields", fields);
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		ServiceEventListener sel =  new ServiceEventListener() {
-			public void onFinish(ServiceEvent e) {
-				callback.onFinish(e );
-			}
-		};
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.GET, params, headers,sel, BypassSSLVerification);
-		task.execute(url);
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
 	}
 }

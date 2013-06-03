@@ -50,8 +50,8 @@ public class Logging extends KZService {
 		headers.put(AUTHORIZATION_HEADER,this.KidozenUser.Token);
 		headers.put(CONTENT_TYPE,APPLICATION_JSON);
 		headers.put(ACCEPT, APPLICATION_JSON);
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.POST, params, headers, message, callback, BypassSSLVerification);
-		task.execute(url);
+
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
 	}
 
 	/**
@@ -75,8 +75,8 @@ public class Logging extends KZService {
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,this.KidozenUser.Token);
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
-		task.execute(_endpoint);
+
+        this.ExecuteTask(_endpoint, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
 	}
 
 	/**
@@ -151,8 +151,8 @@ public class Logging extends KZService {
 					callback.onFinish( serializeJsonArray( e ) );				
 			}
 		};
-		ServiceInvokeAsyncTask t = new ServiceInvokeAsyncTask(KZHttpMethod.GET, params, headers,se , BypassSSLVerification);
-		t.execute(url);
+
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, se, BypassSSLVerification);
 	}
 
 	private ServiceEvent serializeJsonArray(ServiceEvent e) 

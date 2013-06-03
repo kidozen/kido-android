@@ -1,10 +1,11 @@
 package kidozen.client.authentication;
 
+import kidozen.client.KZAction;
+import kidozen.client.KZHttpMethod;
+import kidozen.client.SNIConnectionManager;
+
 import java.net.URI;
 import java.util.Hashtable;
-
-import kidozen.client.KZAction;
-import kidozen.client.Utilities;
 
 /**
  * Active Directory Federation Services Identity Provider
@@ -53,7 +54,11 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 			Hashtable<String, String> headers = new Hashtable<String, String>();
 			headers.put(CONTENT_TYPE,SOAP_XML);
 			try {
-				Hashtable<String, String> authResponse = Utilities.ExecuteHttpPost(identityProviderUrl.toString(), _message,headers,null, bypassSSLValidation);
+				//Hashtable<String, String> authResponse = Utilities.ExecuteHttpPost(identityProviderUrl.toString(), _message,headers,null, bypassSSLValidation);
+                String url = identityProviderUrl.toString();
+                SNIConnectionManager sniManager = new SNIConnectionManager(url, _message, null, null, bypassSSLValidation);
+                Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+
 				String body = authResponse.get("responseBody");
 
 				if (body != null) {

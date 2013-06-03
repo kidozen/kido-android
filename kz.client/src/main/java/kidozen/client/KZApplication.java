@@ -1,26 +1,17 @@
 package kidozen.client;
 
-import java.security.InvalidParameterException;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Observable;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.util.Log;
 
-import kidozen.client.authentication.ADFSWSTrustIdentityProvider;
-import kidozen.client.authentication.AuthenticationManager;
-import kidozen.client.authentication.IIdentityProvider;
-import kidozen.client.authentication.KidoZenUser;
-import kidozen.client.authentication.WRAPv09IdentityProvider;
-
+import kidozen.client.authentication.*;
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.util.Log;
+import java.security.InvalidParameterException;
+import java.util.*;
 
 /**
  * @author kidozen
@@ -30,9 +21,13 @@ import android.util.Log;
  *
  */
 public class KZApplication extends KZService {
-	public static Boolean Initialized = false;
-	public static final String TOKEN_CHANGE_INTENT = "kidozen.client.intent.TOKEN_CHANGE";
-	public Boolean Authenticated = false;
+    public static final String APPLICATION_NOT_FOUND = "Application not found";
+    public static final String TOKEN_CHANGE_INTENT = "kidozen.client.intent.TOKEN_CHANGE";
+
+    public Boolean Initialized = false;
+	private Map<String, JSONObject> ips= new HashMap<String, JSONObject>();
+    private Map<String, AsyncTask> tasks = new HashMap<String, AsyncTask>();
+    public Boolean Authenticated = false;
 	public Map<String, String> IdentityProvidersKeys = new HashMap<String, String>();
 	public Boolean BypassSSLVerification = false;
 	
@@ -41,14 +36,13 @@ public class KZApplication extends KZService {
 	private String _emailEndpoint;
 	private String _queueEndpoint;
 	private String _storageEndpoint;
+    private String _lobEndpoint;
 	private String _smsEndpoint;
 	private String _configurationEndpoint;
 	private String _wsSubscriberEndpoint;
 	private String _publisherEndpoint;
 	private String _logEndpoint;
-	private MailSender _mailSender;
 	private String _notificationEndpoint;
-	private Logging _applicationLog;
 	private static JSONArray _allApplicationLogEvents;
 	ObservableUser tokenUpdater = new ObservableUser();
 	private int initializedStatusCode=0;
@@ -60,7 +54,13 @@ public class KZApplication extends KZService {
 	String _username="";
 	String _password="";
 	private Runnable _onSessionExpirationRunnable;
-	private final Handler sessionExpiresHandler = new Handler(); 
+	private final Handler sessionExpiresHandler = new Handler();
+    private Logging _applicationLog;
+    private MailSender _mailSender;
+
+
+    //private MailSender _mailSender;
+    //private Logging _applicationLog;
 
 	/**
 	 * Returns the current KidoZen identity
@@ -89,19 +89,130 @@ public class KZApplication extends KZService {
 	 * @param callback The ServiceEventListener callback with the operation results
 	 * @throws Exception The latest exception is there was any
 	 */
-	public KZApplication(String tenantMarketPlace, String application, Boolean bypassSSLVerification, ServiceEventListener callback) throws Exception{
-		super();
-		BypassSSLVerification = bypassSSLVerification;
-		_tennantMarketPlace= tenantMarketPlace;
-		_application= application;
-		
-		AsyncTask<Void, Void, Void> _init = getApplicationConfiguration();
-		_init.execute().get();
-		if (callback!=null) {
-			callback.onFinish(new ServiceEvent(this, initializedStatusCode, initializedBody, initializedResponse));
-		}	
-	}
-	
+    public KZApplication(String tenantMarketPlace, String application, Boolean bypassSSLVerification, final ServiceEventListener callback) throws Exception{
+        super();
+        BypassSSLVerification = bypassSSLVerification;
+        _tennantMarketPlace= tenantMarketPlace;
+        _application= application;
+
+        this.getAppConfig( new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                if (callback!=null)
+                {
+                    ServiceEvent se = new ServiceEvent(this, e.StatusCode, e.Body, e.Response);
+                    try {
+                        parseApplicationConfiguration(e.Body);
+                        initializedStatusCode = e.StatusCode;
+                        initializedBody = e.Body;
+                        initializedResponse = e.Response;
+                        Initialized = (e.Exception==null);
+                    }
+                    catch (JSONException je)
+                    {
+                        se.StatusCode = HttpStatus.SC_NOT_FOUND;
+                        se.Body = APPLICATION_NOT_FOUND;
+                        se.Response = APPLICATION_NOT_FOUND;
+                        se.Exception = je;
+                    }
+                    catch (InvalidParameterException ipe)
+                    {
+                        se.StatusCode = HttpStatus.SC_NOT_FOUND;
+                        se.Body = APPLICATION_NOT_FOUND;
+                        se.Response = APPLICATION_NOT_FOUND;
+                        se.Exception = ipe;
+                    }
+                    finally {
+                        callback.onFinish(se);
+                    }
+                }
+            }
+        });
+    }
+
+    private void getAppConfig(final ServiceEventListener callback)
+    {
+        if (!_tennantMarketPlace.endsWith("/")) {
+            _tennantMarketPlace = _tennantMarketPlace + "/";
+        }
+        String url = _tennantMarketPlace + "publicapi/apps?name=" + _application;
+        HashMap<String, String> params = null;
+        HashMap<String, String> headers = new HashMap<String, String>();
+
+        KZService svc = new KZService();
+        svc.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
+    }
+
+    private void parseApplicationConfiguration(String response) throws JSONException, InvalidParameterException {
+        JSONArray cfg = new JSONArray(response);
+        JSONObject wrapper = cfg.getJSONObject(0);
+        if (wrapper==null) {
+            throw new InvalidParameterException("Application not found.");
+        }
+        _lobEndpoint =  wrapper.get("url").toString();
+        _authConfig =  wrapper.getJSONObject("authConfig");
+        _emailEndpoint = wrapper.get("email").toString();
+        _queueEndpoint = wrapper.get("queue").toString();
+        _storageEndpoint =  wrapper.get("storage").toString();
+        _smsEndpoint =  wrapper.get("sms").toString();
+        _configurationEndpoint= wrapper.get("config").toString();
+        _wsSubscriberEndpoint=wrapper.get("ws").toString();
+        _publisherEndpoint = wrapper.get("pubsub").toString();
+        _logEndpoint= wrapper.get("logging").toString();
+        _notificationEndpoint = wrapper.get("notification").toString();
+        _applicationLog = new Logging(_logEndpoint);
+        _mailSender = new MailSender(_emailEndpoint);
+
+        Log.d(LOGTAG, "Getting provider configuration");
+        _identityProviders = new HashMap<String, JSONObject>();
+        String jsonconfig  = _authConfig.toString();
+        JSONObject configurations  = new JSONObject(jsonconfig);
+        JSONObject identityProviders = configurations.getJSONObject("identityProviders");
+        authServiceEndpoint = configurations.get("authServiceEndpoint").toString();
+        applicationScope =configurations.get("applicationScope").toString();
+        authServiceScope = configurations.get("authServiceScope").toString();
+
+        @SuppressWarnings("unchecked")
+        Iterator<String> providersIterator = identityProviders.keys();
+        while(providersIterator.hasNext()){
+            String ipName = providersIterator.next();
+            JSONObject ip = identityProviders.getJSONObject(ipName);
+            String endpoint =  ip.getString("endpoint");
+            String protocol = ip.getString("protocol");
+
+            JSONObject kzip = new JSONObject();
+            kzip.put("authServiceScope", authServiceScope);
+            kzip.put("authServiceEndpoint", endpoint);
+            kzip.put("applicationScope", applicationScope);
+            kzip.put("key", ipName);
+            kzip.put("endpoint", endpoint);
+            kzip.put("protocol", protocol);
+            //TODO: replace with factory
+            IIdentityProvider ipinstance =null;
+            if (protocol.toLowerCase().equals("wrapv0.9")) {
+                ipinstance= new WRAPv09IdentityProvider();
+                ((WRAPv09IdentityProvider)ipinstance).bypassSSLValidation=BypassSSLVerification;
+            }
+            else {
+                ipinstance=new ADFSWSTrustIdentityProvider();
+                ((ADFSWSTrustIdentityProvider)ipinstance).bypassSSLValidation=BypassSSLVerification;
+            }
+
+            //
+            kzip.put("instance", ipinstance);
+            _identityProviders.put(ipName, kzip );
+            IdentityProvidersKeys.put(ipName, protocol);
+        }
+        return;
+    }
+
+
+    public KZApplication( Map<String, JSONObject> ips, Map<String,AsyncTask> tasks) {
+
+        this.ips = ips;
+        this.tasks = tasks;
+    }
+
 	/**
 	 * Constructor
 	 * 
@@ -126,7 +237,7 @@ public class KZApplication extends KZService {
 		PubSubChannel channel = new PubSubChannel(_wsSubscriberEndpoint, _publisherEndpoint, name, this.KidozenUser, this.BypassSSLVerification);
 		tokenUpdater.addObserver(channel);
 		channel.setKidozenUser(this.KidozenUser);
-		
+
 		return channel;
 	}
 	
@@ -318,7 +429,7 @@ public class KZApplication extends KZService {
 		return _allApplicationLogEvents;
 	}
 
-	private void checkMethodParameters(String name) throws Exception {
+	private void checkMethodParameters(String name) throws InvalidParameterException {
 		if (name.isEmpty() || name == null) {
 			throw new InvalidParameterException("name cannot be null or empty");
 		}
@@ -362,7 +473,14 @@ public class KZApplication extends KZService {
 		_providerKey= providerKey;
 		_username=username;
 		_password=password;
-		
+
+
+        if (!Initialized) {
+            if (callback!=null) {
+                callback.onFinish(new ServiceEvent(this,HttpStatus.SC_CONFLICT,"The application is not initialized", null));
+            }
+            return;
+        }
 		if (_identityProviders.get(providerKey)==null) {
 			if (callback!=null) {
 				callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"The specified provider does not exists", null));
@@ -448,104 +566,22 @@ public class KZApplication extends KZService {
 			notifyObservers(kzuser);
 		}
 	}
-	
 
-	private AsyncTask<Void, Void, Void> getApplicationConfiguration() {
-		return new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... params) {
-				try {
-					if (!_tennantMarketPlace.endsWith("/")) {
-						_tennantMarketPlace = _tennantMarketPlace + "/";
-					}
-					String url = _tennantMarketPlace + "publicapi/apps?name=" + _application; 
+    /**
+     * Creates a new Storage object
+     *
+     * @param name The name that references the Storage instance
+     * @return a new Storage object
+     * @throws Exception
+     */
+    public LOBService LOBService(String name) {
+        checkMethodParameters(name);
+        LOBService lobService = new LOBService(_lobEndpoint, name);
+        lobService.KidozenUser = this.KidozenUser;
+        lobService.BypassSSLVerification = this.BypassSSLVerification;
+        tokenUpdater.addObserver(lobService);
+        return lobService;
+    }
 
-					Hashtable<String, String> response = Utilities.ExecuteHttpGet(url,null,null, BypassSSLVerification);
-					String body = response.get("responseBody");
-					JSONObject wrapper = parseApplicationConfiguration(body);
-
-					initializedStatusCode = Integer.parseInt(response.get("statusCode"));
-					initializedBody = body;
-					Initialized = (wrapper!=null);
-					initializedResponse = response.get("responseMessage");
-				} 
-				catch (Exception e) {
-					initializedStatusCode = (initializedStatusCode==0 ? HttpStatus.SC_BAD_REQUEST : initializedStatusCode);
-					Initialized = false;
-					initializedBody= e.getMessage();
-					initializedResponse = e;
-				}
-				return null;
-			}
-
-			private JSONObject parseApplicationConfiguration(String response)
-					throws JSONException, Exception {
-				JSONArray cfg = new JSONArray(response);
-				JSONObject wrapper = cfg.getJSONObject(0);
-				if (wrapper==null) {
-					throw new InvalidParameterException("Application not found.");
-				}
-				_authConfig =  wrapper.getJSONObject("authConfig");
-				_emailEndpoint = wrapper.get("email").toString();
-				_queueEndpoint = wrapper.get("queue").toString();
-				_storageEndpoint =  wrapper.get("storage").toString();
-				_smsEndpoint =  wrapper.get("sms").toString();
-				_configurationEndpoint= wrapper.get("config").toString();
-				_wsSubscriberEndpoint=wrapper.get("ws").toString();
-				_publisherEndpoint = wrapper.get("pubsub").toString();
-				_logEndpoint= wrapper.get("logging").toString();
-				_notificationEndpoint = wrapper.get("notification").toString();
-				_applicationLog = new Logging(_logEndpoint);
-				_mailSender = new MailSender(_emailEndpoint);
-
-				Log.d(LOGTAG, "Getting provider configuration");
-				_identityProviders = new HashMap<String, JSONObject>();
-				String jsonconfig  = _authConfig.toString();
-				JSONObject configurations  = new JSONObject(jsonconfig);
-				JSONObject identityProviders = configurations.getJSONObject("identityProviders");
-				authServiceEndpoint = configurations.get("authServiceEndpoint").toString();
-				applicationScope =configurations.get("applicationScope").toString();
-				authServiceScope = configurations.get("authServiceScope").toString();
-
-				@SuppressWarnings("unchecked")
-				Iterator<String> providersIterator = identityProviders.keys();
-				while(providersIterator.hasNext()){
-					String ipName = providersIterator.next();
-					JSONObject ip = identityProviders.getJSONObject(ipName);
-					String endpoint =  ip.getString("endpoint");
-					String protocol = ip.getString("protocol");
-
-					JSONObject kzip = new JSONObject();
-					kzip.put("authServiceScope", authServiceScope);
-					kzip.put("authServiceEndpoint", endpoint);
-					kzip.put("applicationScope", applicationScope);
-					kzip.put("key", ipName);
-					kzip.put("endpoint", endpoint);
-					kzip.put("protocol", protocol);
-					//TODO: replace with factory
-					IIdentityProvider ipinstance =null;
-					if (protocol.toLowerCase().equals("wrapv0.9")) {
-						ipinstance= new WRAPv09IdentityProvider();
-						((WRAPv09IdentityProvider)ipinstance).bypassSSLValidation=BypassSSLVerification;
-					}
-					else {
-						ipinstance=new ADFSWSTrustIdentityProvider();
-						((ADFSWSTrustIdentityProvider)ipinstance).bypassSSLValidation=BypassSSLVerification;
-					}
-
-					//
-					kzip.put("instance", ipinstance);
-					_identityProviders.put(ipName, kzip );
-					IdentityProvidersKeys.put(ipName, protocol);
-				}
-				return wrapper;
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				super.onPostExecute(result);
-			}
-		};
-	}
 }
 

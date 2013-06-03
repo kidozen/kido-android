@@ -73,8 +73,9 @@ public class PubSubChannel extends WebSocketClient implements Observer{
 		headers.put(CONTENT_TYPE,APPLICATION_JSON);
 		headers.put(ACCEPT, APPLICATION_JSON);
 
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.POST, params, headers, message, callback, _bypassSSLVerification);
-		task.execute(url);
+        KZService svc = new KZService();
+        svc.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, _bypassSSLVerification);
+
 	}
 
 	/**

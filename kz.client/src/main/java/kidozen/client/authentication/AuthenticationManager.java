@@ -1,27 +1,17 @@
 package kidozen.client.authentication;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import kidozen.client.KZAction;
+import android.os.AsyncTask;
+import android.util.Log;
+import kidozen.client.*;
 import kidozen.client.KZApplication.ObservableUser;
-import kidozen.client.ServiceEvent;
-import kidozen.client.ServiceEventListener;
-import kidozen.client.Utilities;
-
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
-import android.os.AsyncTask;
-import android.util.Log;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
@@ -73,7 +63,6 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		Log.d(TAG,String.format("Create hash key for Authentication: %s",_securityTokenKey));
 
 		try {
-
 			this.execute().get();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -207,7 +196,10 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 			nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML")); 
 			nameValuePairs.add(new BasicNameValuePair("wrap_assertion", response));
 			String message = Utilities.getQuery(nameValuePairs);
-			Hashtable<String, String> authResponse = Utilities.ExecuteHttpPost(_authServiceEndpoint, message,null,null, bypassSSLValidation);
+
+			//Hashtable<String, String> authResponse = Utilities.ExecuteHttpPost(_authServiceEndpoint, message,null,null, bypassSSLValidation);
+            SNIConnectionManager sniManager = new SNIConnectionManager(_authServiceEndpoint, message, null, null, bypassSSLValidation);
+            Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
 			body = authResponse.get("responseBody");
 		} catch (Exception e) {
 			throw e;

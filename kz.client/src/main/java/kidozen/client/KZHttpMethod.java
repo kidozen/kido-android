@@ -2,10 +2,21 @@ package kidozen.client;
 
 public enum KZHttpMethod {
 	GET,
-	HEAD,
 	POST,
 	PUT,
 	DELETE,
+    HEAD,
 	TRACE,
-	CONNECT
+	CONNECT;
+
+    @Override
+    public String toString() {
+        switch(this) {
+            case GET: return "GET";
+            case POST: return "POST";
+            case PUT: return "PUT";
+            case DELETE: return "DELETE";
+            default: throw new IllegalArgumentException();
+        }
+    }
 }

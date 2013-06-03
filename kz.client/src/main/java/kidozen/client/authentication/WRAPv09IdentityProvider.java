@@ -1,15 +1,13 @@
 package kidozen.client.authentication;
 
+import kidozen.client.*;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-
-import kidozen.client.KZAction;
-import kidozen.client.Utilities;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 /**
  * WRAP V 09 Identity Provider
@@ -21,7 +19,7 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
 	private String _wrapName, _wrapPassword, _wrapScope;
 	public Boolean bypassSSLValidation;
 
-	public WRAPv09IdentityProvider() throws Exception
+	public WRAPv09IdentityProvider()
 	{
 
 	}
@@ -47,26 +45,28 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
 		// TODO Auto-generated method stub
 	}
 
-	public void RequestToken(URI identityProviderUrl, KZAction<String> action)
-			throws Exception {
+	public void RequestToken(URI identityProviderUrl,final KZAction<String> action) throws Exception {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("wrap_name", _wrapName));
 		nameValuePairs.add(new BasicNameValuePair("wrap_password", _wrapPassword));
 		nameValuePairs.add(new BasicNameValuePair("wrap_scope", _wrapScope));
 
-		try {
-			//post
-			String message = Utilities.getQuery(nameValuePairs);
-			Hashtable<String, String> authResponse = Utilities.ExecuteHttpPost(identityProviderUrl.toString(), message,null,null, bypassSSLValidation);
-			String body = authResponse.get("responseBody");
+        try {
+            String url = identityProviderUrl.toString();
+            String message = Utilities.getQuery(nameValuePairs);
 
-			if (body != null) {
-				int startOfAssertion = body.indexOf("<Assertion ");
-				int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
-				body = body.substring(startOfAssertion, endOfAssertion);
-				action.onServiceResponse(body);
-			}
-		} 
+            SNIConnectionManager sniManager = new SNIConnectionManager(url, message, null, null, bypassSSLValidation);
+            Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+
+            String body = authResponse.get("responseBody");
+
+            if (body != null) {
+                int startOfAssertion = body.indexOf("<Assertion ");
+                int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
+                body = body.substring(startOfAssertion, endOfAssertion);
+                action.onServiceResponse(body);
+            }
+        }
 		catch(StringIndexOutOfBoundsException e) // wrong user, password or scope
 		{
 			//client.getConnectionManager().shutdown();

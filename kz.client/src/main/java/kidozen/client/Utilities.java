@@ -1,33 +1,18 @@
 package kidozen.client;
 
+import org.apache.http.NameValuePair;
+
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 
 public class Utilities {
 	static String charset = "UTF-8";
@@ -63,6 +48,7 @@ public class Utilities {
 		return hash;
 	}
 
+    /*
 	public static Hashtable<String, String> ExecuteHttpDelete(String urlAsString,  
 			Hashtable<String, String> requestProperties, 
 			HashMap<String,String> params,
@@ -91,6 +77,7 @@ public class Utilities {
 			boolean developerMode) throws Exception {
 
 		HttpURLConnection con = CreateConnectionThatHandlesRedirects(urlAsString, "POST", requestProperties, params, developerMode);
+        con.setDoOutput(true);
 
 		if (bodyAsString!=null) {
 			OutputStream os = con.getOutputStream();
@@ -122,7 +109,7 @@ public class Utilities {
 
 		return retVal;
 	}
-
+    */
 
 	public static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
 	{
@@ -161,6 +148,7 @@ public class Utilities {
 		return result.toString();
 	}
 
+    /*
 	public static HttpURLConnection CreateConnectionThatHandlesRedirects(
 			String urlAsString, String method, Hashtable<String, String> requestProperties,
 			HashMap<String, String> params,
@@ -186,13 +174,10 @@ public class Utilities {
 	}
 
 	public static HttpURLConnection CreateSNIConnection(URL url, String method, Hashtable<String, String> requestProperties, boolean developerMode) throws IOException {
-		HttpsURLConnection secureConnection;
-		HttpURLConnection con;
-		if (developerMode) {
-			trustAllHosts();	
-		}
-					
-		secureConnection = (HttpsURLConnection) url.openConnection();
+        if (developerMode) {
+            trustAllHosts();
+        }
+		HttpsURLConnection secureConnection = (HttpsURLConnection) url.openConnection();
 		secureConnection.setRequestMethod(method);
 		if (requestProperties!=null)
 			for(Entry<String, String> entry : requestProperties.entrySet()) {
@@ -200,38 +185,43 @@ public class Utilities {
 				String value = entry.getValue();
 				secureConnection.setRequestProperty(key, value);
 			}
-		con = secureConnection;
-		return con;
+		//con = secureConnection;
+		return secureConnection;
 	}
 
 	public static void trustAllHosts() {
-		TrustManager[] trustAllCerts = new TrustManager[] { 
-				new X509TrustManager() 
-					{
-						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-							return new java.security.cert.X509Certificate[] {};
-						}
-			
-						public void checkClientTrusted(X509Certificate[] chain,String authType) throws CertificateException {
-						}
-			
-						public void checkServerTrusted(X509Certificate[] chain,String authType) throws CertificateException {
-						}
-					} 
-		};
-		try {
-			SSLContext sc = SSLContext.getInstance("TLS");
-			sc.init(null, trustAllCerts, new java.security.SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }};
+
+        // Ignore differences between given hostname and certificate hostname
+        HostnameVerifier hv = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) { return true; }
+        };
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(hv);
+        }
+        catch (Exception e) {
+
+        }
+    }
 
 	private static Hashtable<String, String> getExecutionResponse(
 			HttpURLConnection con) throws IOException {
 		Hashtable<String, String> retVal = new Hashtable<String, String>(); 
 		int responseCode = con.getResponseCode();
+        InputStream in = con.getInputStream();
 		retVal.put("statusCode", String.valueOf(responseCode));
 		retVal.put("responseMessage", con.getResponseMessage());
 
@@ -241,5 +231,6 @@ public class Utilities {
 			retVal.put("responseBody", convertStreamToString(con.getInputStream()));
 		return retVal;
 	}
+	*/
 
 }

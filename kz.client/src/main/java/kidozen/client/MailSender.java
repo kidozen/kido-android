@@ -44,12 +44,7 @@ public class MailSender extends KZService implements Observer {
 		headers.put(AUTHORIZATION_HEADER,this.KidozenUser.Token);
 		headers.put(CONTENT_TYPE,APPLICATION_JSON);
 		headers.put(ACCEPT, APPLICATION_JSON);
-		ServiceInvokeAsyncTask task = new ServiceInvokeAsyncTask(KZHttpMethod.POST, params, headers, message, callback, BypassSSLVerification);
-		task.execute(_endpoint);
-	}
 
-	public void update(Observable observable, Object data) {
-		Log.d(KEY, "token updated");
-		this.KidozenUser = (KidoZenUser) data;
+        this.ExecuteTask(_endpoint, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
 	}
 }
