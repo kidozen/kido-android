@@ -3,10 +3,19 @@
 In order to use the Android SDK in your android application
 
 - Create a libs directory within your Android project directory if one does not already exist.
-- Copy the .jar file in this directory
+- Copy the .jar files from "lib" and "third-party" on the application's directory
 - Run the application
 
-You can also download the source code and import the project into your Eclipse workspace
+The SDK now is packaged as a Maven project, you can download the code and import it into your favorite android IDE:
+
+- Eclipse workspace (by typing mvn:eclipse eclipse in your terminal)
+- IntelliJ Project
+- Android Studio project 
+
+You can also create the jar file using maven by typing the following in your terminal:
+	mvn clean package
+
+
 
 ##Getting started with the code
 

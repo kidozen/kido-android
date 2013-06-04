@@ -574,13 +574,13 @@ public class KZApplication extends KZService {
      * @return a new Storage object
      * @throws Exception
      */
-    public LOBService LOBService(String name) {
+    public Service LOBService(String name) {
         checkMethodParameters(name);
-        LOBService lobService = new LOBService(_lobEndpoint, name);
-        lobService.KidozenUser = this.KidozenUser;
-        lobService.BypassSSLVerification = this.BypassSSLVerification;
-        tokenUpdater.addObserver(lobService);
-        return lobService;
+        Service service = new Service(_lobEndpoint, name);
+        service.KidozenUser = this.KidozenUser;
+        service.BypassSSLVerification = this.BypassSSLVerification;
+        tokenUpdater.addObserver(service);
+        return service;
     }
 
 }

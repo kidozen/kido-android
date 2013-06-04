@@ -11,7 +11,7 @@ import java.util.HashMap;
  * Time: 1:45 PM
  * To change this template use File | Settings | File Templates.
  */
-public class LOBService extends KZService {
+public class Service extends KZService {
     private String _endpoint = null;
     private String _name = null;
 
@@ -23,7 +23,7 @@ public class LOBService extends KZService {
      * @param endpoint The service endpoint
      * @param name     The name of the queue to be created
      */
-    public LOBService(String endpoint, String name) {
+    public Service(String endpoint, String name) {
         _endpoint = endpoint;
         _name = name;
     }
@@ -46,12 +46,3 @@ public class LOBService extends KZService {
         this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, BypassSSLVerification);
     }
 }
-
-/*
-* {
-    "op": "list",
-    "path": "/",
-    "username": "gus@kidozen.com",
-    "password": "kidozen*1"
-}
-* */
