@@ -15,8 +15,8 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 public class Utilities {
-	static String charset = "UTF-8";
-	public static  String convertStreamToString(java.io.InputStream instream) {
+
+	public static  String convertStreamToString(java.io.InputStream instream) throws IOException{
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
 		StringBuilder sb = new StringBuilder();
@@ -26,14 +26,10 @@ public class Utilities {
 			while ((line = reader.readLine()) != null) {
 				sb.append(line + "\n");
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				instream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+            instream.close();
+		}
+        catch (IOException e) {
+			throw e;
 		}
 		return sb.toString();
 	}
@@ -47,69 +43,6 @@ public class Utilities {
 		hash = Long.toHexString(crc32.getValue()).toUpperCase();
 		return hash;
 	}
-
-    /*
-	public static Hashtable<String, String> ExecuteHttpDelete(String urlAsString,  
-			Hashtable<String, String> requestProperties, 
-			HashMap<String,String> params,
-			boolean developerMode) throws Exception
-			{
-		HttpURLConnection con = CreateConnectionThatHandlesRedirects(urlAsString, "DELETE", requestProperties, params, developerMode);
-		Hashtable<String, String> retVal = getExecutionResponse(con);
-		return retVal;
-			}
-
-	public static Hashtable<String, String> ExecuteHttpGet(String urlAsString,  
-			Hashtable<String, String> requestProperties, 
-			HashMap<String,String> params,
-			boolean developerMode) throws Exception
-			{
-		HttpURLConnection con = CreateConnectionThatHandlesRedirects(urlAsString, "GET", requestProperties, params, developerMode);
-
-		Hashtable<String, String> retVal = getExecutionResponse(con);
-		return retVal;
-			}
-
-	public static Hashtable<String, String> ExecuteHttpPost(String urlAsString, 
-			String bodyAsString,  
-			Hashtable<String, String> requestProperties, 
-			HashMap<String,String> params,
-			boolean developerMode) throws Exception {
-
-		HttpURLConnection con = CreateConnectionThatHandlesRedirects(urlAsString, "POST", requestProperties, params, developerMode);
-        con.setDoOutput(true);
-
-		if (bodyAsString!=null) {
-			OutputStream os = con.getOutputStream();
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-			writer.write(bodyAsString);
-			writer.close();
-			os.close();
-		}
-
-		Hashtable<String, String> retVal = getExecutionResponse(con);
-		return retVal;
-	}
-
-	public static Hashtable<String, String> ExecuteHttpPut(String urlAsString,
-			String bodyAsString, Hashtable<String, String> requestProperties,
-			HashMap<String, String> params,
-			boolean developerMode) throws Exception {
-		HttpURLConnection con = CreateConnectionThatHandlesRedirects(urlAsString, "PUT", requestProperties, params, developerMode);
-
-		if (bodyAsString!=null) {
-			OutputStream os = con.getOutputStream();
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-			writer.write(bodyAsString);
-			writer.close();
-			os.close();
-		}
-
-		Hashtable<String, String> retVal = getExecutionResponse(con);
-
-		return retVal;
-	}
-    */
 
 	public static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
 	{

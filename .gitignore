@@ -16,3 +16,6 @@ target/
 /kz.client.tests/src/kz/client/.DS_Store
 /KidoZenDemos/gen/kz/
 /kz.client.tests/gen/kz/
+/kz.client/.idea/libraries/Maven*
+
+

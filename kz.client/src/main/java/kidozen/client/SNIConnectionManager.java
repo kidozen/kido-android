@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -57,7 +59,7 @@ public class SNIConnectionManager
     }
 
 
-    protected HttpURLConnection CreateConnectionThatHandlesRedirects(KZHttpMethod method) throws MalformedURLException, IOException {
+    protected HttpURLConnection CreateConnectionThatHandlesRedirects(KZHttpMethod method) throws  IOException, NoSuchAlgorithmException, KeyManagementException {
         if(_params!=null) {
             _urlAsString = _urlAsString + "?" + Utilities.getQuery(_params);
         }
@@ -76,7 +78,7 @@ public class SNIConnectionManager
         return con;
     }
 
-    protected HttpURLConnection CreateSNIConnection(String url, KZHttpMethod method) throws IOException {
+    protected HttpURLConnection CreateSNIConnection(String url, KZHttpMethod method) throws IOException, NoSuchAlgorithmException, KeyManagementException {
         if (_developerMode) {
             trustAllHosts();
         }
@@ -94,7 +96,7 @@ public class SNIConnectionManager
         return secureConnection;
     }
 
-    protected void trustAllHosts() {
+    protected void trustAllHosts() throws NoSuchAlgorithmException, KeyManagementException{
         TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager()
                 {
@@ -109,19 +111,15 @@ public class SNIConnectionManager
                     }
                 }
         };
-        try {
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String s, SSLSession sslSession) {
-                    return true;
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SSLContext sc = SSLContext.getInstance("TLS");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String s, SSLSession sslSession) {
+                return true;
+            }
+        });
     }
 
     protected Hashtable<String, String> getExecutionResponse( HttpURLConnection con) throws IOException {

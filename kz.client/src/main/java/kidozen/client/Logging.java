@@ -134,25 +134,36 @@ public class Logging extends KZService {
 		{
 			throw new  InvalidParameterException("options cannot be empty");
 		}
-		String fixedQuery = checkDateTimeInQuery(query);
-		String  url = _endpoint;
-		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("query", fixedQuery);
-		params.put("options", options);
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		
-		
-		ServiceEventListener se = new ServiceEventListener() {
-			
-			@Override
-			public void onFinish(ServiceEvent e) {
-				if(e.Exception==null)
-					callback.onFinish( serializeJsonArray( e ) );				
-			}
-		};
+        try
+        {
+		    String fixedQuery = checkDateTimeInQuery(query);
+            String  url = _endpoint;
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("query", fixedQuery);
+            params.put("options", options);
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, se, BypassSSLVerification);
+
+            ServiceEventListener se = new ServiceEventListener() {
+
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    if(e.Exception==null)
+                        callback.onFinish( serializeJsonArray( e ) );
+                }
+            };
+
+            this.ExecuteTask(url, KZHttpMethod.GET, params, headers, se, BypassSSLVerification);
+        }
+        catch (Exception e)
+        {
+            ServiceEvent se = new ServiceEvent(this);
+            se.Exception = e;
+            se.Body = e.getMessage();
+            se.StatusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+            callback.onFinish(se);
+        }
 	}
 
 	private ServiceEvent serializeJsonArray(ServiceEvent e) 
@@ -185,7 +196,7 @@ public class Logging extends KZService {
 		return message;
 	}
 	
-	private String checkDateTimeInQuery(String query) {
+	private String checkDateTimeInQuery(String query) throws JSONException {
 		if (query ==null || query.equals("null")) {
 			query = "{}";	
 		}
@@ -207,7 +218,7 @@ public class Logging extends KZService {
 				value = query;
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			throw e;
 		}
 		return value;
 	}

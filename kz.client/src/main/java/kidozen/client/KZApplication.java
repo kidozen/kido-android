@@ -454,7 +454,7 @@ public class KZApplication extends KZService {
 	 * @param password The password for the user
 	 * @throws Exception
 	 */
-	public void Authenticate(final String providerKey,final String username, final String password) throws Exception
+	public void Authenticate(final String providerKey,final String username, final String password) 
 	{
 		this.Authenticate(providerKey, username, password,null);
 	}
@@ -519,11 +519,7 @@ public class KZApplication extends KZService {
 	private final Runnable defaultSessionExpirationEvent() {
 		return new Runnable() {
 			public void run() {
-				try {
 					Authenticate(_providerKey, _username, _password);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 			}
 		};
 	}
