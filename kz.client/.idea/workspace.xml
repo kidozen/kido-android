@@ -2,48 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1716d715-c383-42bb-b2af-c63b564f190d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/kidozen/client/AuthenticationHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/kidozen/client/DateUtil.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/kidozen/client/HTTPClientAsyncTask.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/kidozen/client/KZAsyncTask.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/kidozen/client/ServiceInvokeAsyncTask.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/kidozen/client/ServiceResponse.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/kidozen/client/authentication/SOAPRSTTemplate.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../lib/kz.client.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kz.client.iml" afterPath="$PROJECT_DIR$/kz.client.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="kz.client.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370528288850" ignored="false" />
-    <file path="/fragment.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370292490944" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/LeadFilesModel.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370376462686" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/build.gradle" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370375741406" ignored="false" />
-    <file path="/build.gradle" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1369754547546" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/MainActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1369757734150" ignored="false" />
-    <file path="/MainActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1369754890502" ignored="false" />
-    <file path="/LeadFilesModel.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370376447351" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/ModelCallbacks.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1369757705824" ignored="false" />
-    <file path="/ModelCallbacks.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1369757704291" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/AndroidManifest.xml" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370295405474" ignored="false" />
-    <file path="/AndroidManifest.xml" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370295396389" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/build/source/r/debug/kidozen/samples/leadfiles/R.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370349138073" ignored="false" />
-    <file path="/SNIConnectionManager.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370275388148" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/ShareFileFragmentActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370353472578" ignored="false" />
-    <file path="/ShareFileFragmentActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370353471551" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/FolderFragment.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370276350208" ignored="false" />
-    <file path="/FolderFragment.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370276350209" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/res/layout/activity_main.xml" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370288768976" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/ShareFileGridViewAdapter.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370292809365" ignored="false" />
-    <file path="/ShareFileGridViewAdapter.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370292729634" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/res/xml/preferences.xml" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370349113414" ignored="false" />
-    <file path="/preferences.xml" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370349109486" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/SettingsActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370294789098" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/SetPreferenceActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370351675086" ignored="false" />
-    <file path="/SettingsActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370294789432" ignored="false" />
-    <file path="$PROJECT_DIR$/../../kidozen.samples/LeadFiles/src/main/java/kidozen/samples/leadfiles/PrefsFragment.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370351677446" ignored="false" />
-    <file path="$PROJECT_DIR$/../../leadfiles/leadfiles-leadfiles.iml" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370348483859" ignored="false" />
-    <file path="/PrefsFragment.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370350702115" ignored="false" />
-    <file path="/SetPreferenceActivity.java" changelist="1716d715-c383-42bb-b2af-c63b564f190d" time="1370350925807" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,8 +58,8 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
-    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -104,7 +68,17 @@
     <favorites_list name="kz.client" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="6" column="18" selection-start="364" selection-end="364" vertical-scroll-proportion="0.15561225" vertical-offset="29" max-vertical-offset="930">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -122,11 +96,11 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$USER_HOME$/Library/Caches/AndroidStudioPreview/compile-server/kz.client_9d9d3fdc/targets/java-production/kz.client/android/generated_sources/aapt/kz/client/R.java" />
         <option value="$PROJECT_DIR$/src/main/java/kidozen/client/SNIConnectionManager.java" />
         <option value="$PROJECT_DIR$/src/main/java/kidozen/client/LOBService.java" />
         <option value="$PROJECT_DIR$/src/main/java/kidozen/client/Service.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>
@@ -364,7 +338,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -380,6 +353,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="kz.client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kz.client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kz.client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -430,6 +417,7 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -447,9 +435,9 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
-    <property name="options.searchVisible" value="true" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
   </component>
   <component name="RunManager" selected="Maven.kz.client [clean]">
     <configuration default="false" name="kz.client [clean]" type="MavenRunConfiguration" factoryName="Maven" temporary="true">
@@ -478,24 +466,6 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
-      <module name="" />
-      <option name="TESTING_TYPE" value="0" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="TARGET_SELECTION_MODE" value="EMULATOR" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="USE_COMMAND_LINE" value="true" />
-      <option name="COMMAND_LINE" value="" />
-      <option name="WIPE_USER_DATA" value="false" />
-      <option name="DISABLE_BOOT_ANIMATION" value="false" />
-      <option name="NETWORK_SPEED" value="full" />
-      <option name="NETWORK_LATENCY" value="none" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <method />
-    </configuration>
     <configuration default="true" type="MavenRunConfiguration" factoryName="Maven">
       <MavenSettings>
         <option name="myGeneralSettings" />
@@ -516,6 +486,24 @@
           </MavenRunnerParameters>
         </option>
       </MavenSettings>
+      <method />
+    </configuration>
+    <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
+      <module name="" />
+      <option name="TESTING_TYPE" value="0" />
+      <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TARGET_SELECTION_MODE" value="EMULATOR" />
+      <option name="PREFERRED_AVD" value="" />
+      <option name="USE_COMMAND_LINE" value="true" />
+      <option name="COMMAND_LINE" value="" />
+      <option name="WIPE_USER_DATA" value="false" />
+      <option name="DISABLE_BOOT_ANIMATION" value="false" />
+      <option name="NETWORK_SPEED" value="full" />
+      <option name="NETWORK_LATENCY" value="none" />
+      <option name="CLEAR_LOGCAT" value="false" />
       <method />
     </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
@@ -642,28 +630,30 @@
     <option name="totallyTimeSpent" value="17729000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1680" height="1024" extended-state="6" />
+    <frame x="0" y="22" width="1680" height="1024" extended-state="0" />
     <editor active="false" />
     <layout>
+      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.516632" sideWeight="0.27534685" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30416667" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2870257" sideWeight="0.45208332" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28690475" sideWeight="0.45209903" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1866585" sideWeight="0.45208332" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.54791665" sideWeight="0.72411954" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18630952" sideWeight="0.45209903" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.547901" sideWeight="0.72411954" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32964602" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30416667" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -731,94 +721,94 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="18" selection-start="364" selection-end="364" vertical-scroll-proportion="0.0">
+        <state line="6" column="18" selection-start="364" selection-end="364" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/kidozen/client/SMSSender.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="19" selection-start="205" selection-end="205" vertical-scroll-proportion="0.0" />
+        <state line="8" column="19" selection-start="205" selection-end="205" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/javadoc.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="69" selection-start="1328" selection-end="1373" vertical-scroll-proportion="0.069524914">
+        <state line="4" column="69" selection-start="1328" selection-end="1373" vertical-scroll-proportion="0.069524914" vertical-offset="0" max-vertical-offset="0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/kidozen/client/SMSSender.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="19" selection-start="205" selection-end="205" vertical-scroll-proportion="0.026548672" />
+        <state line="8" column="19" selection-start="205" selection-end="205" vertical-scroll-proportion="0.026548672" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/main.iml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/kidozen/client/KZService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="17" selection-start="42" selection-end="42" vertical-scroll-proportion="0.04784689" />
+        <state line="2" column="17" selection-start="42" selection-end="42" vertical-scroll-proportion="0.04784689" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/kidozen/client/PubSubChannel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="15" selection-start="223" selection-end="223" vertical-scroll-proportion="0.0" />
+        <state line="10" column="15" selection-start="223" selection-end="223" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/Library/Caches/AndroidStudioPreview/compile-server/kz.client_9d9d3fdc/targets/java-production/kz.client/android/generated_sources/aapt/kz/client/R.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="13" selection-start="215" selection-end="215" vertical-scroll-proportion="0.09375" />
+        <state line="9" column="13" selection-start="215" selection-end="215" vertical-scroll-proportion="0.09375" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/gen/kz/client/R.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="19" selection-start="160" selection-end="160" vertical-scroll-proportion="0.0" />
+        <state line="5" column="19" selection-start="160" selection-end="160" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/gen/kz/client/BuildConfig.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="19" selection-start="119" selection-end="119" vertical-scroll-proportion="0.0" />
+        <state line="5" column="19" selection-start="119" selection-end="119" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/gen/kz/client/Manifest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="1" selection-start="0" selection-end="179" vertical-scroll-proportion="0.140625" />
+        <state line="6" column="1" selection-start="0" selection-end="179" vertical-scroll-proportion="0.140625" vertical-offset="0" max-vertical-offset="0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/kidozen/client/SNIConnectionManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="93" column="22" selection-start="3180" selection-end="3180" vertical-scroll-proportion="1.2731229">
+        <state line="93" column="22" selection-start="3180" selection-end="3180" vertical-scroll-proportion="1.2731229" vertical-offset="0" max-vertical-offset="0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/kidozen/client/KZApplication.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="13" selection-start="449" selection-end="449" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="21" selection-start="960" selection-end="960" vertical-scroll-proportion="0.99753696">
+        <state line="22" column="13" selection-start="449" selection-end="449" vertical-scroll-proportion="0.33333334" vertical-offset="0" max-vertical-offset="0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/kidozen/client/Service.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="122" selection-start="511" selection-end="511" vertical-scroll-proportion="0.6870229">
+        <state line="20" column="122" selection-start="511" selection-end="511" vertical-scroll-proportion="0.6870229" vertical-offset="0" max-vertical-offset="0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="18" selection-start="364" selection-end="364" vertical-scroll-proportion="0.15561225" vertical-offset="29" max-vertical-offset="930">
           <folding />
         </state>
       </provider>
