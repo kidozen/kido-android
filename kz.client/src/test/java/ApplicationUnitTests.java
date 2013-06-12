@@ -1,6 +1,12 @@
+import android.os.AsyncTask;
+
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import mockit.Deencapsulation;
+import mockit.Mock;
+import mockit.MockUp;
+
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -24,14 +30,13 @@ import static org.junit.Assert.fail;
  * Time: 10:40 AM
  * To change this template use File | Settings | File Templates.
  */
-@RunWith(RobolectricTestRunner.class)
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
 public class ApplicationUnitTests {
 
     public static final int TIMEOUT = 3000;
-    private static final String INVALIDAPP = "NADA";
-    KZApplication kidozen = null;
+
 
     @Before
     public void Setup()
@@ -40,6 +45,10 @@ public class ApplicationUnitTests {
 
     @Test
     public void ShouldGetApplicationConfiguration() throws Exception {
+
+        KZApplication actual = Deencapsulation.invoke(KZApplication.class,"ExecuteTask",)
+        assertEquals(expected, actual);
+
         final CountDownLatch lcd = new CountDownLatch(1);
 
         ServiceEventListener callback = new ServiceEventListener() {
@@ -49,9 +58,16 @@ public class ApplicationUnitTests {
                 lcd.countDown();
             }
         };
-        kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, callback);
+        KZApplication kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, callback);
 
         lcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
+    //private  new KZServiceAsyncTask(method,params,headers,callback, bypassSSLValidation).execute(url);
+    AsyncTask<String, Void, ServiceEvent> t = new AsyncTask<String, Void, ServiceEvent>() {
+        @Override
+        protected ServiceEvent doInBackground(String... strings) {
+            return null;
+        }
+    };
 }

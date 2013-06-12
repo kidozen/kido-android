@@ -94,44 +94,7 @@ public class KZApplication extends KZService {
         BypassSSLVerification = bypassSSLVerification;
         _tennantMarketPlace= tenantMarketPlace;
         _application= application;
-
-        this.getAppConfig( new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                if (callback!=null)
-                {
-                    ServiceEvent se = new ServiceEvent(this, e.StatusCode, e.Body, e.Response);
-                    try {
-                        parseApplicationConfiguration(e.Body);
-                        initializedStatusCode = e.StatusCode;
-                        initializedBody = e.Body;
-                        initializedResponse = e.Response;
-                        Initialized = (e.Exception==null);
-                    }
-                    catch (JSONException je)
-                    {
-                        se.StatusCode = HttpStatus.SC_NOT_FOUND;
-                        se.Body = APPLICATION_NOT_FOUND;
-                        se.Response = APPLICATION_NOT_FOUND;
-                        se.Exception = je;
-                    }
-                    catch (InvalidParameterException ipe)
-                    {
-                        se.StatusCode = HttpStatus.SC_NOT_FOUND;
-                        se.Body = APPLICATION_NOT_FOUND;
-                        se.Response = APPLICATION_NOT_FOUND;
-                        se.Exception = ipe;
-                    }
-                    finally {
-                        callback.onFinish(se);
-                    }
-                }
-            }
-        });
-    }
-
-    private void getAppConfig(final ServiceEventListener callback)
-    {
+        _initializationCallback = callback;
         if (!_tennantMarketPlace.endsWith("/")) {
             _tennantMarketPlace = _tennantMarketPlace + "/";
         }
@@ -139,9 +102,39 @@ public class KZApplication extends KZService {
         HashMap<String, String> params = null;
         HashMap<String, String> headers = new HashMap<String, String>();
 
-        KZService svc = new KZService();
-        svc.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, configurationCallback, BypassSSLVerification);
     }
+
+    private ServiceEventListener _initializationCallback = null;
+
+    private ServiceEventListener configurationCallback = new ServiceEventListener() {
+        @Override
+        public void onFinish(ServiceEvent e) {
+                ServiceEvent se = new ServiceEvent(this, e.StatusCode, e.Body, e.Response);
+                try {
+                    parseApplicationConfiguration(e.Body);
+                    initializedStatusCode = e.StatusCode;
+                    initializedBody = e.Body;
+                    initializedResponse = e.Response;
+                    Initialized = (e.Exception == null);
+                } catch (JSONException je) {
+                    se.StatusCode = HttpStatus.SC_NOT_FOUND;
+                    se.Body = APPLICATION_NOT_FOUND;
+                    se.Response = APPLICATION_NOT_FOUND;
+                    se.Exception = je;
+                } catch (InvalidParameterException ipe) {
+                    se.StatusCode = HttpStatus.SC_NOT_FOUND;
+                    se.Body = APPLICATION_NOT_FOUND;
+                    se.Response = APPLICATION_NOT_FOUND;
+                    se.Exception = ipe;
+                } finally {
+                    if (_initializationCallback != null)
+                        _initializationCallback.onFinish(se);
+                }
+            }
+    };
+
+
 
     private void parseApplicationConfiguration(String response) throws JSONException, InvalidParameterException {
         JSONArray cfg = new JSONArray(response);
@@ -454,7 +447,7 @@ public class KZApplication extends KZService {
 	 * @param password The password for the user
 	 * @throws Exception
 	 */
-	public void Authenticate(final String providerKey,final String username, final String password) 
+	public void Authenticate(final String providerKey,final String username, final String password)
 	{
 		this.Authenticate(providerKey, username, password,null);
 	}
