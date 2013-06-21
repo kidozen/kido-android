@@ -62,22 +62,20 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		_securityTokenKey = Utilities.createHash(String.format("%s%s%s%s%s", _tennantMarketPlace, _application, providerKey.toLowerCase(), username, password));
 		Log.d(TAG,String.format("Create hash key for Authentication: %s",_securityTokenKey));
 
-		try {
+		try
+        {
 			this.execute().get();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		}
+        catch (Exception e)
+        {
 			if (callback!=null) {
 				Authenticated = false;
-				callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"InterruptedException", null));
-			}
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-			if (callback!=null) {
-				Authenticated = false;
-				callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"ExecutionException", null));
+                ServiceEvent se = new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"InterruptedException", null);
+                se.Exception = e;
+				callback.onFinish(se);
 			}
 		}
-		return _kidozenUser;
+        return _kidozenUser;
 	}
 
 	@Override
@@ -135,8 +133,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 						} catch (Exception e) {
 							Authenticated = false;
 							hasIPToken =false;
-							Log.e(TAG,"Error parsing the IP token");
-							e.printStackTrace();
+							Log.e(TAG,"Error parsing the IP token" + e.getStackTrace().toString());
 							errorDescription = "Error trying to call KidoZen Authentication Service Endpoint:" + e.getMessage();
 						}	
 					}
@@ -151,7 +148,6 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 				hasIPToken = true;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			hasIPToken =false;
 			Authenticated = false;
 			errorDescription = "Error calling the specified Identity Provider" + e.getMessage();
@@ -171,7 +167,6 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 					_authCallback.onFinish(new ServiceEvent(this,200,tokeFromAuthService, _kidozenUser));
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 				Authenticated = false;
 				errorDescription = "Error creating the Kidozen user identity:" + e.getMessage();
 				if (_authCallback!=null) {
@@ -197,7 +192,6 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 			nameValuePairs.add(new BasicNameValuePair("wrap_assertion", response));
 			String message = Utilities.getQuery(nameValuePairs);
 
-			//Hashtable<String, String> authResponse = Utilities.ExecuteHttpPost(_authServiceEndpoint, message,null,null, bypassSSLValidation);
             SNIConnectionManager sniManager = new SNIConnectionManager(_authServiceEndpoint, message, null, null, bypassSSLValidation);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
 			body = authResponse.get("responseBody");

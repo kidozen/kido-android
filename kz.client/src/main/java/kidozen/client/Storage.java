@@ -77,7 +77,6 @@ public class Storage extends KZService {
 				updatedMessage.put("_metadata", updatedMetadata);
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
             throw e;
 		}
 		return updatedMessage;
