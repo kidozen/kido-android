@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1716d715-c383-42bb-b2af-c63b564f190d" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/EnterpriseServiceIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/java/EnterpriseServiceIntegrationTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/IntegrationTestConfiguration.java" afterPath="$PROJECT_DIR$/src/test/java/IntegrationTestConfiguration.java" />
     </list>
     <ignored path="kz.client.iws" />
@@ -89,19 +88,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="IntegrationTestConfiguration.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="IntegrationTestConfiguration.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/IntegrationTestConfiguration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="0" selection-start="375" selection-end="375" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="270">
+            <state line="8" column="47" selection-start="327" selection-end="327" vertical-scroll-proportion="0.14616321" vertical-offset="0" max-vertical-offset="821">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EnterpriseServiceIntegrationTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="EnterpriseServiceIntegrationTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/EnterpriseServiceIntegrationTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="9" selection-start="1917" selection-end="1917" vertical-scroll-proportion="0.18270402" vertical-offset="420" max-vertical-offset="1485">
+            <state line="56" column="9" selection-start="1917" selection-end="1917" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1485">
               <folding />
             </state>
           </provider>
@@ -166,8 +165,8 @@
         <option value="$PROJECT_DIR$/src/main/java/kidozen/client/KZApplication.java" />
         <option value="$PROJECT_DIR$/src/test/java/ApplicationUnitTests.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/test/java/IntegrationTestConfiguration.java" />
         <option value="$PROJECT_DIR$/src/test/java/EnterpriseServiceIntegrationTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/IntegrationTestConfiguration.java" />
       </list>
     </option>
   </component>
@@ -973,16 +972,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/IntegrationTestConfiguration.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/EnterpriseServiceIntegrationTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="0" selection-start="375" selection-end="375" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="270">
+        <state line="56" column="9" selection-start="1917" selection-end="1917" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1485">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/EnterpriseServiceIntegrationTest.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/IntegrationTestConfiguration.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="9" selection-start="1917" selection-end="1917" vertical-scroll-proportion="0.18270402" vertical-offset="420" max-vertical-offset="1485">
+        <state line="8" column="47" selection-start="327" selection-end="327" vertical-scroll-proportion="0.14616321" vertical-offset="0" max-vertical-offset="821">
           <folding />
         </state>
       </provider>
