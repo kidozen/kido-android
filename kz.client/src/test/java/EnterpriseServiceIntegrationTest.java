@@ -45,8 +45,8 @@ public class EnterpriseServiceIntegrationTest {
     {
         try {
             data = new JSONObject();
-            data.put("username","your username");
-            data.put("password","your password");
+            data.put("username","gus@kidozen.com");
+            data.put("password","kidozen*1");
 
             final CountDownLatch signal = new CountDownLatch(2);
             kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, kidoInitCallback(signal));
