@@ -13,9 +13,8 @@ The SDK now is packaged as a Maven project, you can download the code and import
 - Android Studio project 
 
 You can also create the jar file using maven by typing the following in your terminal:
+
 	mvn clean package
-
-
 
 ##Getting started with the code
 
@@ -59,7 +58,37 @@ Once the user is authenticated you can start using all the services:
 			}
 		});
 		...
-    
+
+##Runnig Integration tests
+
+The solution contains Integration test (not unit tests) These tests does not requires an Android Emulator image or device.
+Before you can run these tests you must update the the file IntegrationTestConfiguration.java:
+
+	public class IntegrationTestConfiguration {
+ 		/*
+    		* Replace with the right values
+    		* */
+    		public static final String TENANT = "https://your.tenant.com";
+    		public static final String APP = "yourapp";
+    		public static final String USR = "youruser@kidozen.com";
+
+    		public static final String PASS = "yourpassword";
+    		public static final String PROVIDER = "Kidozen";
+	}
+
+and also the file EnterpriseServicesIntegrationTest.java (This requires a ShareFile service account)
+
+	public void Setup() {
+        	try {
+            		data = new JSONObject();
+            		data.put("username","your username");
+            		data.put("password","your password");
+
+To run your tests simply type the following command in a terminal
+
+	mvn clean test
+	
+
 #License 
 
 Copyright (c) 2013 KidoZen, inc.
