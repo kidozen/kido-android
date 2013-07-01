@@ -31,6 +31,7 @@ public class EMailIntegrationTest {
 
     public static final int TIMEOUT = 3000;
     public static final String DATA_VALUE_KEY = "value";
+
     KZApplication kidozen = null;
     Storage _storage;
 
@@ -52,8 +53,8 @@ public class EMailIntegrationTest {
     public void ShouldSendEmail() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         Mail mail = new Mail();
-        mail.to("christian.carnero@gmail.com");
-        mail.from("chris@kidozen.com");
+        mail.to(IntegrationTestConfiguration.EMAIL_TO);
+        mail.from(IntegrationTestConfiguration.EMAIL_FROM);
         mail.subject(this.CreateRandomValue());
         mail.textBody(this.CreateRandomValue());
 
