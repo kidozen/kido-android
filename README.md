@@ -65,29 +65,52 @@ The solution contains Integration test (not unit tests) These tests does not req
 Before you can run these tests you must update the the file IntegrationTestConfiguration.java:
 
 	public class IntegrationTestConfiguration {
- 		/*
-    		* Replace with the right values
-    		* */
-    		public static final String TENANT = "https://your.tenant.com";
-    		public static final String APP = "yourapp";
-    		public static final String USR = "youruser@kidozen.com";
-
-    		public static final String PASS = "yourpassword";
-    		public static final String PROVIDER = "Kidozen";
+		/*
+		* KidoZen general configuration
+		*
+		* Replace with the right values
+		* */
+		public static final String TENANT = "your tenant url";
+		public static final String APP = "your app name";
+		public static final String USR = "your user name";
+		
+		public static final String PASS = "your password";
+		public static final String PROVIDER = "Kidozen";
+		
+		/*
+		* Enterprise services configuration
+		*
+		* Replace with the right values
+		*
+		* You must configure the following service in the Global section of your KidoZen Marketplace
+		*
+		* */
+		public static final String KZ_SHAREFILE_SERVICEID = "sharefile";
+		public static final String KZ_SHAREFILE_USER = "your sharefile user name";
+		public static final String KZ_SHAREFILE_PASS = "your sharefile password";
+		
+		
+		/*
+		* EMail configuration
+		*
+		* Replace with the right values
+		* */
+		public static final String EMAIL_TO = "some recipient";
+		public static final String EMAIL_FROM = "another recipiet";
 	}
 
-and also the file EnterpriseServicesIntegrationTest.java (This requires a ShareFile service account)
-
-	public void Setup() {
-        	try {
-            		data = new JSONObject();
-            		data.put("username","your username");
-            		data.put("password","your password");
+Check your Android sdk path settings. If you have some conflict remember you can specify it in the "android.sdk.path" 
+element in the pom.xml file 
 
 To run your tests simply type the following command in a terminal
 
 	mvn clean test
 	
+or
+
+	mvn verify
+
+
 
 #License 
 
