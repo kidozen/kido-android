@@ -36,9 +36,6 @@ public class ApplicationIntegrationTests {
     @Before
     public void Setup()
     {
-        String fileName = System.getProperty("fileName");
-        System.out.print("hello");
-        System.out.print(fileName);
     }
 
     @Test

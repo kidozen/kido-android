@@ -42,7 +42,7 @@ public class IntegrationTestConfiguration {
         String current_directory = System.getProperty("user.dir");
 
         try {
-            if (file_settings !="" && file_settings == null)
+            if (file_settings !="" && file_settings != null)
             {
                 System.out.print("Current dir:" + current_directory + "\n");
                 System.out.print("File settings:" + file_settings + "\n");
