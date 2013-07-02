@@ -31,6 +31,7 @@ public class EMailIntegrationTest {
 
     public static final int TIMEOUT = 3000;
     public static final String DATA_VALUE_KEY = "value";
+
     KZApplication kidozen = null;
     Storage _storage;
 
@@ -39,8 +40,8 @@ public class EMailIntegrationTest {
     {
         try {
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, kidoInitCallback(signal));
-            kidozen.Authenticate(IntegrationTestConfiguration.PROVIDER, IntegrationTestConfiguration.USR, IntegrationTestConfiguration.PASS, kidoAuthCallback(signal));
+            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TIMEOUT, TimeUnit.MILLISECONDS);
         }
         catch (Exception e)
@@ -52,8 +53,8 @@ public class EMailIntegrationTest {
     public void ShouldSendEmail() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         Mail mail = new Mail();
-        mail.to("christian.carnero@gmail.com");
-        mail.from("chris@kidozen.com");
+        mail.to(IntegrationTestConfiguration.KZ_EMAIL_TO);
+        mail.from(IntegrationTestConfiguration.KZ_EMAIL_FROM);
         mail.subject(this.CreateRandomValue());
         mail.textBody(this.CreateRandomValue());
 

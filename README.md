@@ -13,9 +13,8 @@ The SDK now is packaged as a Maven project, you can download the code and import
 - Android Studio project 
 
 You can also create the jar file using maven by typing the following in your terminal:
+
 	mvn clean package
-
-
 
 ##Getting started with the code
 
@@ -59,7 +58,60 @@ Once the user is authenticated you can start using all the services:
 			}
 		});
 		...
-    
+
+##Runnig Integration tests
+
+The solution contains Integration test (not unit tests) These tests does not requires an Android Emulator image or device.
+Before you can run these tests you must update the the file settings.json:
+
+	{
+		/*
+		* KidoZen general configuration
+		*
+		* Replace with the right values
+		* */
+		"kz_tenant" :  "your tenant url",
+		"kz_app" : "your app name",
+		"kz_usr" : "your user name",
+		
+		"kz_pass" : "your password",
+		"kz_provider" : "Kidozen",
+		
+		/*
+		* Enterprise services configuration
+		*
+		* Replace with the right values
+		*
+		* You must configure the following service in the Global section of your KidoZen Marketplace
+		*
+		* */
+		"kz_sharefile_serviceid" : "sharefile";
+		"kz_sharefile_user" : "your sharefile user name";
+		"kz_sharefile_pass" : "your sharefile password";
+		
+		
+		/*
+		* EMail configuration
+		*
+		* Replace with the right values
+		* */
+		"kz_email_to" : "some recipient",
+		"kz_email_from" : "another recipiet"
+	}
+
+Check your Android sdk path settings. If you have some conflict remember you can specify it in the "android.sdk.path" 
+element in the pom.xml file 
+
+To run your tests simply type the following command in a terminal
+
+	mvn clean test
+	
+or
+
+	mvn verify
+
+
+
 #License 
 
 Copyright (c) 2013 KidoZen, inc.

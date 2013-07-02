@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>kidozen.client</groupId>
 	<artifactId>kz.client</artifactId>
-	<version>0.0.2</version>
+	<version>1.0.0</version>
 	<packaging>apk</packaging>
 	<name>kz.client</name>
 
     <properties>
-        <android.sdk.path>/Users/christian/adt-bundle-mac-x86_64-20130514/sdk</android.sdk.path>
+        <android.sdk.path>../../../adt-bundle-mac-x86_64-20130514/sdk</android.sdk.path>
     </properties>
 
     <dependencies>
@@ -54,6 +54,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -64,13 +70,29 @@
                 <artifactId>android-maven-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
+
                     <sdk>
                         <!-- platform or api level (api level 16 = platform 4.1)-->
                         <platform>15</platform>
                     </sdk>
+                    <aaptExtraArgs>
+
+                    </aaptExtraArgs>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
                 <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <property>
+                            <name>settings</name>
+                            <value>${settings}</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
             </plugin>
         </plugins>
     </build>

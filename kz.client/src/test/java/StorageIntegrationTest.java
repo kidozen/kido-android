@@ -44,8 +44,8 @@ public class StorageIntegrationTest {
     {
         try {
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, kidoInitCallback(signal));
-            kidozen.Authenticate(IntegrationTestConfiguration.PROVIDER, IntegrationTestConfiguration.USR, IntegrationTestConfiguration.PASS, kidoAuthCallback(signal));
+            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
             signal.await();
             _storage = kidozen.Storage(KZ_STORAGE_SERVICEID);
         }

@@ -36,12 +36,15 @@ public class ApplicationIntegrationTests {
     @Before
     public void Setup()
     {
+        String fileName = System.getProperty("fileName");
+        System.out.print("hello");
+        System.out.print(fileName);
     }
 
     @Test
     public void ShouldGetApplicationConfiguration() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertEquals(e.StatusCode,HttpStatus.SC_OK);
@@ -54,7 +57,7 @@ public class ApplicationIntegrationTests {
     @Test
     public void ShouldReturnInvalidApplicationName() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, INVALIDAPP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, INVALIDAPP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_NOT_FOUND));
@@ -67,7 +70,7 @@ public class ApplicationIntegrationTests {
     @Test
     public void ShouldAuthenticateUsingDefaultSettings() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
             assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -77,7 +80,7 @@ public class ApplicationIntegrationTests {
         lcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(IntegrationTestConfiguration.PROVIDER, IntegrationTestConfiguration.USR, IntegrationTestConfiguration.PASS, new ServiceEventListener() {
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -90,8 +93,8 @@ public class ApplicationIntegrationTests {
     @Test
     public void ShouldReturnApplicationIsNotInitialized() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, INVALIDAPP, true, null);
-        kidozen.Authenticate(IntegrationTestConfiguration.PROVIDER, IntegrationTestConfiguration.USR, IntegrationTestConfiguration.PASS, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, INVALIDAPP, true, null);
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_CONFLICT));

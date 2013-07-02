@@ -31,7 +31,6 @@ import static org.junit.Assert.*;
 public class EnterpriseServiceIntegrationTest {
 
     private static final String KZ_SHAREFILE_GETAUTHID_METHODID = "getAuthID";
-    private static final String KZ_SHAREFILE_SERVICEID = "sharefile";
     private static final String KZ_SHAREFILE_INVALID_METHODID = "Invalid";
     public static final int TIMEOUT = 3000;
 
@@ -45,12 +44,12 @@ public class EnterpriseServiceIntegrationTest {
     {
         try {
             data = new JSONObject();
-            data.put("username","gus@kidozen.com");
-            data.put("password","kidozen*1");
+            data.put("username", IntegrationTestConfiguration.KZ_SHAREFILE_USER);
+            data.put("password", IntegrationTestConfiguration.KZ_SHAREFILE_PASS);
 
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.TENANT, IntegrationTestConfiguration.APP, true, kidoInitCallback(signal));
-            kidozen.Authenticate(IntegrationTestConfiguration.PROVIDER, IntegrationTestConfiguration.USR, IntegrationTestConfiguration.PASS,kidoAuthCallback(signal));
+            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS,kidoAuthCallback(signal));
             signal.await();
         }
         catch (Exception e)
@@ -59,10 +58,10 @@ public class EnterpriseServiceIntegrationTest {
         }
     }
 
-    @Test
+    //@Test
     public void CallInvalidAgentShouldReturnException() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        Service fileshare = kidozen.LOBService(KZ_SHAREFILE_SERVICEID);
+        Service fileshare = kidozen.LOBService(IntegrationTestConfiguration.KZ_SHAREFILE_SERVICEID);
         fileshare.InvokeMethod(KZ_SHAREFILE_GETAUTHID_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -76,7 +75,7 @@ public class EnterpriseServiceIntegrationTest {
     @Test
     public void ShouldInvokeMethod() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        Service fileshare = kidozen.LOBService(KZ_SHAREFILE_SERVICEID);
+        Service fileshare = kidozen.LOBService(IntegrationTestConfiguration.KZ_SHAREFILE_SERVICEID);
         fileshare.InvokeMethod(KZ_SHAREFILE_GETAUTHID_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -89,7 +88,7 @@ public class EnterpriseServiceIntegrationTest {
     @Test
     public void InvokeMethodShouldReturnException() throws Exception{
         final CountDownLatch lcd = new CountDownLatch(1);
-        Service fileshare = kidozen.LOBService(KZ_SHAREFILE_SERVICEID);
+        Service fileshare = kidozen.LOBService(IntegrationTestConfiguration.KZ_SHAREFILE_SERVICEID);
         fileshare.InvokeMethod(KZ_SHAREFILE_INVALID_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {

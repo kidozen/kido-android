@@ -17,5 +17,6 @@ target/
 /KidoZenDemos/gen/kz/
 /kz.client.tests/gen/kz/
 /kz.client/.idea/libraries/Maven*
-
+.idea/
+*.iml
 

@@ -1,0 +1,14 @@
+{
+    "kz_tenant" : "http://kidodemo.dev.kidozen.com",
+    "kz_app" : "tasks",
+    "kz_usr" : "demo@kidozen.com",
+    "kz_pass" : "pass",
+    "kz_provider" : "Kidozen",
+
+    "kz_sharefile_serviceid" : "sharefile",
+    "kz_sharefile_user" : "gus@kidozen.com",
+    "kz_sharefile_pass" : "kidozen*1",
+
+    "kz_email_to" : "christian.carnero@gmail.com",
+    "kz_email_from" : "chris@kidozen.com"
+}
