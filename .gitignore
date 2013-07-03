@@ -4,7 +4,9 @@ target
 .metadata
 .log
 .zip
-.DS_Store
-.idea
+.DS_Store/
+.idea/
+out/
+
 
 

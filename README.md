@@ -59,6 +59,13 @@ Once the user is authenticated you can start using all the services:
 		});
 		...
 
+##Create the .jar file to include in your projects
+
+To create the .jar library file run the following command in a terminal that will create the file `kz.client.jar` in the `target` folder
+
+    mvn package -Dmaven.test.skip=true
+
+
 ##Runnig Integration tests
 
 The solution contains Integration test (not unit tests) These tests does not requires an Android Emulator image or device.
@@ -102,21 +109,13 @@ Before you can run these tests you must update the the file settings.json:
 Check your Android sdk path settings. If you have some conflict remember you can specify it in the "android.sdk.path" 
 element in the pom.xml file 
 
-To run your tests simply run the following command in a terminal
+To run the integration tests simply run the following command in a terminal
 
-	mvn clean test
-	
-or
+	mvn test -Dsettings="settings.json"
 
-	mvn verify
+##Create the documentation
 
-To create the .jar library file run the following command in a terminal
-
-    mvn package
-
-... and copy the file kz.client.jar from the `target` folder
-
-To create the documentation in html format run the following command in a terminal
+To create the documentation in html format run the following command in a terminal and check the  `target` folder
 
     mvn javadoc:javadoc
 
