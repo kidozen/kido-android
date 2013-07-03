@@ -1,0 +1,34 @@
+{
+    /*
+    * KidoZen general configuration
+    *
+    * Replace with the right values
+    * */
+    "kz_tenant" :  "your tenant url",
+    "kz_app" : "your app name",
+    "kz_usr" : "your user name",
+
+    "kz_pass" : "your password",
+    "kz_provider" : "Kidozen",
+
+    /*
+    * Enterprise services configuration
+    *
+    * Replace with the right values
+    *
+    * You must configure the following service in the Global section of your KidoZen Marketplace
+    *
+    * */
+    "kz_sharefile_serviceid" : "sharefile";
+    "kz_sharefile_user" : "your sharefile user name";
+    "kz_sharefile_pass" : "your sharefile password";
+
+
+    /*
+    * EMail configuration
+    *
+    * Replace with the right values
+    * */
+    "kz_email_to" : "some recipient",
+    "kz_email_from" : "another recipiet"
+}

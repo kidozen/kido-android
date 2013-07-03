@@ -1,9 +1,10 @@
 .plugins/
 .settings/
-bin
 target
 .metadata
 .log
 .zip
 .DS_Store
 .idea
+
+

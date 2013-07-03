@@ -102,13 +102,23 @@ Before you can run these tests you must update the the file settings.json:
 Check your Android sdk path settings. If you have some conflict remember you can specify it in the "android.sdk.path" 
 element in the pom.xml file 
 
-To run your tests simply type the following command in a terminal
+To run your tests simply run the following command in a terminal
 
 	mvn clean test
 	
 or
 
 	mvn verify
+
+To create the .jar library file run the following command in a terminal
+
+    mvn package
+
+... and copy the file kz.client.jar from the `target` folder
+
+To create the documentation in html format run the following command in a terminal
+
+    mvn javadoc:javadoc
 
 
 

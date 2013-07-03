@@ -9,7 +9,7 @@
 	<name>kz.client</name>
 
     <properties>
-        <android.sdk.path>../../../adt-bundle-mac-x86_64-20130514/sdk</android.sdk.path>
+        <android.sdk.path>../../adt-bundle-mac-x86_64-20130514/sdk</android.sdk.path>
     </properties>
 
     <dependencies>
@@ -93,6 +93,18 @@
                         </property>
                     </systemProperties>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
