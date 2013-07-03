@@ -8,10 +8,6 @@
 	<packaging>apk</packaging>
 	<name>kz.client</name>
 
-    <properties>
-        <android.sdk.path>../../adt-bundle-mac-x86_64-20130514/sdk</android.sdk.path>
-    </properties>
-
     <dependencies>
 
         <dependency>

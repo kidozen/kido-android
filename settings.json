@@ -19,9 +19,9 @@
     * You must configure the following service in the Global section of your KidoZen Marketplace
     *
     * */
-    "kz_sharefile_serviceid" : "sharefile";
-    "kz_sharefile_user" : "your sharefile user name";
-    "kz_sharefile_pass" : "your sharefile password";
+    "kz_sharefile_serviceid" : "sharefile",
+    "kz_sharefile_user" : "your sharefile user name",
+    "kz_sharefile_pass" : "your sharefile password",
 
 
     /*

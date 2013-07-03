@@ -12,9 +12,9 @@ The SDK now is packaged as a Maven project, you can download the code and import
 - IntelliJ Project
 - Android Studio project 
 
-You can also create the jar file using maven by typing the following in your terminal:
+Please check the following [Prerequisites](https://code.google.com/p/maven-android-plugin/wiki/GettingStarted)
 
-	mvn clean package
+
 
 ##Getting started with the code
 
