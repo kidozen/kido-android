@@ -1,0 +1,9 @@
+Version 0.0.1
+
+* The KZAuthentication method has a new constructor with a new parameter called "bypassSSLVerification" Set it TRUE for development
+
+* several bug-fix
+
+
+
+
