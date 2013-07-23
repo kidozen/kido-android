@@ -138,7 +138,8 @@ public class KZService implements Observer
             }
             catch(Exception e)
             {
-                _event = new ServiceEvent(this, statusCode, e.getMessage().toString(), null,e);
+                String exMessage = (e.getMessage()==null ? "Unexpected error" : e.getMessage().toString());
+                _event = new ServiceEvent(this, statusCode, exMessage, null,e);
             }
             return _event;
         }
