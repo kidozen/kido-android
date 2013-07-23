@@ -4,11 +4,6 @@ import org.json.simple.parser.JSONParser;
 import java.io.FileReader;
 
 public class IntegrationTestConfiguration {
-    /*
-    * KidoZen general configuration
-    *
-    * Replace with the right values
-    * */
     public static  String KZ_TENANT;
     public static  String KZ_APP;
     public static  String KZ_USER;
@@ -16,32 +11,17 @@ public class IntegrationTestConfiguration {
     public static  String KZ_PASS;
     public static  String KZ_PROVIDER;
 
-    /*
-    * Enterprise services configuration
-    *
-    * Replace with the right values
-    *
-    * You must configure the following service in the Global section of your KidoZen Marketplace
-    *
-    * */
     public static  String KZ_SHAREFILE_SERVICEID;
     public static  String KZ_SHAREFILE_USER;
     public static  String KZ_SHAREFILE_PASS;
 
-
-    /*
-    * EMail configuration
-    *
-    * Replace with the right values
-    * */
     public static  String KZ_EMAIL_TO;
     public static  String KZ_EMAIL_FROM;
 
     static {
-        String file_settings = System.getProperty("settings");
-        String current_directory = System.getProperty("user.dir");
-
         try {
+            String file_settings = System.getProperty("settings");
+            String current_directory = System.getProperty("user.dir");
             if (file_settings !="" && file_settings != null)
             {
                 System.out.print("Current dir:" + current_directory + "\n");
@@ -49,6 +29,8 @@ public class IntegrationTestConfiguration {
 
                 JSONParser jp = new JSONParser();
                 JSONObject settings =(JSONObject) jp.parse(new FileReader(current_directory + "/" + file_settings));
+
+
 
                 KZ_TENANT = settings.get("kz_tenant").toString();
                 KZ_APP = settings.get("kz_app").toString();
@@ -73,11 +55,31 @@ public class IntegrationTestConfiguration {
                 System.out.print("Email to: " + KZ_EMAIL_TO + "\n");
                 System.out.print("==================================================================\n");
             }
+            else
+            {
+                usedefaults();
+            }
         }
         catch (Exception e)
         {
-            System.out.print(e.getMessage().toString() + "\n");
+            System.out.print("ERROR:" + e.getMessage().toString() + "\n");
+            usedefaults();
         }
 
+    }
+
+    private static void usedefaults() {
+        System.out.print("No settings specified, using defaults\n");
+
+        KZ_TENANT = "your tenant url";
+        KZ_APP = "your app name";
+        KZ_USER = "your user name";
+        KZ_PASS = "super secret";
+        KZ_PROVIDER= "Kidozen";
+        KZ_SHAREFILE_PASS = "your sharefile secret";
+        KZ_SHAREFILE_SERVICEID = "sharefile";
+        KZ_SHAREFILE_USER = "your sharefile user";
+        KZ_EMAIL_FROM = "an email address";
+        KZ_EMAIL_TO = "another email address";
     }
 }
