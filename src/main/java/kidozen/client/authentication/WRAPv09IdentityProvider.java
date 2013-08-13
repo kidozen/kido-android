@@ -69,11 +69,9 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
         }
 		catch(StringIndexOutOfBoundsException e) // wrong user, password or scope
 		{
-			//client.getConnectionManager().shutdown();
-			throw e;
+			throw new Exception("invalid user, password or scope");
 		}
 		catch (Exception e) {
-			//client.getConnectionManager().shutdown();
 			throw e;
 		}
 	}

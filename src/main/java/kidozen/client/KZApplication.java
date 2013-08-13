@@ -486,14 +486,18 @@ public class KZApplication extends KZService {
 			this.KidozenUser = am.Authenticate(providerKey, username, password, new ServiceEventListener() {
 				@Override
 				public void onFinish(ServiceEvent e) {
-					if (e.StatusCode<HttpStatus.SC_BAD_REQUEST) {
+					if (e.StatusCode<HttpStatus.SC_BAD_REQUEST)
+                    {
 						long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
-						if (delay<0) {
+						if (delay<0)
+                        {
 							Log.e(LOGTAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
 						}
-						else {
+						else
+                        {
 							sessionExpiresHandler.postDelayed(defaultSessionExpirationEvent(),delay);
-						}					}
+						}
+                    }
 					callback.onFinish(e);
 				}});
 			}

@@ -4,6 +4,7 @@ import kidozen.client.ServiceEventListener;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -27,9 +28,9 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-public class ApplicationIntegrationTests {
+public class ApplicationIntegrationTest {
 
-    public static final int TIMEOUT = 3000;
+    public static final int TIMEOUT = 50000;
     private static final String INVALIDAPP = "NADA";
     KZApplication kidozen = null;
 
@@ -39,6 +40,7 @@ public class ApplicationIntegrationTests {
     }
 
     @Test
+    @Ignore
     public void ShouldGetApplicationConfiguration() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -52,6 +54,7 @@ public class ApplicationIntegrationTests {
     }
 
     @Test
+    @Ignore
     public void ShouldReturnInvalidApplicationName() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, INVALIDAPP, true, new ServiceEventListener() {
@@ -81,6 +84,52 @@ public class ApplicationIntegrationTests {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                alcd.countDown();
+            }
+        });
+        alcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void AuthenticationShouldFail() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "contoso@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_NOT_FOUND));
+                alcd.countDown();
+            }
+        });
+        alcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void AuthenticationShouldFailWithInvalidUser() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
                 alcd.countDown();
             }
         });

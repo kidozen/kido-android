@@ -6,6 +6,7 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -24,20 +25,18 @@ import static org.junit.Assert.*;
  * Date: 5/20/13
  * Time: 2:30 PM
  * To change this template use File | Settings | File Templates.
- */
+*/
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class EnterpriseServiceIntegrationTest {
-
     private static final String KZ_SHAREFILE_GETAUTHID_METHODID = "getAuthID";
     private static final String KZ_SHAREFILE_INVALID_METHODID = "Invalid";
     public static final int TIMEOUT = 3000;
 
-
     KZApplication kidozen = null;
     private JSONObject data;
-
 
     @Before
     public void Setup()

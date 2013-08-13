@@ -93,10 +93,13 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 				_currentIdentityProvider = (IIdentityProvider) provider.get("instance");
 				_currentIdentityProvider.Configure(provider);
 				_currentIdentityProvider.Initialize(_username, _password, provider.get("authServiceScope").toString());
-				_currentIdentityProvider.RequestToken(new URI(provider.get("endpoint").toString()), new KZAction<String>() {
+                URI endpoint = new URI(provider.get("endpoint").toString());
+
+                _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
 					@SuppressWarnings("deprecation")
 					public void onServiceResponse(String response) throws Exception {
-						try {
+						try
+                        {
 							tokeFromAuthService = requestKidoZenToken(response);
 							JSONObject token = new JSONObject(tokeFromAuthService);
 							tokeFromAuthService = token.get("rawToken").toString();
@@ -107,17 +110,22 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 							String rawToken = URLDecoder.decode(tokeFromAuthService);
 							String[] claims = rawToken.split("&");
 							Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
-							for (int i = 0; i < claims.length; i++) {
+							for (int i = 0; i < claims.length; i++)
+                            {
 								String[] keyValue = claims[i].split("=");
 								String keyName = keyValue[0];
 								int indexOfClaimKeyword= keyName.indexOf("/claims/");
-								if (indexOfClaimKeyword>-1) {
+								if (indexOfClaimKeyword>-1)
+                                {
 									keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
 								}
 								String v ;
-								try {
+								try
+                                {
 									v=  keyValue[1];									
-								} catch (IndexOutOfBoundsException e) {
+								}
+                                catch (IndexOutOfBoundsException e)
+                                {
 									v="";
 								}
 								tokenClaims.put(keyName,v);
@@ -126,11 +134,13 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 							_kidozenUser.Token = tokeFromAuthService;
 							_kidozenUser.Claims = tokenClaims;
 							_kidozenUser.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
-							if (tokenClaims.get("role")!=null) {
+							if (tokenClaims.get("role")!=null)
+                            {
 								_kidozenUser.Roles = Arrays.asList(tokenClaims.get("role").split(","));
 							}
-
-						} catch (Exception e) {
+						}
+                        catch (Exception e)
+                        {
 							Authenticated = false;
 							hasIPToken =false;
 							Log.e(TAG,"Error parsing the IP token" + e.getStackTrace().toString());
@@ -147,10 +157,13 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 				Authenticated = true;
 				hasIPToken = true;
 			}
-		} catch (Exception e) {
-			hasIPToken =false;
+		}
+        catch (Exception e)
+        {
+			hasIPToken = false;
 			Authenticated = false;
-			errorDescription = "Error calling the specified Identity Provider" + e.getMessage();
+			errorDescription = "Error calling the specified Identity Provider." + e.getMessage();
+            this.cancel(false);
 		}
 		return null;
 	}
@@ -158,28 +171,61 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 	protected void onPostExecute (Void result)
 	{
 		super.onPostExecute(result);
-		if (hasIPToken) {
-			try {
-				_securityTokens.put(_securityTokenKey, _kidozenUser);
-				_tokenUpdater.TokenUpdated(_kidozenUser);
-				Authenticated = true;
-				if (_authCallback!=null) {
-					_authCallback.onFinish(new ServiceEvent(this,200,tokeFromAuthService, _kidozenUser));
+
+		if (hasIPToken)
+        {
+			try
+            {
+                int status = HttpStatus.SC_OK;
+                String token = this.tokeFromAuthService;
+                KidoZenUser user = _kidozenUser;
+                if (_kidozenUser.Claims.get("system")==null)
+                {
+                    this.Authenticated=false;
+                    status = HttpStatus.SC_NOT_FOUND;
+                    user = null;
+                    token = "User is not authenticated";
+                }
+				else
+                {
+                    _securityTokens.put(_securityTokenKey, _kidozenUser);
+				    _tokenUpdater.TokenUpdated(_kidozenUser);
+                    this.Authenticated = true;
+                }
+                if (_authCallback!=null)
+                {
+					_authCallback.onFinish(new ServiceEvent(this,status, token, user));
 				}
-			} catch (Exception e) {
+			}
+            catch (Exception e)
+            {
 				Authenticated = false;
 				errorDescription = "Error creating the Kidozen user identity:" + e.getMessage();
-				if (_authCallback!=null) {
-					_authCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,errorDescription, null));
+				if (_authCallback!=null)
+                {
+					_authCallback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, errorDescription, null));
 				}
 			}
 		}
 		else
-			if (_authCallback!=null) {
+        {
+			if (_authCallback!=null)
+            {
 				Authenticated = false;
 				_authCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,errorDescription, null));
 			}
+        }
 	}
+
+    @Override
+    protected void onCancelled()
+    {
+        if (_authCallback!=null)
+        {
+            Authenticated = false;
+            _authCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,errorDescription, null));
+        }
+    }
 
 	private String requestKidoZenToken(final String response) throws Exception
 	{ 

@@ -2,6 +2,7 @@ import kidozen.client.*;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -27,6 +28,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class EMailIntegrationTest {
 
     public static final int TIMEOUT = 3000;
@@ -66,8 +68,8 @@ public class EMailIntegrationTest {
     public void ShouldSendEmailWithMultipleRecipients() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         Mail mail = new Mail();
-        mail.to("christian.carnero@gmail.com,christian.carnero@tellago.com");
-        mail.from("chris@kidozen.com");
+        mail.to(IntegrationTestConfiguration.KZ_EMAIL_TO + "," +  IntegrationTestConfiguration.KZ_EMAIL_FROM);
+        mail.from(IntegrationTestConfiguration.KZ_EMAIL_FROM);
         mail.subject(this.CreateRandomValue());
         mail.textBody(this.CreateRandomValue());
 
