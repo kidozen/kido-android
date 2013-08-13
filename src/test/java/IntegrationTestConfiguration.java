@@ -71,10 +71,10 @@ public class IntegrationTestConfiguration {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_TENANT = "https://bosch.dev.kidozen.com";
-        KZ_APP = "tooltracker";
-        KZ_USER = "bosch@kidozen.com";
-        KZ_PASS = "pass";
+        KZ_TENANT = "https://...";
+        KZ_APP = "...";
+        KZ_USER = "someone@kidozen.com";
+        KZ_PASS = "super secret";
         KZ_PROVIDER= "Kidozen";
         KZ_SHAREFILE_PASS = "your sharefile secret";
         KZ_SHAREFILE_SERVICEID = "sharefile";
