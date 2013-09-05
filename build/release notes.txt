@@ -1,11 +1,11 @@
-Version 0.0.2
+Version 1.0.2
 
-* improved support for users sources authentication
+* 2013-09-05 authentication callback check
+* 2013-08-23 improved support for users sources authentication
 
-Version 0.0.1
+Version 1.0.1
 
 * The KZAuthentication method has a new constructor with a new parameter called "bypassSSLVerification" Set it TRUE for development
-
 * several bug-fix
 
 

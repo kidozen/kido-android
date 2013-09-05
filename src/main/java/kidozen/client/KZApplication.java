@@ -498,7 +498,9 @@ public class KZApplication extends KZService {
 							sessionExpiresHandler.postDelayed(defaultSessionExpirationEvent(),delay);
 						}
                     }
-					callback.onFinish(e);
+                    if (callback!=null) {
+					    callback.onFinish(e);
+                    }
 				}});
 			}
 	}

@@ -179,6 +179,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
                 int status = HttpStatus.SC_OK;
                 String token = this.tokeFromAuthService;
                 KidoZenUser user = _kidozenUser;
+                //TODO : Remove for environments where AuthV2 is present
                 if (_kidozenUser.Claims.get("system")==null)
                 {
                     this.Authenticated=false;

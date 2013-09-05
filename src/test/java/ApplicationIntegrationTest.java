@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class ApplicationIntegrationTest {
 
     public static final int TIMEOUT = 50000;
@@ -68,6 +69,24 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
+    public void ShouldAuthenticateUsingDefaultSettingsWithoutAuthCallback() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS);
+
+        alcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
     public void ShouldAuthenticateUsingDefaultSettings() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -91,6 +110,7 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void AuthenticationShouldFail() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -114,6 +134,7 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void AuthenticationShouldFailWithInvalidUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -137,6 +158,7 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void ShouldReturnApplicationIsNotInitialized() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, INVALIDAPP, true, null);

@@ -71,15 +71,15 @@ public class IntegrationTestConfiguration {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_TENANT = "https://...";
-        KZ_APP = "...";
-        KZ_USER = "someone@kidozen.com";
-        KZ_PASS = "super secret";
-        KZ_PROVIDER= "Kidozen";
+        KZ_TENANT = "your tenant url";
+        KZ_APP = "your app";
+        KZ_USER = "your kido user";
+        KZ_PASS = "your kido user password";
         KZ_SHAREFILE_PASS = "your sharefile secret";
         KZ_SHAREFILE_SERVICEID = "sharefile";
         KZ_SHAREFILE_USER = "your sharefile user";
         KZ_EMAIL_FROM = "an email address";
         KZ_EMAIL_TO = "another email address";
+        KZ_PROVIDER= "Kidozen";
     }
 }
