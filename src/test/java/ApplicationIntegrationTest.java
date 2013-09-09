@@ -41,7 +41,6 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void ShouldGetApplicationConfiguration() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -55,7 +54,6 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void ShouldReturnInvalidApplicationName() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, INVALIDAPP, true, new ServiceEventListener() {
@@ -110,7 +108,6 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void AuthenticationShouldFail() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -134,7 +131,6 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void AuthenticationShouldFailWithInvalidUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -158,7 +154,6 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void ShouldReturnApplicationIsNotInitialized() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, INVALIDAPP, true, null);

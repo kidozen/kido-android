@@ -180,7 +180,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
                 String token = this.tokeFromAuthService;
                 KidoZenUser user = _kidozenUser;
                 //TODO : Remove for environments where AuthV2 is present
-                if (_kidozenUser.Claims.get("system")==null)
+                if (_kidozenUser.Claims.get("system")==null && _kidozenUser.Claims.get("http://schemas.kidozen.com/usersource")==null)
                 {
                     this.Authenticated=false;
                     status = HttpStatus.SC_NOT_FOUND;
@@ -193,6 +193,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 				    _tokenUpdater.TokenUpdated(_kidozenUser);
                     this.Authenticated = true;
                 }
+
                 if (_authCallback!=null)
                 {
 					_authCallback.onFinish(new ServiceEvent(this,status, token, user));
