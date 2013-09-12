@@ -73,7 +73,7 @@ public class StorageIntegrationTest {
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
 
         Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
-        storage.Create(data, createCallback(lcd));
+        storage.Create(data,true, createCallback(lcd));
 
         assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
     }
@@ -84,7 +84,7 @@ public class StorageIntegrationTest {
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
 
         Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
-        storage.Create(data, createCallback(lcd));
+        storage.Create(data, false, createCallback(lcd));
 
         assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
     }
