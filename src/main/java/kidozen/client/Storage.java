@@ -34,23 +34,35 @@ public class Storage extends KZService {
 		_name = name;		
 	}
 
-	/**
-	 * Creates a new object in the storage
+    /**
+     * Creates a new object in the storage
+     *
+     * @param message The object to be created
+     * @param isPrivate marks the object as private (true) / publc (false)
+     * @param callback The callback with the result of the service call
+     */
+    public void Create(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
+    {
+        String  url = _endpoint + "/" + _name;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("isPrivate", (isPrivate ? "true" : "false"));
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(CONTENT_TYPE,APPLICATION_JSON);
+        headers.put(ACCEPT, APPLICATION_JSON);
+
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, message, BypassSSLVerification);
+    }
+
+    /**
+	 * Creates a new private object in the storage
 	 * 
 	 * @param message The object to be created
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Create(final JSONObject message, final ServiceEventListener callback)
 	{
-		String  url = _endpoint + "/" + _name; 
-		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("isPrivate","true");
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(CONTENT_TYPE,APPLICATION_JSON);
-		headers.put(ACCEPT, APPLICATION_JSON);
-
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, message, BypassSSLVerification);
+        this.Create(message, true, callback);
 	}
 
 	protected JSONObject checkDateSerialization(JSONObject original) throws JSONException {

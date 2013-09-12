@@ -1,5 +1,6 @@
 Version 1.0.2
 
+* 2013-09-12 Storage Create method now supports public/private 
 * 2013-09-09 backward compatibility for authentication
 * 2013-09-05 authentication callback check
 * 2013-08-23 improved support for users sources authentication

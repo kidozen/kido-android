@@ -66,6 +66,29 @@ public class StorageIntegrationTest {
 
         assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
     }
+
+    @Test
+    public void ShouldCreatePrivateMessage() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
+        storage.Create(data, createCallback(lcd));
+
+        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void ShouldCreatePublicMessage() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
+        storage.Create(data, createCallback(lcd));
+
+        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+    }
+
     @Test
     public void ShouldDeleteMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
