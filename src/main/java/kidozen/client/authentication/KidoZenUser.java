@@ -23,6 +23,7 @@ public class KidoZenUser {
 	private Long _expiration;
 	public String Token;
 
+
 	/**
 	 * Checks if the user belongs to the role
 	 * @param role
@@ -60,7 +61,7 @@ public class KidoZenUser {
 	 * @return
 	 */
 	public Long GetExpirationInMiliseconds() {
-		Date later = new Date(_expiration * 1000);
+        Date later = new Date(_expiration * 1000); // segundos
 		Date now = new Date();
 		Long diffInMis = later.getTime()  - now.getTime();
 		return diffInMis;//TimeUnit.MILLISECONDS.toSeconds(diffInMis);

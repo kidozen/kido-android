@@ -119,7 +119,7 @@ public class Notification extends KZService implements Observer {
 	 */
 	public void update(Observable arg0, Object data) {
 		Log.d("PushNotification", "token updated");
-		this.KidozenUser = (KidoZenUser) data;		
+		this.KidozenUser = (KidoZenUser) data;
 	}
 
 }

@@ -1,8 +1,7 @@
-import kidozen.client.*;
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -13,7 +12,16 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import kidozen.client.KZAction;
+import kidozen.client.KZApplication;
+import kidozen.client.PubSubChannel;
+import kidozen.client.Queue;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
+import kidozen.client.Storage;
+
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -29,13 +37,12 @@ import static org.junit.Assert.fail;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
 
-public class EMailIntegrationTest {
+public class PubSubIntegrationTest {
 
-    public static final int TIMEOUT = 3000;
+    public static final int TIMEOUT = 15000;
     public static final String DATA_VALUE_KEY = "value";
-
+    public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests";
     KZApplication kidozen = null;
-    Storage _storage;
 
     @Before
     public void Setup()
@@ -51,31 +58,70 @@ public class EMailIntegrationTest {
             fail();
         }
     }
+
     @Test
-    public void ShouldSendEmail() throws Exception {
+    public void ShouldSubscribeAndReceiveMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        Mail mail = new Mail();
-        mail.to(IntegrationTestConfiguration.KZ_EMAIL_TO);
-        mail.from(IntegrationTestConfiguration.KZ_EMAIL_FROM);
-        mail.subject(this.CreateRandomValue());
-        mail.textBody(this.CreateRandomValue());
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        final PubSubChannel q = kidozen.PubSubChannel(PUBSUB_INTEGRATION_TESTS);
 
-        kidozen.SendEmail(mail, sendCallback(lcd));
+        KZAction<JSONObject> onMessage = new KZAction<JSONObject>() {
+            @Override
+            public void onServiceResponse(JSONObject response) throws Exception {
+                lcd.countDown();
+            }
+        };
 
+        KZAction<Exception> onError = new KZAction<Exception>() {
+            @Override
+            public void onServiceResponse(Exception response) throws Exception {
+                fail();
+            }
+        };
+
+        q.Subscribe(onMessage, onError);
+        Thread.sleep(2000); // gives some time to channels
+        q.Publish(data, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
+            }
+        });
         assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
     }
+
     @Test
-    public void ShouldSendEmailWithMultipleRecipients() throws Exception {
+    public void ShouldSubscribeAndReceiveMessageRenewingToken() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        Mail mail = new Mail();
-        mail.to(IntegrationTestConfiguration.KZ_EMAIL_TO + "," +  IntegrationTestConfiguration.KZ_EMAIL_FROM);
-        mail.from(IntegrationTestConfiguration.KZ_EMAIL_FROM);
-        mail.subject(this.CreateRandomValue());
-        mail.textBody(this.CreateRandomValue());
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        final PubSubChannel q = kidozen.PubSubChannel(PUBSUB_INTEGRATION_TESTS);
 
-        kidozen.SendEmail(mail, sendCallback(lcd));
+        KZAction<JSONObject> onMessage = new KZAction<JSONObject>() {
+            @Override
+            public void onServiceResponse(JSONObject response) throws Exception {
+                lcd.countDown();
+            }
+        };
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        KZAction<Exception> onError = new KZAction<Exception>() {
+            @Override
+            public void onServiceResponse(Exception response) throws Exception {
+                fail();
+            }
+        };
+
+        q.Subscribe(onMessage, onError);
+
+        int AUTH_TIMEOUT = 300000;
+        Thread.sleep(AUTH_TIMEOUT);
+
+        q.Publish(data, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
+            }
+        });
+        assertTrue(lcd.await(TIMEOUT + AUTH_TIMEOUT, TimeUnit.MILLISECONDS));
     }
     //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {

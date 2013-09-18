@@ -1,14 +1,10 @@
 package kidozen.client;
 
 import java.util.HashMap;
-import java.util.Observable;
 import java.util.Observer;
-
-import kidozen.client.authentication.KidoZenUser;
 
 import org.json.JSONObject;
 
-import android.util.Log;
 /**
  * Mail service interface
  * 

@@ -2,6 +2,8 @@ package kidozen.client;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 
 import kidozen.client.authentication.*;
@@ -44,7 +46,6 @@ public class KZApplication extends KZService {
 	private String _logEndpoint;
 	private String _notificationEndpoint;
 	private static JSONArray _allApplicationLogEvents;
-	ObservableUser tokenUpdater = new ObservableUser();
 	private int initializedStatusCode=0;
 	private Object initializedResponse;
 	private String initializedBody;
@@ -53,14 +54,12 @@ public class KZApplication extends KZService {
 	String _providerKey="";
 	String _username="";
 	String _password="";
-	private Runnable _onSessionExpirationRunnable;
-	private final Handler sessionExpiresHandler = new Handler();
+
     private Logging _applicationLog;
     private MailSender _mailSender;
 
-
-    //private MailSender _mailSender;
-    //private Logging _applicationLog;
+    private HandlerThread expirationThread = new HandlerThread("HandlerThread");
+    private final Handler sessionExpiresHandler = new Handler(expirationThread.getLooper());
 
 	/**
 	 * Returns the current KidoZen identity
@@ -92,13 +91,13 @@ public class KZApplication extends KZService {
     public KZApplication(String tenantMarketPlace, String application, Boolean bypassSSLVerification, final ServiceEventListener callback) throws Exception{
         super();
         BypassSSLVerification = bypassSSLVerification;
-        _tennantMarketPlace= tenantMarketPlace;
+        _tenantMarketPlace = tenantMarketPlace;
         _application= application;
         _initializationCallback = callback;
-        if (!_tennantMarketPlace.endsWith("/")) {
-            _tennantMarketPlace = _tennantMarketPlace + "/";
+        if (!_tenantMarketPlace.endsWith("/")) {
+            _tenantMarketPlace = _tenantMarketPlace + "/";
         }
-        String url = _tennantMarketPlace + "publicapi/apps?name=" + _application;
+        String url = _tenantMarketPlace + "publicapi/apps?name=" + _application;
         HashMap<String, String> params = null;
         HashMap<String, String> headers = new HashMap<String, String>();
 
@@ -154,7 +153,9 @@ public class KZApplication extends KZService {
         _logEndpoint= wrapper.get("logging").toString();
         _notificationEndpoint = wrapper.get("notification").toString();
         _applicationLog = new Logging(_logEndpoint);
+        CloneCredentials(_applicationLog);
         _mailSender = new MailSender(_emailEndpoint);
+        CloneCredentials(_mailSender);
 
         Log.d(LOGTAG, "Getting provider configuration");
         _identityProviders = new HashMap<String, JSONObject>();
@@ -228,8 +229,12 @@ public class KZApplication extends KZService {
 	public PubSubChannel PubSubChannel(String name) throws Exception{
 		checkMethodParameters(name);
 		PubSubChannel channel = new PubSubChannel(_wsSubscriberEndpoint, _publisherEndpoint, name, this.KidozenUser, this.BypassSSLVerification);
-		tokenUpdater.addObserver(channel);
-		channel.setKidozenUser(this.KidozenUser);
+        channel.setKidozenUser(this.KidozenUser);
+        channel._bypassSSLVerification = this.BypassSSLVerification;
+
+        channel.SetCredentials(_providerKey, _username, _password, null);
+        channel.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, ipEndpoint);
+        tokenUpdater.addObserver(channel);
 
 		return channel;
 	}
@@ -246,6 +251,7 @@ public class KZApplication extends KZService {
 		notification.KidozenUser = this.KidozenUser;
 		notification.BypassSSLVerification = this.BypassSSLVerification;
 		tokenUpdater.addObserver(notification);
+        CloneCredentials(notification);
 		return notification;
 	}
 
@@ -262,6 +268,7 @@ public class KZApplication extends KZService {
 		configuration.KidozenUser = this.KidozenUser;
 		configuration.BypassSSLVerification = this.BypassSSLVerification;
 		tokenUpdater.addObserver(configuration);
+        CloneCredentials(configuration);
 		return configuration;
 	}
 
@@ -279,6 +286,7 @@ public class KZApplication extends KZService {
 		queue.KidozenUser = this.KidozenUser;
 		queue.BypassSSLVerification = this.BypassSSLVerification;
 		tokenUpdater.addObserver(queue);
+        CloneCredentials(queue);
 		return queue;
 	}
 
@@ -295,6 +303,7 @@ public class KZApplication extends KZService {
 		storage.KidozenUser = this.KidozenUser;
 		storage.BypassSSLVerification = this.BypassSSLVerification;
 		tokenUpdater.addObserver(storage);
+        CloneCredentials(storage);
 		return storage;
 	}
 
@@ -311,6 +320,7 @@ public class KZApplication extends KZService {
 		sender.KidozenUser = this.KidozenUser;
 		sender.BypassSSLVerification = this.BypassSSLVerification;
 		tokenUpdater.addObserver(sender);
+        CloneCredentials(sender);
 		return sender;
 	}
 
@@ -480,29 +490,23 @@ public class KZApplication extends KZService {
 			}
 		}
 		else {
-			AuthenticationManager am = new AuthenticationManager(_tennantMarketPlace, _application, _identityProviders, applicationScope,  authServiceScope,  authServiceEndpoint,  ipEndpoint, tokenUpdater);
-			am.bypassSSLValidation = BypassSSLVerification;
-		
-			this.KidozenUser = am.Authenticate(providerKey, username, password, new ServiceEventListener() {
-				@Override
-				public void onFinish(ServiceEvent e) {
-					if (e.StatusCode<HttpStatus.SC_BAD_REQUEST)
+            super.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, ipEndpoint);
+            super.Authenticate(providerKey, username, password, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                if (e.StatusCode<HttpStatus.SC_BAD_REQUEST)
+                {
+                    long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
+                    if (delay<0)
                     {
-						long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
-						if (delay<0)
-                        {
-							Log.e(LOGTAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
-						}
-						else
-                        {
-							sessionExpiresHandler.postDelayed(defaultSessionExpirationEvent(),delay);
-						}
+                        Log.e(LOGTAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
                     }
-                    if (callback!=null) {
-					    callback.onFinish(e);
-                    }
-				}});
-			}
+                }
+                if (callback!=null) {
+                    callback.onFinish(e);
+                }
+            }});
+        }
 	}
 
 	/**
@@ -511,8 +515,8 @@ public class KZApplication extends KZService {
 	 * @param onSessionExpirationRunnable a custom Runnable to invoke
 	 */
 	public void OnSessionExpirationRunnable(Runnable onSessionExpirationRunnable) {
-		this._onSessionExpirationRunnable = onSessionExpirationRunnable;
-		this.sessionExpiresHandler.postDelayed(this._onSessionExpirationRunnable, this.KidozenUser.GetExpirationInMiliseconds());
+        expirationThread.start();
+        sessionExpiresHandler.postDelayed(onSessionExpirationRunnable,KidozenUser.GetExpirationInMiliseconds());
 	}
 	
 	private final Runnable defaultSessionExpirationEvent() {
@@ -548,20 +552,6 @@ public class KZApplication extends KZService {
 		}
 	}
 
-	/**
-	 *@author kidozen
-	 * @version 1.00, April 2013
-	 * 
-	 * For internal use only. Do not override or use 
-	 */
-	public class ObservableUser extends Observable
-	{
-		public void TokenUpdated(KidoZenUser kzuser) {
-			setChanged();
-			notifyObservers(kzuser);
-		}
-	}
-
     /**
      * Creates a new Storage object
      *
@@ -576,6 +566,11 @@ public class KZApplication extends KZService {
         service.BypassSSLVerification = this.BypassSSLVerification;
         tokenUpdater.addObserver(service);
         return service;
+    }
+
+    private void CloneCredentials(KZService service) {
+        service.SetCredentials(_providerKey, _username, _password, null);
+        service.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, ipEndpoint);
     }
 
 }

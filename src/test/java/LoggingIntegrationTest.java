@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+
 public class LoggingIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";

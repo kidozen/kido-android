@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+
 public class StorageIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
@@ -117,8 +117,9 @@ public class StorageIntegrationTest {
 
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
         JSONObject obj =(JSONObject) cb.Event.Response;
+        String id = obj.getString("_id");
 
-        _storage.Get(obj.getString("_id"), new ServiceEventListener() {
+        _storage.Get(id, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 try {
@@ -309,6 +310,44 @@ public class StorageIntegrationTest {
         });
         assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
     }
+
+    @Test
+    public void ShouldRenewTokenUsingDefaultSettings() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                alcd.countDown();
+            }
+        });
+        alcd.await(TIMEOUT , TimeUnit.MILLISECONDS);
+
+        //Assert
+        final CountDownLatch qcdl = new CountDownLatch(1);
+        int AUTH_TIMEOUT = 300000;
+        Thread.sleep(AUTH_TIMEOUT);
+        _storage.Query("{}", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertEquals(e.StatusCode, HttpStatus.SC_OK);
+                qcdl.countDown();
+            }
+        });
+        assertTrue(qcdl.await(AUTH_TIMEOUT, TimeUnit.MILLISECONDS));
+    }
+
+
     //
     private StorageEventListener createObjectForStorage(JSONObject d) throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);

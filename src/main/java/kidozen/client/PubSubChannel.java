@@ -3,9 +3,11 @@ package kidozen.client;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Observer;
 import java.util.Observable;
 
+import kidozen.client.authentication.AuthenticationManager;
 import kidozen.client.authentication.KidoZenUser;
 
 import org.json.JSONObject;
@@ -28,14 +30,19 @@ public class PubSubChannel extends WebSocketClient implements Observer{
 	private KZAction<JSONObject> _onMessage;
 	private KZAction<Exception> _onError;
 	private KidoZenUser _kidozenUser;
-	private Boolean _bypassSSLVerification;
+	public Boolean _bypassSSLVerification;
 	protected static final String ACCEPT = "Accept";
 	protected static final String APPLICATION_JSON = "application/json";
 	protected static final String CONTENT_TYPE = "content-type";
 	protected static final String AUTHORIZATION_HEADER = "Authorization";
+    private String _provider, _username, _password, _tenantMarketPlace, _application, _applicationScope, _authServiceScope, _authServiceEndpoint, _ipEndpoint;
+    private Map<String, JSONObject> _identityProviders;
+    private AuthenticationManager am;
+    private ObservableUser tokenUpdater;
+    private ServiceEventListener _authenticateCallback;
+    KZService _underlyingKZService = new KZService();
 
-	
-	/**
+    /**
 	 * Constructor
 	 * 
 	 * You should not create a new instances of this constructor. Instead use the PubSubChannel[""] method of the KZApplication object. 
@@ -56,26 +63,38 @@ public class PubSubChannel extends WebSocketClient implements Observer{
 		_bypassSSLVerification = bypassSSLVerification;
 	}
 
+    /**
+     * Publish a message into the channel
+     *
+     * @param message The message to publish
+     * @param callback The callback with the result of the service call
+     */
+    public void Publish(final JSONObject message, final ServiceEventListener callback)
+    {
+        this.Publish(message,true, callback);
+    }
 
 	/**
 	 * Publish a message into the channel
 	 * 
 	 * @param message The message to publish
+     * @param isPrivate marks the object as private (true) / publc (false)
 	 * @param callback The callback with the result of the service call
 	 */
-	public void Publish(final JSONObject message, final ServiceEventListener callback) 
+	public void Publish(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
 	{
-		String  url = _endpoint + "/" + _name;
+        _underlyingKZService.KidozenUser = this._kidozenUser;
+        CloneCredentials();
+
+        String  url = _endpoint + "/" + _name;
 		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("isPrivate","true");
+        params.put("isPrivate", (isPrivate ? "true" : "false"));;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,_kidozenUser.Token);
+		headers.put(AUTHORIZATION_HEADER, _underlyingKZService.CreateAuthHeaderValue());
 		headers.put(CONTENT_TYPE,APPLICATION_JSON);
 		headers.put(ACCEPT, APPLICATION_JSON);
 
-        KZService svc = new KZService();
-        svc.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, _bypassSSLVerification);
-
+        _underlyingKZService.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, _bypassSSLVerification);
 	}
 
 	/**
@@ -182,4 +201,28 @@ public class PubSubChannel extends WebSocketClient implements Observer{
 		this._kidozenUser = _kidozenUser;
 	}
 
+    private void CloneCredentials() {
+        _underlyingKZService.SetCredentials(_provider, _username, _password, null);
+        _underlyingKZService.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, _applicationScope, _authServiceScope, _authServiceEndpoint, _ipEndpoint);
+    }
+
+    protected void SetAuthenticateParameters(String marketplace, String application, Map<String, JSONObject> providers, String scope, String authScope, String authServiceEndpoint, String ipEndpoint) {
+        _identityProviders = providers;
+        _tenantMarketPlace = marketplace;
+        _applicationScope = scope;
+        _authServiceScope = authScope;
+        _authServiceEndpoint= authServiceEndpoint;
+        _ipEndpoint = ipEndpoint;
+        _application = application;
+
+        am = new AuthenticationManager(marketplace, application, providers, scope,  authScope,  authServiceEndpoint,  ipEndpoint, this.tokenUpdater);
+        am.bypassSSLValidation = _bypassSSLVerification;
+    }
+
+    public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){
+        this._provider = providerKey;
+        this._username = username;
+        this._password = password;
+        this._authenticateCallback = e;
+    }
 }

@@ -2,6 +2,7 @@ package kidozen.client;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import kidozen.client.authentication.AuthenticationManager;
 import kidozen.client.authentication.KidoZenUser;
 import org.apache.http.HttpStatus;
@@ -12,41 +13,46 @@ import java.util.*;
 
 public class KZService implements Observer
 {
-	protected static final String ACCEPT = "Accept";
-	protected static final String APPLICATION_JSON = "application/json";
-	protected static final String CONTENT_TYPE = "content-type";
-	protected static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String KEY = "KZService" ;
+    private static final String LOGTAG = "KZService";
 
     public Boolean BypassSSLVerification = false;
 	public KidoZenUser KidozenUser = new KidoZenUser();
-	protected String _application="";
-	protected String _tennantMarketPlace;
 
-	String ipEndpoint;
+    protected static final String ACCEPT = "Accept";
+    protected static final String APPLICATION_JSON = "application/json";
+    protected static final String CONTENT_TYPE = "content-type";
+    protected static final String AUTHORIZATION_HEADER = "Authorization";
+    protected String _application = "";
+	protected String _tenantMarketPlace;
+    protected ObservableUser tokenUpdater = new ObservableUser();
+
+    private static final String KEY = "KZService" ;
+
+    String ipEndpoint;
 	String applicationScope ;
 	String authServiceScope ;
 	String authServiceEndpoint ;
+    private AuthenticationManager am;
+    private String _provider;
+    private String _username;
+    private String _password;
+    private ServiceEventListener _authenticateCallback;
 
-	public void AddSecurityToken(String key, KidoZenUser tokens)
+    public String CreateAuthHeaderValue()
 	{
-		AuthenticationManager._securityTokens.put(key, tokens);
-	}
-	
-	public KidoZenUser GetSecurityToken(String key)
-	{
-		KidoZenUser user = AuthenticationManager._securityTokens.get(key);
-		return user;
-	}
-
-	public String GetKidoZenToken() {
-		return KidozenUser.Token;
-	}
-
-	public String CreateAuthHeaderValue()
-	{
-		return "WRAP access_token=\"" + KidozenUser.Token +"\"";
-	}
+            long delay = this.KidozenUser.GetExpirationInMiliseconds();
+            if (delay<=0)
+            {
+                am.RemoveCurrentTokenFromCache(KidozenUser.Token);
+                am.Authenticate(_provider,_username, _password, new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        KidozenUser = ((KidoZenUser) e.Response);
+                    }
+                });
+            }
+        return "WRAP access_token=\"" + KidozenUser.Token +"\"";
+    }
 
     protected void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
     {
@@ -65,6 +71,26 @@ public class KZService implements Observer
         this.KidozenUser = (KidoZenUser) data;
     }
 
+    protected void SetAuthenticateParameters(String marketplace, String application, Map<String, JSONObject> providers, String scope, String authScope, String authServiceEndpoint, String ipEndpoint) {
+        am = new AuthenticationManager(marketplace, application, providers, scope,  authScope,  authServiceEndpoint,  ipEndpoint, this.tokenUpdater);
+        am.bypassSSLValidation = BypassSSLVerification;
+    }
+
+    public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){
+        this._provider = providerKey;
+        this._username = username;
+        this._password = password;
+        this._authenticateCallback = e;
+    }
+
+    protected void Authenticate(String providerKey, String username, String password, ServiceEventListener e ) {
+        this._provider = providerKey;
+        this._username = username;
+        this._password = password;
+        this._authenticateCallback = e;
+
+        this.KidozenUser = am.Authenticate(providerKey, username, password, _authenticateCallback);
+    }
 
     private class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
         HashMap<String, String> _params = null;

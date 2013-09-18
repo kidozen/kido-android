@@ -2,7 +2,7 @@ package kidozen.client.authentication;
 import android.os.AsyncTask;
 import android.util.Log;
 import kidozen.client.*;
-import kidozen.client.KZApplication.ObservableUser;
+
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 
 public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
@@ -37,7 +36,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 	String _authServiceScope ;
 	String _authServiceEndpoint ;
 
-	ObservableUser _tokenUpdater;
+    ObservableUser _tokenUpdater;
 
 	private String TAG="AuthenticationManager";
 	private ServiceEventListener _authCallback;
@@ -52,6 +51,16 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		_ipEndpoint = ipEndpoint;
 		_tokenUpdater = tokenUpdater;
 	}
+
+    public void RemoveCurrentTokenFromCache(String _username)
+    {
+        for(Iterator<Map.Entry<String,KidoZenUser>> it=_securityTokens.entrySet().iterator();it.hasNext();){
+            Map.Entry<String, KidoZenUser> entry = it.next();
+            if (entry.getValue().Token.equalsIgnoreCase(_username)) {
+                it.remove();
+            }
+        }
+    }
 
 	public KidoZenUser Authenticate(final String providerKey,final String username, final String password,final ServiceEventListener callback)
 	{
