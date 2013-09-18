@@ -70,6 +70,7 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void ShouldAuthenticateUsingDefaultSettingsWithoutAuthCallback() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -171,6 +172,7 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
+    @Ignore //Cannot run this test with current robolectric version
     public void ShouldExecuteOnSessionExpirationRunnable() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {

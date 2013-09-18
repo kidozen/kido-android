@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-
+@Ignore
 public class QueueIntegrationTest {
 
     public static final int TIMEOUT = 6000;

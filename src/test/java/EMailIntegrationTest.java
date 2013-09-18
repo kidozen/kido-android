@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-
 public class EMailIntegrationTest {
 
     public static final int TIMEOUT = 3000;

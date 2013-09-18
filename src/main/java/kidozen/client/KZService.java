@@ -22,21 +22,28 @@ public class KZService implements Observer
     protected static final String APPLICATION_JSON = "application/json";
     protected static final String CONTENT_TYPE = "content-type";
     protected static final String AUTHORIZATION_HEADER = "Authorization";
-    protected String _application = "";
-	protected String _tenantMarketPlace;
     protected ObservableUser tokenUpdater = new ObservableUser();
 
     private static final String KEY = "KZService" ;
+    private AuthenticationManager am;
+    private ServiceEventListener _authenticateCallback;
 
-    String ipEndpoint;
+    String _ipEndpoint;
 	String applicationScope ;
 	String authServiceScope ;
 	String authServiceEndpoint ;
-    private AuthenticationManager am;
-    private String _provider;
-    private String _username;
-    private String _password;
-    private ServiceEventListener _authenticateCallback;
+
+    String _application;
+    String _tenantMarketPlace;
+    String _provider;
+    String _username;
+    String _password;
+
+    private Map<String, JSONObject> _providers;
+    private String _scope;
+    private String _authScope;
+    private String _authServiceEndpoint;
+
 
     public String CreateAuthHeaderValue()
 	{
@@ -72,7 +79,15 @@ public class KZService implements Observer
     }
 
     protected void SetAuthenticateParameters(String marketplace, String application, Map<String, JSONObject> providers, String scope, String authScope, String authServiceEndpoint, String ipEndpoint) {
-        am = new AuthenticationManager(marketplace, application, providers, scope,  authScope,  authServiceEndpoint,  ipEndpoint, this.tokenUpdater);
+        _tenantMarketPlace = marketplace;
+        _application = application;
+        _providers = providers;
+        _scope = scope;
+        _authScope = authScope;
+        _authServiceEndpoint = authServiceEndpoint;
+        _ipEndpoint = ipEndpoint;
+
+        am = new AuthenticationManager(_tenantMarketPlace, _application, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
         am.bypassSSLValidation = BypassSSLVerification;
     }
 
@@ -89,7 +104,13 @@ public class KZService implements Observer
         this._password = password;
         this._authenticateCallback = e;
 
-        this.KidozenUser = am.Authenticate(providerKey, username, password, _authenticateCallback);
+        this.KidozenUser = am.Authenticate(_provider, _username, _password, _authenticateCallback);
+    }
+
+    public void RenewAuthenticationToken(ServiceEventListener callback) {
+        am.RemoveCurrentTokenFromCache(KidozenUser.Token);
+        am = new AuthenticationManager(_tenantMarketPlace, _application, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
+        this.KidozenUser = am.Authenticate(_provider, _username, _password, callback);
     }
 
     private class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {

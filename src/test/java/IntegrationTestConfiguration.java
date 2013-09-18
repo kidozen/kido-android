@@ -75,6 +75,13 @@ public class IntegrationTestConfiguration {
         KZ_APP = "christian";
         KZ_USER = "contoso@kidozen.com";
         KZ_PASS = "pass";
+
+/*
+        KZ_TENANT = "https://armonia.kidocloud.com";
+        KZ_APP = "tasks";
+        KZ_USER = "armonia@kidozen.com";
+        KZ_PASS = "pass";
+*/
         KZ_SHAREFILE_PASS = "your sharefile secret";
         KZ_SHAREFILE_SERVICEID = "sharefile";
         KZ_SHAREFILE_USER = "your sharefile user";

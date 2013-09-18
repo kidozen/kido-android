@@ -2,6 +2,7 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -36,7 +37,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-
+@Ignore
 public class PubSubIntegrationTest {
 
     public static final int TIMEOUT = 15000;

@@ -51,15 +51,15 @@ public class KZApplication extends KZService {
 	private String initializedBody;
 
 	JSONObject _authConfig;
-	String _providerKey="";
-	String _username="";
-	String _password="";
+//	String _providerKey="";
+//	String _username="";
+//	String _password="";
 
     private Logging _applicationLog;
     private MailSender _mailSender;
 
     private HandlerThread expirationThread = new HandlerThread("HandlerThread");
-    private final Handler sessionExpiresHandler = new Handler(expirationThread.getLooper());
+    private Handler sessionExpiresHandler ;
 
 	/**
 	 * Returns the current KidoZen identity
@@ -153,9 +153,7 @@ public class KZApplication extends KZService {
         _logEndpoint= wrapper.get("logging").toString();
         _notificationEndpoint = wrapper.get("notification").toString();
         _applicationLog = new Logging(_logEndpoint);
-        CloneCredentials(_applicationLog);
         _mailSender = new MailSender(_emailEndpoint);
-        CloneCredentials(_mailSender);
 
         Log.d(LOGTAG, "Getting provider configuration");
         _identityProviders = new HashMap<String, JSONObject>();
@@ -232,8 +230,8 @@ public class KZApplication extends KZService {
         channel.setKidozenUser(this.KidozenUser);
         channel._bypassSSLVerification = this.BypassSSLVerification;
 
-        channel.SetCredentials(_providerKey, _username, _password, null);
-        channel.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, ipEndpoint);
+        channel.SetCredentials(_provider, _username, _password, null);
+        channel.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, _ipEndpoint);
         tokenUpdater.addObserver(channel);
 
 		return channel;
@@ -473,7 +471,7 @@ public class KZApplication extends KZService {
 	 */
 	public void Authenticate(final String providerKey,final String username, final String password,final ServiceEventListener callback) 
 	{
-		_providerKey= providerKey;
+		_provider= providerKey;
 		_username=username;
 		_password=password;
 
@@ -490,12 +488,14 @@ public class KZApplication extends KZService {
 			}
 		}
 		else {
-            super.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, ipEndpoint);
+            super.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, _ipEndpoint);
             super.Authenticate(providerKey, username, password, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 if (e.StatusCode<HttpStatus.SC_BAD_REQUEST)
                 {
+                    CloneCredentials(_applicationLog);
+                    CloneCredentials(_mailSender);
                     long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
                     if (delay<0)
                     {
@@ -516,13 +516,14 @@ public class KZApplication extends KZService {
 	 */
 	public void OnSessionExpirationRunnable(Runnable onSessionExpirationRunnable) {
         expirationThread.start();
+        sessionExpiresHandler = new Handler(expirationThread.getLooper());
         sessionExpiresHandler.postDelayed(onSessionExpirationRunnable,KidozenUser.GetExpirationInMiliseconds());
 	}
 	
 	private final Runnable defaultSessionExpirationEvent() {
 		return new Runnable() {
 			public void run() {
-					Authenticate(_providerKey, _username, _password);
+					Authenticate(_provider, _username, _password);
 			}
 		};
 	}
@@ -568,9 +569,13 @@ public class KZApplication extends KZService {
         return service;
     }
 
+    public void RenewAuthentication(final ServiceEventListener callback) {
+        super.RenewAuthenticationToken(callback);
+    }
+
     private void CloneCredentials(KZService service) {
-        service.SetCredentials(_providerKey, _username, _password, null);
-        service.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, ipEndpoint);
+        service.SetCredentials(_provider, _username, _password, null);
+        service.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, _ipEndpoint);
     }
 
 }
