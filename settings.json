@@ -1,12 +1,15 @@
 {
-    "kz_tenant" :   "https://contoso.local.kidozen.com",
-    "kz_app" :      "christian",
-    "kz_usr" :      "contoso@kidozen.com",
-    "kz_pass" :     "pass",
-    "kz_provider" : "Kidozen",
+    "kz_tenant" :               "your tenant url",
+    "kz_app" :                  "your app",
+    "kz_usr" :                  "your kido user",
+    "kz_pass" :                 "your kido user password",
+    "kz_provider" :             "Kidozen",
+    "kz_email_to" :             "none@email.com",
+    "kz_email_from" :           "none@email.com"
     "kz_sharefile_serviceid" :  "sharefile",
-    "kz_sharefile_user" : "gus@kidozen.com",
-    "kz_sharefile_pass" : "kidozen*1",
-    "kz_email_to" :  "none@kidozen.com",
-    "kz_email_from" : "ci@kidozen.com"
+    "kz_sharefile_user" :       "sharefileaccount",
+    "kz_sharefile_pass" :       "sharefilepassword",
 }
+
+
+
