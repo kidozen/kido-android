@@ -32,11 +32,10 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class StorageIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
-    public static final int TIMEOUT = 3000;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final String DATA_VALUE_KEY = "value";
     KZApplication kidozen = null;
     Storage _storage;
@@ -64,7 +63,7 @@ public class StorageIntegrationTest {
         Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
         storage.Create(data, createCallback(lcd));
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
     @Test
@@ -75,7 +74,7 @@ public class StorageIntegrationTest {
         Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
         storage.Create(data,true, createCallback(lcd));
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
     @Test
@@ -86,7 +85,7 @@ public class StorageIntegrationTest {
         Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
         storage.Create(data, false, createCallback(lcd));
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
     @Test
@@ -105,7 +104,7 @@ public class StorageIntegrationTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
     }
     @Test
@@ -131,7 +130,7 @@ public class StorageIntegrationTest {
                 }
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldDropCollection() throws Exception
@@ -159,7 +158,7 @@ public class StorageIntegrationTest {
                 }
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldGetAllObjects() throws Exception
@@ -182,7 +181,7 @@ public class StorageIntegrationTest {
                 }
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldUpdateObject() throws Exception {
@@ -203,7 +202,7 @@ public class StorageIntegrationTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void UpdateObjectShouldReturnException() throws Exception {
@@ -225,7 +224,7 @@ public class StorageIntegrationTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void UpdateObjectShouldReturnConflict() throws Exception {
@@ -250,7 +249,7 @@ public class StorageIntegrationTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldQueryObject() throws Exception {
@@ -269,7 +268,7 @@ public class StorageIntegrationTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
     @Test
@@ -308,45 +307,8 @@ public class StorageIntegrationTest {
                 }
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
-    @Test
-    public void ShouldRenewTokenUsingDefaultSettings() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
-            }
-        });
-        lcd.await(TIMEOUT, TimeUnit.MILLISECONDS);
-        final CountDownLatch alcd = new CountDownLatch(1);
-
-        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                alcd.countDown();
-            }
-        });
-        alcd.await(TIMEOUT , TimeUnit.MILLISECONDS);
-
-        //Assert
-        final CountDownLatch qcdl = new CountDownLatch(1);
-        int AUTH_TIMEOUT = 300000;
-        Thread.sleep(AUTH_TIMEOUT);
-        _storage.Query("{}", new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertEquals(e.StatusCode, HttpStatus.SC_OK);
-                qcdl.countDown();
-            }
-        });
-        assertTrue(qcdl.await(AUTH_TIMEOUT, TimeUnit.MILLISECONDS));
-    }
-
 
     //
     private StorageEventListener createObjectForStorage(JSONObject d) throws Exception {

@@ -2,7 +2,6 @@ import kidozen.client.*;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -26,11 +25,10 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class LoggingIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
-    public static final int TIMEOUT = 3000;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final String DATA_VALUE_KEY = "value";
     KZApplication kidozen = null;
     Storage _storage;
@@ -56,7 +54,7 @@ public class LoggingIntegrationTest {
 
         kidozen.WriteLog("LoggingIntegrationTests",LogLevel.LogLevelCritical, createCallback(lcd));
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldTruncateLog() throws Exception {
@@ -70,7 +68,7 @@ public class LoggingIntegrationTest {
             }
         });
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
     @Test
@@ -86,7 +84,7 @@ public class LoggingIntegrationTest {
             }
         });
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
     //

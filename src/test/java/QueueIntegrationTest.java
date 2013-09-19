@@ -3,7 +3,6 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -27,10 +26,9 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class QueueIntegrationTest {
 
-    public static final int TIMEOUT = 6000;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final String DATA_VALUE_KEY = "value";
     public static final String QUEUE_INTEGRATION_TESTS = "StorageIntegrationTests";
     KZApplication kidozen = null;
@@ -43,7 +41,7 @@ public class QueueIntegrationTest {
             final CountDownLatch signal = new CountDownLatch(2);
             kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
             kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
-            signal.await(TIMEOUT, TimeUnit.MILLISECONDS);
+            signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
@@ -57,7 +55,7 @@ public class QueueIntegrationTest {
         Queue q = kidozen.Queue(QUEUE_INTEGRATION_TESTS);
         q.Enqueue (data, sendCallback(lcd));
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldDequeue() throws Exception {
@@ -77,7 +75,7 @@ public class QueueIntegrationTest {
             }
         } );
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {

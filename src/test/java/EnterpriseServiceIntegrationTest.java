@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
 public class EnterpriseServiceIntegrationTest {
     private static final String KZ_SHAREFILE_GETAUTHID_METHODID = "getAuthID";
     private static final String KZ_SHAREFILE_INVALID_METHODID = "Invalid";
-    public static final int TIMEOUT = 3000;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
 
     KZApplication kidozen = null;
     private JSONObject data;
@@ -69,7 +69,7 @@ public class EnterpriseServiceIntegrationTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldInvokeMethod() throws Exception {
@@ -82,7 +82,7 @@ public class EnterpriseServiceIntegrationTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void InvokeMethodShouldReturnException() throws Exception{
@@ -97,7 +97,7 @@ public class EnterpriseServiceIntegrationTest {
             }
         });
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
     }
 
@@ -106,7 +106,7 @@ public class EnterpriseServiceIntegrationTest {
         return new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(200));
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 signal.countDown();
             }
         };
@@ -116,7 +116,7 @@ public class EnterpriseServiceIntegrationTest {
         return new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(200));
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 signal.countDown();
             }
         };

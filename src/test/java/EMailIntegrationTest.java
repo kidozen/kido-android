@@ -2,7 +2,6 @@ import kidozen.client.*;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -30,7 +29,7 @@ import static org.junit.Assert.fail;
 @Config(manifest= Config.NONE)
 public class EMailIntegrationTest {
 
-    public static final int TIMEOUT = 3000;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 3;
     public static final String DATA_VALUE_KEY = "value";
 
     KZApplication kidozen = null;
@@ -43,7 +42,7 @@ public class EMailIntegrationTest {
             final CountDownLatch signal = new CountDownLatch(2);
             kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
             kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
-            signal.await(TIMEOUT, TimeUnit.MILLISECONDS);
+            signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
@@ -61,7 +60,7 @@ public class EMailIntegrationTest {
 
         kidozen.SendEmail(mail, sendCallback(lcd));
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
     public void ShouldSendEmailWithMultipleRecipients() throws Exception {
@@ -74,7 +73,7 @@ public class EMailIntegrationTest {
 
         kidozen.SendEmail(mail, sendCallback(lcd));
 
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {

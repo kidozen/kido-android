@@ -18,6 +18,8 @@ public class IntegrationTestConfiguration {
     public static  String KZ_EMAIL_TO;
     public static  String KZ_EMAIL_FROM;
 
+    public static int KZ_TOKEN_EXPIRES_TIMEOUT= (1000 * 60 * 4);
+
     static {
         try {
             String file_settings = System.getProperty("settings");
@@ -76,17 +78,12 @@ public class IntegrationTestConfiguration {
         KZ_USER = "contoso@kidozen.com";
         KZ_PASS = "pass";
 
-/*
-        KZ_TENANT = "https://armonia.kidocloud.com";
-        KZ_APP = "tasks";
-        KZ_USER = "armonia@kidozen.com";
-        KZ_PASS = "pass";
-*/
         KZ_SHAREFILE_PASS = "your sharefile secret";
         KZ_SHAREFILE_SERVICEID = "sharefile";
         KZ_SHAREFILE_USER = "your sharefile user";
         KZ_EMAIL_FROM = "christian.carnero@gmail.com";
         KZ_EMAIL_TO = "chris@kidozen.com";
         KZ_PROVIDER= "Kidozen";
+
     }
 }

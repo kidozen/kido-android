@@ -2,7 +2,6 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -16,10 +15,8 @@ import java.util.concurrent.TimeUnit;
 import kidozen.client.KZAction;
 import kidozen.client.KZApplication;
 import kidozen.client.PubSubChannel;
-import kidozen.client.Queue;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
-import kidozen.client.Storage;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -37,10 +34,9 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class PubSubIntegrationTest {
 
-    public static final int TIMEOUT = 15000;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final String DATA_VALUE_KEY = "value";
     public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests";
     KZApplication kidozen = null;
@@ -52,7 +48,7 @@ public class PubSubIntegrationTest {
             final CountDownLatch signal = new CountDownLatch(2);
             kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
             kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
-            signal.await(TIMEOUT, TimeUnit.MILLISECONDS);
+            signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
@@ -88,43 +84,11 @@ public class PubSubIntegrationTest {
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
             }
         });
-        assertTrue(lcd.await(TIMEOUT, TimeUnit.MILLISECONDS));
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+
     }
 
-    @Test
-    public void ShouldSubscribeAndReceiveMessageRenewingToken() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
-        final PubSubChannel q = kidozen.PubSubChannel(PUBSUB_INTEGRATION_TESTS);
-
-        KZAction<JSONObject> onMessage = new KZAction<JSONObject>() {
-            @Override
-            public void onServiceResponse(JSONObject response) throws Exception {
-                lcd.countDown();
-            }
-        };
-
-        KZAction<Exception> onError = new KZAction<Exception>() {
-            @Override
-            public void onServiceResponse(Exception response) throws Exception {
-                fail();
-            }
-        };
-
-        q.Subscribe(onMessage, onError);
-
-        int AUTH_TIMEOUT = 300000;
-        Thread.sleep(AUTH_TIMEOUT);
-
-        q.Publish(data, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
-            }
-        });
-        assertTrue(lcd.await(TIMEOUT + AUTH_TIMEOUT, TimeUnit.MILLISECONDS));
-    }
-    //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {
         return  new ServiceEventListener() {
             @Override

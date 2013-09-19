@@ -31,12 +31,9 @@ import static org.junit.Assert.assertTrue;
 @Config(manifest= Config.NONE)
 
 public class ApplicationIntegrationTest {
-
-    public static final int TIMEOUT = 4;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     private static final String INVALIDAPP = "NADA";
     KZApplication kidozen = null;
-
-    boolean onSessionExpirationRun = false;
 
     @Before
     public void Setup()
@@ -53,7 +50,7 @@ public class ApplicationIntegrationTest {
                 lcd.countDown();
             }
         });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     @Test
@@ -66,11 +63,10 @@ public class ApplicationIntegrationTest {
                 lcd.countDown();
             }
         });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     @Test
-    @Ignore
     public void ShouldAuthenticateUsingDefaultSettingsWithoutAuthCallback() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
@@ -80,12 +76,12 @@ public class ApplicationIntegrationTest {
                 lcd.countDown();
             }
         });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS);
 
-        alcd.await(TIMEOUT, TimeUnit.MINUTES);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     @Test
@@ -98,7 +94,7 @@ public class ApplicationIntegrationTest {
             lcd.countDown();
             }
         });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
@@ -108,7 +104,7 @@ public class ApplicationIntegrationTest {
                 alcd.countDown();
             }
         });
-        alcd.await(TIMEOUT, TimeUnit.MINUTES);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     @Test
@@ -121,7 +117,7 @@ public class ApplicationIntegrationTest {
                 lcd.countDown();
             }
         });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "contoso@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
@@ -131,7 +127,7 @@ public class ApplicationIntegrationTest {
                 alcd.countDown();
             }
         });
-        alcd.await(TIMEOUT, TimeUnit.MINUTES);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     @Test
@@ -144,7 +140,7 @@ public class ApplicationIntegrationTest {
                 lcd.countDown();
             }
         });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
@@ -154,7 +150,7 @@ public class ApplicationIntegrationTest {
                 alcd.countDown();
             }
         });
-        alcd.await(TIMEOUT, TimeUnit.MINUTES);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     @Test
@@ -168,46 +164,7 @@ public class ApplicationIntegrationTest {
                 lcd.countDown();
             }
         });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
-    }
-
-    @Test
-    @Ignore //Cannot run this test with current robolectric version
-    public void ShouldExecuteOnSessionExpirationRunnable() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
-            }
-        });
-        lcd.await(TIMEOUT, TimeUnit.MINUTES);
-        final CountDownLatch alcd = new CountDownLatch(1);
-
-        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                alcd.countDown();
-            }
-        });
-        alcd.await(TIMEOUT, TimeUnit.MINUTES);
-
-
-        final CountDownLatch lcde = new CountDownLatch(1);
-        Runnable whenExpires = new Runnable() {
-            @Override
-            public void run() {
-                onSessionExpirationRun = true;
-                lcde.countDown();
-            }
-        };
-        kidozen.OnSessionExpirationRunnable(whenExpires);
-
-        lcde.await(TIMEOUT, TimeUnit.MINUTES);
-
-        assertTrue(onSessionExpirationRun);
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
 
