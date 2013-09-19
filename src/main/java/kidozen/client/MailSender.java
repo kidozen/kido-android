@@ -37,7 +37,7 @@ public class MailSender extends KZService implements Observer {
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
 		
-		headers.put(AUTHORIZATION_HEADER,this.KidozenUser.Token);
+		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 		headers.put(CONTENT_TYPE,APPLICATION_JSON);
 		headers.put(ACCEPT, APPLICATION_JSON);
 

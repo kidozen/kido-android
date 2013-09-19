@@ -47,7 +47,7 @@ public class Logging extends KZService {
 
 		params.put("level", lvl.toString());
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,this.KidozenUser.Token);
+		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 		headers.put(CONTENT_TYPE,APPLICATION_JSON);
 		headers.put(ACCEPT, APPLICATION_JSON);
 
@@ -74,7 +74,7 @@ public class Logging extends KZService {
 	{
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,this.KidozenUser.Token);
+		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
         this.ExecuteTask(_endpoint, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
 	}

@@ -152,8 +152,6 @@ public class KZApplication extends KZService {
         _publisherEndpoint = wrapper.get("pubsub").toString();
         _logEndpoint= wrapper.get("logging").toString();
         _notificationEndpoint = wrapper.get("notification").toString();
-        _applicationLog = new Logging(_logEndpoint);
-        _mailSender = new MailSender(_emailEndpoint);
 
         Log.d(LOGTAG, "Getting provider configuration");
         _identityProviders = new HashMap<String, JSONObject>();
@@ -333,13 +331,19 @@ public class KZApplication extends KZService {
 		if (mail==null) {
 			throw new Exception("Mail message must not be null");
 		}
-		_mailSender.KidozenUser = this.KidozenUser;
-		_mailSender.BypassSSLVerification = this.BypassSSLVerification;
-		tokenUpdater.addObserver(_mailSender);
+        if (_mailSender==null)
+        {
+            _mailSender = new MailSender(_emailEndpoint);
+            _mailSender.KidozenUser = this.KidozenUser;
+            _mailSender.BypassSSLVerification = this.BypassSSLVerification;
+            tokenUpdater.addObserver(_mailSender);
+            CloneCredentials(_mailSender);
+        }
+
 		_mailSender.Send( mail,  callback) ;
 	}
 
-	
+
 	/**
 	 * Creates a new entry in the KZApplication log
 	 * 
@@ -352,11 +356,10 @@ public class KZApplication extends KZService {
 		if (level==null) {
 			throw new Exception("Level must not be null");
 		}
-		HashMap<String, String> msg = new HashMap<String, String>();
-		msg.put("message", message);
-		_applicationLog.KidozenUser = this.KidozenUser;
-		_applicationLog.BypassSSLVerification = this.BypassSSLVerification;
-		_applicationLog.Write(new JSONObject(msg), level, null);
+        checkApplicationLog();
+        HashMap<String, String> msg = new HashMap<String, String>();
+        msg.put("message", message);
+        _applicationLog.Write(new JSONObject(msg), level, null);
 	}
 
 	/**
@@ -372,20 +375,29 @@ public class KZApplication extends KZService {
 		if (level==null) {
 			throw new Exception("Level must not be null");
 		}
-		HashMap<String, String> msg = new HashMap<String, String>();
+        checkApplicationLog();
+        HashMap<String, String> msg = new HashMap<String, String>();
 		msg.put("message", message);
-		_applicationLog.KidozenUser = this.KidozenUser;
-		_applicationLog.BypassSSLVerification = this.BypassSSLVerification;
 		_applicationLog.Write(new JSONObject(msg), level, callback);
 	}
 
-	/**
+    private void checkApplicationLog() {
+        if (_applicationLog==null)
+        {
+            _applicationLog = new Logging(_logEndpoint);
+            _applicationLog.KidozenUser = this.KidozenUser;
+            _applicationLog.BypassSSLVerification = this.BypassSSLVerification;
+            tokenUpdater.addObserver(_applicationLog);
+            CloneCredentials(_applicationLog);
+        }
+    }
+
+    /**
 	 * Clears the KZApplication log
 	 */
 	public void ClearLog()  {
-		_applicationLog.KidozenUser = this.KidozenUser;
-		_applicationLog.BypassSSLVerification = this.BypassSSLVerification;
-		_applicationLog.Clear(null);
+        checkApplicationLog();
+        _applicationLog.Clear(null);
 	}
 
 	/**
@@ -394,9 +406,8 @@ public class KZApplication extends KZService {
 	 * @param callback The callback with the result of the service call
 	 */
 	public void ClearLog(ServiceEventListener callback)  {
-		_applicationLog.KidozenUser = this.KidozenUser;
-		_applicationLog.BypassSSLVerification = this.BypassSSLVerification;
-		_applicationLog.Clear(callback);
+        checkApplicationLog();
+        _applicationLog.Clear(callback);
 	}
 
 	/**
@@ -406,9 +417,8 @@ public class KZApplication extends KZService {
 	 */
 	public void AllLogMessages(ServiceEventListener callback)
 	{
-		_applicationLog.KidozenUser = this.KidozenUser;
-		_applicationLog.BypassSSLVerification = this.BypassSSLVerification;
-		HashMap<String, String> headers = new HashMap<String, String>();
+        checkApplicationLog();
+        HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,this.KidozenUser.Token);
 		_applicationLog.All(callback);
 	}
@@ -420,9 +430,8 @@ public class KZApplication extends KZService {
 	 * @throws Exception
 	 */
 	public JSONArray AllLogMessages() throws Exception {
-		_applicationLog.KidozenUser = this.KidozenUser;
-		_applicationLog.BypassSSLVerification = this.BypassSSLVerification;
-		_applicationLog.All(new ServiceEventListener() {
+        checkApplicationLog();
+        _applicationLog.All(new ServiceEventListener() {
 			public void onFinish(ServiceEvent e) {
 				_allApplicationLogEvents = (JSONArray) e.Response;
 			}
@@ -494,8 +503,6 @@ public class KZApplication extends KZService {
             public void onFinish(ServiceEvent e) {
                 if (e.StatusCode<HttpStatus.SC_BAD_REQUEST)
                 {
-                    CloneCredentials(_applicationLog);
-                    CloneCredentials(_mailSender);
                     long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
                     if (delay<0)
                     {
@@ -574,6 +581,13 @@ public class KZApplication extends KZService {
     }
 
     private void CloneCredentials(KZService service) {
+        if (_ipEndpoint==null)
+            try {
+                _ipEndpoint = _identityProviders.get(_provider).getString("endpoint");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         service.SetCredentials(_provider, _username, _password, null);
         service.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, _ipEndpoint);
     }
