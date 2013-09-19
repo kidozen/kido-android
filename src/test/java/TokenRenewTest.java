@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-
+@Ignore
 public class TokenRenewTest {
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
     public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests";
