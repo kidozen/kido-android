@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>kidozen.client</groupId>
 	<artifactId>kz.client</artifactId>
-	<version>1.0.1</version>
-	<packaging>apk</packaging>
+	<version>1.0.5</version>
+	<packaging>jar</packaging>
 	<name>kz.client</name>
     <dependencies>
         <dependency>
@@ -51,7 +51,7 @@
 
     </dependencies>
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}-${version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -64,7 +64,7 @@
                             <goal>increment</goal>
                             <goal>commit</goal>
                         </goals>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <configuration>
                             <autoIncrementVersion>true</autoIncrementVersion>
                         </configuration>
