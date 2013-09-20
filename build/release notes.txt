@@ -1,9 +1,15 @@
+Version 1.0.3
+
+* 2013-09-20    bug-fix: Token renew
+                bug-fix: Logging and Email
+
+
 Version 1.0.2
 
-* 2013-09-12 Storage Create method now supports public/private 
-* 2013-09-09 backward compatibility for authentication
-* 2013-09-05 authentication callback check
-* 2013-08-23 improved support for users sources authentication
+* 2013-09-12    Storage Create method now supports public/private
+* 2013-09-09    backward compatibility for authentication
+* 2013-09-05    authentication callback check
+* 2013-08-23    improved support for users sources authentication
 
 Version 1.0.1
 
