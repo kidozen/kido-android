@@ -1,3 +1,7 @@
+Version 1.0.6
+
+* 2013-09-23	fix mvn versioning task
+
 Version 1.0.3
 
 * 2013-09-20    bug-fix: Token renew
