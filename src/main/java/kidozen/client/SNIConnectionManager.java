@@ -1,10 +1,16 @@
 package kidozen.client;
 
+import android.util.Log;
+
 import org.apache.http.HttpStatus;
 
 import javax.net.ssl.*;
 
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -133,5 +139,76 @@ public class SNIConnectionManager
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
         return retVal;
+    }
+
+    public String doFileUpload(String selectedPath, String page, String headervalue)
+    {
+        String response=null;
+        HttpURLConnection conn = null;
+        DataOutputStream dos = null;
+        DataInputStream inStream = null;
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1*1024*1024;
+        String urlString = "https://christian.contoso.local.kidozen.com/uploads";
+        try
+        {
+            //------------------ CLIENT REQUEST
+            FileInputStream fileInputStream = new FileInputStream(new File(selectedPath) );
+            // open a URL connection to the Servlet
+            URL url = new URL(urlString);
+            // Open a HTTP connection to the URL
+            conn = (HttpURLConnection) url.openConnection();
+            // Allow Inputs
+            conn.setDoInput(true);
+            // Allow Outputs
+            conn.setDoOutput(true);
+            // Don't use a cached copy.
+            conn.setUseCaches(false);
+            // Use a post method.
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Authorization", headervalue);
+            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setRequestProperty("x-file-name","foo.rtf");
+            conn.setRequestProperty("Content-Type","application/octet-stream");
+            dos = new DataOutputStream( conn.getOutputStream() );
+
+            bytesAvailable = fileInputStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+            // read file and write it into form...
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            while (bytesRead > 0)
+            {
+                dos.write(buffer, 0, bufferSize);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            }
+            // close streams
+            fileInputStream.close();
+            dos.flush();
+            dos.close();
+        }
+        catch (MalformedURLException ex)
+        {
+            Log.e("Debug", "error: " + ex.getMessage(), ex);
+        }
+        catch (IOException ioe)
+        {
+            Log.e("Debug", "error: " + ioe.getMessage(), ioe);
+        }
+        //------------------ read the SERVER RESPONSE
+        try
+        {
+            inStream = new DataInputStream ( conn.getInputStream() );
+            response = inStream.readLine();
+            inStream.close();
+
+        }
+        catch (IOException ioex){
+            Log.e("Debug", "error: " + ioex.getMessage(), ioex);
+        }
+        return getExecutionResponse(conn);
     }
 }

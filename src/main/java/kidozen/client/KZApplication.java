@@ -45,6 +45,7 @@ public class KZApplication extends KZService {
 	private String _publisherEndpoint;
 	private String _logEndpoint;
 	private String _notificationEndpoint;
+    private String _filesEndpoint;
 	private static JSONArray _allApplicationLogEvents;
 	private int initializedStatusCode=0;
 	private Object initializedResponse;
@@ -152,6 +153,7 @@ public class KZApplication extends KZService {
         _publisherEndpoint = wrapper.get("pubsub").toString();
         _logEndpoint= wrapper.get("logging").toString();
         _notificationEndpoint = wrapper.get("notification").toString();
+        _filesEndpoint = wrapper.get("files").toString();
 
         Log.d(LOGTAG, "Getting provider configuration");
         _identityProviders = new HashMap<String, JSONObject>();
@@ -438,7 +440,22 @@ public class KZApplication extends KZService {
 		});
 		return _allApplicationLogEvents;
 	}
-
+    /**
+     * Creates a new Storage object
+     *
+     * @param name The name that references the Storage instance
+     * @return a new Storage object
+     * @throws Exception
+     */
+    public Files Files(String name) throws Exception{
+        checkMethodParameters(name);
+        Files files = new Files(_filesEndpoint, name);
+        files.KidozenUser = this.KidozenUser;
+        files.BypassSSLVerification = this.BypassSSLVerification;
+        tokenUpdater.addObserver(files);
+        CloneCredentials(files);
+        return files;
+    }
 	private void checkMethodParameters(String name) throws InvalidParameterException {
 		if (name.isEmpty() || name == null) {
 			throw new InvalidParameterException("name cannot be null or empty");

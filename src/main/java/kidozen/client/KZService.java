@@ -71,6 +71,12 @@ public class KZService implements Observer
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
 
+    public void Upload(String headervalue)
+    {
+        KZServiceAsyncTask x = new KZServiceAsyncTask(KZHttpMethod.CONNECT,null,null,null,null, false);
+        x.Upload(headervalue);
+    }
+
 
     @Override
     public void update(Observable observable, Object data) {
@@ -140,6 +146,14 @@ public class KZService implements Observer
             _message = message;
         }
 
+        public void Upload(String headervalue)
+        {
+            _sniManager = new SNIConnectionManager("", "", null, _params, _bypassSSLValidation);
+            //_sniManager.uploadFile("/Users/christian/upload.rtf", headervalue);
+
+            _sniManager.doFileUpload("/Users/christian/upload.rtf","", headervalue);
+        }
+
         @Override
         protected ServiceEvent doInBackground(String... params) {
             int statusCode = HttpStatus.SC_BAD_REQUEST;
@@ -195,6 +209,7 @@ public class KZService implements Observer
         protected void onPostExecute(ServiceEvent result) {
             _callback.onFinish(result);
         }
+
     }
 }
 

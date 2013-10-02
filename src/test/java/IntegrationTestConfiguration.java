@@ -73,10 +73,10 @@ public class IntegrationTestConfiguration {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_TENANT = "your tenant url";
-        KZ_APP = "your app";
-        KZ_USER = "your kido user";
-        KZ_PASS = "your kido user password";
+        KZ_TENANT = "https://contoso.local.kidozen.com";
+        KZ_APP = "christian";
+        KZ_USER = "contoso@kidozen.com";
+        KZ_PASS = "pass";
         KZ_SHAREFILE_PASS = "your sharefile secret";
         KZ_SHAREFILE_SERVICEID = "sharefile";
         KZ_SHAREFILE_USER = "your sharefile user";
