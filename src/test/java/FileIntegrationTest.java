@@ -7,12 +7,17 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import kidozen.client.KZApplication;
-import kidozen.client.Mail;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.Storage;
@@ -57,10 +62,37 @@ public class FileIntegrationTest {
     @Test
     public void ShouldUploadFile() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen.FileStorage().Upload("/Users/christian/upload.rtf", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldDownloadFile() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen.FileStorage().Download("/users/christian/upload.rtf", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                try
+                {
+                    ByteArrayOutputStream response = (ByteArrayOutputStream) e.Response;
 
-        kidozen.Files("rwar").Send("rwar", null);
+                    OutputStream outputStream = new FileOutputStream("/Users/christian/Downloads/download.rtf");
+                    response.writeTo(outputStream);
 
-
+                    assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                }
+                catch (Exception ex)
+                {
+                    fail();
+                }
+                lcd.countDown();
+            }
+        });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 

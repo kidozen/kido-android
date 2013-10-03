@@ -6,12 +6,19 @@ import org.apache.http.HttpStatus;
 
 import javax.net.ssl.*;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -25,6 +32,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import sun.security.krb5.internal.LastReq;
+
 /**
  * Created with IntelliJ IDEA.
  * User: christian
@@ -34,19 +43,99 @@ import java.util.Map;
  */
 public class SNIConnectionManager
 {
+    public boolean ProcessAsStream = false;
+    public int LastResponseCode;
+    public String LastResponseMessage;
+    public String LastResponseBody;
+
     String _urlAsString;
     Hashtable<String, String> _requestProperties;
     HashMap<String,String> _params;
     boolean _developerMode;
-    String _bodyAsString=null;
+    String _bodyAsString;
+    InputStream _bodyAsStream;
 
-    public SNIConnectionManager (String urlAsString, String bodyAsString, Hashtable<String, String> requestProperties, HashMap<String,String> params, boolean developerMode)
+    public SNIConnectionManager (String urlAsString, String message, Hashtable<String, String> requestProperties, HashMap<String,String> params, boolean developerMode)
     {
         _urlAsString = urlAsString;
         _requestProperties = requestProperties;
         _params = params;
         _developerMode = developerMode;
-        _bodyAsString = bodyAsString;
+        _bodyAsString = message;
+    }
+
+    public SNIConnectionManager (String urlAsString, InputStream message, Hashtable<String, String> requestProperties, HashMap<String,String> params, boolean developerMode)
+    {
+        _urlAsString = urlAsString;
+        _requestProperties = requestProperties;
+        _params = params;
+        _developerMode = developerMode;
+        _bodyAsString = null;
+        _bodyAsStream = message;
+    }
+
+    public OutputStream ExecuteHttpAsStream(KZHttpMethod method) throws Exception
+    {
+        HttpURLConnection con = CreateConnectionThatHandlesRedirects(method);
+        if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && _bodyAsStream!=null) {
+            con.setDoOutput(true);
+
+            int bytesRead, bytesAvailable, bufferSize;
+            byte[] buffer;
+            int maxBufferSize = 1*1024*1024;
+
+            DataOutputStream dos = new DataOutputStream( con.getOutputStream() );
+            bytesAvailable = _bodyAsStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+            bytesRead = _bodyAsStream.read(buffer, 0, bufferSize);
+            while (bytesRead > 0)
+            {
+                dos.write(buffer, 0, bufferSize);
+                bytesAvailable = _bodyAsStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = _bodyAsStream.read(buffer, 0, bufferSize);
+            }
+            _bodyAsStream.close();
+            dos.flush();
+            dos.close();
+        }
+
+
+        LastResponseCode = con.getResponseCode();
+        LastResponseMessage = con.getResponseMessage();
+
+        if (LastResponseCode>= HttpStatus.SC_BAD_REQUEST)
+        {
+            LastResponseBody = Utilities.convertStreamToString(con.getErrorStream());
+            return null;
+        }
+        else
+        {
+            int dataread = 0;
+            int count = 0;
+            int CHUNK_SIZE = 8192;                   // TCP/IP packet size
+            byte[] dataChunk = new byte[CHUNK_SIZE]; // byte array for storing temporary data.
+
+            OutputStream fos = new ByteArrayOutputStream();
+            //BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+            BufferedInputStream bis = new BufferedInputStream(con.getInputStream());
+            InputStreamReader isr = new InputStreamReader( bis );
+            //BufferedReader br = new BufferedReader( isr );
+            while (dataread >= 0)
+            {
+                count++;
+                dataread = bis.read(dataChunk,0,CHUNK_SIZE);
+                System.out.print(".");
+                // only write out if there is data to be read
+                if ( dataread > 0 )
+                    fos.write(dataChunk,0,dataread);
+            }
+            bis.close();
+            fos.close();
+            return fos;
+        }
     }
 
     public Hashtable<String, String> ExecuteHttp(KZHttpMethod method) throws Exception
@@ -60,7 +149,6 @@ public class SNIConnectionManager
             writer.close();
             os.close();
         }
-
         return getExecutionResponse(con);
     }
 
@@ -139,76 +227,5 @@ public class SNIConnectionManager
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
         return retVal;
-    }
-
-    public String doFileUpload(String selectedPath, String page, String headervalue)
-    {
-        String response=null;
-        HttpURLConnection conn = null;
-        DataOutputStream dos = null;
-        DataInputStream inStream = null;
-        int bytesRead, bytesAvailable, bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1*1024*1024;
-        String urlString = "https://christian.contoso.local.kidozen.com/uploads";
-        try
-        {
-            //------------------ CLIENT REQUEST
-            FileInputStream fileInputStream = new FileInputStream(new File(selectedPath) );
-            // open a URL connection to the Servlet
-            URL url = new URL(urlString);
-            // Open a HTTP connection to the URL
-            conn = (HttpURLConnection) url.openConnection();
-            // Allow Inputs
-            conn.setDoInput(true);
-            // Allow Outputs
-            conn.setDoOutput(true);
-            // Don't use a cached copy.
-            conn.setUseCaches(false);
-            // Use a post method.
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", headervalue);
-            conn.setRequestProperty("Connection", "Keep-Alive");
-            conn.setRequestProperty("x-file-name","foo.rtf");
-            conn.setRequestProperty("Content-Type","application/octet-stream");
-            dos = new DataOutputStream( conn.getOutputStream() );
-
-            bytesAvailable = fileInputStream.available();
-            bufferSize = Math.min(bytesAvailable, maxBufferSize);
-            buffer = new byte[bufferSize];
-            // read file and write it into form...
-            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-            while (bytesRead > 0)
-            {
-                dos.write(buffer, 0, bufferSize);
-                bytesAvailable = fileInputStream.available();
-                bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-            }
-            // close streams
-            fileInputStream.close();
-            dos.flush();
-            dos.close();
-        }
-        catch (MalformedURLException ex)
-        {
-            Log.e("Debug", "error: " + ex.getMessage(), ex);
-        }
-        catch (IOException ioe)
-        {
-            Log.e("Debug", "error: " + ioe.getMessage(), ioe);
-        }
-        //------------------ read the SERVER RESPONSE
-        try
-        {
-            inStream = new DataInputStream ( conn.getInputStream() );
-            response = inStream.readLine();
-            inStream.close();
-
-        }
-        catch (IOException ioex){
-            Log.e("Debug", "error: " + ioex.getMessage(), ioex);
-        }
-        return getExecutionResponse(conn);
     }
 }

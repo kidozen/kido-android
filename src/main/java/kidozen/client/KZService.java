@@ -9,6 +9,9 @@ import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 
 public class KZService implements Observer
@@ -43,6 +46,7 @@ public class KZService implements Observer
     private String _scope;
     private String _authScope;
     private String _authServiceEndpoint;
+    public boolean ProcessAsStream = false;
 
 
     public String CreateAuthHeaderValue()
@@ -71,12 +75,9 @@ public class KZService implements Observer
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
 
-    public void Upload(String headervalue)
-    {
-        KZServiceAsyncTask x = new KZServiceAsyncTask(KZHttpMethod.CONNECT,null,null,null,null, false);
-        x.Upload(headervalue);
+    public void ExecuteTask(String url, KZHttpMethod method, HashMap<String,String> params, HashMap<String,String> headers, ServiceEventListener callback, FileInputStream message, Boolean bypassSSLValidation) {
+        new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
-
 
     @Override
     public void update(Observable observable, Object data) {
@@ -126,6 +127,9 @@ public class KZService implements Observer
         ServiceEventListener _callback= null;
         ServiceEvent _event = null;
         JSONObject _message;
+
+        InputStream _messageAsStream;
+
         Boolean _bypassSSLValidation;
         private SNIConnectionManager _sniManager;
 
@@ -146,20 +150,24 @@ public class KZService implements Observer
             _message = message;
         }
 
+        public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, InputStream message, ServiceEventListener callback, Boolean bypassSSLValidation) {
+            this(method,params, headers,  callback, bypassSSLValidation);
+            _messageAsStream = message;
+        }
+/*
         public void Upload(String headervalue)
         {
             _sniManager = new SNIConnectionManager("", "", null, _params, _bypassSSLValidation);
             //_sniManager.uploadFile("/Users/christian/upload.rtf", headervalue);
 
-            _sniManager.doFileUpload("/Users/christian/upload.rtf","", headervalue);
+            _sniManager.doFileUpload("/Users/christian/upload.rtf", headervalue);
         }
-
+*/
         @Override
         protected ServiceEvent doInBackground(String... params) {
             int statusCode = HttpStatus.SC_BAD_REQUEST;
             try
             {
-                String body = null;
                 Hashtable<String, String> requestProperties = new Hashtable<String, String>();
                 Iterator<Map.Entry<String, String>> it = _headers.entrySet().iterator();
                 while (it.hasNext()) {
@@ -169,33 +177,53 @@ public class KZService implements Observer
                 }
 
                 String  url = params[0];
-                Hashtable<String, String> response =null;
-                String msg = _message == null ? null : _message.toString();
-                _sniManager = new SNIConnectionManager(url, msg, requestProperties, _params, _bypassSSLValidation);
-                response = _sniManager.ExecuteHttp(_method);
 
-                statusCode = Integer.parseInt(response.get("statusCode"));
-                body = response.get("responseBody");
-                body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-
-                if (statusCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
-                    String exceptionMessage = (body!=null ? body : "Unexpected HTTP Status Code: " + statusCode);
-                    throw new Exception(exceptionMessage);
+                if (ProcessAsStream)
+                {
+                    _sniManager = new SNIConnectionManager(url, _messageAsStream, requestProperties, _params, _bypassSSLValidation);
+                }
+                else
+                {
+                    String msg = _message == null ? null : _message.toString();
+                    _sniManager = new SNIConnectionManager(url, msg, requestProperties, _params, _bypassSSLValidation);
                 }
 
-                if (body.replace("\n", "").toLowerCase().equals(response.get("responseMessage").toLowerCase())) {
-                    _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
+                if (ProcessAsStream)
+                {
+                    OutputStream response = _sniManager.ExecuteHttpAsStream(_method);
+                    if (_sniManager.LastResponseCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
+                        String exceptionMessage = (_sniManager.LastResponseBody!=null ? _sniManager.LastResponseBody : "Unexpected HTTP Status Code: " + _sniManager.LastResponseCode);
+                        throw new Exception(exceptionMessage);
+                    }
+                    _event = new ServiceEvent(this, _sniManager.LastResponseCode, null, response);
+                }
+                else
+                {
+                    Hashtable<String, String> response = _sniManager.ExecuteHttp(_method);
+                    String body = response.get("responseBody");
+                    statusCode = Integer.parseInt(response.get("statusCode"));
+                    if (statusCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
+                        String exceptionMessage = (body!=null ? body : "Unexpected HTTP Status Code: " + statusCode);
+                        throw new Exception(exceptionMessage);
+                    }
+                    body = (body==null || body.equals("") || body.equals("null") ? "" : body);
+                    if (body.replace("\n", "").toLowerCase().equals(response.get("responseMessage").toLowerCase()))
+                    {
+                        _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
+                    }
+                    else
+                        if (body.indexOf("[")>-1)
+                        {
+                            JSONArray theObject = new JSONArray(body);
+                            _event = new ServiceEvent(this, statusCode, body, theObject);
+                        }
+                        else
+                        {
+                            JSONObject theObject = new JSONObject(body);
+                            _event = new ServiceEvent(this, statusCode, body, theObject);
+                        }
                 }
 
-                else if (body.indexOf("[")>-1) {
-                    JSONArray theObject = new JSONArray(body);
-                    _event = new ServiceEvent(this, statusCode, body, theObject);
-                }
-
-                else {
-                    JSONObject theObject = new JSONObject(body);
-                    _event = new ServiceEvent(this, statusCode, body, theObject);
-                }
             }
             catch(Exception e)
             {

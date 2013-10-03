@@ -447,9 +447,8 @@ public class KZApplication extends KZService {
      * @return a new Storage object
      * @throws Exception
      */
-    public Files Files(String name) throws Exception{
-        checkMethodParameters(name);
-        Files files = new Files(_filesEndpoint, name);
+    public Files FileStorage() throws Exception{
+        Files files = new Files(_filesEndpoint);
         files.KidozenUser = this.KidozenUser;
         files.BypassSSLVerification = this.BypassSSLVerification;
         tokenUpdater.addObserver(files);
