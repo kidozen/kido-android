@@ -1,3 +1,6 @@
+Version 1.0.7
+* 2013-10-03	File Storage support
+
 Version 1.0.6
 
 * 2013-09-23	fix mvn versioning task

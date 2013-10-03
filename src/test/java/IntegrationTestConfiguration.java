@@ -80,8 +80,8 @@ public class IntegrationTestConfiguration {
         KZ_SHAREFILE_PASS = "your sharefile secret";
         KZ_SHAREFILE_SERVICEID = "sharefile";
         KZ_SHAREFILE_USER = "your sharefile user";
-        KZ_EMAIL_FROM = "an email address";
-        KZ_EMAIL_TO = "another email address";
+        KZ_EMAIL_FROM = "none@kidozen.com";
+        KZ_EMAIL_TO = "chris@kidozen.com";
         KZ_PROVIDER= "Kidozen";
 
     }

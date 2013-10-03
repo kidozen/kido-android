@@ -43,7 +43,6 @@ public class Files extends KZService  implements Observer {
 	 *
 	 * You should not create a new instances of this constructor. Instead use the SMSSender["number"] method of the KZApplication object.
 	 * @param endpoint The service endpoint
-	 * @param name The sms number to send messages
 	 */
 	public Files(String endpoint)
 	{
@@ -79,7 +78,7 @@ public class Files extends KZService  implements Observer {
     /**
 	 * Download a file
 	 *
-	 * @param path The file path
+	 * @param fullFilePath The file path
 	 * @param callback The callback with the result of the service call
     * */
     public void Download(String fullFilePath, final ServiceEventListener callback)

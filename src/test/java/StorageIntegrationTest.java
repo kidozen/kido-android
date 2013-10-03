@@ -32,6 +32,7 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class StorageIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
@@ -108,6 +109,7 @@ public class StorageIntegrationTest {
 
     }
     @Test
+    @Ignore
     public void ShouldGetMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = this.CreateRandomValue();

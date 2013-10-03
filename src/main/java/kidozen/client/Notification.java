@@ -41,7 +41,7 @@ public class Notification extends KZService implements Observer {
 	 * 
 	 * @param androidId The unique identifier of the device. You can get it by using the Secure.getString(getActivity().getContentResolver(), Secure.ANDROID_ID) Android API call
 	 * @param channel The name of the channel to push and receive messages
-	 * @param subscriptionID The Google Cloud Message subscription ID associated with your application. For more information check this link {@link http://developer.android.com/google/gcm/gs.html}
+	 * @param subscriptionID The Google Cloud Message subscription ID associated with your application. For more information check Google Cloud Messaging (GCM)
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Subscribe(String androidId, String channel, String subscriptionID, final ServiceEventListener callback) {
@@ -67,7 +67,7 @@ public class Notification extends KZService implements Observer {
 	 * Unsubscribes from the channel
 	 *  
 	 * @param channel The name of the channel to push and receive messages
-	 * @param subscriptionID The Google Cloud Message subscription ID associated with your application. For more information check this link {@link http://developer.android.com/google/gcm/gs.html}
+	 * @param subscriptionId The Google Cloud Message subscription ID associated with your application. For more information check Google Cloud Messaging (GCM)
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Unsubscribe(final String channel, final String subscriptionId, final ServiceEventListener callback) 

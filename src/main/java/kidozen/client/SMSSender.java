@@ -30,7 +30,7 @@ public class SMSSender extends KZService  implements Observer {
 	 * 
 	 * You should not create a new instances of this constructor. Instead use the SMSSender["number"] method of the KZApplication object. 
 	 * @param endpoint The service endpoint
-	 * @param name The sms number to send messages
+	 * @param number The sms number to send messages
 	 */
 	public SMSSender(String endpoint, String number)
 	{

@@ -166,7 +166,7 @@ public class Storage extends KZService {
 	/**
 	 * Deletes a message from the storage
 	 * 
-	 * @param id The unique identifier of the object
+	 * @param idMessage The unique identifier of the object
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Delete(final String idMessage,final ServiceEventListener callback)

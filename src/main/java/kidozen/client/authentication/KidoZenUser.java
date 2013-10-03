@@ -27,7 +27,7 @@ public class KidoZenUser {
 	/**
 	 * Checks if the user belongs to the role
 	 * @param role
-	 * @return
+	 * @return True if the user in in the specified role
 	 */
 	public Boolean IsInRole(String role)
 	{
@@ -42,7 +42,7 @@ public class KidoZenUser {
 	
 	/**
 	 * Returns the expiration time
-	 * @return
+	 * @return the token expiration time
 	 */
 	public Long GetExpiration() {
 		return _expiration;
@@ -58,7 +58,7 @@ public class KidoZenUser {
 
 	/**
 	 * Get the expiration time in miliseconds
-	 * @return
+	 * @return the token expiration time in miliseconds
 	 */
 	public Long GetExpirationInMiliseconds() {
         Date later = new Date(_expiration * 1000); // segundos

@@ -74,7 +74,7 @@ public class KZApplication extends KZService {
 	/**
 	 * Allows to change the current KidoZen user identity
 	 * 
-	 * @param kidozenUser the new identity
+	 * @param _kidozenUser the new identity
 	 */
 	public void SetKidozenUser(KidoZenUser _kidozenUser) {
 		this.KidozenUser = _kidozenUser;
@@ -443,7 +443,6 @@ public class KZApplication extends KZService {
     /**
      * Creates a new Storage object
      *
-     * @param name The name that references the Storage instance
      * @return a new Storage object
      * @throws Exception
      */
