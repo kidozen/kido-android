@@ -63,9 +63,9 @@ public class FileIntegrationTest {
     }
     @Test
     public void ShouldUploadFile() throws Exception {
-        FileInputStream fileInputStream = new FileInputStream(new File("/users/christian/lindaminegra2.png") );
+        FileInputStream fileInputStream = new FileInputStream(new File("/users/christian/upload.rtf") );
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Upload(fileInputStream, "/lindaminegra.png", new ServiceEventListener() {
+        kidozen.FileStorage().Upload(fileInputStream, "/fotos/lindaminegra.png", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -108,7 +108,7 @@ public class FileIntegrationTest {
     @Test
     public void ShouldDeleteFile() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Delete("/users/christian/upload.rtf", new ServiceEventListener() {
+        kidozen.FileStorage().Delete("/fotos/", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_NO_CONTENT));
