@@ -26,6 +26,9 @@ public class Files extends KZService  implements Observer {
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
     public static final String APPLICATION_OCTET_STREAM_HEADER_VALUE = "application/octet-stream";
     public static final String KEEP_ALIVE_HEADER_VALUE = "Keep-Alive";
+    public static final String PRAGMA_HEADER = "Pragma";
+    public static final String CACHE_CONTROL_HEADER = "Cache-Control";
+    public static final String NO_CACHE = "no-cache";
     String _endpoint;
 	String _number;
 
@@ -50,32 +53,27 @@ public class Files extends KZService  implements Observer {
 	/**
 	 * Upload a file
 	 * 
-	 * @param fullFilePath The full path of the file. This includes the filename ("/myfolder/foo.txt")
+	 * @param fullDestinationPath The full path of the file. This includes the filename ("/myfolder/foo.txt")
 	 * @param callback The callback with the result of the service call
 	 */
-	public void Upload(final String fullFilePath, final ServiceEventListener callback)
+	public void Upload(final FileInputStream fileStream, final String fullDestinationPath, final ServiceEventListener callback)
     {
-        try {
-            if (fullFilePath.isEmpty() || fullFilePath==null)
-                throw new IllegalArgumentException("fullFilePath");
+        if (fullDestinationPath.isEmpty() || fullDestinationPath==null)
+            throw new IllegalArgumentException("fullDestinationPath");
 
-            AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fullFilePath);
+        AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fullDestinationPath);
 
-            HashMap<String, String> params = new HashMap<String, String>();
-            HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-            headers.put(CONNECTION_HEADER, KEEP_ALIVE_HEADER_VALUE);
-            headers.put(X_FILE_NAME_HEADER, nameAndPath.getKey());
-            headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(CONNECTION_HEADER, KEEP_ALIVE_HEADER_VALUE);
+        headers.put(X_FILE_NAME_HEADER, nameAndPath.getKey());
+        headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
 
-            String url = _endpoint + nameAndPath.getValue();
-            FileInputStream fileInputStream = new FileInputStream(new File(fullFilePath) );
-            this.ProcessAsStream = true;
-            this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback,fileInputStream, BypassSSLVerification);
-        } catch (FileNotFoundException e) {
-            ServiceEvent fail = new ServiceEvent(this,HttpStatus.SC_NOT_FOUND, e.getMessage(), null, e);
-            callback.onFinish(fail);
-        }
+        String url = _endpoint + nameAndPath.getValue();
+
+        this.ProcessAsStream = true;
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback,fileStream, BypassSSLVerification);
 	}
 
     /**
@@ -88,14 +86,17 @@ public class Files extends KZService  implements Observer {
     {
         if (fullFilePath.isEmpty() || fullFilePath==null)
             throw new IllegalArgumentException("fullFilePath");
+        if (!fullFilePath.startsWith("/")) {
+            fullFilePath = "/" + fullFilePath;
+        }
 
         AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fullFilePath);
 
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-        headers.put("Pragma", "no-cache");
-        headers.put("Cache-Control", "no-cache");
+        headers.put(PRAGMA_HEADER, NO_CACHE);
+        headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
         String url = _endpoint + fullFilePath;
         this.ProcessAsStream = true;
@@ -107,25 +108,53 @@ public class Files extends KZService  implements Observer {
      * @param path The file path
      * @param callback The callback with the result of the service call
      * */
-    public void Delete(String path)
+    public void Delete(String path, final ServiceEventListener callback)
     {
+        if (path.isEmpty() || path==null)
+            throw new IllegalArgumentException("path");
+        if (!path.startsWith("/"))
+            path = "/" + path;
+        AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(path);
 
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(PRAGMA_HEADER, NO_CACHE);
+        headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
+
+        String url = _endpoint + path;
+        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
     }
     /**
      * Browse the folder
      *
-     * @param path The file path
+     * @param path Folder's URL. The URL must ends with character '/'
      * @param callback The callback with the result of the service call
      * */
-    public void Browse(String path)
+    public void Browse(String path,final ServiceEventListener callback)
     {
+        if (path.isEmpty() || path==null)
+            throw new IllegalArgumentException("path");
+        if (path.lastIndexOf("/") + 1 != path.length() && path.length() > 1)
+            throw new IllegalArgumentException("path must finish with '/'");
+        if (!path.startsWith("/"))
+            path = "/" + path;
 
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(PRAGMA_HEADER, NO_CACHE);
+        headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
+
+        String url = _endpoint + path;
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
     }
+
     private AbstractMap.SimpleEntry<String, String> getNameAndPath(String fullFilePath)
     {
-        String[] paths = fullFilePath.toLowerCase().split("/");
-        String file = paths[paths.length-1].toLowerCase();
-        String path = fullFilePath.replace("/" + file,"").toLowerCase();
+        String[] paths = fullFilePath.split("/");
+        String file = paths[paths.length-1];
+        String path = fullFilePath.replace("/" + file, "");
 
         return  new AbstractMap.SimpleEntry<String, String>(file,path);
     }

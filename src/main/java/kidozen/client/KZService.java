@@ -207,21 +207,27 @@ public class KZService implements Observer
                         throw new Exception(exceptionMessage);
                     }
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
+                    // TODO: fix this based on content-type response
                     if (body.replace("\n", "").toLowerCase().equals(response.get("responseMessage").toLowerCase()))
                     {
                         _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                     }
                     else
-                        if (body.indexOf("[")>-1)
+                        if (body.indexOf("[")==0)
                         {
                             JSONArray theObject = new JSONArray(body);
                             _event = new ServiceEvent(this, statusCode, body, theObject);
                         }
                         else
-                        {
-                            JSONObject theObject = new JSONObject(body);
-                            _event = new ServiceEvent(this, statusCode, body, theObject);
-                        }
+                            if (body.indexOf("{")==0)
+                            {
+                                JSONObject theObject = new JSONObject(body);
+                                _event = new ServiceEvent(this, statusCode, body, theObject);
+                            }
+                            else
+                            {
+                                _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
+                            }
                 }
 
             }

@@ -8,9 +8,11 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Random;
@@ -39,7 +41,7 @@ import static org.junit.Assert.fail;
 @Config(manifest= Config.NONE)
 public class FileIntegrationTest {
 
-    public static final int TEST_TIMEOUT_IN_MINUTES = 3;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 10;
     public static final String DATA_VALUE_KEY = "value";
 
     KZApplication kidozen = null;
@@ -61,8 +63,9 @@ public class FileIntegrationTest {
     }
     @Test
     public void ShouldUploadFile() throws Exception {
+        FileInputStream fileInputStream = new FileInputStream(new File("/users/christian/lindaminegra2.png") );
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Upload("/Users/christian/upload.rtf", new ServiceEventListener() {
+        kidozen.FileStorage().Upload(fileInputStream, "/lindaminegra.png", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -74,28 +77,46 @@ public class FileIntegrationTest {
     @Test
     public void ShouldDownloadFile() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Download("/users/christian/upload.rtf", new ServiceEventListener() {
+        kidozen.FileStorage().Download("/lindaminegra.png", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                try
-                {
-                    ByteArrayOutputStream response = (ByteArrayOutputStream) e.Response;
-
-                    OutputStream outputStream = new FileOutputStream("/Users/christian/Downloads/download.rtf");
+                ByteArrayOutputStream response = (ByteArrayOutputStream) e.Response;
+                try {
+                    OutputStream outputStream = new FileOutputStream("/Users/christian/lindaminegraFromKido.png");
                     response.writeTo(outputStream);
-
-                    assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                } catch (IOException e1) {
+                    fail(e1.getMessage());
                 }
-                catch (Exception ex)
-                {
-                    fail();
-                }
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
             }
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
+    @Test
+    public void ShouldBrowseFiles() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen.FileStorage().Browse("/users/", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldDeleteFile() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen.FileStorage().Delete("/users/christian/upload.rtf", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_NO_CONTENT));
+                lcd.countDown();
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
     //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {
         return  new ServiceEventListener() {
