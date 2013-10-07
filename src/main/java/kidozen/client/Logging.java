@@ -19,7 +19,6 @@ import org.json.JSONStringer;
  */
 public class Logging extends KZService {
 	String _endpoint;
-	String _name;
 
 	/**
 	 * Constructor

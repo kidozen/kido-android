@@ -1,21 +1,16 @@
 import org.apache.http.HttpStatus;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
-import kidozen.client.Storage;
+
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -42,12 +37,11 @@ import static org.junit.Assert.fail;
 @Config(manifest= Config.NONE)
 @Ignore
 public class FileIntegrationTest {
-
     public static final int TEST_TIMEOUT_IN_MINUTES = 10;
-    public static final String DATA_VALUE_KEY = "value";
-
+    public static final String FOTOS_TESTFILE_TXT = "/fotos/testfile.txt";
+    public static final String FOTOS_TESTDIR = "/fotos/";
     KZApplication kidozen = null;
-    Storage _storage;
+    public static final String FILE_CONTENT = "This is a String ~ GoGoGo";
 
     @Before
     public void Setup()
@@ -64,10 +58,10 @@ public class FileIntegrationTest {
         }
     }
     @Test
-    public void ShouldUploadFile() throws Exception {
-        FileInputStream fileInputStream = new FileInputStream(new File("/users/christian/upload.rtf") );
+    public void ShouldAddInputStreamToFiles() throws Exception {
+        InputStream is = new ByteArrayInputStream(FILE_CONTENT.getBytes());
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Upload(fileInputStream, "/fotos/lindaminegra.png", new ServiceEventListener() {
+        kidozen.FileStorage().Upload(is, FOTOS_TESTFILE_TXT, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -77,18 +71,14 @@ public class FileIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
-    public void ShouldDownloadFile() throws Exception {
+    public void ShouldGetFile() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Download("/lindaminegra.png", new ServiceEventListener() {
+        kidozen.FileStorage().Download(FOTOS_TESTFILE_TXT, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 ByteArrayOutputStream response = (ByteArrayOutputStream) e.Response;
-                try {
-                    OutputStream outputStream = new FileOutputStream("/Users/christian/lindaminegraFromKido.png");
-                    response.writeTo(outputStream);
-                } catch (IOException e1) {
-                    fail(e1.getMessage());
-                }
+                String fileResponse = response.toString();
+                assertThat(fileResponse, equalTo(FILE_CONTENT));
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
             }
@@ -98,7 +88,7 @@ public class FileIntegrationTest {
     @Test
     public void ShouldBrowseFiles() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Browse("/users/", new ServiceEventListener() {
+        kidozen.FileStorage().Browse(FOTOS_TESTDIR, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -108,9 +98,9 @@ public class FileIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
-    public void ShouldDeleteFile() throws Exception {
+    public void ShouldRemoveFile() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen.FileStorage().Delete("/fotos/", new ServiceEventListener() {
+        kidozen.FileStorage().Delete(FOTOS_TESTFILE_TXT, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_NO_CONTENT));

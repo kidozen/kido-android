@@ -1,8 +1,6 @@
 package kidozen.client;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Observable;
@@ -11,7 +9,6 @@ import java.util.Observer;
 import kidozen.client.authentication.KidoZenUser;
 import android.util.Log;
 
-import org.apache.http.HttpStatus;
 
 /**
  * SMS  service interface
@@ -30,7 +27,6 @@ public class Files extends KZService  implements Observer {
     public static final String CACHE_CONTROL_HEADER = "Cache-Control";
     public static final String NO_CACHE = "no-cache";
     String _endpoint;
-	String _number;
 
 	public void update(Observable observable, Object data) {
 		Log.d(TAG, "token updated");
@@ -51,11 +47,12 @@ public class Files extends KZService  implements Observer {
 
 	/**
 	 * Upload a file
-	 * 
+	 *
+     * @param fileStream an input stream that represents the file to upload.
 	 * @param fullDestinationPath The full path of the file. This includes the filename ("/myfolder/foo.txt")
 	 * @param callback The callback with the result of the service call
 	 */
-	public void Upload(final FileInputStream fileStream, final String fullDestinationPath, final ServiceEventListener callback)
+	public void Upload(final InputStream fileStream, final String fullDestinationPath, final ServiceEventListener callback)
     {
         if (fullDestinationPath.isEmpty() || fullDestinationPath==null)
             throw new IllegalArgumentException("fullDestinationPath");
@@ -89,8 +86,6 @@ public class Files extends KZService  implements Observer {
             fullFilePath = "/" + fullFilePath;
         }
 
-        AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fullFilePath);
-
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
@@ -113,7 +108,6 @@ public class Files extends KZService  implements Observer {
             throw new IllegalArgumentException("path");
         if (!path.startsWith("/"))
             path = "/" + path;
-        AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(path);
 
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();

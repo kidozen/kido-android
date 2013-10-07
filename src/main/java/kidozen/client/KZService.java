@@ -16,8 +16,6 @@ import java.util.*;
 
 public class KZService implements Observer
 {
-    private static final String LOGTAG = "KZService";
-
     public Boolean BypassSSLVerification = false;
 	public KidoZenUser KidozenUser = new KidoZenUser();
 
@@ -75,7 +73,7 @@ public class KZService implements Observer
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
 
-    public void ExecuteTask(String url, KZHttpMethod method, HashMap<String,String> params, HashMap<String,String> headers, ServiceEventListener callback, FileInputStream message, Boolean bypassSSLValidation) {
+    public void ExecuteTask(String url, KZHttpMethod method, HashMap<String,String> params, HashMap<String,String> headers, ServiceEventListener callback, InputStream message, Boolean bypassSSLValidation) {
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
 
@@ -154,15 +152,7 @@ public class KZService implements Observer
             this(method,params, headers,  callback, bypassSSLValidation);
             _messageAsStream = message;
         }
-/*
-        public void Upload(String headervalue)
-        {
-            _sniManager = new SNIConnectionManager("", "", null, _params, _bypassSSLValidation);
-            //_sniManager.uploadFile("/Users/christian/upload.rtf", headervalue);
 
-            _sniManager.doFileUpload("/Users/christian/upload.rtf", headervalue);
-        }
-*/
         @Override
         protected ServiceEvent doInBackground(String... params) {
             int statusCode = HttpStatus.SC_BAD_REQUEST;

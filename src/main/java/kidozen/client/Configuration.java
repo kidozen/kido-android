@@ -1,13 +1,9 @@
 package kidozen.client;
 
 import java.util.HashMap;
-import java.util.Observable;
 import java.util.Observer;
-
 import org.json.JSONObject;
 
-import kidozen.client.authentication.KidoZenUser;
-import android.util.Log;
 
 /**
  * Configuration service interface
@@ -17,7 +13,6 @@ import android.util.Log;
  *
  */
 public class Configuration  extends KZService implements Observer {
-	private static final String TAG = "Configuration";
 	String _endpoint;
 	String _name;
 
