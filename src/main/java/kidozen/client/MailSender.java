@@ -68,8 +68,7 @@ public class MailSender extends KZService implements Observer {
         if ( mail.Attachments!=null)
         {
             Uploader upd =  new Uploader(this, message, headers, params, callback, _endpoint, mail.Attachments, authValue);
-            Object attachlist = upd.execute();
-//            message.put("attachments", attachlist);
+            upd.execute();
         }
         else
         {
@@ -170,45 +169,43 @@ public class MailSender extends KZService implements Observer {
             DataInputStream inStream = null;
             int bytesRead, bytesAvailable, bufferSize;
             byte[] buffer;
-            //try
-            //{
-                FileInputStream fileInputStream = new FileInputStream(new File(fileName) );
-                AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fileName);
+            FileInputStream fileInputStream = new FileInputStream(new File(fileName) );
+            AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fileName);
 
-                URL url = new URL(_baseUrl + "/" + "attachments");
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-                conn.setUseCaches(false);
-                conn.setRequestMethod(HTTP_METHOD_POST);
-                conn.setRequestProperty(CONNECTION_HEADER, CONNECTION_KEEP_ALIVE);
-                conn.setRequestProperty(AUTHORIZATION_HEADER, _authHeaderValue);
-                conn.setRequestProperty(CONTENT_TYPE_HEADER, MULTIPART_FORM_DATA_BOUNDARY + boundary);
-                dos = new DataOutputStream( conn.getOutputStream() );
-                dos.writeBytes(twoHyphens + boundary + lineEnd);
-                dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + nameAndPath.getKey() + "\"" + lineEnd);
-                dos.writeBytes(lineEnd);
+            URL url = new URL(_baseUrl + "/" + "attachments");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setUseCaches(false);
+            conn.setRequestMethod(HTTP_METHOD_POST);
+            conn.setRequestProperty(CONNECTION_HEADER, CONNECTION_KEEP_ALIVE);
+            conn.setRequestProperty(AUTHORIZATION_HEADER, _authHeaderValue);
+            conn.setRequestProperty(CONTENT_TYPE_HEADER, MULTIPART_FORM_DATA_BOUNDARY + boundary);
+            dos = new DataOutputStream( conn.getOutputStream() );
+            dos.writeBytes(twoHyphens + boundary + lineEnd);
+            dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + nameAndPath.getKey() + "\"" + lineEnd);
+            dos.writeBytes(lineEnd);
 
+            bytesAvailable = fileInputStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            while (bytesRead > 0)
+            {
+                dos.write(buffer, 0, bufferSize);
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                buffer = new byte[bufferSize];
-
                 bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                while (bytesRead > 0)
-                {
-                    dos.write(buffer, 0, bufferSize);
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                }
-                dos.writeBytes(lineEnd);
-                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+            }
+            dos.writeBytes(lineEnd);
+            dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
-                fileInputStream.close();
-                dos.flush();
-                dos.close();
+            fileInputStream.close();
+            dos.flush();
+            dos.close();
+
             String id= null;
-            //try {
             if (conn.getResponseCode()>= HttpStatus.SC_BAD_REQUEST)
             {
                 _sent = false;
@@ -217,23 +214,9 @@ public class MailSender extends KZService implements Observer {
             else
             {
                 _sent = true;
-                //String v =  Utilities.convertStreamToString(conn.getInputStream());
-                //id = new JSONArray(v).getString(0);
-
                 id = Utilities.convertStreamToString(conn.getInputStream());
             }
-            /*
-            }
-            catch (IOException ioex){
-                Log.e("MediaPlayer", "error: " + ioex.getMessage(), ioex);
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-            }
-            */
             return  id;
         }
-
-
     }
 }

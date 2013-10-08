@@ -39,6 +39,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class EMailIntegrationTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 3;
@@ -61,7 +62,7 @@ public class EMailIntegrationTest {
             fail();
         }
     }
-    @Ignore
+
     @Test
     public void ShouldSendEmail() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -78,8 +79,12 @@ public class EMailIntegrationTest {
     @Test
     public void ShouldAttachFiles() throws Exception {
         List<String> attachs = new ArrayList<String>();
-        attachs.add("/Users/christian/zarlanga.txt");
-        attachs.add("/Users/christian/Documents/errorbh1.png");
+// ADD a valid file path:
+//
+//        attachs.add("/Users/..");
+//
+
+
         final CountDownLatch lcd = new CountDownLatch(1);
         Mail mail = new Mail();
         mail.to(IntegrationTestConfiguration.KZ_EMAIL_TO);
@@ -89,10 +94,31 @@ public class EMailIntegrationTest {
         mail.attachments(attachs);
 
         kidozen.SendEmail(mail, sendCallback(lcd));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldReturnInternalServerError() throws Exception {
+        List<String> attachs = new ArrayList<String>();
+        attachs.add("/folder/nofile.txt");
+
+        final CountDownLatch lcd = new CountDownLatch(1);
+        Mail mail = new Mail();
+        mail.to(IntegrationTestConfiguration.KZ_EMAIL_TO);
+        mail.from(IntegrationTestConfiguration.KZ_EMAIL_FROM);
+        mail.subject(this.CreateRandomValue());
+        mail.textBody(this.CreateRandomValue());
+        mail.attachments(attachs);
+
+        kidozen.SendEmail(mail, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo( HttpStatus.SC_INTERNAL_SERVER_ERROR));
+                lcd.countDown();
+            }
+        });
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-    @Ignore
     @Test
     public void ShouldSendEmailWithMultipleRecipients() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
