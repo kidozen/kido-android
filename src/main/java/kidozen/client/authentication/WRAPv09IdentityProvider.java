@@ -1,6 +1,5 @@
 package kidozen.client.authentication;
 
-import kidozen.client.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -8,6 +7,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
+import kidozen.client.KZAction;
+import kidozen.client.KZHttpMethod;
+import kidozen.client.SNIConnectionManager;
+import kidozen.client.Utilities;
 
 /**
  * WRAP V 09 Identity Provider

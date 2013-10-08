@@ -1,8 +1,9 @@
 package kidozen.client;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Observer;
-import org.json.JSONObject;
 
 
 /**

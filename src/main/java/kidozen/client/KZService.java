@@ -3,16 +3,21 @@ package kidozen.client;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import kidozen.client.authentication.AuthenticationManager;
-import kidozen.client.authentication.KidoZenUser;
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+
+import kidozen.client.authentication.AuthenticationManager;
+import kidozen.client.authentication.KidoZenUser;
 
 public class KZService implements Observer
 {

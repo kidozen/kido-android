@@ -1,7 +1,7 @@
 package kidozen.client.authentication;
+
 import android.os.AsyncTask;
 import android.util.Log;
-import kidozen.client.*;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -10,7 +10,21 @@ import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import kidozen.client.KZAction;
+import kidozen.client.KZHttpMethod;
+import kidozen.client.ObservableUser;
+import kidozen.client.SNIConnectionManager;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
+import kidozen.client.Utilities;
 
 
 public class AuthenticationManager extends AsyncTask<Void, Void, Void> {

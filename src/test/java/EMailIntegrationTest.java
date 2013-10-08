@@ -1,4 +1,3 @@
-import kidozen.client.*;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -9,14 +8,26 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import kidozen.client.KZApplication;
+import kidozen.client.Mail;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
+import kidozen.client.Storage;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+//import static org.junit.Assert.assertTrue;
+
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,7 +39,6 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class EMailIntegrationTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 3;
@@ -51,6 +61,7 @@ public class EMailIntegrationTest {
             fail();
         }
     }
+    @Ignore
     @Test
     public void ShouldSendEmail() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -64,6 +75,24 @@ public class EMailIntegrationTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+    @Test
+    public void ShouldAttachFiles() throws Exception {
+        List<String> attachs = new ArrayList<String>();
+        attachs.add("/Users/christian/zarlanga.txt");
+        attachs.add("/Users/christian/Documents/errorbh1.png");
+        final CountDownLatch lcd = new CountDownLatch(1);
+        Mail mail = new Mail();
+        mail.to(IntegrationTestConfiguration.KZ_EMAIL_TO);
+        mail.from(IntegrationTestConfiguration.KZ_EMAIL_FROM);
+        mail.subject(this.CreateRandomValue());
+        mail.textBody(this.CreateRandomValue());
+        mail.attachments(attachs);
+
+        kidozen.SendEmail(mail, sendCallback(lcd));
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Ignore
     @Test
     public void ShouldSendEmailWithMultipleRecipients() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);

@@ -5,14 +5,20 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
-import kidozen.client.authentication.*;
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.InvalidParameterException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import kidozen.client.authentication.ADFSWSTrustIdentityProvider;
+import kidozen.client.authentication.IIdentityProvider;
+import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.authentication.WRAPv09IdentityProvider;
 
 /**
  * @author kidozen

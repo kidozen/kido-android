@@ -1,20 +1,20 @@
 package kidozen.client;
 
+import android.util.Log;
+
+import com.netiq.websocket.WebSocketClient;
+
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observer;
 import java.util.Observable;
+import java.util.Observer;
 
 import kidozen.client.authentication.AuthenticationManager;
 import kidozen.client.authentication.KidoZenUser;
-
-import org.json.JSONObject;
-
-import android.util.Log;
-
-import com.netiq.websocket.WebSocketClient;
 /**
  * Publish and subscribe service interface
  * 

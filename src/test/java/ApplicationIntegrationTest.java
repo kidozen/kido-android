@@ -1,6 +1,3 @@
-import kidozen.client.KZApplication;
-import kidozen.client.ServiceEvent;
-import kidozen.client.ServiceEventListener;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -14,10 +11,13 @@ import org.robolectric.annotation.Config;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import kidozen.client.KZApplication;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created with IntelliJ IDEA.

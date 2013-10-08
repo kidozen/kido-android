@@ -1,12 +1,13 @@
 package kidozen.client;
 
+import android.util.Log;
+
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
 import kidozen.client.authentication.KidoZenUser;
-import android.util.Log;
 
 /**
  * SMS  service interface

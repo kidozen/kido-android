@@ -1,11 +1,13 @@
 package kidozen.client;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class Mail {
 	HashMap<String, String> email =new HashMap<String, String >();
+    public List<String> Attachments;
 
-	public void to (String value)
+    public void to (String value)
 	{
 		email.put("to", value);
 	};
@@ -25,6 +27,10 @@ public class Mail {
 	{
     	email.put("bodyText", value);
 	}
+    public void attachments (List<String> attachments)
+    {
+        Attachments = attachments;
+    }
     public HashMap<String, String> GetHashMap ()
     {
     	return email;
