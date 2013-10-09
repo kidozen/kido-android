@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+
 public class EMailIntegrationTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 3;
@@ -81,7 +81,7 @@ public class EMailIntegrationTest {
         List<String> attachs = new ArrayList<String>();
 // ADD a valid file path:
 //
-//        attachs.add("/Users/..");
+        attachs.add("/Users/christian/zarlanga.txt");
 //
 
 

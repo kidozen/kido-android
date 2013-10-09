@@ -67,7 +67,7 @@ public class MailSender extends KZService implements Observer {
 
         if ( mail.Attachments!=null)
         {
-            Uploader upd =  new Uploader(this, message, headers, params, callback, _endpoint, mail.Attachments, authValue);
+            Uploader upd =  new Uploader(this, mail, headers, params, callback, _endpoint, mail.Attachments, authValue);
             upd.execute();
         }
         else
@@ -82,6 +82,7 @@ public class MailSender extends KZService implements Observer {
         public static final String CONTENT_TYPE_HEADER = "Content-Type";
         public static final String CONNECTION_KEEP_ALIVE = "Keep-Alive";
         public static final String MULTIPART_FORM_DATA_BOUNDARY = "multipart/form-data;boundary=";
+        private static final String TAG = "UPLOAD_ATTACH";
         private String lineEnd = "\r\n";
         private String twoHyphens = "--";
         private String boundary =  "*****";
@@ -94,13 +95,13 @@ public class MailSender extends KZService implements Observer {
         private String _authHeaderValue;
 
         private KZService _mailService;
-        private JSONObject _message;
+        private Mail _message;
         private HashMap<String, String> _headers;
         private HashMap<String, String> _params;
         private ServiceEventListener _callback;
         private boolean _sent = false;
 
-        public Uploader(KZService service, JSONObject message, HashMap<String, String> headers, HashMap<String, String> params, ServiceEventListener callback, String baseUrl, List<String> attachments, String authHeaderValue)
+        public Uploader(KZService service, Mail message, HashMap<String, String> headers, HashMap<String, String> params, ServiceEventListener callback, String baseUrl, List<String> attachments, String authHeaderValue)
         {
             _mailService = service;
             _message = message;
@@ -149,18 +150,31 @@ public class MailSender extends KZService implements Observer {
                 if (!_sent || _ids.size()<=0)
                     throw new Exception("couldn't attach file");
 
-                ArrayList<String> fileids = new ArrayList<String>();
-                for(Iterator<String> it = _ids.iterator(); it.hasNext();)
-                {
-                    fileids.add(new JSONArray(it.next()).getString(0));
-                }
+                JSONObject jo = getJsonObjectMessage();
 
-                _message.put("attachments", fileids);
-                _mailService.ExecuteTask(_endpoint, KZHttpMethod.POST, _params, _headers, _callback, _message, BypassSSLVerification);
+                _mailService.ExecuteTask(_endpoint, KZHttpMethod.POST, _params, _headers, _callback, jo, BypassSSLVerification);
 
             } catch (Exception e) {
                 _callback.onFinish(new ServiceEvent(this, HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getMessage(), null, e));
             }
+        }
+
+        private JSONObject getJsonObjectMessage() throws JSONException {
+            JSONArray array = new JSONArray();
+            for(Iterator<String> it = _ids.iterator(); it.hasNext();)
+            {
+                String itm = new JSONArray(it.next()).getString(0);
+                array.put(itm);
+            }
+            JSONObject msg = new JSONObject(_message.GetHashMap());
+            // Weird problems in a real android device:
+            // - Cannot use JSONObject.put to add a new Array property, it throws an "NoSuchMethodError" exception with a reference to virtual method call
+            // - Cannot use HashMap.put: It serializes the array as following: "[ "..." ]" instead of ["..."]
+            // So I decided to do this string manipulation
+            String messageAsString = msg.toString();
+            String arrayAsString = array.toString();
+            messageAsString = messageAsString.replace("}", ", attachments=" + arrayAsString + "}");
+            return new JSONObject(messageAsString);
         }
 
         private String doFileUpload(String fileName) throws IOException {
@@ -216,6 +230,7 @@ public class MailSender extends KZService implements Observer {
                 _sent = true;
                 id = Utilities.convertStreamToString(conn.getInputStream());
             }
+            Log.i(TAG,"raw service response :" + id);
             return  id;
         }
     }
