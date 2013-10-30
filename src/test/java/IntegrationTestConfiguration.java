@@ -17,6 +17,7 @@ public class IntegrationTestConfiguration {
 
     public static  String KZ_EMAIL_TO;
     public static  String KZ_EMAIL_FROM;
+    public static  String KZ_EMAIL_ATTACH;
 
     public static int KZ_TOKEN_EXPIRES_TIMEOUT= (1000 * 60 * 4);
 
@@ -44,6 +45,7 @@ public class IntegrationTestConfiguration {
                 KZ_SHAREFILE_USER = settings.get("kz_sharefile_user").toString();
                 KZ_EMAIL_FROM = settings.get("kz_email_from").toString();
                 KZ_EMAIL_TO = settings.get("kz_email_to").toString();
+                KZ_EMAIL_ATTACH = settings.get("kz_email_attach").toString();
 
                 System.out.print("==================================================================\n");
                 System.out.print("Tenant: " + KZ_TENANT + "\n");
@@ -55,6 +57,7 @@ public class IntegrationTestConfiguration {
                 System.out.print("ShareFile User: " + KZ_SHAREFILE_USER + "\n");
                 System.out.print("Email from: " + KZ_EMAIL_FROM + "\n");
                 System.out.print("Email to: " + KZ_EMAIL_TO + "\n");
+                System.out.print("Email Attach Path: " + KZ_EMAIL_ATTACH + "\n");
                 System.out.print("==================================================================\n");
             }
             else
@@ -82,6 +85,7 @@ public class IntegrationTestConfiguration {
         KZ_SHAREFILE_USER =     "your sharefile user";
         KZ_EMAIL_FROM =         "none@email.com";
         KZ_EMAIL_TO =           "none@email.com";
+        KZ_EMAIL_ATTACH =       "./attach.txt";
         KZ_PROVIDER=            "Kidozen";
 
     }

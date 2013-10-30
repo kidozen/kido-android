@@ -104,6 +104,7 @@ Before you can run these tests you must update the the file settings.json:
 		* */
 		"kz_email_to" : "some recipient",
 		"kz_email_from" : "another recipiet"
+		"kz_email_attach" : "path to a file to attach",
 	}
 
 Check your Android sdk path settings. If you have some conflict remember you can specify it in the "android.sdk.path" 

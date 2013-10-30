@@ -79,11 +79,7 @@ public class EMailIntegrationTest {
     @Test
     public void ShouldAttachFiles() throws Exception {
         List<String> attachs = new ArrayList<String>();
-// ADD a valid file path:
-//
-        attachs.add("/Users/christian/zarlanga.txt");
-//
-
+        attachs.add(IntegrationTestConfiguration.KZ_EMAIL_ATTACH);
 
         final CountDownLatch lcd = new CountDownLatch(1);
         Mail mail = new Mail();
