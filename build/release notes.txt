@@ -1,5 +1,9 @@
 Version 1.0.7
 
+* 2013-11-20	Minor bugfix
+
+Version 1.0.7
+
 * 2013-10-03	Email attachment support
 
 

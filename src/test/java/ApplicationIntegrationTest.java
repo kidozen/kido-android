@@ -29,6 +29,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class ApplicationIntegrationTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     private static final String INVALIDAPP = "NADA";
@@ -79,7 +80,7 @@ public class ApplicationIntegrationTest {
         final CountDownLatch alcd = new CountDownLatch(1);
 
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS);
-
+        assertEquals(true, kidozen.Authenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
@@ -103,6 +104,7 @@ public class ApplicationIntegrationTest {
                 alcd.countDown();
             }
         });
+        assertEquals(true, kidozen.Authenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
@@ -119,13 +121,14 @@ public class ApplicationIntegrationTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "contoso@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
                 alcd.countDown();
             }
         });
+        assertEquals(false, kidozen.Authenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
@@ -149,6 +152,7 @@ public class ApplicationIntegrationTest {
                 alcd.countDown();
             }
         });
+        assertEquals(false, kidozen.Authenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 

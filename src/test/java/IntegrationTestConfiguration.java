@@ -76,17 +76,16 @@ public class IntegrationTestConfiguration {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_TENANT =             "https://tellago.kidocloud.com";
-        KZ_APP =                "tasks";
-        KZ_USER =               "tellago@kidozen.com";
-        KZ_PASS =               "pass";
+        KZ_TENANT =             "your tenant url";
+        KZ_APP =                "your app";
+        KZ_USER =               "your kido user";
+        KZ_PASS =               "your kido user password";
         KZ_SHAREFILE_PASS =     "your sharefile secret";
         KZ_SHAREFILE_SERVICEID ="sharefile";
         KZ_SHAREFILE_USER =     "your sharefile user";
         KZ_EMAIL_FROM =         "none@email.com";
         KZ_EMAIL_TO =           "none@email.com";
-        KZ_EMAIL_ATTACH =       "./attach.txt";
+        KZ_EMAIL_ATTACH =       "/path/to/attach.txt";
         KZ_PROVIDER=            "Kidozen";
-
     }
 }

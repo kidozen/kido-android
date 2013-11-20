@@ -57,9 +57,6 @@ public class KZApplication extends KZService {
 	private String initializedBody;
 
 	JSONObject _authConfig;
-//	String _providerKey="";
-//	String _username="";
-//	String _password="";
 
     private Logging _applicationLog;
     private MailSender _mailSender;
@@ -523,6 +520,7 @@ public class KZApplication extends KZService {
             public void onFinish(ServiceEvent e) {
                 if (e.StatusCode<HttpStatus.SC_BAD_REQUEST)
                 {
+                    Authenticated = true;
                     long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
                     if (delay<0)
                     {
