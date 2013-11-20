@@ -71,6 +71,8 @@ To create the .jar library file run the following command in a terminal that wil
 The solution contains Integration test (not unit tests) These tests does not requires an Android Emulator image or device.
 Before you can run these tests you must update the the file settings.json:
 
+REMARK: To run this tests be sure you have JAVA 1.7 or above and configure the test host runner to use it.
+
 	{
 		/*
 		* KidoZen general configuration
