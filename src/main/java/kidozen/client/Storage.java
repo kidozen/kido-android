@@ -38,11 +38,22 @@ public class Storage extends KZService {
      * Creates a new object in the storage
      *
      * @param message The object to be created
-     * @param isPrivate marks the object as private (true) / publc (false)
+     * @param isPrivate marks the object as private (true) / public (false)
      * @param callback The callback with the result of the service call
      */
     public void Create(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
     {
+        Object id = null;
+        try {id = message.get("_id");} catch (JSONException e) {}
+
+        if (id!=null)
+        {
+            String errInfo = "_id property is not valid for object creation.";
+            ServiceEvent se = new ServiceEvent(this,HttpStatus.SC_CONFLICT,errInfo,errInfo, new Exception(errInfo));
+            callback.onFinish(se);
+            return;
+        }
+
         String  url = _endpoint + "/" + _name;
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("isPrivate", (isPrivate ? "true" : "false"));
@@ -244,4 +255,46 @@ public class Storage extends KZService {
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
 	}
+
+    /**
+     * Upserts an object
+     *
+     * if message has the '_id' property the object is updated. If not is created
+     *
+     * @param message The object
+     * @param callback The callback with the result of the service call
+     *
+     * Remarks:
+     * Due to this method is a wrapper if you want to update an object you must add the '_metadata' property
+     */
+    public void Save(JSONObject message, final ServiceEventListener callback) throws Exception {
+        this.Save(message, true, callback);
+    }
+
+    /**
+     * Upserts an object
+     *
+     * if message has the '_id' property the object is updated. If not is created
+     *
+     * @param message The object
+     * @param isPrivate marks the object as private (true) / public (false)
+     * @param callback The callback with the result of the service call
+     *                 
+     * Remarks:
+     * Due to this method is a wrapper if you want to update an object you must add the '_metadata' property
+     */
+
+    public void Save(JSONObject message, Boolean isPrivate, final ServiceEventListener callback) throws Exception {
+        String id = null;
+        try {id = message.getString("_id");} catch (JSONException e) {}
+
+        if (id!=null)
+        {
+            Update(id,message,callback);
+        }
+        else
+        {
+            Create(message, isPrivate, callback);
+        }
+    }
 }

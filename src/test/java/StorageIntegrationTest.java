@@ -37,7 +37,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+
 public class StorageIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
@@ -71,7 +71,6 @@ public class StorageIntegrationTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
     @Test
     public void ShouldCreatePrivateMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -82,7 +81,6 @@ public class StorageIntegrationTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
     @Test
     public void ShouldCreatePublicMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -93,7 +91,6 @@ public class StorageIntegrationTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
     @Test
     public void ShouldDeleteMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -206,6 +203,7 @@ public class StorageIntegrationTest {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
+
                 lcd.countDown();
             }
         });
@@ -277,7 +275,6 @@ public class StorageIntegrationTest {
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
     @Test
     public void ShouldQueryObjectAndReturnRequestedValues() throws Exception
     {
@@ -312,6 +309,85 @@ public class StorageIntegrationTest {
                 {
                     fail();
                 }
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void CreateShouldThrowInvalidField() throws Exception
+    {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject()
+                .put(DATA_VALUE_KEY,"ShouldCreateMessage")
+                .put("_id","abc");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
+        storage.Create(data, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo( HttpStatus.SC_CONFLICT));
+                assertNotNull(e.Exception);
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+
+    }
+    @Test
+    public void ShouldCreateObjectWhenCallSAVE() throws Exception
+    {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject()
+                .put(DATA_VALUE_KEY, "ShouldCreateMessage");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
+        storage.Save(data, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_CREATED));
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldCreatePublicObjectWhenCallSAVE() throws Exception
+    {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject()
+                .put(DATA_VALUE_KEY, "ShouldCreateMessage");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICEID);
+        storage.Save(data, false, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_CREATED));
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldUpdateObjectWhenCallSave() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        final String expected = "updated";
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        StorageEventListener cb = createObjectForStorage(data);
+
+        assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
+        JSONObject updatedObject =(JSONObject) cb.Event.Response;
+
+        updatedObject.put(DATA_VALUE_KEY, expected);
+        //Assert
+        _storage.Save(updatedObject, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertEquals(e.StatusCode, HttpStatus.SC_OK);
+
+                lcd.countDown();
             }
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
@@ -367,7 +443,7 @@ public class StorageIntegrationTest {
         return new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 signal.countDown();
             }
         };
