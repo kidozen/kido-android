@@ -37,7 +37,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-
+@Ignore
 public class StorageIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
@@ -62,6 +62,7 @@ public class StorageIntegrationTest {
         }
     }
     @Test
+    @Ignore
     public void ShouldCreateMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
@@ -72,6 +73,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldCreatePrivateMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
@@ -82,6 +84,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldCreatePublicMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
@@ -92,6 +95,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldDeleteMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = this.CreateRandomValue();
@@ -137,6 +141,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldDropCollection() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(2);
@@ -165,6 +170,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldGetAllObjects() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -198,11 +204,15 @@ public class StorageIntegrationTest {
         JSONObject updatedObject =(JSONObject) cb.Event.Response;
 
         updatedObject.put(DATA_VALUE_KEY, expected);
+
+        System.out.print("updated: " + updatedObject.toString());
+
         //Assert
         _storage.Update(updatedObject.getString("_id"),updatedObject, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
+                System.out.print("updated response: " + e.Body);
 
                 lcd.countDown();
             }
@@ -210,6 +220,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void UpdateObjectShouldReturnException() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = "updated";
@@ -232,6 +243,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void UpdateObjectShouldReturnConflict() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = "updated";
@@ -257,6 +269,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldQueryObject() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = this.CreateRandomValue();
@@ -276,6 +289,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldQueryObjectAndReturnRequestedValues() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -314,6 +328,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void CreateShouldThrowInvalidField() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -335,6 +350,7 @@ public class StorageIntegrationTest {
 
     }
     @Test
+    @Ignore
     public void ShouldCreateObjectWhenCallSAVE() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -353,6 +369,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldCreatePublicObjectWhenCallSAVE() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -371,6 +388,7 @@ public class StorageIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldUpdateObjectWhenCallSave() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = "updated";

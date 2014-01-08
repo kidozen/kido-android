@@ -1,3 +1,7 @@
+Version 1.0.9
+
+* BugFix in ws-trust Identity Provider
+
 Version 1.0.8
 
 * 2013-12-05	Save method in Storage that allows to execute upsets

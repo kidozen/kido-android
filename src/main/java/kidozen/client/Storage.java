@@ -279,7 +279,7 @@ public class Storage extends KZService {
      * @param message The object
      * @param isPrivate marks the object as private (true) / public (false)
      * @param callback The callback with the result of the service call
-     *                 
+     *
      * Remarks:
      * Due to this method is a wrapper if you want to update an object you must add the '_metadata' property
      */
