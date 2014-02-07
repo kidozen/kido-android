@@ -71,6 +71,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
         for(Iterator<Map.Entry<String,KidoZenUser>> it=_securityTokens.entrySet().iterator();it.hasNext();){
             Map.Entry<String, KidoZenUser> entry = it.next();
             if (entry.getValue().Token.equalsIgnoreCase(_username)) {
+                Log.d(TAG, String.format("Token removed from token cache"));
                 it.remove();
             }
         }
@@ -112,65 +113,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		try {
 			if (mustGetTokenFromIP) {
 				Log.d(TAG,String.format("Token is not in the identity cache"));
-				JSONObject provider = _identityProviders.get(_providerKey);
-				_currentIdentityProvider = (IIdentityProvider) provider.get("instance");
-				_currentIdentityProvider.Configure(provider);
-				_currentIdentityProvider.Initialize(_username, _password, provider.get("authServiceScope").toString());
-                URI endpoint = new URI(provider.get("endpoint").toString());
-
-                _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
-					@SuppressWarnings("deprecation")
-					public void onServiceResponse(String response) throws Exception {
-						try
-                        {
-							tokeFromAuthService = requestKidoZenToken(response);
-							JSONObject token = new JSONObject(tokeFromAuthService);
-							tokeFromAuthService = token.get("rawToken").toString();
-							Log.d(TAG, String.format("Kidozen auth token:%s", tokeFromAuthService));
-							hasIPToken =true;
-							//
-							Log.d(TAG,String.format("Building KidoZen User object using the token"));
-							String rawToken = URLDecoder.decode(tokeFromAuthService);
-							String[] claims = rawToken.split("&");
-							Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
-							for (int i = 0; i < claims.length; i++)
-                            {
-								String[] keyValue = claims[i].split("=");
-								String keyName = keyValue[0];
-								int indexOfClaimKeyword= keyName.indexOf("/claims/");
-								if (indexOfClaimKeyword>-1)
-                                {
-									keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
-								}
-								String v ;
-								try
-                                {
-									v=  keyValue[1];									
-								}
-                                catch (IndexOutOfBoundsException e)
-                                {
-									v="";
-								}
-								tokenClaims.put(keyName,v);
-							}
-							_kidozenUser = new KidoZenUser();
-							_kidozenUser.Token = tokeFromAuthService;
-							_kidozenUser.Claims = tokenClaims;
-							_kidozenUser.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
-							if (tokenClaims.get("role")!=null)
-                            {
-								_kidozenUser.Roles = Arrays.asList(tokenClaims.get("role").split(","));
-							}
-						}
-                        catch (Exception e)
-                        {
-							Authenticated = false;
-							hasIPToken =false;
-							Log.e(TAG,"Error parsing the IP token" + e.getStackTrace().toString());
-							errorDescription = "Error trying to call KidoZen Authentication Service Endpoint:" + e.getMessage();
-						}	
-					}
-				});
+                getTokenFromIP();
 			}
 			else
 			{
@@ -190,7 +133,70 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		}
 		return null;
 	}
-	@Override
+
+    private void getTokenFromIP() throws Exception {
+        JSONObject provider = _identityProviders.get(_providerKey);
+        _currentIdentityProvider = (IIdentityProvider) provider.get("instance");
+        _currentIdentityProvider.Configure(provider);
+        _currentIdentityProvider.Initialize(_username, _password, provider.get("authServiceScope").toString());
+        URI endpoint = new URI(provider.get("endpoint").toString());
+
+        _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
+            @SuppressWarnings("deprecation")
+            public void onServiceResponse(String response) throws Exception {
+                try
+                {
+                    tokeFromAuthService = requestKidoZenToken(response);
+                    JSONObject token = new JSONObject(tokeFromAuthService);
+                    tokeFromAuthService = token.get("rawToken").toString();
+                    Log.d(TAG, String.format("Got Kidozen auth token from AuthService"));
+                    hasIPToken =true;
+                    //
+                    Log.d(TAG,String.format("Building KidoZen User object using the token"));
+                    String rawToken = URLDecoder.decode(tokeFromAuthService);
+                    String[] claims = rawToken.split("&");
+                    Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
+                    for (int i = 0; i < claims.length; i++)
+                    {
+                        String[] keyValue = claims[i].split("=");
+                        String keyName = keyValue[0];
+                        int indexOfClaimKeyword= keyName.indexOf("/claims/");
+                        if (indexOfClaimKeyword>-1)
+                        {
+                            keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
+                        }
+                        String v ;
+                        try
+                        {
+                            v=  keyValue[1];
+                        }
+                        catch (IndexOutOfBoundsException e)
+                        {
+                            v="";
+                        }
+                        tokenClaims.put(keyName,v);
+                    }
+                    _kidozenUser = new KidoZenUser();
+                    _kidozenUser.Token = tokeFromAuthService;
+                    _kidozenUser.Claims = tokenClaims;
+                    _kidozenUser.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
+                    if (tokenClaims.get("role")!=null)
+                    {
+                        _kidozenUser.Roles = Arrays.asList(tokenClaims.get("role").split(","));
+                    }
+                }
+                catch (Exception e)
+                {
+                    Authenticated = false;
+                    hasIPToken =false;
+                    Log.e(TAG,"Error parsing the IP token" + e.getStackTrace().toString());
+                    errorDescription = "Error trying to call KidoZen Authentication Service Endpoint:" + e.getMessage();
+                }
+            }
+        });
+    }
+
+    @Override
 	protected void onPostExecute (Void result)
 	{
 		super.onPostExecute(result);

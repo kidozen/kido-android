@@ -8,6 +8,7 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -39,7 +40,6 @@ public class ApplicationIntegrationTest {
     public void Setup()
     {
     }
-
     @Test
     public void ShouldGetApplicationConfiguration() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -169,6 +169,63 @@ public class ApplicationIntegrationTest {
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
+
+    @Test
+    public void ShouldReturnClaimsUsingDefaultSettings() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                alcd.countDown();
+            }
+        });
+        assertEquals(true, kidozen.Authenticated);
+        Hashtable<String,String> claims = kidozen.KidozenUser.Claims;
+
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+
+    @Test
+    public void ShouldSignOut() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                System.out.print("Authenticate");
+
+                alcd.countDown();
+            }
+        });
+        kidozen.SignOut();
+        System.out.print("SignOut");
+
+        assertEquals(false, kidozen.Authenticated);
+
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+
 
 
 }

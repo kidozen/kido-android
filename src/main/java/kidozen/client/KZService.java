@@ -117,6 +117,11 @@ public class KZService implements Observer
         this.KidozenUser = am.Authenticate(_provider, _username, _password, _authenticateCallback);
     }
 
+    protected void SignOut()
+    {
+        am.RemoveCurrentTokenFromCache(KidozenUser.Token);
+    }
+
     public void RenewAuthenticationToken(ServiceEventListener callback) {
         am.RemoveCurrentTokenFromCache(KidozenUser.Token);
         am = new AuthenticationManager(_tenantMarketPlace, _application, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);

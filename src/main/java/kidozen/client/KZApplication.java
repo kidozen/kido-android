@@ -469,6 +469,7 @@ public class KZApplication extends KZService {
 	 */
 	public void SignOut()
 	{
+        super.SignOut();
 		Authenticated = false;
 	}
 
