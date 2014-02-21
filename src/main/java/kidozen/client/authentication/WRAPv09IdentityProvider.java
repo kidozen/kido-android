@@ -65,6 +65,9 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
             String body = authResponse.get("responseBody");
 
             if (body != null) {
+                //Parse response to check soap Faults. Throws an exception
+                Utilities.CheckFaultsInResponse(body);
+
                 int startOfAssertion = body.indexOf("<Assertion ");
                 int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
                 body = body.substring(startOfAssertion, endOfAssertion);

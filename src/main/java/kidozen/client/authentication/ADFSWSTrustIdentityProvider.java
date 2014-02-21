@@ -1,16 +1,12 @@
 package kidozen.client.authentication;
 
-import java.io.StringReader;
 import java.net.URI;
 import java.util.Hashtable;
 
 import kidozen.client.KZAction;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.SNIConnectionManager;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import kidozen.client.Utilities;
 
 /**
  * Active Directory Federation Services Identity Provider
@@ -66,7 +62,7 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 
 				if (body != null) {
                     //Parse response to check soap Faults. Throws an exception
-                    checkFaultsInResponse(body);
+                    Utilities.CheckFaultsInResponse(body);
 
 					int startOfAssertion = body.indexOf("<Assertion ");
 					int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
@@ -87,31 +83,6 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 			}
 	}
 
-    private void checkFaultsInResponse(final String response) throws Exception {
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-        factory.setNamespaceAware(false);
-        XmlPullParser xpp = factory.newPullParser();
-
-        xpp.setInput( new StringReader( response ) );
-        int eventType = xpp.getEventType();
-        boolean faultBegin = false;
-        boolean faultEnd = false;
-        String faultMessage = "Identity Provider Error.\n";
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            if(eventType == XmlPullParser.START_TAG && !faultBegin) {
-                faultBegin = xpp.getName().toLowerCase().contains("s:fault");
-            } else if(eventType == XmlPullParser.END_TAG && faultBegin) {
-                faultEnd = xpp.getName().toLowerCase().contains("s:fault");
-            }
-            else if(eventType == XmlPullParser.TEXT && faultBegin && !faultEnd) {
-                faultMessage += xpp.getText() + ".";
-            }
-            eventType = xpp.next();
-        }
-
-        if (faultBegin)
-            throw new IllegalArgumentException(faultMessage);
-    }
 
 
 
