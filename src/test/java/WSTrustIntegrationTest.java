@@ -18,6 +18,7 @@ import kidozen.client.ServiceEventListener;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,11 +33,6 @@ import static org.junit.Assert.assertThat;
 @Ignore
 public class WSTrustIntegrationTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
-    private static final String KZ_TENANT = "https://...";
-    private static final String KZ_APP = "your application";
-    private static final String KZ_PROVIDER = "your provider key";
-    private static final String KZ_USER = "username";
-    private static final String KZ_PASS = "supersecret";
     KZApplication kidozen = null;
 
     @Before
@@ -47,7 +43,7 @@ public class WSTrustIntegrationTest {
     @Test
     public void ShouldAuthenticateUsingDefaultSettingsWithoutAuthCallback() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(KZ_TENANT, KZ_APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -57,7 +53,7 @@ public class WSTrustIntegrationTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(KZ_PROVIDER, KZ_USER, KZ_PASS);
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS);
         assertEquals(true, kidozen.Authenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         System.out.println(kidozen.KidozenUser.Token.toString());
@@ -67,7 +63,7 @@ public class WSTrustIntegrationTest {
     @Test
     public void AuthenticationShouldFailWithInvalidUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(KZ_TENANT, KZ_APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -77,7 +73,7 @@ public class WSTrustIntegrationTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(KZ_PROVIDER, "none@kidozen.com", KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
@@ -89,4 +85,28 @@ public class WSTrustIntegrationTest {
     }
 
 
+    @Test
+    public void AuthenticationShouldFailAndReturnMessage() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER,IntegrationTestConfiguration.KZ_USER, "1", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
+                assertTrue(e.Body.toLowerCase().contains("Error trying to call KidoZen Authentication Service Endpoint".toLowerCase()));
+                alcd.countDown();
+            }
+        });
+        assertEquals(false, kidozen.Authenticated);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
 }

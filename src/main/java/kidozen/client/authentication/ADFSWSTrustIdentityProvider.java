@@ -1,12 +1,16 @@
 package kidozen.client.authentication;
 
+import java.io.StringReader;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Hashtable;
 
 import kidozen.client.KZAction;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.SNIConnectionManager;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
  * Active Directory Federation Services Identity Provider
@@ -55,21 +59,26 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 			Hashtable<String, String> requestProperties = new Hashtable<String, String>();
             requestProperties.put(CONTENT_TYPE,SOAP_XML);
 			try {
-
                 String url = identityProviderUrl.toString();
                 SNIConnectionManager sniManager = new SNIConnectionManager(url, _message, requestProperties, null, bypassSSLValidation);
                 Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
-
 				String body = authResponse.get("responseBody");
 
 				if (body != null) {
+                    //Parse response to check soap Faults. Throws an exception
+                    checkFaultsInResponse(body);
+
 					int startOfAssertion = body.indexOf("<Assertion ");
 					int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
 					body = body.substring(startOfAssertion, endOfAssertion);
 					action.onServiceResponse(body);
 				}
-			} 
-			catch(StringIndexOutOfBoundsException e) // wrong user, password or scope
+			}
+            catch (IllegalArgumentException e) // wrong user, password or scope
+            {
+                throw e;
+            }
+			catch(StringIndexOutOfBoundsException e)
 			{
 				throw e;
 			}
@@ -78,9 +87,35 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 			}
 	}
 
-	
+    private void checkFaultsInResponse(final String response) throws Exception {
+        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        factory.setNamespaceAware(false);
+        XmlPullParser xpp = factory.newPullParser();
 
-	private final String TEMPLATE="<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" "
+        xpp.setInput( new StringReader( response ) );
+        int eventType = xpp.getEventType();
+        boolean faultBegin = false;
+        boolean faultEnd = false;
+        String faultMessage = "Identity Provider Error.\n";
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if(eventType == XmlPullParser.START_TAG && !faultBegin) {
+                faultBegin = xpp.getName().toLowerCase().contains("s:fault");
+            } else if(eventType == XmlPullParser.END_TAG && faultBegin) {
+                faultEnd = xpp.getName().toLowerCase().contains("s:fault");
+            }
+            else if(eventType == XmlPullParser.TEXT && faultBegin && !faultEnd) {
+                faultMessage += xpp.getText() + ".";
+            }
+            eventType = xpp.next();
+        }
+
+        if (faultBegin)
+            throw new IllegalArgumentException(faultMessage);
+    }
+
+
+
+    private final String TEMPLATE="<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" "
 			+ "xmlns:a=\"http://www.w3.org/2005/08/addressing\" xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">"
 			+ "<s:Header>" 
 			+ "<a:Action s:mustUnderstand=\"1\">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</a:Action>"

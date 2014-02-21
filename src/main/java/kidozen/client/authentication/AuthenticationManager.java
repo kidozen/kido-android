@@ -41,10 +41,10 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 	Map<String, JSONObject> _identityProviders;
 	String _username, _password;
 	String _providerKey;
-	String tokeFromAuthService;
-	Boolean mustGetTokenFromIP = false;
-	Boolean hasIPToken = false;
-	String errorDescription = "";
+	String _tokeFromAuthService;
+	Boolean _mustGetTokenFromIP = false;
+	Boolean _hasIPToken = false;
+	String _errorDescription = "";
 	String _ipEndpoint;
 	String _applicationScope ;
 	String _authServiceScope ;
@@ -106,29 +106,29 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 	protected void onPreExecute() {
 		super.onPreExecute();
 		_kidozenUser =  _securityTokens.get(_securityTokenKey);
-		mustGetTokenFromIP = (null==_kidozenUser);
+		_mustGetTokenFromIP = (null==_kidozenUser);
 	}
 	@Override
 	protected Void doInBackground(Void... params) {
 		try {
-			if (mustGetTokenFromIP) {
+			if (_mustGetTokenFromIP) {
 				Log.d(TAG,String.format("Token is not in the identity cache"));
                 getTokenFromIP();
 			}
 			else
 			{
 				Log.d(TAG,String.format("Getting token from the identity cache"));
-				tokeFromAuthService = _kidozenUser.Token;
+				_tokeFromAuthService = _kidozenUser.Token;
 				_tokenUpdater.TokenUpdated(_kidozenUser);
 				Authenticated = true;
-				hasIPToken = true;
+				_hasIPToken = true;
 			}
 		}
         catch (Exception e)
         {
-			hasIPToken = false;
+			_hasIPToken = false;
 			Authenticated = false;
-			errorDescription = "Error calling the specified Identity Provider." + e.getMessage();
+			_errorDescription = "Error calling the specified Identity Provider." + e.getMessage();
             this.cancel(false);
 		}
 		return null;
@@ -140,20 +140,18 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
         _currentIdentityProvider.Configure(provider);
         _currentIdentityProvider.Initialize(_username, _password, provider.get("authServiceScope").toString());
         URI endpoint = new URI(provider.get("endpoint").toString());
-
-        _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
-            @SuppressWarnings("deprecation")
-            public void onServiceResponse(String response) throws Exception {
-                try
-                {
-                    tokeFromAuthService = requestKidoZenToken(response);
-                    JSONObject token = new JSONObject(tokeFromAuthService);
-                    tokeFromAuthService = token.get("rawToken").toString();
+        try {
+            _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
+                @SuppressWarnings("deprecation")
+                public void onServiceResponse(String response) throws Exception {
+                    _tokeFromAuthService = requestKidoZenToken(response);
+                    JSONObject token = new JSONObject(_tokeFromAuthService);
+                    _tokeFromAuthService = token.get("rawToken").toString();
                     Log.d(TAG, String.format("Got Kidozen auth token from AuthService"));
-                    hasIPToken =true;
+                    _hasIPToken =true;
                     //
                     Log.d(TAG,String.format("Building KidoZen User object using the token"));
-                    String rawToken = URLDecoder.decode(tokeFromAuthService);
+                    String rawToken = URLDecoder.decode(_tokeFromAuthService);
                     String[] claims = rawToken.split("&");
                     Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
                     for (int i = 0; i < claims.length; i++)
@@ -177,7 +175,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
                         tokenClaims.put(keyName,v);
                     }
                     _kidozenUser = new KidoZenUser();
-                    _kidozenUser.Token = tokeFromAuthService;
+                    _kidozenUser.Token = _tokeFromAuthService;
                     _kidozenUser.Claims = tokenClaims;
                     _kidozenUser.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
                     if (tokenClaims.get("role")!=null)
@@ -185,65 +183,54 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
                         _kidozenUser.Roles = Arrays.asList(tokenClaims.get("role").split(","));
                     }
                 }
-                catch (Exception e)
-                {
-                    Authenticated = false;
-                    hasIPToken =false;
-                    Log.e(TAG,"Error parsing the IP token" + e.getStackTrace().toString());
-                    errorDescription = "Error trying to call KidoZen Authentication Service Endpoint:" + e.getMessage();
-                }
-            }
-        });
+            });
+        }
+        catch (Exception e)
+        {
+            Authenticated = false;
+            _hasIPToken =false;
+            _errorDescription = "Error trying to call KidoZen Authentication Service Endpoint. " + e.getMessage();
+        }
     }
 
     @Override
-	protected void onPostExecute (Void result)
-	{
+	protected void onPostExecute (Void result) {
 		super.onPostExecute(result);
-
-		if (hasIPToken)
+		if (_hasIPToken)
         {
 			try
             {
                 int status = HttpStatus.SC_OK;
-                String token = this.tokeFromAuthService;
+                String token = this._tokeFromAuthService;
                 KidoZenUser user = _kidozenUser;
                 //TODO : Remove for environments where AuthV2 is present
-                if (_kidozenUser.Claims.get("system")==null && _kidozenUser.Claims.get("http://schemas.kidozen.com/usersource")==null)
-                {
+                if (_kidozenUser.Claims.get("system")==null && _kidozenUser.Claims.get("http://schemas.kidozen.com/usersource")==null) {
                     this.Authenticated=false;
                     status = HttpStatus.SC_NOT_FOUND;
                     user = null;
                     token = "User is not authenticated";
                 }
-				else
-                {
+				else {
                     _securityTokens.put(_securityTokenKey, _kidozenUser);
 				    _tokenUpdater.TokenUpdated(_kidozenUser);
                     this.Authenticated = true;
                 }
-
-                if (_authCallback!=null)
-                {
+                if (_authCallback!=null) {
 					_authCallback.onFinish(new ServiceEvent(this,status, token, user));
 				}
 			}
-            catch (Exception e)
-            {
+            catch (Exception e) {
 				Authenticated = false;
-				errorDescription = "Error creating the Kidozen user identity:" + e.getMessage();
-				if (_authCallback!=null)
-                {
-					_authCallback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, errorDescription, null));
+				_errorDescription = "Error creating the Kidozen user identity:" + e.getMessage();
+				if (_authCallback!=null) {
+					_authCallback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, _errorDescription,null, e));
 				}
 			}
 		}
-		else
-        {
-			if (_authCallback!=null)
-            {
+		else  {
+			if (_authCallback!=null) {
 				Authenticated = false;
-				_authCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,errorDescription, null));
+				_authCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST, _errorDescription, null));
 			}
         }
 	}
@@ -254,15 +241,15 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
         if (_authCallback!=null)
         {
             Authenticated = false;
-            _authCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,errorDescription, null));
+            _authCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST, _errorDescription, null));
         }
     }
+
 
 	private String requestKidoZenToken(final String response) throws Exception
 	{ 
 		String body = null;
-		try 
-		{
+		try {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();  
 			nameValuePairs.add(new BasicNameValuePair("wrap_scope", _applicationScope));  
 			nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML")); 
@@ -272,7 +259,8 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
             SNIConnectionManager sniManager = new SNIConnectionManager(_authServiceEndpoint, message, null, null, bypassSSLValidation);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
 			body = authResponse.get("responseBody");
-		} catch (Exception e) {
+		}
+        catch (Exception e) {
 			throw e;
 		}
 		return body;

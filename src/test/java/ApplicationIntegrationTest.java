@@ -46,7 +46,7 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertEquals(e.StatusCode,HttpStatus.SC_OK);
+                assertEquals(HttpStatus.SC_OK,e.StatusCode);
                 lcd.countDown();
             }
         });
@@ -83,6 +83,7 @@ public class ApplicationIntegrationTest {
         assertEquals(true, kidozen.Authenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
+
 
     @Test
     public void ShouldAuthenticateUsingDefaultSettings() throws Exception {
