@@ -1,5 +1,5 @@
 Version 1.0.9
-
+* 2014-02-24	body response returns error in case of failure
 * 2014-02-07	SignOut removes auth token from cache
 * BugFix in ws-trust Identity Provider
 

@@ -1,5 +1,6 @@
 package kidozen.client.authentication;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -15,11 +16,11 @@ public class KidoZenUser {
 	/**
 	 * The Roles of this user
 	 */
-	public List<String> Roles;
+	public List<String> Roles= new ArrayList<String>();
 	/**
 	 * The claims of this user
 	 */
-	public Hashtable<String, String> Claims;
+	public Hashtable<String, String> Claims = new Hashtable<String, String>();
 	private Long _expiration;
 	public String Token;
 
