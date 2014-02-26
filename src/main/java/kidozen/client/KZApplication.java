@@ -523,6 +523,7 @@ public class KZApplication extends KZService {
                 {
                     Authenticated = true;
                     long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
+                    SetKidozenUser((KidoZenUser)e.Response);
                     if (delay<0)
                     {
                         Log.e(LOGTAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");

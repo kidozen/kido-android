@@ -144,6 +144,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
             _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
                 @SuppressWarnings("deprecation")
                 public void onServiceResponse(String response) throws Exception {
+                    Log.d(TAG, String.format("Got auth token from Identity Provider"));
                     _tokeFromAuthService = requestKidoZenToken(response);
                     JSONObject token = new JSONObject(_tokeFromAuthService);
                     _tokeFromAuthService = token.get("rawToken").toString();
@@ -202,17 +203,23 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
             {
                 int status = HttpStatus.SC_OK;
                 String token = this._tokeFromAuthService;
-                KidoZenUser user = _kidozenUser;
-                //TODO : Remove for environments where AuthV2 is present
-                if (_kidozenUser.Claims.get("system")==null && _kidozenUser.Claims.get("http://schemas.kidozen.com/usersource")==null) {
-                    this.Authenticated=false;
+                KidoZenUser user = null;
+                //AuthV2
+                if ( _kidozenUser.Claims.get("http://schemas.kidozen.com/usersource")==null)
+                {
+                    Log.d(TAG,String.format("user has no access to kidozen"));
+
+                    this.Authenticated = false;
                     status = HttpStatus.SC_NOT_FOUND;
-                    user = null;
                     token = "User is not authenticated";
                 }
-				else {
+				else
+                {
+                    Log.d(TAG,String.format("user has access to kidozen"));
+
                     _securityTokens.put(_securityTokenKey, _kidozenUser);
 				    _tokenUpdater.TokenUpdated(_kidozenUser);
+                    user = _kidozenUser;
                     this.Authenticated = true;
                 }
                 if (_authCallback!=null) {
