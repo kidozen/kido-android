@@ -51,6 +51,7 @@ public class KZApplication extends KZService {
 	private String _logEndpoint;
 	private String _notificationEndpoint;
     private String _filesEndpoint;
+    private String _datasourceEndpoint;
 	private static JSONArray _allApplicationLogEvents;
 	private int initializedStatusCode=0;
 	private Object initializedResponse;
@@ -156,6 +157,7 @@ public class KZApplication extends KZService {
         _logEndpoint= wrapper.get("logging").toString();
         _notificationEndpoint = wrapper.get("notification").toString();
         _filesEndpoint = wrapper.get("files").toString();
+        _datasourceEndpoint= wrapper.get("datasource").toString();
 
         Log.d(LOGTAG, "Getting provider configuration");
         _identityProviders = new HashMap<String, JSONObject>();
@@ -581,15 +583,31 @@ public class KZApplication extends KZService {
 	}
 
     /**
-     * Creates a new Storage object
+     * Creates a new LOBService object
      *
-     * @param name The name that references the Storage instance
-     * @return a new Storage object
+     * @param name The name that references the LOBService instance
+     * @return a new LOBService object
      * @throws Exception
      */
     public Service LOBService(String name) {
         checkMethodParameters(name);
         Service service = new Service(_lobEndpoint, name);
+        service.KidozenUser = this.KidozenUser;
+        service.BypassSSLVerification = this.BypassSSLVerification;
+        tokenUpdater.addObserver(service);
+        return service;
+    }
+
+    /**
+     * Creates a new DataSource object
+     *
+     * @param name The name that references the DataSource instance
+     * @return a new DataSource object
+     * @throws Exception
+     */
+    public DataSource DataSource(String name) {
+        checkMethodParameters(name);
+        DataSource service = new DataSource(_datasourceEndpoint, name);
         service.KidozenUser = this.KidozenUser;
         service.BypassSSLVerification = this.BypassSSLVerification;
         tokenUpdater.addObserver(service);
