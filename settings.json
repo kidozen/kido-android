@@ -1,8 +1,8 @@
 {
-    "kz_tenant" :               "https://tests.qa.kidozen.com",
-    "kz_app" :                  "tasks",
-    "kz_usr" :                  "tellago@kizen.com",
-    "kz_pass" :                 "pass",
+    "kz_tenant" :               "your tenant here",
+    "kz_app" :                  "your application here",
+    "kz_usr" :                  "your user here",
+    "kz_pass" :                 "your password here",
     "kz_provider" :             "Kidozen",
     "kz_email_to" :             "none@email.com",
     "kz_email_from" :           "none@email.com",
