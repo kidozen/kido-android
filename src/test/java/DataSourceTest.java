@@ -1,6 +1,7 @@
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -27,6 +28,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class DataSourceTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 5;
     private static final String OPERATION_DATASOURCE_NAME = "test-operation";
@@ -47,6 +49,24 @@ public class DataSourceTest {
             fail();
         }
     }
+
+    @Test
+    public void ShouldCallOperationInDataSource() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        DataSource dataSource = kidozen.DataSource(OPERATION_DATASOURCE_NAME);
+
+        dataSource.Invoke(new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertEquals(HttpStatus.SC_OK, e.StatusCode);
+
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+
     @Test
     public void ShouldCallQueryInDataSource() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -55,7 +75,7 @@ public class DataSourceTest {
         dataSource.Query(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertEquals(HttpStatus.SC_OK ,e.StatusCode);
+                assertEquals(HttpStatus.SC_OK, e.StatusCode);
 
                 lcd.countDown();
             }
@@ -63,6 +83,7 @@ public class DataSourceTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
     private ServiceEventListener kidoInitCallback(final CountDownLatch signal) {
         return new ServiceEventListener() {
             @Override
