@@ -1,4 +1,5 @@
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -33,6 +34,8 @@ public class DataSourceTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 5;
     private static final String OPERATION_DATASOURCE_NAME = "test-operation";
     private static final String QUERY_DATASOURCE_NAME = "test-query";
+    private static final String OPERATION_PARAMS_DATASOURCE_NAME = "test-operation-params";
+    private static final String QUERY_PARAMS_DATASOURCE_NAME = "test-query-params";
     KZApplication kidozen = null;
 
     @Before
@@ -68,6 +71,39 @@ public class DataSourceTest {
     }
 
     @Test
+    public void ShouldCallQueryInDataSourceWithParams() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATASOURCE_NAME);
+        JSONObject data = new JSONObject().put("path","?k=kidozen");
+        dataSource.Query(data,new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertEquals(HttpStatus.SC_OK, e.StatusCode);
+
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldCallOperationInDataSourceWithParams() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        DataSource dataSource = kidozen.DataSource(OPERATION_PARAMS_DATASOURCE_NAME);
+        JSONObject data = new JSONObject().put("path","?k=kidozen");
+        dataSource.Invoke(data,new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertEquals(HttpStatus.SC_OK, e.StatusCode);
+
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+
+    @Test
     public void ShouldCallQueryInDataSource() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_DATASOURCE_NAME);
@@ -83,7 +119,6 @@ public class DataSourceTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
     private ServiceEventListener kidoInitCallback(final CountDownLatch signal) {
         return new ServiceEventListener() {
             @Override

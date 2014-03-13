@@ -1,5 +1,5 @@
-Version 1.1.0
-* 2014-02-28	DataSources support
+Version 1.1.1
+* 2014-03-13	DataSources support
 
 Version 1.0.9
 
