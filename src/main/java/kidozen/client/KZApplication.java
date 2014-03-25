@@ -1,5 +1,6 @@
 package kidozen.client;
 
+import android.app.Application;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -32,7 +33,9 @@ public class KZApplication extends KZService {
     public static final String TOKEN_CHANGE_INTENT = "kidozen.client.intent.TOKEN_CHANGE";
 
     public Boolean Initialized = false;
-	private Map<String, JSONObject> ips= new HashMap<String, JSONObject>();
+    private static CrashReporter _crashReporter;
+
+    private Map<String, JSONObject> ips= new HashMap<String, JSONObject>();
     private Map<String, AsyncTask> tasks = new HashMap<String, AsyncTask>();
     public Boolean Authenticated = false;
 	public Map<String, String> IdentityProvidersKeys = new HashMap<String, String>();
@@ -65,7 +68,17 @@ public class KZApplication extends KZService {
     private HandlerThread expirationThread = new HandlerThread("HandlerThread");
     private Handler sessionExpiresHandler ;
 
-	/**
+    public static void EnableCrashReporter (Application application, String url,  ServiceEventListener callback) {
+        if (_crashReporter==null)
+            _crashReporter = new CrashReporter(application,url,callback);
+    }
+
+    public static void EnableCrashReporter (Application application,  ServiceEventListener callback) {
+        if (_crashReporter==null)
+            _crashReporter = new CrashReporter(application,callback);
+    }
+
+    /**
 	 * Returns the current KidoZen identity
 	 * 
 	 * @return The current KidoZen User
