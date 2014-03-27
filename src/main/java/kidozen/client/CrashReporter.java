@@ -19,27 +19,12 @@ public class CrashReporter extends KZService {
     public CrashReporter ACRAReport;
     public JSONObject ErrorContent;
 
-    public CrashReporter(Application application, String endpoint, final ServiceEventListener callback){
+    public CrashReporter(Application application, String endpoint){
         _hostApplication = application;
         _endpoint = endpoint;
-        _crashSender = new KidoZenCrashSender(
-                this,
-                _endpoint,
-                callback
-        );
+        _crashSender = new KidoZenCrashSender(_endpoint);
         ACRA.init(_hostApplication);
-        ACRA.getErrorReporter().addReportSender(_crashSender);
+        ACRA.getErrorReporter().setReportSender(_crashSender);
     }
 
-    public CrashReporter(Application application,final ServiceEventListener callback) {
-        _hostApplication = application;
-        _endpoint = ACRA.getNewDefaultConfig(_hostApplication).formUri();
-        ACRA.init(_hostApplication);
-        _crashSender = new KidoZenCrashSender(
-                this,
-                _endpoint,
-                callback
-        );
-        ACRA.getErrorReporter().addReportSender(_crashSender);
-    }
  }

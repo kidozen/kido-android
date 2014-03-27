@@ -68,14 +68,9 @@ public class KZApplication extends KZService {
     private HandlerThread expirationThread = new HandlerThread("HandlerThread");
     private Handler sessionExpiresHandler ;
 
-    public static void EnableCrashReporter (Application application, String url,  ServiceEventListener callback) {
+    public static void EnableCrashReporter (Application application, String url) {
         if (_crashReporter==null)
-            _crashReporter = new CrashReporter(application,url,callback);
-    }
-
-    public static void EnableCrashReporter (Application application,  ServiceEventListener callback) {
-        if (_crashReporter==null)
-            _crashReporter = new CrashReporter(application,callback);
+            _crashReporter = new CrashReporter(application,url);
     }
 
     /**
