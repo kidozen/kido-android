@@ -14,6 +14,8 @@ import java.util.Hashtable;
 public class KidoZenCrashSender implements ReportSender {
     private String _endpoint;
     private SNIConnectionManager _sniManager;
+    protected static final String APPLICATION_JSON = "application/json";
+    protected static final String CONTENT_TYPE = "content-type";
 
     public KidoZenCrashSender (String endpoint) {
         if (!endpoint.endsWith("/")) {
@@ -25,7 +27,9 @@ public class KidoZenCrashSender implements ReportSender {
     @Override
     public void send(CrashReportData errorContent) throws ReportSenderException {
         try {
-            _sniManager = new SNIConnectionManager(_endpoint, errorContent.toString(), null, null, true);
+            Hashtable<String, String> headers = new Hashtable<String, String>();
+            headers.put(CONTENT_TYPE,APPLICATION_JSON);
+            _sniManager = new SNIConnectionManager(_endpoint, errorContent.toJSON().toString(), headers, null, true);
             Hashtable<String, String> response = _sniManager.ExecuteHttp(KZHttpMethod.POST);
             String body = response.get("responseBody");
             Integer statusCode = Integer.parseInt(response.get("statusCode"));
