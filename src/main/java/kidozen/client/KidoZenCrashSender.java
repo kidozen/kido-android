@@ -22,6 +22,7 @@ public class KidoZenCrashSender implements ReportSender {
             endpoint = endpoint + "/";
         }
         _endpoint  = endpoint + "api/v3/logging/crash/android/dump";
+
     }
 
     @Override
