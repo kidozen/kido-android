@@ -29,19 +29,15 @@ import kidozen.client.authentication.WRAPv09IdentityProvider;
  *
  */
 public class KZApplication extends KZService {
-    public static final String APPLICATION_NOT_FOUND = "Application not found";
-    public static final String TOKEN_CHANGE_INTENT = "kidozen.client.intent.TOKEN_CHANGE";
-
+    private static final String LOG_CAT_TAG = "KZApplication";
+    public static final String APPLICATION_NOT_FOUND_MESSAGE = "Application not found";
     public Boolean Initialized = false;
     private static CrashReporter _crashReporter;
 
-    private Map<String, JSONObject> ips= new HashMap<String, JSONObject>();
-    private Map<String, AsyncTask> tasks = new HashMap<String, AsyncTask>();
     public Boolean Authenticated = false;
 	public Map<String, String> IdentityProvidersKeys = new HashMap<String, String>();
-	public Boolean BypassSSLVerification = false;
+	public Boolean StrictSSL = true;
 	
-	private static final String LOGTAG = "KZApplication";
 	private Map<String, JSONObject> _identityProviders;
 	private String _emailEndpoint;
 	private String _queueEndpoint;
@@ -54,13 +50,10 @@ public class KZApplication extends KZService {
 	private String _logEndpoint;
 	private String _notificationEndpoint;
     private String _filesEndpoint;
-    private String _datasourceEndpoint;
+    private String _dataSourceEndpoint;
 	private static JSONArray _allApplicationLogEvents;
-	private int initializedStatusCode=0;
-	private Object initializedResponse;
-	private String initializedBody;
 
-	JSONObject _authConfig;
+    JSONObject _authConfig;
 
     private Logging _applicationLog;
     private MailSender _mailSender;
@@ -96,13 +89,13 @@ public class KZApplication extends KZService {
 	 * 
 	 * @param tenantMarketPlace The url of the KidoZen marketplace
 	 * @param application The application name
-	 * @param bypassSSLVerification Allows to bypass the SSL validation, use it only for development purposes
+	 * @param strictSSL Set this value to false to bypass the SSL validation, use it only for development purposes. Otherwise you need to install the KidoZen Certificates in your device
 	 * @param callback The ServiceEventListener callback with the operation results
 	 * @throws Exception The latest exception is there was any
 	 */
-    public KZApplication(String tenantMarketPlace, String application, Boolean bypassSSLVerification, final ServiceEventListener callback) throws Exception{
+    public KZApplication(String tenantMarketPlace, String application, Boolean strictSSL, final ServiceEventListener callback) throws Exception{
         super();
-        BypassSSLVerification = bypassSSLVerification;
+        StrictSSL = strictSSL;
         _tenantMarketPlace = tenantMarketPlace;
         _application= application;
         _initializationCallback = callback;
@@ -113,7 +106,8 @@ public class KZApplication extends KZService {
         HashMap<String, String> params = null;
         HashMap<String, String> headers = new HashMap<String, String>();
 
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, configurationCallback, BypassSSLVerification);
+        //Negates the value of StrictSSL for backward compatibility with the previos variable name (BypassSSLValidation = true => bypass the validation )
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, configurationCallback, !StrictSSL);
     }
 
     private ServiceEventListener _initializationCallback = null;
@@ -124,19 +118,19 @@ public class KZApplication extends KZService {
                 ServiceEvent se = new ServiceEvent(this, e.StatusCode, e.Body, e.Response);
                 try {
                     parseApplicationConfiguration(e.Body);
-                    initializedStatusCode = e.StatusCode;
-                    initializedBody = e.Body;
-                    initializedResponse = e.Response;
+                    int initializedStatusCode = e.StatusCode;
+                    String initializedBody = e.Body;
+                    Object initializedResponse = e.Response;
                     Initialized = (e.Exception == null);
                 } catch (JSONException je) {
                     se.StatusCode = HttpStatus.SC_NOT_FOUND;
-                    se.Body = APPLICATION_NOT_FOUND;
-                    se.Response = APPLICATION_NOT_FOUND;
+                    se.Body = APPLICATION_NOT_FOUND_MESSAGE;
+                    se.Response = APPLICATION_NOT_FOUND_MESSAGE;
                     se.Exception = je;
                 } catch (InvalidParameterException ipe) {
                     se.StatusCode = HttpStatus.SC_NOT_FOUND;
-                    se.Body = APPLICATION_NOT_FOUND;
-                    se.Response = APPLICATION_NOT_FOUND;
+                    se.Body = APPLICATION_NOT_FOUND_MESSAGE;
+                    se.Response = APPLICATION_NOT_FOUND_MESSAGE;
                     se.Exception = ipe;
                 } finally {
                     if (_initializationCallback != null)
@@ -165,9 +159,9 @@ public class KZApplication extends KZService {
         _logEndpoint= wrapper.get("logging").toString();
         _notificationEndpoint = wrapper.get("notification").toString();
         _filesEndpoint = wrapper.get("files").toString();
-        _datasourceEndpoint= wrapper.get("datasource").toString();
+        _dataSourceEndpoint = wrapper.get("datasource").toString();
 
-        Log.d(LOGTAG, "Getting provider configuration");
+        Log.d(LOG_CAT_TAG, "Getting provider configuration");
         _identityProviders = new HashMap<String, JSONObject>();
         String jsonconfig  = _authConfig.toString();
         JSONObject configurations  = new JSONObject(jsonconfig);
@@ -195,11 +189,11 @@ public class KZApplication extends KZService {
             IIdentityProvider ipinstance =null;
             if (protocol.toLowerCase().equals("wrapv0.9")) {
                 ipinstance= new WRAPv09IdentityProvider();
-                ((WRAPv09IdentityProvider)ipinstance).bypassSSLValidation=BypassSSLVerification;
+                ((WRAPv09IdentityProvider)ipinstance).bypassSSLValidation= !StrictSSL;
             }
             else {
                 ipinstance=new ADFSWSTrustIdentityProvider();
-                ((ADFSWSTrustIdentityProvider)ipinstance).bypassSSLValidation=BypassSSLVerification;
+                ((ADFSWSTrustIdentityProvider)ipinstance).bypassSSLValidation= !StrictSSL;
             }
 
             //
@@ -213,8 +207,8 @@ public class KZApplication extends KZService {
 
     public KZApplication( Map<String, JSONObject> ips, Map<String,AsyncTask> tasks) {
 
-        this.ips = ips;
-        this.tasks = tasks;
+        Map<String, JSONObject> ips1 = ips;
+        Map<String, AsyncTask> tasks1 = tasks;
     }
 
 	/**
@@ -238,9 +232,9 @@ public class KZApplication extends KZService {
 	 */
 	public PubSubChannel PubSubChannel(String name) throws Exception{
 		checkMethodParameters(name);
-		PubSubChannel channel = new PubSubChannel(_wsSubscriberEndpoint, _publisherEndpoint, name, this.KidozenUser, this.BypassSSLVerification);
+		PubSubChannel channel = new PubSubChannel(_wsSubscriberEndpoint, _publisherEndpoint, name, this.KidozenUser, !StrictSSL);
         channel.setKidozenUser(this.KidozenUser);
-        channel._bypassSSLVerification = this.BypassSSLVerification;
+        channel._bypassSSLVerification = !StrictSSL;
 
         channel.SetCredentials(_provider, _username, _password, null);
         channel.SetAuthenticateParameters(_tenantMarketPlace, _application, _identityProviders, applicationScope, authServiceScope, authServiceEndpoint, _ipEndpoint);
@@ -259,7 +253,7 @@ public class KZApplication extends KZService {
 	{
 		Notification notification= new Notification( _notificationEndpoint, _application);
 		notification.KidozenUser = this.KidozenUser;
-		notification.BypassSSLVerification = this.BypassSSLVerification;
+		notification.BypassSSLVerification = !StrictSSL;
 		tokenUpdater.addObserver(notification);
         CloneCredentials(notification);
 		return notification;
@@ -276,7 +270,7 @@ public class KZApplication extends KZService {
 		checkMethodParameters(name);
 		Configuration configuration =new  Configuration(_configurationEndpoint, name);
 		configuration.KidozenUser = this.KidozenUser;
-		configuration.BypassSSLVerification = this.BypassSSLVerification;
+		configuration.BypassSSLVerification = !StrictSSL;
 		tokenUpdater.addObserver(configuration);
         CloneCredentials(configuration);
 		return configuration;
@@ -294,7 +288,7 @@ public class KZApplication extends KZService {
 		checkMethodParameters(name);
 		Queue queue= new Queue(_queueEndpoint, name);
 		queue.KidozenUser = this.KidozenUser;
-		queue.BypassSSLVerification = this.BypassSSLVerification;
+		queue.BypassSSLVerification = !StrictSSL;
 		tokenUpdater.addObserver(queue);
         CloneCredentials(queue);
 		return queue;
@@ -311,7 +305,7 @@ public class KZApplication extends KZService {
 		checkMethodParameters(name);
 		Storage storage = new Storage(_storageEndpoint, name);
 		storage.KidozenUser = this.KidozenUser;
-		storage.BypassSSLVerification = this.BypassSSLVerification;
+		storage.BypassSSLVerification = !StrictSSL;
 		tokenUpdater.addObserver(storage);
         CloneCredentials(storage);
 		return storage;
@@ -328,7 +322,7 @@ public class KZApplication extends KZService {
 		checkMethodParameters(number);
 		SMSSender sender = new SMSSender(_smsEndpoint, number);
 		sender.KidozenUser = this.KidozenUser;
-		sender.BypassSSLVerification = this.BypassSSLVerification;
+		sender.BypassSSLVerification = !StrictSSL;
 		tokenUpdater.addObserver(sender);
         CloneCredentials(sender);
 		return sender;
@@ -349,7 +343,7 @@ public class KZApplication extends KZService {
         {
             _mailSender = new MailSender(_emailEndpoint);
             _mailSender.KidozenUser = this.KidozenUser;
-            _mailSender.BypassSSLVerification = this.BypassSSLVerification;
+            _mailSender.BypassSSLVerification = !StrictSSL;
             tokenUpdater.addObserver(_mailSender);
             CloneCredentials(_mailSender);
         }
@@ -400,7 +394,7 @@ public class KZApplication extends KZService {
         {
             _applicationLog = new Logging(_logEndpoint);
             _applicationLog.KidozenUser = this.KidozenUser;
-            _applicationLog.BypassSSLVerification = this.BypassSSLVerification;
+            _applicationLog.BypassSSLVerification = !StrictSSL;
             tokenUpdater.addObserver(_applicationLog);
             CloneCredentials(_applicationLog);
         }
@@ -461,7 +455,7 @@ public class KZApplication extends KZService {
     public Files FileStorage() throws Exception{
         Files files = new Files(_filesEndpoint);
         files.KidozenUser = this.KidozenUser;
-        files.BypassSSLVerification = this.BypassSSLVerification;
+        files.BypassSSLVerification = !StrictSSL;
         tokenUpdater.addObserver(files);
         CloneCredentials(files);
         return files;
@@ -536,7 +530,7 @@ public class KZApplication extends KZService {
                     SetKidozenUser((KidoZenUser)e.Response);
                     if (delay<0)
                     {
-                        Log.e(LOGTAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
+                        Log.e(LOG_CAT_TAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
                     }
                 }
                 if (callback!=null) {
@@ -601,7 +595,7 @@ public class KZApplication extends KZService {
         checkMethodParameters(name);
         Service service = new Service(_lobEndpoint, name);
         service.KidozenUser = this.KidozenUser;
-        service.BypassSSLVerification = this.BypassSSLVerification;
+        service.BypassSSLVerification = !StrictSSL;
         tokenUpdater.addObserver(service);
         return service;
     }
@@ -615,9 +609,9 @@ public class KZApplication extends KZService {
      */
     public DataSource DataSource(String name) {
         checkMethodParameters(name);
-        DataSource service = new DataSource(_datasourceEndpoint, name);
+        DataSource service = new DataSource(_dataSourceEndpoint, name);
         service.KidozenUser = this.KidozenUser;
-        service.BypassSSLVerification = this.BypassSSLVerification;
+        service.BypassSSLVerification = !StrictSSL;
         tokenUpdater.addObserver(service);
         return service;
     }

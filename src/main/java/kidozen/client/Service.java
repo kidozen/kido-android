@@ -12,6 +12,7 @@ import java.util.HashMap;
  * To change this template use File | Settings | File Templates.
  */
 public class Service extends KZService {
+    private static final String SERVICETIMEOUT_HEADER = "timeout";
     private String _endpoint = null;
     private String _name = null;
 
@@ -36,12 +37,26 @@ public class Service extends KZService {
      * @param callback The callback with the result of the service call
      */
     public void InvokeMethod(String method, final JSONObject data, final ServiceEventListener callback) {
+        this.InvokeMethod(method, data, 0, callback);
+    }
+
+    /**
+     * Invokes a LOB method
+     *
+     * @param method   the method name
+     * @param data     the data requested by the method call
+     * @param timeout  service timeout
+     * @param callback The callback with the result of the service call
+     */
+    public void InvokeMethod(String method, final JSONObject data, int timeout, final ServiceEventListener callback) {
         String url = _endpoint + "api/services/"+ _name +"/invoke/" + method;
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put(AUTHORIZATION_HEADER, CreateAuthHeaderValue());
         headers.put(CONTENT_TYPE, APPLICATION_JSON);
         headers.put(ACCEPT, APPLICATION_JSON);
+        if (timeout>0)
+            headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
         this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, BypassSSLVerification);
     }
