@@ -29,8 +29,9 @@ import kidozen.client.authentication.WRAPv09IdentityProvider;
  *
  */
 public class KZApplication extends KZService {
-    private static final String LOG_CAT_TAG = "KZApplication";
+    private static final String LOG_CAT_TAG = "KidoZen SDK";
     public static final String APPLICATION_NOT_FOUND_MESSAGE = "Application not found";
+    private String ApplicationKey = "";
     public Boolean Initialized = false;
     private static CrashReporter _crashReporter;
 
@@ -60,6 +61,8 @@ public class KZApplication extends KZService {
 
     private HandlerThread expirationThread = new HandlerThread("HandlerThread");
     private Handler sessionExpiresHandler ;
+    private Object _applicationUrl;
+    private JSONArray _secretKeys;
 
     public static void EnableCrashReporter (Application application, String url) {
         if (_crashReporter==null)
@@ -71,41 +74,86 @@ public class KZApplication extends KZService {
 	 * 
 	 * @return The current KidoZen User
 	 */
-	public KidoZenUser GetKidozenUser() {
+	public KidoZenUser GetKidoZenUser() {
 		return KidozenUser;
 	}
 	
 	/**
 	 * Allows to change the current KidoZen user identity
 	 * 
-	 * @param _kidozenUser the new identity
+	 * @param user the new identity
 	 */
-	public void SetKidozenUser(KidoZenUser _kidozenUser) {
-		this.KidozenUser = _kidozenUser;
+	public void SetKidoZenUser(KidoZenUser user) {
+		this.KidozenUser = user;
 	}
 
-	/**
-	 * Constructor
-	 * 
-	 * @param tenantMarketPlace The url of the KidoZen marketplace
-	 * @param application The application name
-	 * @param strictSSL Set this value to false to bypass the SSL validation, use it only for development purposes. Otherwise you need to install the KidoZen Certificates in your device
-	 * @param callback The ServiceEventListener callback with the operation results
-	 * @throws Exception The latest exception is there was any
-	 */
-    public KZApplication(String tenantMarketPlace, String application, Boolean strictSSL, final ServiceEventListener callback) throws Exception{
+    /**
+     * Constructor
+     *
+     * @param tenantMarketPlace The url of the KidoZen marketplace
+     * @param application The application name
+     * @param callback The ServiceEventListener callback with the operation results
+     * @throws Exception The latest exception is there was any
+     */
+    public KZApplication(String tenantMarketPlace, String application, ServiceEventListener callback) throws Exception{
+        this(tenantMarketPlace,application,"",false,callback);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param tenantMarketPlace The url of the KidoZen marketplace
+     * @param application The application name
+     * @param applicationKey The application key for anonymous logging
+     * @param callback The ServiceEventListener callback with the operation results
+     * @throws Exception The latest exception is there was any
+     */
+    public KZApplication(String tenantMarketPlace, String application, String applicationKey, ServiceEventListener callback) throws Exception{
+        this(tenantMarketPlace,application, applicationKey, false, callback);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param tenantMarketPlace The url of the KidoZen marketplace
+     * @param application The application name
+     * @param applicationKey The application key for anonymous logging
+     * @param callback The ServiceEventListener callback with the operation results
+     * @throws Exception The latest exception is there was any
+     */
+    public KZApplication(String tenantMarketPlace, String application,  Boolean strictSSL, ServiceEventListener callback) throws Exception{
+        this(tenantMarketPlace, application, "", strictSSL, callback);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param tenantMarketPlace The url of the KidoZen marketplace
+     * @param application The application name
+     * @param strictSSL Set this value to false to bypass the SSL validation, use it only for development purposes. Otherwise you need to install the KidoZen Certificates in your device
+     * @param secretKeyName Secret Key's name to use
+     * @param callback The ServiceEventListener callback with the operation results
+     * @throws Exception The latest exception is there was any
+     */
+    public KZApplication(String tenantMarketPlace, String application, String applicationKey, Boolean strictSSL, final ServiceEventListener callback) throws Exception{
         super();
-        StrictSSL = strictSSL;
+        InitializeApplication(tenantMarketPlace, application, applicationKey,strictSSL, callback);
+    }
+
+    private void InitializeApplication(String tenantMarketPlace, String application,String applicationKey, Boolean strictSSL, ServiceEventListener callback) {
+        this.StrictSSL = strictSSL;
+        this.ApplicationKey = applicationKey;
         _tenantMarketPlace = tenantMarketPlace;
         _application= application;
         _initializationCallback = callback;
+
         if (!_tenantMarketPlace.endsWith("/")) {
             _tenantMarketPlace = _tenantMarketPlace + "/";
         }
         String url = _tenantMarketPlace + "publicapi/apps?name=" + _application;
         HashMap<String, String> params = null;
-        HashMap<String, String> headers = new HashMap<String, String>();
 
+        HashMap<String, String> headers = new HashMap<String, String>();
         //Negates the value of StrictSSL for backward compatibility with the previos variable name (BypassSSLValidation = true => bypass the validation )
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers, configurationCallback, !StrictSSL);
     }
@@ -139,8 +187,6 @@ public class KZApplication extends KZService {
             }
     };
 
-
-
     private void parseApplicationConfiguration(String response) throws JSONException, InvalidParameterException {
         JSONArray cfg = new JSONArray(response);
         JSONObject wrapper = cfg.getJSONObject(0);
@@ -161,6 +207,9 @@ public class KZApplication extends KZService {
         _filesEndpoint = wrapper.get("files").toString();
         _dataSourceEndpoint = wrapper.get("datasource").toString();
 
+        _secretKeys = wrapper.getJSONArray("secretKeys");
+        _applicationUrl = wrapper.get("url").toString();
+
         Log.d(LOG_CAT_TAG, "Getting provider configuration");
         _identityProviders = new HashMap<String, JSONObject>();
         String jsonconfig  = _authConfig.toString();
@@ -178,50 +227,37 @@ public class KZApplication extends KZService {
             String endpoint =  ip.getString("endpoint");
             String protocol = ip.getString("protocol");
 
-            JSONObject kzip = new JSONObject();
-            kzip.put("authServiceScope", authServiceScope);
-            kzip.put("authServiceEndpoint", endpoint);
-            kzip.put("applicationScope", applicationScope);
-            kzip.put("key", ipName);
-            kzip.put("endpoint", endpoint);
-            kzip.put("protocol", protocol);
+            JSONObject kidozenIdentityProvider = new JSONObject();
+            kidozenIdentityProvider.put("authServiceScope", authServiceScope);
+            kidozenIdentityProvider.put("authServiceEndpoint", endpoint);
+            kidozenIdentityProvider.put("applicationScope", applicationScope);
+            kidozenIdentityProvider.put("key", ipName);
+            kidozenIdentityProvider.put("endpoint", endpoint);
+            kidozenIdentityProvider.put("protocol", protocol);
             //TODO: replace with factory
-            IIdentityProvider ipinstance =null;
+            IIdentityProvider identityProviderInstance =null;
             if (protocol.toLowerCase().equals("wrapv0.9")) {
-                ipinstance= new WRAPv09IdentityProvider();
-                ((WRAPv09IdentityProvider)ipinstance).bypassSSLValidation= !StrictSSL;
+                identityProviderInstance= new WRAPv09IdentityProvider();
+                ((WRAPv09IdentityProvider)identityProviderInstance).bypassSSLValidation= !StrictSSL;
             }
             else {
-                ipinstance=new ADFSWSTrustIdentityProvider();
-                ((ADFSWSTrustIdentityProvider)ipinstance).bypassSSLValidation= !StrictSSL;
+                identityProviderInstance=new ADFSWSTrustIdentityProvider();
+                ((ADFSWSTrustIdentityProvider)identityProviderInstance).bypassSSLValidation= !StrictSSL;
             }
 
             //
-            kzip.put("instance", ipinstance);
-            _identityProviders.put(ipName, kzip );
+            kidozenIdentityProvider.put("instance", identityProviderInstance);
+            _identityProviders.put(ipName, kidozenIdentityProvider );
             IdentityProvidersKeys.put(ipName, protocol);
         }
         return;
     }
-
 
     public KZApplication( Map<String, JSONObject> ips, Map<String,AsyncTask> tasks) {
 
         Map<String, JSONObject> ips1 = ips;
         Map<String, AsyncTask> tasks1 = tasks;
     }
-
-	/**
-	 * Constructor
-	 * 
-	 * @param tenantMarketPlace The url of the KidoZen marketplace
-	 * @param application The application name
-	 * @param callback The ServiceEventListener callback with the operation results
-	 * @throws Exception The latest exception is there was any
-	 */
-	public KZApplication(String tenantMarketPlace, String application, ServiceEventListener callback) throws Exception{
-		this(tenantMarketPlace,application,false,callback);
-	}
 
 	/**
 	 * Creates a new PubSubChannel object
@@ -527,7 +563,7 @@ public class KZApplication extends KZService {
                 {
                     Authenticated = true;
                     long delay =  ((KidoZenUser)e.Response).GetExpirationInMiliseconds();
-                    SetKidozenUser((KidoZenUser)e.Response);
+                    SetKidoZenUser((KidoZenUser) e.Response);
                     if (delay<0)
                     {
                         Log.e(LOG_CAT_TAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
