@@ -1,0 +1,114 @@
+import org.apache.http.HttpStatus;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import kidozen.client.KZApplication;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: christian
+ * Date: 1/08/14
+ * Time: 11:00 AM
+ * To change this template use File | Settings | File Templates.
+ */
+@RunWith(RobolectricTestRunner.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Config(manifest= Config.NONE)
+public class ApplicationAuthIntegrationTest {
+    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
+    private static final String KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
+    private static final String KZ_TENANT = "https://contoso.local.kidozen.com";
+    private static final String KZ_APP = "ioscrashapp";
+    KZApplication kidozen = null;
+
+    @Before
+    public void Setup()
+    {
+    }
+
+    @Test
+    public void ShouldAuthenticateUsingDefaultSettingsWithoutAuthCallback() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(KZ_TENANT, KZ_APP, KZ_KEY,true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        assertEquals(true, kidozen.Authenticated);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        System.out.println(kidozen.KidozenUser.Token.toString());
+    }
+
+    @Test
+    @Ignore
+    public void AuthenticationShouldFailWithInvalidUser() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
+                alcd.countDown();
+            }
+        });
+        assertEquals(false, kidozen.Authenticated);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+
+
+    @Test
+    @Ignore
+    public void AuthenticationShouldFailAndReturnMessage() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch alcd = new CountDownLatch(1);
+
+        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER,IntegrationTestConfiguration.KZ_USER, "1", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
+                assertTrue(e.Body.toLowerCase().contains("Error trying to call KidoZen Authentication Service Endpoint".toLowerCase()));
+                alcd.countDown();
+            }
+        });
+        assertEquals(false, kidozen.Authenticated);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+}

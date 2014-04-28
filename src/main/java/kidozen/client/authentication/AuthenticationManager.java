@@ -6,6 +6,7 @@ import android.util.Log;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URI;
@@ -28,20 +29,22 @@ import kidozen.client.Utilities;
 
 
 public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
-	public static HashMap<String, KidoZenUser> _securityTokens= new HashMap<String, KidoZenUser>();
+	public static HashMap<String, KidoZenUser> SecurityTokensCache = new HashMap<String, KidoZenUser>();
 	public Boolean Authenticated = false;
 	public boolean bypassSSLValidation = false;
 
-	protected String _securityTokenKey="";
-	protected KidoZenUser _kidozenUser = null;
-	protected String _tennantMarketPlace, _application;
-	private IIdentityProvider _currentIdentityProvider ;
+	protected String _kidoZenUserHashKey = "";
+    protected String _kidoZenApplicationHashKey = "";
+	protected KidoZenUser _kidoZenUser = null;
+    protected KidoZenUser _applicationUser = null;
 
+    protected String _tenantMarketPlace, _application;
+	private IIdentityProvider _currentIdentityProvider ;
 
 	Map<String, JSONObject> _identityProviders;
 	String _username, _password;
 	String _providerKey;
-	String _tokeFromAuthService;
+	String _userTokeFromAuthService;
 	Boolean _mustGetTokenFromIP = false;
 	Boolean _hasIPToken = false;
 	String _errorDescription = "";
@@ -52,11 +55,11 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 
     ObservableUser _tokenUpdater;
 
-	private String TAG="AuthenticationManager";
+	private final String TAG="AuthenticationManager";
 	private ServiceEventListener _authCallback;
 
-	public AuthenticationManager(String tennantMarketPlace, String application, Map<String, JSONObject> identityProviders, String applicationScope, String authServiceScope, String authServiceEndpoint, String ipEndpoint, ObservableUser tokenUpdater){
-		_tennantMarketPlace = tennantMarketPlace;
+	public AuthenticationManager(String tenantMarketPlace, String application, Map<String, JSONObject> identityProviders, String applicationScope, String authServiceScope, String authServiceEndpoint, String ipEndpoint, ObservableUser tokenUpdater){
+		_tenantMarketPlace = tenantMarketPlace;
 		_application = application;
 		_identityProviders = identityProviders;
 		_applicationScope = applicationScope ;
@@ -68,7 +71,7 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 
     public void RemoveCurrentTokenFromCache(String _username)
     {
-        for(Iterator<Map.Entry<String,KidoZenUser>> it=_securityTokens.entrySet().iterator();it.hasNext();){
+        for(Iterator<Map.Entry<String,KidoZenUser>> it= SecurityTokensCache.entrySet().iterator();it.hasNext();){
             Map.Entry<String, KidoZenUser> entry = it.next();
             if (entry.getValue().Token.equalsIgnoreCase(_username)) {
                 Log.d(TAG, String.format("Token removed from token cache"));
@@ -83,8 +86,8 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		_providerKey = providerKey;
 		_username = username;
 		_password = password;
-		_securityTokenKey = Utilities.createHash(String.format("%s%s%s%s%s", _tennantMarketPlace, _application, providerKey.toLowerCase(), username, password));
-		Log.d(TAG,String.format("Create hash key for Authentication: %s",_securityTokenKey));
+		_kidoZenUserHashKey = Utilities.createHash(String.format("%s%s%s%s%s", _tenantMarketPlace, _application, providerKey.toLowerCase(), username, password));
+		Log.d(TAG,String.format("Create hash key for Authentication: %s", _kidoZenUserHashKey));
 
 		try
         {
@@ -99,15 +102,16 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 				callback.onFinish(se);
 			}
 		}
-        return _kidozenUser;
+        return _kidoZenUser;
 	}
 
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		_kidozenUser =  _securityTokens.get(_securityTokenKey);
-		_mustGetTokenFromIP = (null==_kidozenUser);
+		_kidoZenUser =  SecurityTokensCache.get(_kidoZenUserHashKey);
+		_mustGetTokenFromIP = (null== _kidoZenUser);
 	}
+
 	@Override
 	protected Void doInBackground(Void... params) {
 		try {
@@ -118,8 +122,8 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 			else
 			{
 				Log.d(TAG,String.format("Getting token from the identity cache"));
-				_tokeFromAuthService = _kidozenUser.Token;
-				_tokenUpdater.TokenUpdated(_kidozenUser);
+				_userTokeFromAuthService = _kidoZenUser.Token;
+				_tokenUpdater.TokenUpdated(_kidoZenUser);
 				Authenticated = true;
 				_hasIPToken = true;
 			}
@@ -144,45 +148,9 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
             _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
                 @SuppressWarnings("deprecation")
                 public void onServiceResponse(String response) throws Exception {
-                    Log.d(TAG, String.format("Got auth token from Identity Provider"));
-                    _tokeFromAuthService = requestKidoZenToken(response);
-                    JSONObject token = new JSONObject(_tokeFromAuthService);
-                    _tokeFromAuthService = token.get("rawToken").toString();
-                    Log.d(TAG, String.format("Got Kidozen auth token from AuthService"));
-                    _hasIPToken =true;
-                    //
-                    Log.d(TAG,String.format("Building KidoZen User object using the token"));
-                    String rawToken = URLDecoder.decode(_tokeFromAuthService);
-                    String[] claims = rawToken.split("&");
-                    Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
-                    for (int i = 0; i < claims.length; i++)
-                    {
-                        String[] keyValue = claims[i].split("=");
-                        String keyName = keyValue[0];
-                        int indexOfClaimKeyword= keyName.indexOf("/claims/");
-                        if (indexOfClaimKeyword>-1)
-                        {
-                            keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
-                        }
-                        String v ;
-                        try
-                        {
-                            v=  keyValue[1];
-                        }
-                        catch (IndexOutOfBoundsException e)
-                        {
-                            v="";
-                        }
-                        tokenClaims.put(keyName,v);
-                    }
-                    _kidozenUser = new KidoZenUser();
-                    _kidozenUser.Token = _tokeFromAuthService;
-                    _kidozenUser.Claims = tokenClaims;
-                    _kidozenUser.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
-                    if (tokenClaims.get("role")!=null)
-                    {
-                        _kidozenUser.Roles = Arrays.asList(tokenClaims.get("role").split(","));
-                    }
+                Log.d(TAG, String.format("Got auth token from Identity Provider"));
+                _userTokeFromAuthService = requestKidoZenToken(response);
+                _kidoZenUser = createKidoZenUser(_userTokeFromAuthService);
                 }
             });
         }
@@ -194,6 +162,47 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
         }
     }
 
+    private KidoZenUser createKidoZenUser(String tokenAsString) throws JSONException {
+        JSONObject token = new JSONObject(tokenAsString);
+        String rawTokenAsString = token.get("rawToken").toString();
+        Log.d(TAG, String.format("Got Kidozen auth token from AuthService"));
+        _hasIPToken =true;
+        //
+        Log.d(TAG,String.format("Building KidoZen User object using the token"));
+        String rawToken = URLDecoder.decode(_userTokeFromAuthService);
+        String[] claims = rawToken.split("&");
+        Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
+        for (int i = 0; i < claims.length; i++)
+        {
+            String[] keyValue = claims[i].split("=");
+            String keyName = keyValue[0];
+            int indexOfClaimKeyword= keyName.indexOf("/claims/");
+            if (indexOfClaimKeyword>-1)
+            {
+                keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
+            }
+            String v ;
+            try
+            {
+                v=  keyValue[1];
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                v="";
+            }
+            tokenClaims.put(keyName,v);
+        }
+        KidoZenUser user = new KidoZenUser();
+        user.Token = rawTokenAsString;
+        user.Claims = tokenClaims;
+        user.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
+        if (tokenClaims.get("role")!=null)
+        {
+            user.Roles = Arrays.asList(tokenClaims.get("role").split(","));
+        }
+        return user;
+    }
+
     @Override
 	protected void onPostExecute (Void result) {
 		super.onPostExecute(result);
@@ -202,12 +211,12 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 			try
             {
                 int status = HttpStatus.SC_OK;
-                String token = this._tokeFromAuthService;
+                String token = this._userTokeFromAuthService;
                 KidoZenUser user = null;
                 //AuthV2
-                if ( _kidozenUser.Claims.get("http://schemas.kidozen.com/usersource")==null)
+                if ( _kidoZenUser.Claims.get("http://schemas.kidozen.com/usersource")==null)
                 {
-                    Log.d(TAG,String.format("user has no access to kidozen"));
+                    Log.d(TAG,String.format("user has no access to KidoZen"));
 
                     this.Authenticated = false;
                     status = HttpStatus.SC_NOT_FOUND;
@@ -215,11 +224,11 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
                 }
 				else
                 {
-                    Log.d(TAG,String.format("user has access to kidozen"));
+                    Log.d(TAG,String.format("user has access to KidoZen"));
 
-                    _securityTokens.put(_securityTokenKey, _kidozenUser);
-				    _tokenUpdater.TokenUpdated(_kidozenUser);
-                    user = _kidozenUser;
+                    SecurityTokensCache.put(_kidoZenUserHashKey, _kidoZenUser);
+				    _tokenUpdater.TokenUpdated(_kidoZenUser);
+                    user = _kidoZenUser;
                     this.Authenticated = true;
                 }
                 if (_authCallback!=null) {
@@ -272,4 +281,34 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		}
 		return body;
 	}
+
+    public void AuthenticateApplication(String domain, String oauthTokenEndpoint, String applicationKey, String applicationName, ServiceEventListener onAuthenticateApplicationCallback) {
+        HashMap<String, String> params = null;
+        HashMap<String, String> headers = new HashMap<String, String>();
+
+        try {
+            String message = new JSONObject()
+                    .put("client_id",domain)
+                    .put("client_secret", applicationKey)
+                    .put("grant_type", "client_credentials")
+                    .put("scope", applicationName).toString();
+
+            SNIConnectionManager sniManager = new SNIConnectionManager(oauthTokenEndpoint, message, null, null, bypassSSLValidation);
+            Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+            String body = authResponse.get("responseBody");
+            _applicationUser = createKidoZenUser(body);
+            _kidoZenApplicationHashKey = Utilities.createHash(String.format("%s%s", domain, applicationKey));
+            SecurityTokensCache.put(_kidoZenApplicationHashKey, _applicationUser);
+        }
+        catch (JSONException je) {}
+        catch (Exception e) {}
+        finally {
+            if (onAuthenticateApplicationCallback!=null) {
+                ServiceEvent se = new ServiceEvent(null, 200, _applicationUser.Token, _applicationUser);
+                onAuthenticateApplicationCallback.onFinish(se);
+            }
+        }
+
+        //_kidoApplication.ExecuteTask(oauthTokenEndpoint, KZHttpMethod.POST, params, headers,  _onAuthenticateApplication, message, bypassSSLValidation);
+    }
 }

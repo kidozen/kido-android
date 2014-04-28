@@ -21,8 +21,11 @@ import kidozen.client.authentication.KidoZenUser;
 
 public class KZService implements Observer
 {
+    public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;
+
     public Boolean BypassSSLVerification = false;
 	public KidoZenUser KidozenUser = new KidoZenUser();
+    public KidoZenUser KidoZenAnonymousUser = new KidoZenUser();
 
     protected static final String ACCEPT = "Accept";
     protected static final String APPLICATION_JSON = "application/json";
@@ -31,15 +34,16 @@ public class KZService implements Observer
     protected ObservableUser tokenUpdater = new ObservableUser();
 
     private static final String KEY = "KZService" ;
-    private AuthenticationManager am;
+    private AuthenticationManager _authenticationManager;
     private ServiceEventListener _authenticateCallback;
 
     String _ipEndpoint;
-	String applicationScope ;
-	String authServiceScope ;
-	String authServiceEndpoint ;
-
-    String _application;
+	String _applicationScope;
+	String _authServiceScope;
+	String _domain;
+    String _oauthTokenEndpoint;
+    String _authServiceEndpoint;
+    String _applicationName;
     String _tenantMarketPlace;
     String _provider;
     String _username;
@@ -48,25 +52,49 @@ public class KZService implements Observer
     private Map<String, JSONObject> _providers;
     private String _scope;
     private String _authScope;
-    private String _authServiceEndpoint;
+
+
     public boolean ProcessAsStream = false;
 
 
+    /*
+    * REMARK!!!
+    * This method was created because there was a problen with the 'proactive' authentication. Now before sending the
+    * AuthHeader value to the requested service, it checks if the auth timeout has been reached and executes authentication
+    * to get a new token again.
+    * */
     public String CreateAuthHeaderValue()
 	{
-            long delay = this.KidozenUser.GetExpirationInMiliseconds();
-            if (delay<=0)
-            {
-                am.RemoveCurrentTokenFromCache(KidozenUser.Token);
-                am.Authenticate(_provider,_username, _password, new ServiceEventListener() {
-                    @Override
-                    public void onFinish(ServiceEvent e) {
-                        KidozenUser = ((KidoZenUser) e.Response);
-                    }
-                });
-            }
+        long delay = this.KidozenUser.GetExpirationInMilliseconds();
+        if (delay<=0)
+        {
+            _authenticationManager.RemoveCurrentTokenFromCache(KidozenUser.Token);
+            _authenticationManager.Authenticate(_provider, _username, _password, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    KidozenUser = ((KidoZenUser) e.Response);
+                }
+            });
+        }
         return "WRAP access_token=\"" + KidozenUser.Token +"\"";
     }
+
+    public String CreateAnonymousAuthHeaderValue()
+    {
+        long delay = this.KidoZenAnonymousUser.GetExpirationInMilliseconds();
+        if (delay<=0)
+        {
+            _authenticationManager.RemoveCurrentTokenFromCache(KidoZenAnonymousUser.Token);
+            _authenticationManager.AuthenticateApplication(_domain, _oauthTokenEndpoint, ApplicationKey, _applicationName, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    KidoZenAnonymousUser = ((KidoZenUser) e.Response);
+                }
+            });
+        }
+        return "WRAP access_token=\"" + KidoZenAnonymousUser.Token +"\"";
+    }
+
 
     protected void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
     {
@@ -90,15 +118,15 @@ public class KZService implements Observer
 
     protected void SetAuthenticateParameters(String marketplace, String application, Map<String, JSONObject> providers, String scope, String authScope, String authServiceEndpoint, String ipEndpoint) {
         _tenantMarketPlace = marketplace;
-        _application = application;
+        _applicationName = application;
         _providers = providers;
         _scope = scope;
         _authScope = authScope;
         _authServiceEndpoint = authServiceEndpoint;
         _ipEndpoint = ipEndpoint;
 
-        am = new AuthenticationManager(_tenantMarketPlace, _application, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
-        am.bypassSSLValidation = BypassSSLVerification;
+        _authenticationManager = new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
+        _authenticationManager.bypassSSLValidation = BypassSSLVerification;
     }
 
     public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){
@@ -114,18 +142,22 @@ public class KZService implements Observer
         this._password = password;
         this._authenticateCallback = e;
 
-        this.KidozenUser = am.Authenticate(_provider, _username, _password, _authenticateCallback);
+        this.KidozenUser = _authenticationManager.Authenticate(_provider, _username, _password, _authenticateCallback);
+    }
+
+    protected void AuthenticateApplication(String domain, String oauthTokenEndpoint,String  applicationKey, String applicationName, ServiceEventListener e) {
+        _authenticationManager.AuthenticateApplication(domain,oauthTokenEndpoint,applicationKey, applicationName, e);
     }
 
     protected void SignOut()
     {
-        am.RemoveCurrentTokenFromCache(KidozenUser.Token);
+        _authenticationManager.RemoveCurrentTokenFromCache(KidozenUser.Token);
     }
 
     public void RenewAuthenticationToken(ServiceEventListener callback) {
-        am.RemoveCurrentTokenFromCache(KidozenUser.Token);
-        am = new AuthenticationManager(_tenantMarketPlace, _application, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
-        this.KidozenUser = am.Authenticate(_provider, _username, _password, callback);
+        _authenticationManager.RemoveCurrentTokenFromCache(KidozenUser.Token);
+        _authenticationManager = new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
+        this.KidozenUser = _authenticationManager.Authenticate(_provider, _username, _password, callback);
     }
 
     private class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {

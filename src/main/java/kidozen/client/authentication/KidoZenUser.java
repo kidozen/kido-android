@@ -61,7 +61,7 @@ public class KidoZenUser {
 	 * Get the expiration time in miliseconds
 	 * @return the token expiration time in miliseconds
 	 */
-	public Long GetExpirationInMiliseconds() {
+	public Long GetExpirationInMilliseconds() {
         Date later = new Date(_expiration * 1000); // segundos
 		Date now = new Date();
 		Long diffInMis = later.getTime()  - now.getTime();
