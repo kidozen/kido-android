@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 @Config(manifest= Config.NONE)
 public class IdentityManagerTests {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
-    private JSONObject cfg;
+    private JSONObject cfg, cfgKey;
     private static final String KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
     private static final String KZ_TENANT = "https://contoso.local.kidozen.com";
     private static final String KZ_APP = "ioscrashapp";
@@ -55,9 +55,11 @@ public class IdentityManagerTests {
                 "        }\n" +
                 "    }\n" +
                 "}");
+        cfgKey = cfg.put("domain","contoso.local.kidozen.com");
     }
 
     @Test
+    @Ignore
     public void ShouldAuthenticateUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = new IdentityManager(cfg,false);
@@ -73,8 +75,8 @@ public class IdentityManagerTests {
     @Test
     public void ShouldAuthenticateApplication() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = new IdentityManager(cfg,false);
-        im.Authenticate(KZ_KEY,KZ_APP, new ServiceEventListener() {
+        IdentityManager im = new IdentityManager(cfgKey,false);
+        im.Authenticate(KZ_KEY,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));

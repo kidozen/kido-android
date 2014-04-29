@@ -58,4 +58,5 @@ public interface IIdentityProvider{
 	 * @param params
 	 */
 	public void AfterRequestToken(Object[] params);
+
 }
