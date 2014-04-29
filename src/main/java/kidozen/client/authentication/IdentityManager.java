@@ -3,6 +3,7 @@ package kidozen.client.authentication;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import kidozen.client.KZAction;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.SNIConnectionManager;
+import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.Utilities;
 
@@ -30,6 +32,10 @@ import kidozen.client.Utilities;
  * Created by christian on 4/29/14.
  */
 public class IdentityManager {
+    protected static final String ACCEPT = "Accept";
+    protected static final String APPLICATION_JSON = "application/json";
+    protected static final String CONTENT_TYPE = "content-type";
+
     /* Quick and Dirty Cache */
     public static HashMap<String, JSONObject> TokensCache = new HashMap<String, JSONObject>();
     /*-----------------------*/
@@ -55,8 +61,11 @@ public class IdentityManager {
         String cacheKey = Utilities.createHash(String.format("%s%s%s", providerName, username, password));
         String rawToken = null;
         try {
-            rawToken = TokensCache.get(cacheKey).getString("rawToken");
-            if (rawToken==null) {
+            JSONObject cacheItem = TokensCache.get(cacheKey);
+            if (cacheItem!=null) {
+                rawToken = cacheItem.getString("rawToken");
+            }
+            else {
                 String applicationScope =_authConfig.getString("applicationScope");
                 String authServiceEndpoint =_authConfig.getString("authServiceEndpoint");
                 IIdentityProvider identityProvider = createIP(providerName, username, password);
@@ -65,19 +74,20 @@ public class IdentityManager {
                 String token = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
                 addToTokensCache(cacheKey, token);
                 rawToken = getRawToken(token);
+                invokeCallback(callback, rawToken, TokensCache.get(cacheKey).get("user"));
             }
         }
         catch (InterruptedException e) {
-            e.printStackTrace();
+            invokeCallbackWithException(callback,e);
         }
         catch (ExecutionException e) {
-            e.printStackTrace();
+            invokeCallbackWithException(callback,e);
         }
         catch (JSONException e) {
-            e.printStackTrace();
+            invokeCallbackWithException(callback,e);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            invokeCallbackWithException(callback,e);
         }
         finally {
             return rawToken;
@@ -119,27 +129,34 @@ public class IdentityManager {
         KeyIdentity ki = new KeyIdentity();
         String rawToken = null;
         try {
-            rawToken = TokensCache.get(cacheKey).getString("rawToken");
-            if (rawToken==null) {
+            JSONObject cacheItem = TokensCache.get(key);
+            if (cacheItem!=null) {
+                rawToken = cacheItem.getString("rawToken");
+            }
+            else {
                 String oauthTokenEndpoint = _authConfig.getString("oauthTokenEndpoint");
                 String domain = _authConfig.getString("domain");
                 String applicationScope = _authConfig.getString("applicationScope");
                 String token = ki.execute(oauthTokenEndpoint,domain,applicationScope,key).get();
                 addToTokensCache(key, token);
                 rawToken = getRawToken(token);
+                invokeCallback(callback, rawToken, TokensCache.get(key).get("user"));
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            invokeCallbackWithException(callback,e);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            invokeCallbackWithException(callback,e);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            invokeCallbackWithException(callback,e);
         }
         finally {
             return rawToken;
         }
     }
 
+    public String GetRawToken(final String providerName,final String username, final String password,final ServiceEventListener callback) {
+        return null;
+    }
 
     //Calls IP and then KidoZen identity provider to get the token
     private class FederatedIdentity extends AsyncTask<String, Void, String> {
@@ -212,7 +229,10 @@ public class IdentityManager {
         }
         private String getTokenForApplication(String oauthEndpoint, String domain, String applicationScope, String applicationKey) {
             HashMap<String, String> params = null;
-            HashMap<String, String> headers = new HashMap<String, String>();
+            Hashtable<String, String> requestProperties = new Hashtable<String, String>();
+            requestProperties.put(CONTENT_TYPE,APPLICATION_JSON);
+            requestProperties.put(ACCEPT, APPLICATION_JSON);
+
             String body = null;
             try {
                 String message = new JSONObject()
@@ -221,7 +241,7 @@ public class IdentityManager {
                         .put("grant_type", "client_credentials")
                         .put("scope", applicationScope).toString();
 
-                SNIConnectionManager sniManager = new SNIConnectionManager(oauthEndpoint, message, null, null, _strictSSL);
+                SNIConnectionManager sniManager = new SNIConnectionManager(oauthEndpoint, message, requestProperties, null, _strictSSL);
                 Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                 body = authResponse.get("responseBody");
                 //_applicationUser = createKidoZenUser(body);
@@ -246,10 +266,9 @@ public class IdentityManager {
         JSONObject token = new JSONObject(tokenAsString);
         String rawTokenAsString = token.get("rawToken").toString();
         Log.d(TAG, String.format("Got Kidozen auth token from AuthService"));
-        _hasIPToken =true;
         //
         Log.d(TAG,String.format("Building KidoZen User object using the token"));
-        String rawToken = URLDecoder.decode(_userTokeFromAuthService);
+        String rawToken = URLDecoder.decode(tokenAsString);
         String[] claims = rawToken.split("&");
         Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
         for (int i = 0; i < claims.length; i++)
@@ -293,8 +312,22 @@ public class IdentityManager {
     }
 
     private String getRawToken(String token) throws JSONException{
-        JSONObject token = new JSONObject(token);
-        return token.get("rawToken").toString();
+        JSONObject jsonToken = new JSONObject(token);
+        return jsonToken.get("rawToken").toString();
+    }
+
+    private void invokeCallbackWithException(ServiceEventListener serviceEventListener, Exception ex) {
+        ex.printStackTrace();
+        if (serviceEventListener!=null) {
+            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_EXPECTATION_FAILED, ex.getMessage(), null, ex);
+            serviceEventListener.onFinish(event);
+        }
+    }
+    private void invokeCallback(ServiceEventListener serviceEventListener, String rawToken, Object user) {
+        if (serviceEventListener!=null) {
+            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_OK, rawToken, user);
+            serviceEventListener.onFinish(event);
+        }
     }
 }
 

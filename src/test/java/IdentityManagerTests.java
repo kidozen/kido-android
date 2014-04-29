@@ -59,7 +59,6 @@ public class IdentityManagerTests {
     }
 
     @Test
-    @Ignore
     public void ShouldAuthenticateUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = new IdentityManager(cfg,false);
