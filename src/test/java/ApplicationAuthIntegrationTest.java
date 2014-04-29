@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class ApplicationAuthIntegrationTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     private static final String KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
@@ -45,7 +46,8 @@ public class ApplicationAuthIntegrationTest {
     @Test
     public void ShouldAuthenticateUsingDefaultSettingsWithoutAuthCallback() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(KZ_TENANT, KZ_APP, KZ_KEY,true, new ServiceEventListener() {
+
+        kidozen = new KZApplication(KZ_TENANT, KZ_APP, KZ_KEY,false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));

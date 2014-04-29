@@ -52,6 +52,10 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 	String _applicationScope ;
 	String _authServiceScope ;
 	String _authServiceEndpoint ;
+    String _domain ;
+    String _applicationKey ;
+    String _oauthTokenEndpoint;
+    String _applicationName;
 
     ObservableUser _tokenUpdater;
 
@@ -117,7 +121,10 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		try {
 			if (_mustGetTokenFromIP) {
 				Log.d(TAG,String.format("Token is not in the identity cache"));
-                getTokenFromIP();
+                if (_applicationKey!="")
+                    getTokenForApplication();
+                else
+                    getTokenFromIP();
 			}
 			else
 			{
@@ -282,33 +289,41 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
 		return body;
 	}
 
-    public void AuthenticateApplication(String domain, String oauthTokenEndpoint, String applicationKey, String applicationName, ServiceEventListener onAuthenticateApplicationCallback) {
+    public void SetAuthenticateApplication(String domain, String oauthTokenEndpoint, String applicationKey, String applicationName) {
+        _domain = domain;
+        _applicationKey = applicationKey;
+        _oauthTokenEndpoint = oauthTokenEndpoint;
+        _applicationName = applicationName;
+    }
+
+    private void getTokenForApplication() {
         HashMap<String, String> params = null;
         HashMap<String, String> headers = new HashMap<String, String>();
 
         try {
             String message = new JSONObject()
-                    .put("client_id",domain)
-                    .put("client_secret", applicationKey)
+                    .put("client_id",_domain)
+                    .put("client_secret", _applicationKey)
                     .put("grant_type", "client_credentials")
-                    .put("scope", applicationName).toString();
+                    .put("scope", _applicationName).toString();
 
-            SNIConnectionManager sniManager = new SNIConnectionManager(oauthTokenEndpoint, message, null, null, bypassSSLValidation);
+            SNIConnectionManager sniManager = new SNIConnectionManager(_oauthTokenEndpoint, message, null, null, bypassSSLValidation);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
             String body = authResponse.get("responseBody");
             _applicationUser = createKidoZenUser(body);
-            _kidoZenApplicationHashKey = Utilities.createHash(String.format("%s%s", domain, applicationKey));
+            _kidoZenApplicationHashKey = Utilities.createHash(String.format("%s%s", _domain, _applicationKey));
             SecurityTokensCache.put(_kidoZenApplicationHashKey, _applicationUser);
         }
-        catch (JSONException je) {}
-        catch (Exception e) {}
+        catch (JSONException je) {
+            Log.e("Error", je.getMessage());
+        }
+        catch (Exception e) {
+            Log.e("Error", e.getMessage());
+        }
         finally {
-            if (onAuthenticateApplicationCallback!=null) {
-                ServiceEvent se = new ServiceEvent(null, 200, _applicationUser.Token, _applicationUser);
-                onAuthenticateApplicationCallback.onFinish(se);
-            }
         }
 
         //_kidoApplication.ExecuteTask(oauthTokenEndpoint, KZHttpMethod.POST, params, headers,  _onAuthenticateApplication, message, bypassSSLValidation);
+
     }
 }

@@ -85,12 +85,12 @@ public class KZService implements Observer
         if (delay<=0)
         {
             _authenticationManager.RemoveCurrentTokenFromCache(KidoZenAnonymousUser.Token);
-            _authenticationManager.AuthenticateApplication(_domain, _oauthTokenEndpoint, ApplicationKey, _applicationName, new ServiceEventListener() {
+            /*_authenticationManager.AuthenticateApplication(_domain, _oauthTokenEndpoint, ApplicationKey, _applicationName, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     KidoZenAnonymousUser = ((KidoZenUser) e.Response);
                 }
-            });
+            });*/
         }
         return "WRAP access_token=\"" + KidoZenAnonymousUser.Token +"\"";
     }
@@ -146,7 +146,7 @@ public class KZService implements Observer
     }
 
     protected void AuthenticateApplication(String domain, String oauthTokenEndpoint,String  applicationKey, String applicationName, ServiceEventListener e) {
-        _authenticationManager.AuthenticateApplication(domain,oauthTokenEndpoint,applicationKey, applicationName, e);
+        _authenticationManager.SetAuthenticateApplication(domain,oauthTokenEndpoint,applicationKey, applicationName);
     }
 
     protected void SignOut()
@@ -209,7 +209,6 @@ public class KZService implements Observer
                 }
 
                 String  url = params[0];
-
                 if (ProcessAsStream)
                 {
                     _sniManager = new SNIConnectionManager(url, _messageAsStream, requestProperties, _params, _bypassSSLValidation);

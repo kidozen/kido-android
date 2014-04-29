@@ -188,8 +188,8 @@ public class KZApplication extends KZService {
         JSONObject configurations  = new JSONObject(jsonConfig);
         JSONObject identityProviders = configurations.getJSONObject("identityProviders");
         _authServiceEndpoint = configurations.get("authServiceEndpoint").toString();
-        _applicationScope =configurations.get("_applicationScope").toString();
-        _authServiceScope = configurations.get("_authServiceScope").toString();
+        _applicationScope =configurations.get("applicationScope").toString();
+        _authServiceScope = configurations.get("authServiceScope").toString();
         _oauthTokenEndpoint = configurations.get("oauthTokenEndpoint").toString();
 
         @SuppressWarnings("unchecked")
@@ -659,6 +659,7 @@ public class KZApplication extends KZService {
                         invokeInitializeCallback(se);
                     }
                     else {
+                        _kidoApplication.SetAuthenticateParameters(_tenantMarketPlace, _applicationName, _identityProviders, _applicationScope, _authServiceScope, _authServiceEndpoint, _ipEndpoint);
                         _kidoApplication.AuthenticateApplication(_domain, _oauthTokenEndpoint, ApplicationKey, _applicationName, _onKeyAuthResponse);
                     }
                 }

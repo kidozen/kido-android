@@ -135,6 +135,7 @@ public class SNIConnectionManager
     public Hashtable<String, String> ExecuteHttp(KZHttpMethod method) throws Exception
     {
         HttpURLConnection con = CreateConnectionThatHandlesRedirects(method);
+
         if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && _bodyAsString!=null) {
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
@@ -145,7 +146,6 @@ public class SNIConnectionManager
         }
         return getExecutionResponse(con);
     }
-
 
     protected HttpURLConnection CreateConnectionThatHandlesRedirects(KZHttpMethod method) throws  IOException, NoSuchAlgorithmException, KeyManagementException {
         if(_params!=null) {
@@ -212,14 +212,18 @@ public class SNIConnectionManager
 
     protected Hashtable<String, String> getExecutionResponse( HttpURLConnection con) throws IOException {
         Hashtable<String, String> retVal = new Hashtable<String, String>();
-        int responseCode = con.getResponseCode();
-        retVal.put("statusCode", String.valueOf(responseCode));
-        retVal.put("responseMessage", con.getResponseMessage());
+        //try {
+            int responseCode = con.getResponseCode();
 
-        if (responseCode>= HttpStatus.SC_BAD_REQUEST)
-            retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
-        else
-            retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
-        return retVal;
+            retVal.put("statusCode", String.valueOf(responseCode));
+            retVal.put("responseMessage", con.getResponseMessage());
+
+            if (responseCode>= HttpStatus.SC_BAD_REQUEST)
+                retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
+            else
+                retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
+            return retVal;
+        //}
+        //catch (Exception ex) {System.out.print("\n" + ex.getMessage() +"\n");return  null;}
     }
 }
