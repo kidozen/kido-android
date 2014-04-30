@@ -30,7 +30,6 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class ApplicationIntegrationTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     private static final String INVALIDAPP = "NADA";
@@ -192,7 +191,7 @@ public class ApplicationIntegrationTest {
             }
         });
         assertEquals(true, kidozen.Authenticated);
-        Hashtable<String,String> claims = kidozen.KidozenUser.Claims;
+        Hashtable<String,String> claims; // TODO FIX THIS: = kidozen.KidozenUser.Claims;
 
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }

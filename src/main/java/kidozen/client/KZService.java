@@ -20,7 +20,7 @@ import kidozen.client.authentication.AuthenticationManager;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 
-public class KZService implements Observer
+public class KZService
 {
     public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;
     public Boolean BypassSSLVerification = false;
@@ -95,59 +95,6 @@ public class KZService implements Observer
     public void ExecuteTask(String url, KZHttpMethod method, HashMap<String,String> params, HashMap<String,String> headers, ServiceEventListener callback, InputStream message, Boolean bypassSSLValidation) {
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
-
-    @Override
-    public void update(Observable observable, Object data) {
-        Log.d(KEY, "token updated");
-        this.KidozenUser = (KidoZenUser) data;
-    }
-
-    protected void SetAuthenticateParameters(String marketplace, String application, Map<String, JSONObject> providers, String scope, String authScope, String authServiceEndpoint, String ipEndpoint) {
-        _tenantMarketPlace = marketplace;
-        _applicationName = application;
-        _providers = providers;
-        _scope = scope;
-        _authScope = authScope;
-        _authServiceEndpoint = authServiceEndpoint;
-        _ipEndpoint = ipEndpoint;
-
-        _authenticationManager = IdentityManager.getInstance(null,BypassSSLVerification);
-
-        //new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
-        //_authenticationManager.bypassSSLValidation = BypassSSLVerification;
-    }
-
-    public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){
-        this._provider = providerKey;
-        this._username = username;
-        this._password = password;
-        this._authenticateCallback = e;
-    }
-
-    protected void Authenticate(String providerKey, String username, String password, ServiceEventListener e ) {
-        this._provider = providerKey;
-        this._username = username;
-        this._password = password;
-        this._authenticateCallback = e;
-
-        this.KidozenUser = _authenticationManager.Authenticate(_provider, _username, _password, _authenticateCallback);
-    }
-
-    protected void AuthenticateApplication(String domain, String oauthTokenEndpoint,String  applicationKey, String applicationName, ServiceEventListener e) {
-        _authenticationManager.SetAuthenticateApplication(domain,oauthTokenEndpoint,applicationKey, applicationName);
-    }
-
-    protected void SignOut()
-    {
-        _authenticationManager.RemoveCurrentTokenFromCache(KidozenUser.Token);
-    }
-
-    public void RenewAuthenticationToken(ServiceEventListener callback) {
-        _authenticationManager.RemoveCurrentTokenFromCache(KidozenUser.Token);
-        _authenticationManager = new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
-        this.KidozenUser = _authenticationManager.Authenticate(_provider, _username, _password, callback);
-    }
-
     private class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
         HashMap<String, String> _params = null;
         HashMap<String, String> _headers = null;
@@ -264,5 +211,31 @@ public class KZService implements Observer
         }
 
     }
+
+    //TODO: only used in PubSubChannel
+
+    protected void SetAuthenticateParameters(String marketplace, String application, Map<String, JSONObject> providers, String scope, String authScope, String authServiceEndpoint, String ipEndpoint) {
+        _tenantMarketPlace = marketplace;
+        _applicationName = application;
+        _providers = providers;
+        _scope = scope;
+        _authScope = authScope;
+        _authServiceEndpoint = authServiceEndpoint;
+        _ipEndpoint = ipEndpoint;
+
+        _authenticationManager = IdentityManager.getInstance();
+
+        //new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
+        //_authenticationManager.bypassSSLValidation = BypassSSLVerification;
+    }
+
+    public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){
+        this._provider = providerKey;
+        this._username = username;
+        this._password = password;
+        this._authenticateCallback = e;
+    }
+
+
 }
 

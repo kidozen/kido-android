@@ -56,7 +56,6 @@ public class WSTrustIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS);
         assertEquals(true, kidozen.Authenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-        System.out.println(kidozen.KidozenUser.Token.toString());
     }
 
 

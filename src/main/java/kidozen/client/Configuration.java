@@ -13,7 +13,7 @@ import java.util.Observer;
  * @version 1.00, April 2013
  *
  */
-public class Configuration  extends KZService implements Observer {
+public class Configuration  extends KZService {
 	String _endpoint;
 	String _name;
 

@@ -47,35 +47,31 @@ public class IdentityManager {
     String ipEndpoint = null;
     private long DEFAULT_TIMEOUT = 30;
 
-    private IdentityManager(boolean strictSSL) {
-        _strictSSL = !strictSSL;
-    }
-
-    private IdentityManager(JSONObject authConfig, boolean strictSSL) {
-        this(strictSSL);
-        _authConfig = authConfig;
-    }
-
     private static IdentityManager INSTANCE = null;
 
     // Private constructor suppresses
     private IdentityManager(){}
 
-    private static void createInstance(JSONObject authConfig, boolean strictSSL  ) {
+    private static void createInstance() {
         if (INSTANCE == null) {
             // synchronized to avoid possible  multi-thread issues
             synchronized(IdentityManager.class) {
                 // must check for null again
                 if (INSTANCE == null) {
-                    INSTANCE = new IdentityManager(authConfig, strictSSL);
+                    INSTANCE = new IdentityManager();
                 }
             }
         }
     }
 
-    public static IdentityManager getInstance(JSONObject authConfig, boolean strictSSL) {
-        createInstance(authConfig, strictSSL);
+    public static IdentityManager getInstance() {
+        createInstance();
         return INSTANCE;
+    }
+
+    public void Setup(JSONObject authConfig, boolean strictSSL){
+        _strictSSL = !strictSSL;
+        _authConfig = authConfig;
     }
 
     public String Authenticate(final String providerName,final String username, final String password,final ServiceEventListener callback) {
@@ -328,8 +324,7 @@ public class IdentityManager {
             Object[] response = new Object[2];
             try
             {
-                this.getFederatedToken(params[0],params[1],params[2]);
-                _lcd.await(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+                this.getFederatedToken(params[0], params[1], params[2]);
                 response[0] = _userTokeFromAuthService;
             }
             catch (Exception e) {
@@ -337,6 +332,7 @@ public class IdentityManager {
             }
             finally
             {
+                //_lcd.await(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
                 return response;
             }
         }
@@ -356,7 +352,7 @@ public class IdentityManager {
                     Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                     _userTokeFromAuthService = authResponse.get("responseBody");
                     _statusCode = authResponse.get("statusCode");
-                    _lcd.countDown();
+                    //_lcd.countDown();
                     if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
                 }
             });

@@ -11,7 +11,7 @@ import java.util.Observer;
  * @author kidozen
  * @version 1.00, April 2013
  */
-public class Queue  extends KZService implements Observer {
+public class Queue  extends KZService {
 	private static final String TAG = "Queue";
 	String _endpoint;
 	String _name;

@@ -66,7 +66,8 @@ public class IdentityManagerTests {
     @Test
     public void ShouldFailAuthenticateUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = IdentityManager.getInstance(cfg,false);
+        IdentityManager im = IdentityManager.getInstance();
+        im.Setup(cfg,false);
         im.Authenticate(provider,user,"", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -79,7 +80,8 @@ public class IdentityManagerTests {
     @Test
     public void ShouldAuthenticateUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = IdentityManager.getInstance(cfg, false);
+        IdentityManager im = IdentityManager.getInstance();
+        im.Setup(cfg,false);
         im.Authenticate(provider,user,pass, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -95,7 +97,8 @@ public class IdentityManagerTests {
     @Test
     public void ShouldPullUserIdentityFromCache() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = IdentityManager.getInstance(cfg,false);
+        IdentityManager im = IdentityManager.getInstance();
+        im.Setup(cfg,false);
 
         im.Authenticate(provider,user,pass, new ServiceEventListener() {
             @Override
@@ -122,7 +125,8 @@ public class IdentityManagerTests {
     @Test
     public void ShouldAuthenticateApplication() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = IdentityManager.getInstance(cfgKey,false);
+        IdentityManager im = IdentityManager.getInstance();
+        im.Setup(cfg,false);
         im.Authenticate(KZ_KEY,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -138,7 +142,8 @@ public class IdentityManagerTests {
     @Test
     public void ShouldFailAuthenticateApplication() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = IdentityManager.getInstance(cfgKey, false);
+        IdentityManager im = IdentityManager.getInstance();
+        im.Setup(cfg,false);
         im.Authenticate("",new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -151,8 +156,8 @@ public class IdentityManagerTests {
     @Test
     public void ShouldPullApplicationIdentityFromCache() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = IdentityManager.getInstance(cfg,false);
-
+        IdentityManager im = IdentityManager.getInstance();
+        im.Setup(cfg,false);
         im.Authenticate(KZ_KEY, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {

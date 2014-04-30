@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
  * @author kidozen
  * @version 1.00, April 2013
  */
-public class MailSender extends KZService implements Observer {
+public class MailSender extends KZService {
     String _endpoint;
     public KZApplication Application;
     private String KEY = "MailSender";
