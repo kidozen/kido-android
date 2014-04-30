@@ -13,7 +13,11 @@ import java.util.List;
  *
  */
 public class KidoZenUser {
-	/**
+    /**
+     * Was taken from Cache?
+     */
+    public Boolean PulledFromCache = false;
+    /**
 	 * The Roles of this user
 	 */
 	public List<String> Roles= new ArrayList<String>();
@@ -21,8 +25,10 @@ public class KidoZenUser {
 	 * The claims of this user
 	 */
 	public Hashtable<String, String> Claims = new Hashtable<String, String>();
+
 	private Long _expiration;
 	public String Token;
+    private static final int ONE_SECOND = 1000;
 
 
 	/**
@@ -62,7 +68,7 @@ public class KidoZenUser {
 	 * @return the token expiration time in miliseconds
 	 */
 	public Long GetExpirationInMilliseconds() {
-        Date later = new Date(_expiration * 1000); // segundos
+        Date later = new Date(_expiration * ONE_SECOND); // segundos
 		Date now = new Date();
 		Long diffInMis = later.getTime()  - now.getTime();
 		return diffInMis;//TimeUnit.MILLISECONDS.toSeconds(diffInMis);

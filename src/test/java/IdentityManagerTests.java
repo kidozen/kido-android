@@ -17,9 +17,11 @@ import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.authentication.IdentityManager;
+import kidozen.client.authentication.KidoZenUser;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -39,6 +41,9 @@ public class IdentityManagerTests {
     private static final String KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
     private static final String KZ_TENANT = "https://contoso.local.kidozen.com";
     private static final String KZ_APP = "ioscrashapp";
+    String provider = "kidozen";
+    String user = "contoso@kidozen.com";
+    String pass = "pass";
 
     @Before
     public void Setup() throws JSONException
@@ -55,21 +60,62 @@ public class IdentityManagerTests {
                 "        }\n" +
                 "    }\n" +
                 "}");
-        cfgKey = cfg.put("domain","contoso.local.kidozen.com");
+        cfgKey = cfg.put("domain", "contoso.local.kidozen.com");
     }
-
     @Test
-    public void ShouldAuthenticateUser() throws Exception {
+    public void ShouldFailAuthenticateUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = new IdentityManager(cfg,false);
-        im.Authenticate("kidozen","contoso@kidozen.com","pass", new ServiceEventListener() {
+        im.Authenticate(provider,user,"", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                assertNotEquals(e.StatusCode,HttpStatus.SC_OK);
                 lcd.countDown();
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+    @Test
+    public void ShouldAuthenticateUser() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        IdentityManager im = new IdentityManager(cfg,false);
+        im.Authenticate(provider,user,pass, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                KidoZenUser usr = (KidoZenUser)e.Response;
+                assertThat(usr.PulledFromCache, equalTo(false));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+    @Test
+    public void ShouldPullUserIdentityFromCache() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        IdentityManager im = new IdentityManager(cfg,false);
+
+        im.Authenticate(provider,user,pass, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                KidoZenUser usr = (KidoZenUser)e.Response;
+                assertThat(usr.PulledFromCache, equalTo(false));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch lcd2 = new CountDownLatch(1);
+        im.Authenticate(provider,user,pass, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                KidoZenUser usr = (KidoZenUser)e.Response;
+                assertThat(usr.PulledFromCache, equalTo(true));
+                lcd2.countDown();
+            }
+        });
+        lcd2.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
     @Test
     public void ShouldAuthenticateApplication() throws Exception {
@@ -84,4 +130,45 @@ public class IdentityManagerTests {
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
+    @Test
+    public void ShouldFailAuthenticateApplication() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        IdentityManager im = new IdentityManager(cfgKey,false);
+        im.Authenticate("",new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertNotEquals(e.StatusCode,HttpStatus.SC_OK);
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+    @Test
+    public void ShouldPullApplicationIdentityFromCache() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        IdentityManager im = new IdentityManager(cfg,false);
+
+        im.Authenticate(KZ_KEY, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                KidoZenUser usr = (KidoZenUser)e.Response;
+                assertThat(usr.PulledFromCache, equalTo(false));
+                lcd.countDown();
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        final CountDownLatch lcd2 = new CountDownLatch(1);
+        im.Authenticate(KZ_KEY, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                KidoZenUser usr = (KidoZenUser)e.Response;
+                assertThat(usr.PulledFromCache, equalTo(true));
+                lcd2.countDown();
+            }
+        });
+        lcd2.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+
 }

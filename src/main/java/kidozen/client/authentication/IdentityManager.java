@@ -64,6 +64,9 @@ public class IdentityManager {
             JSONObject cacheItem = TokensCache.get(cacheKey);
             if (cacheItem!=null) {
                 rawToken = cacheItem.getString("rawToken");
+                KidoZenUser usr = (KidoZenUser) TokensCache.get(cacheKey).get("user");
+                usr.PulledFromCache = true;
+                invokeCallback(callback, rawToken, usr);
             }
             else {
                 String applicationScope =_authConfig.getString("applicationScope");
@@ -71,10 +74,18 @@ public class IdentityManager {
                 IIdentityProvider identityProvider = createIP(providerName, username, password);
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
 
-                String token = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
-                addToTokensCache(cacheKey, token);
-                rawToken = getRawToken(token);
-                invokeCallback(callback, rawToken, TokensCache.get(cacheKey).get("user"));
+                Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
+                if (response[0]!=null)
+                {
+                    String token = response[0].toString();
+                    addToTokensCache(cacheKey, token);
+                    rawToken = getRawToken(token);
+                    invokeCallback(callback, rawToken, TokensCache.get(cacheKey).get("user"));
+                }
+                else
+                {
+                    invokeCallbackWithException(callback, (Exception) response[1]);
+                }
             }
         }
         catch (InterruptedException e) {
@@ -132,22 +143,34 @@ public class IdentityManager {
             JSONObject cacheItem = TokensCache.get(key);
             if (cacheItem!=null) {
                 rawToken = cacheItem.getString("rawToken");
+                KidoZenUser usr = (KidoZenUser) TokensCache.get(key).get("user");
+                usr.PulledFromCache = true;
+                invokeCallback(callback, rawToken, usr);
             }
             else {
                 String oauthTokenEndpoint = _authConfig.getString("oauthTokenEndpoint");
                 String domain = _authConfig.getString("domain");
                 String applicationScope = _authConfig.getString("applicationScope");
-                String token = ki.execute(oauthTokenEndpoint,domain,applicationScope,key).get();
-                addToTokensCache(key, token);
-                rawToken = getRawToken(token);
-                invokeCallback(callback, rawToken, TokensCache.get(key).get("user"));
+                Object[] response = ki.execute(oauthTokenEndpoint,domain,applicationScope,key).get();
+                if (response[0]!=null)
+                {
+                    //Quick and dirty fix to use 'createKidoZenUser function
+                    String token = response[0].toString().replace("access_token","rawToken");
+                    addToTokensCache(key, token);
+                    rawToken = getRawToken(token);
+                    invokeCallback(callback, rawToken, TokensCache.get(key).get("user"));
+                }
+                else
+                {
+                    invokeCallbackWithException(callback, (Exception) response[1]);
+                }
             }
         } catch (JSONException e) {
-            invokeCallbackWithException(callback,e);
+            invokeCallbackWithException(callback, e);
         } catch (InterruptedException e) {
-            invokeCallbackWithException(callback,e);
+            invokeCallbackWithException(callback, e);
         } catch (ExecutionException e) {
-            invokeCallbackWithException(callback,e);
+            invokeCallbackWithException(callback, e);
         }
         finally {
             return rawToken;
@@ -159,9 +182,9 @@ public class IdentityManager {
     }
 
     //Calls IP and then KidoZen identity provider to get the token
-    private class FederatedIdentity extends AsyncTask<String, Void, String> {
+    private class FederatedIdentity extends AsyncTask<String, Void, Object[]> {
         IIdentityProvider _identityProvider;
-        String _userTokeFromAuthService;
+        String _userTokeFromAuthService, _statusCode;
         final CountDownLatch _lcd = new CountDownLatch(1);
 
         public FederatedIdentity(IIdentityProvider iIdentityProvider) {
@@ -169,40 +192,28 @@ public class IdentityManager {
         }
 
         @Override
-        protected String doInBackground(String... params) {
-            try {
+        protected Object[] doInBackground(String... params) {
+            Object[] response = new Object[2];
+            try
+            {
                 this.getFederatedToken(params[0],params[1],params[2]);
                 _lcd.await(5, TimeUnit.MINUTES);
-            } catch (Exception e) {
-                e.printStackTrace();
-                _lcd.countDown();
+                response[0] = _userTokeFromAuthService;
             }
-            return _userTokeFromAuthService;
+            catch (Exception e) {
+                response[1] = e;
+            }
+            finally
+            {
+                return response;
+            }
         }
 
         private void getFederatedToken(String endpoint, final String authServiceEndpoint, final String applicationScope) throws Exception {
-            try {
-                _identityProvider.RequestToken(new URI(endpoint), new KZAction<String>() {
-                    @SuppressWarnings("deprecation")
-                    public void onServiceResponse(String response) throws Exception {
-                        Log.d(TAG, String.format("Got auth token from Identity Provider"));
-                        _userTokeFromAuthService = getTokenForUsername(response, authServiceEndpoint, applicationScope);
-                        //_kidoZenUser = createKidoZenUser(_userTokeFromAuthService);
-                        _lcd.countDown();
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                //_authenticated = false;
-                //_hasIPToken = false;
-                _lastErrorDescription = "Error trying to call KidoZen Authentication Service Endpoint. " + e.getMessage();
-            }
-        }
-
-        private String getTokenForUsername(final String wrapAssertionFromIp, String authServiceEndpoint, String applicationScope) throws Exception {
-            String body = null;
-            try {
+            _identityProvider.RequestToken(new URI(endpoint), new KZAction<String>() {
+                @SuppressWarnings("deprecation")
+                public void onServiceResponse(String wrapAssertionFromIp) throws Exception {
+                Log.d(TAG, String.format("Got auth token from Identity Provider"));
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
@@ -211,28 +222,27 @@ public class IdentityManager {
 
                 SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, _strictSSL);
                 Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
-                body = authResponse.get("responseBody");
-            }
-            catch (Exception e) {
-                throw e;
-            }
-            return body;
+                _userTokeFromAuthService = authResponse.get("responseBody");
+                _statusCode = authResponse.get("statusCode");
+                _lcd.countDown();
+                if (Integer.parseInt(_statusCode) > HttpStatus.SC_CONFLICT) throw new Exception(String.format("Invalid Response (Http Status Code = %s)", _statusCode));
+                }
+            });
         }
-
-
     }
     //
-    private class KeyIdentity extends AsyncTask<String, Void, String> {
+    private class KeyIdentity extends AsyncTask<String, Void, Object[]> {
         @Override
-        protected String doInBackground(String... params) {
+        protected Object[] doInBackground(String... params) {
             return getTokenForApplication(params[0],params[1], params[2], params[3]);
         }
-        private String getTokenForApplication(String oauthEndpoint, String domain, String applicationScope, String applicationKey) {
+        private Object[] getTokenForApplication(String oauthEndpoint, String domain, String applicationScope, String applicationKey) {
+            Object[] response = new Object[2];
             HashMap<String, String> params = null;
             Hashtable<String, String> requestProperties = new Hashtable<String, String>();
             requestProperties.put(CONTENT_TYPE,APPLICATION_JSON);
             requestProperties.put(ACCEPT, APPLICATION_JSON);
-
+            String statusCode = null;
             String body = null;
             try {
                 String message = new JSONObject()
@@ -244,18 +254,18 @@ public class IdentityManager {
                 SNIConnectionManager sniManager = new SNIConnectionManager(oauthEndpoint, message, requestProperties, null, _strictSSL);
                 Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                 body = authResponse.get("responseBody");
-                //_applicationUser = createKidoZenUser(body);
-                //String kidoZenApplicationHashKey = Utilities.createHash(String.format("%s%s", domain, applicationKey));
-                //TokensCache.put(kidoZenApplicationHashKey, _applicationUser);
+                statusCode = authResponse.get("statusCode");
+                response[0] = body;
+                if (Integer.parseInt(statusCode) > HttpStatus.SC_CONFLICT) throw new Exception(String.format("Invalid Response (Http StatusCode = %s)", statusCode));
             }
-            catch (JSONException je) {
-                Log.e("Error", je.getMessage());
+            catch (JSONException e) {
+                response[1] = e;
             }
             catch (Exception e) {
-                Log.e("Error", e.getMessage());
+                response[1] = e;
             }
             finally {
-                return body;
+                return response;
             }
         }
 

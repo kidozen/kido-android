@@ -54,7 +54,7 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
 		nameValuePairs.add(new BasicNameValuePair("wrap_name", _wrapName));
 		nameValuePairs.add(new BasicNameValuePair("wrap_password", _wrapPassword));
 		nameValuePairs.add(new BasicNameValuePair("wrap_scope", _wrapScope));
-
+        String statusCode = "";
         try {
             String url = identityProviderUrl.toString();
             String message = Utilities.getQuery(nameValuePairs);
@@ -63,7 +63,7 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
 
             String body = authResponse.get("responseBody");
-
+            statusCode =  authResponse.get("statusCode");
             if (body != null) {
                 //Parse response to check soap Faults. Throws an exception
                 Utilities.CheckFaultsInResponse(body);
@@ -76,7 +76,7 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
         }
 		catch(StringIndexOutOfBoundsException e) // wrong user, password or scope
 		{
-			throw new Exception("invalid user, password or scope");
+			throw new Exception(String.format("Invalid user, password or scope (Http Status Code = %s", statusCode));
 		}
 		catch (Exception e) {
 			throw e;
