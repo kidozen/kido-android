@@ -14,6 +14,10 @@ import java.util.List;
  */
 public class KidoZenUser {
     /**
+     * Is UserIdentity or ApplicationIdentity
+     */
+    public KidoZenUserIdentityType IdentityType = KidoZenUserIdentityType.APPLICATION_IDENTITY;
+    /**
      * Was taken from Cache?
      */
     public Boolean PulledFromCache = false;
@@ -73,4 +77,8 @@ public class KidoZenUser {
 		Long diffInMis = later.getTime()  - now.getTime();
 		return diffInMis;//TimeUnit.MILLISECONDS.toSeconds(diffInMis);
 	}
+
+    public Boolean HasExpired() {
+        return GetExpirationInMilliseconds()<=0;
+    }
 }

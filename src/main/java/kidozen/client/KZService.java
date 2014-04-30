@@ -17,12 +17,12 @@ import java.util.Observable;
 import java.util.Observer;
 
 import kidozen.client.authentication.AuthenticationManager;
+import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 
 public class KZService implements Observer
 {
     public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;
-
     public Boolean BypassSSLVerification = false;
 	public KidoZenUser KidozenUser = new KidoZenUser();
     public KidoZenUser KidoZenAnonymousUser = new KidoZenUser();
@@ -34,7 +34,7 @@ public class KZService implements Observer
     protected ObservableUser tokenUpdater = new ObservableUser();
 
     private static final String KEY = "KZService" ;
-    private AuthenticationManager _authenticationManager;
+    private IdentityManager _authenticationManager;
     private ServiceEventListener _authenticateCallback;
 
     String _ipEndpoint;
@@ -65,6 +65,7 @@ public class KZService implements Observer
     * */
     public String CreateAuthHeaderValue()
 	{
+        /*
         long delay = this.KidozenUser.GetExpirationInMilliseconds();
         if (delay<=0)
         {
@@ -77,24 +78,9 @@ public class KZService implements Observer
             });
         }
         return "WRAP access_token=\"" + KidozenUser.Token +"\"";
+        */
+        return "nada";
     }
-
-    public String CreateAnonymousAuthHeaderValue()
-    {
-        long delay = this.KidoZenAnonymousUser.GetExpirationInMilliseconds();
-        if (delay<=0)
-        {
-            _authenticationManager.RemoveCurrentTokenFromCache(KidoZenAnonymousUser.Token);
-            /*_authenticationManager.AuthenticateApplication(_domain, _oauthTokenEndpoint, ApplicationKey, _applicationName, new ServiceEventListener() {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    KidoZenAnonymousUser = ((KidoZenUser) e.Response);
-                }
-            });*/
-        }
-        return "WRAP access_token=\"" + KidoZenAnonymousUser.Token +"\"";
-    }
-
 
     protected void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
     {
@@ -125,8 +111,10 @@ public class KZService implements Observer
         _authServiceEndpoint = authServiceEndpoint;
         _ipEndpoint = ipEndpoint;
 
-        _authenticationManager = new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
-        _authenticationManager.bypassSSLValidation = BypassSSLVerification;
+        _authenticationManager = IdentityManager.getInstance(null,BypassSSLVerification);
+
+        //new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
+        //_authenticationManager.bypassSSLValidation = BypassSSLVerification;
     }
 
     public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){

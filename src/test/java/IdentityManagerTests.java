@@ -18,6 +18,7 @@ import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.authentication.KidoZenUserIdentityType;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -65,7 +66,7 @@ public class IdentityManagerTests {
     @Test
     public void ShouldFailAuthenticateUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = new IdentityManager(cfg,false);
+        IdentityManager im = IdentityManager.getInstance(cfg,false);
         im.Authenticate(provider,user,"", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -78,13 +79,14 @@ public class IdentityManagerTests {
     @Test
     public void ShouldAuthenticateUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = new IdentityManager(cfg,false);
+        IdentityManager im = IdentityManager.getInstance(cfg, false);
         im.Authenticate(provider,user,pass, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 KidoZenUser usr = (KidoZenUser)e.Response;
                 assertThat(usr.PulledFromCache, equalTo(false));
+                assertThat(usr.IdentityType, equalTo(KidoZenUserIdentityType.USER_IDENTITY));
                 lcd.countDown();
             }
         });
@@ -93,7 +95,7 @@ public class IdentityManagerTests {
     @Test
     public void ShouldPullUserIdentityFromCache() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = new IdentityManager(cfg,false);
+        IdentityManager im = IdentityManager.getInstance(cfg,false);
 
         im.Authenticate(provider,user,pass, new ServiceEventListener() {
             @Override
@@ -120,11 +122,14 @@ public class IdentityManagerTests {
     @Test
     public void ShouldAuthenticateApplication() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = new IdentityManager(cfgKey,false);
+        IdentityManager im = IdentityManager.getInstance(cfgKey,false);
         im.Authenticate(KZ_KEY,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                KidoZenUser usr = (KidoZenUser)e.Response;
+                assertThat(usr.PulledFromCache, equalTo(false));
+                assertThat(usr.IdentityType, equalTo(KidoZenUserIdentityType.APPLICATION_IDENTITY));
                 lcd.countDown();
             }
         });
@@ -133,7 +138,7 @@ public class IdentityManagerTests {
     @Test
     public void ShouldFailAuthenticateApplication() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = new IdentityManager(cfgKey,false);
+        IdentityManager im = IdentityManager.getInstance(cfgKey, false);
         im.Authenticate("",new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -146,7 +151,7 @@ public class IdentityManagerTests {
     @Test
     public void ShouldPullApplicationIdentityFromCache() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        IdentityManager im = new IdentityManager(cfg,false);
+        IdentityManager im = IdentityManager.getInstance(cfg,false);
 
         im.Authenticate(KZ_KEY, new ServiceEventListener() {
             @Override

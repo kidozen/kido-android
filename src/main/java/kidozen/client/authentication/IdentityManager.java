@@ -36,9 +36,7 @@ public class IdentityManager {
     protected static final String APPLICATION_JSON = "application/json";
     protected static final String CONTENT_TYPE = "content-type";
 
-    /* Quick and Dirty Cache */
-    public static HashMap<String, JSONObject> TokensCache = new HashMap<String, JSONObject>();
-    /*-----------------------*/
+    private HashMap<String, JSONObject> _tokensCache = new HashMap<String, JSONObject>();
     private final String TAG = "IdentityManager";
     private boolean _strictSSL;
     private JSONObject _authConfig;
@@ -47,24 +45,47 @@ public class IdentityManager {
     private KidoZenUser _applicationUser;
 
     String ipEndpoint = null;
+    private long DEFAULT_TIMEOUT = 30;
 
-    public IdentityManager(boolean strictSSL) {
+    private IdentityManager(boolean strictSSL) {
         _strictSSL = !strictSSL;
     }
 
-    public IdentityManager(JSONObject authConfig, boolean strictSSL) {
+    private IdentityManager(JSONObject authConfig, boolean strictSSL) {
         this(strictSSL);
         _authConfig = authConfig;
+    }
+
+    private static IdentityManager INSTANCE = null;
+
+    // Private constructor suppresses
+    private IdentityManager(){}
+
+    private static void createInstance(JSONObject authConfig, boolean strictSSL  ) {
+        if (INSTANCE == null) {
+            // synchronized to avoid possible  multi-thread issues
+            synchronized(IdentityManager.class) {
+                // must check for null again
+                if (INSTANCE == null) {
+                    INSTANCE = new IdentityManager(authConfig, strictSSL);
+                }
+            }
+        }
+    }
+
+    public static IdentityManager getInstance(JSONObject authConfig, boolean strictSSL) {
+        createInstance(authConfig, strictSSL);
+        return INSTANCE;
     }
 
     public String Authenticate(final String providerName,final String username, final String password,final ServiceEventListener callback) {
         String cacheKey = Utilities.createHash(String.format("%s%s%s", providerName, username, password));
         String rawToken = null;
         try {
-            JSONObject cacheItem = TokensCache.get(cacheKey);
+            JSONObject cacheItem = _tokensCache.get(cacheKey);
             if (cacheItem!=null) {
                 rawToken = cacheItem.getString("rawToken");
-                KidoZenUser usr = (KidoZenUser) TokensCache.get(cacheKey).get("user");
+                KidoZenUser usr = (KidoZenUser) _tokensCache.get(cacheKey).get("user");
                 usr.PulledFromCache = true;
                 invokeCallback(callback, rawToken, usr);
             }
@@ -82,9 +103,9 @@ public class IdentityManager {
                 else
                 {
                     String token = response[0].toString();
-                    addToTokensCache(cacheKey, token);
+                    addToTokensCache(cacheKey, token, KidoZenUserIdentityType.USER_IDENTITY);
                     rawToken = getRawToken(token);
-                    invokeCallback(callback, rawToken, TokensCache.get(cacheKey).get("user"));
+                    invokeCallback(callback, rawToken, _tokensCache.get(cacheKey).get("user"));
                 }
             }
         }
@@ -140,10 +161,10 @@ public class IdentityManager {
         KeyIdentity ki = new KeyIdentity();
         String rawToken = null;
         try {
-            JSONObject cacheItem = TokensCache.get(key);
+            JSONObject cacheItem = _tokensCache.get(key);
             if (cacheItem!=null) {
                 rawToken = cacheItem.getString("rawToken");
-                KidoZenUser usr = (KidoZenUser) TokensCache.get(key).get("user");
+                KidoZenUser usr = (KidoZenUser) _tokensCache.get(key).get("user");
                 usr.PulledFromCache = true;
                 invokeCallback(callback, rawToken, usr);
             }
@@ -160,9 +181,9 @@ public class IdentityManager {
                 {
                     //Quick and dirty fix to use 'createKidoZenUser function
                     String token = response[0].toString().replace("access_token","rawToken");
-                    addToTokensCache(key, token);
+                    addToTokensCache(key, token, KidoZenUserIdentityType.APPLICATION_IDENTITY);
                     rawToken = getRawToken(token);
-                    invokeCallback(callback, rawToken, TokensCache.get(key).get("user"));
+                    invokeCallback(callback, rawToken, _tokensCache.get(key).get("user"));
                 }
             }
         } catch (JSONException e) {
@@ -177,8 +198,119 @@ public class IdentityManager {
         }
     }
 
-    public String GetRawToken(final String providerName,final String username, final String password,final ServiceEventListener callback) {
-        return null;
+    public void GetRawToken(final String providerName,final String username, final String password,final ServiceEventListener callback) {
+        String cacheKey = Utilities.createHash(String.format("%s%s%s", providerName, username, password));
+        String rawToken = null;
+        try {
+            JSONObject cacheItem = _tokensCache.get(cacheKey);
+            if (cacheItem!=null)
+            {
+                rawToken = cacheItem.getString("rawToken");
+                KidoZenUser usr = (KidoZenUser) _tokensCache.get(cacheKey).get("user");
+                if (usr.HasExpired())
+                {
+                    _tokensCache.remove(cacheKey);
+                    this.Authenticate(providerName, username, password, callback);
+                }
+                else invokeCallback(callback, rawToken, usr);
+            }
+            else this.Authenticate(providerName, username, password, callback);
+        }
+        catch (Exception e) {
+            invokeCallbackWithException(callback, e);
+        }
+    }
+
+    public void GetRawToken(final String key,final ServiceEventListener callback) {
+        String rawToken = null;
+        try {
+            JSONObject cacheItem = _tokensCache.get(key);
+            if (cacheItem!=null)
+            {
+                rawToken = cacheItem.getString("rawToken");
+                KidoZenUser usr = (KidoZenUser) _tokensCache.get(key).get("user");
+                if (usr.HasExpired())
+                {
+                    _tokensCache.remove(key);
+                    this.Authenticate(key, callback);
+                }
+                else invokeCallback(callback, rawToken, usr);
+            }
+            else this.Authenticate(key, callback);
+        }
+        catch (Exception e) {
+            invokeCallbackWithException(callback, e);
+        }
+    }
+
+    private KidoZenUser createKidoZenUser(String tokenAsString, KidoZenUserIdentityType userIdentity) throws JSONException {
+        JSONObject token = new JSONObject(tokenAsString);
+        String rawTokenAsString = token.get("rawToken").toString();
+        Log.d(TAG, String.format("Got Kidozen auth token from AuthService"));
+        //
+        Log.d(TAG,String.format("Building KidoZen User object using the token"));
+        String rawToken = URLDecoder.decode(tokenAsString);
+        String[] claims = rawToken.split("&");
+        Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
+        for (int i = 0; i < claims.length; i++)
+        {
+            String[] keyValue = claims[i].split("=");
+            String keyName = keyValue[0];
+            int indexOfClaimKeyword= keyName.indexOf("/claims/");
+            if (indexOfClaimKeyword>-1)
+            {
+                keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
+            }
+            String v ;
+            try
+            {
+                v=  keyValue[1];
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                v="";
+            }
+            tokenClaims.put(keyName,v);
+        }
+        KidoZenUser user = new KidoZenUser();
+        user.IdentityType = userIdentity;
+        user.Token = rawTokenAsString;
+        user.Claims = tokenClaims;
+        user.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
+        if (tokenClaims.get("role")!=null)
+        {
+            user.Roles = Arrays.asList(tokenClaims.get("role").split(","));
+        }
+        return user;
+    }
+
+    private void addToTokensCache(String cacheKey, String token, KidoZenUserIdentityType userIdentity) throws JSONException {
+        String rawToken = getRawToken(token);
+        KidoZenUser user = createKidoZenUser(token, userIdentity);
+        JSONObject cacheItem = new JSONObject()
+                .put("user", user)
+                .put("rawToken", rawToken);
+        _tokensCache.put(cacheKey, cacheItem);
+    }
+
+    private String getRawToken(String token) throws JSONException{
+        JSONObject jsonToken = new JSONObject(token);
+        return jsonToken.get("rawToken").toString();
+    }
+
+    private void invokeCallbackWithException(ServiceEventListener serviceEventListener, Exception ex) {
+        ex.printStackTrace();
+        if (serviceEventListener!=null) {
+            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, ex.getMessage(), null, ex);
+            serviceEventListener.onFinish(event);
+        }
+    }
+
+    private void invokeCallback(ServiceEventListener serviceEventListener, String rawToken, Object user) {
+        if (serviceEventListener!=null) {
+            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_OK, rawToken, user);
+            serviceEventListener.onFinish(event);
+        }
     }
 
     //Calls IP and then KidoZen identity provider to get the token
@@ -197,7 +329,7 @@ public class IdentityManager {
             try
             {
                 this.getFederatedToken(params[0],params[1],params[2]);
-                _lcd.await(5, TimeUnit.MINUTES);
+                _lcd.await(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
                 response[0] = _userTokeFromAuthService;
             }
             catch (Exception e) {
@@ -213,19 +345,19 @@ public class IdentityManager {
             _identityProvider.RequestToken(new URI(endpoint), new KZAction<String>() {
                 @SuppressWarnings("deprecation")
                 public void onServiceResponse(String wrapAssertionFromIp) throws Exception {
-                Log.d(TAG, String.format("Got auth token from Identity Provider"));
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
-                nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
-                nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
-                String message = Utilities.getQuery(nameValuePairs);
+                    Log.d(TAG, String.format("Got auth token from Identity Provider"));
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                    nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
+                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
+                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
+                    String message = Utilities.getQuery(nameValuePairs);
 
-                SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, _strictSSL);
-                Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
-                _userTokeFromAuthService = authResponse.get("responseBody");
-                _statusCode = authResponse.get("statusCode");
-                _lcd.countDown();
-                if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
+                    SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, _strictSSL);
+                    Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+                    _userTokeFromAuthService = authResponse.get("responseBody");
+                    _statusCode = authResponse.get("statusCode");
+                    _lcd.countDown();
+                    if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
                 }
             });
         }
@@ -272,72 +404,5 @@ public class IdentityManager {
 
     }
 
-    private KidoZenUser createKidoZenUser(String tokenAsString) throws JSONException {
-        JSONObject token = new JSONObject(tokenAsString);
-        String rawTokenAsString = token.get("rawToken").toString();
-        Log.d(TAG, String.format("Got Kidozen auth token from AuthService"));
-        //
-        Log.d(TAG,String.format("Building KidoZen User object using the token"));
-        String rawToken = URLDecoder.decode(tokenAsString);
-        String[] claims = rawToken.split("&");
-        Hashtable<String, String> tokenClaims = new Hashtable<String, String>();
-        for (int i = 0; i < claims.length; i++)
-        {
-            String[] keyValue = claims[i].split("=");
-            String keyName = keyValue[0];
-            int indexOfClaimKeyword= keyName.indexOf("/claims/");
-            if (indexOfClaimKeyword>-1)
-            {
-                keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
-            }
-            String v ;
-            try
-            {
-                v=  keyValue[1];
-            }
-            catch (IndexOutOfBoundsException e)
-            {
-                v="";
-            }
-            tokenClaims.put(keyName,v);
-        }
-        KidoZenUser user = new KidoZenUser();
-        user.Token = rawTokenAsString;
-        user.Claims = tokenClaims;
-        user.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
-        if (tokenClaims.get("role")!=null)
-        {
-            user.Roles = Arrays.asList(tokenClaims.get("role").split(","));
-        }
-        return user;
-    }
-
-    private void addToTokensCache(String cacheKey, String token) throws JSONException {
-        String rawToken = getRawToken(token);
-        KidoZenUser user = createKidoZenUser(token);
-        JSONObject cacheItem = new JSONObject()
-                .put("user", user)
-                .put("rawToken", rawToken);
-        IdentityManager.TokensCache.put(cacheKey,cacheItem);
-    }
-
-    private String getRawToken(String token) throws JSONException{
-        JSONObject jsonToken = new JSONObject(token);
-        return jsonToken.get("rawToken").toString();
-    }
-
-    private void invokeCallbackWithException(ServiceEventListener serviceEventListener, Exception ex) {
-        ex.printStackTrace();
-        if (serviceEventListener!=null) {
-            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, ex.getMessage(), null, ex);
-            serviceEventListener.onFinish(event);
-        }
-    }
-    private void invokeCallback(ServiceEventListener serviceEventListener, String rawToken, Object user) {
-        if (serviceEventListener!=null) {
-            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_OK, rawToken, user);
-            serviceEventListener.onFinish(event);
-        }
-    }
 }
 
