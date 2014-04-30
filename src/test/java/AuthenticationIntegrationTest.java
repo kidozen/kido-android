@@ -50,12 +50,31 @@ public class AuthenticationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, KZ_KEY, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                System.out.print("call ");
+
                 lcd.countDown();
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         assertEquals(true, kidozen.Authenticated);
+    }
+
+    @Test
+    public void ShouldFailUsingApplicationKey() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, "fail", false, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                System.out.print("call ");
+
+                lcd.countDown();
+                assertEquals(e.StatusCode, HttpStatus.SC_BAD_REQUEST);
+            }
+        });
+        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+        assertEquals(false, kidozen.Authenticated);
     }
 
     @Test

@@ -103,10 +103,10 @@ public class IdentityManagerTests {
         im.Authenticate(provider,user,pass, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                lcd.countDown();
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 KidoZenUser usr = (KidoZenUser)e.Response;
                 assertThat(usr.PulledFromCache, equalTo(false));
-                lcd.countDown();
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -114,10 +114,10 @@ public class IdentityManagerTests {
         im.Authenticate(provider,user,pass, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                lcd2.countDown();
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 KidoZenUser usr = (KidoZenUser)e.Response;
                 assertThat(usr.PulledFromCache, equalTo(true));
-                lcd2.countDown();
             }
         });
         lcd2.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -161,10 +161,10 @@ public class IdentityManagerTests {
         im.Authenticate(KZ_KEY, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                lcd.countDown();
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 KidoZenUser usr = (KidoZenUser)e.Response;
                 assertThat(usr.PulledFromCache, equalTo(false));
-                lcd.countDown();
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -172,10 +172,10 @@ public class IdentityManagerTests {
         im.Authenticate(KZ_KEY, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                lcd2.countDown();
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 KidoZenUser usr = (KidoZenUser)e.Response;
                 assertThat(usr.PulledFromCache, equalTo(true));
-                lcd2.countDown();
             }
         });
         lcd2.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);

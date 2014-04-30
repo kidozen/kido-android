@@ -1,21 +1,16 @@
 package kidozen.client;
 
 import android.app.Application;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.omg.PortableServer._ServantLocatorStub;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
-import java.util.Map;
 
-import kidozen.client.authentication.IIdentityProvider;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 
@@ -29,39 +24,18 @@ import kidozen.client.authentication.KidoZenUser;
 public class KZApplication  {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static CrashReporter _crashReporter;
-
     public Boolean Authenticated = false;
-	public Map<String, String> IdentityProvidersKeys = new HashMap<String, String>();
 	public Boolean StrictSSL = true;
-    public Boolean Initialized = false;
-
-    private Map<String, JSONObject> _identityProviders;
-	private String _emailEndpoint;
-	private String _queueEndpoint;
-	private String _storageEndpoint;
-    private String _lobEndpoint;
-	private String _smsEndpoint;
-	private String _configurationEndpoint;
-	private String _wsSubscriberEndpoint;
-	private String _publisherEndpoint;
-	private String _logEndpoint;
-	private String _notificationEndpoint;
-    private String _filesEndpoint;
-    private String _dataSourceEndpoint;
 
 	private static JSONArray _allApplicationLogEvents;
-
     private Logging _applicationLog;
     private MailSender _mailSender;
 
-    private HandlerThread expirationThread = new HandlerThread("HandlerThread");
-    private Handler sessionExpiresHandler ;
-    private Object _applicationUrl;
-    private JSONObject _applicationConfiguration;
-    private String ApplicationKey;
+    KidoAppSettings _applicationConfiguration;
+
+    private String _applicationKey;
     private String _tenantMarketPlace;
     private String _applicationName;
-    private String _domain;
 
     public static void EnableCrashReporter (Application application, String url) {
         if (_crashReporter==null)
@@ -140,28 +114,21 @@ public class KZApplication  {
      */
     public KZApplication(String tenantMarketPlace, String application, String applicationKey, Boolean strictSSL, final ServiceEventListener callback) throws Exception {
         this.StrictSSL = !strictSSL;
-        this.ApplicationKey = applicationKey;
+        this._applicationKey = applicationKey;
         _tenantMarketPlace = tenantMarketPlace;
         _applicationName = application;
         if (!_tenantMarketPlace.endsWith("/")) _tenantMarketPlace = _tenantMarketPlace + "/";
 
         String url = _tenantMarketPlace + Constants.PUBLICAPI_PATH + _applicationName;
-        KidoAppSettings.getInstance(callback, this.StrictSSL).execute(url).get();
+
         if (applicationKey != Constants.UNSET_APPLICATION_KEY) {
-            JSONObject authConfig = KidoAppSettings.getInstance().GetSettingAsJObject("authConfig");
-            authConfig.put("domain", KidoAppSettings.getInstance().GetSettingAsString("domain"));
-            IdentityManager.getInstance().Setup(authConfig, strictSSL);
-            IdentityManager.getInstance().Authenticate(applicationKey, new ServiceEventListener() {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    if (e.StatusCode== HttpStatus.SC_OK) {
-                        Authenticated = true;
-                        applicationIdentity = (KidoZenUser) e.Response;
-                    }
-                    callback.onFinish(e);
-                }
-            });
+            // chains the getSettings callback with the keyAuth callback
+            _applicationConfiguration = KidoAppSettings.getInstance(new InitializationWithKeyCallback(callback), this.StrictSSL);
         }
+        else {
+            _applicationConfiguration = KidoAppSettings.getInstance(callback, this.StrictSSL);
+        }
+        _applicationConfiguration.execute(url).get();
     }
 
 
@@ -191,7 +158,7 @@ public class KZApplication  {
 	 */
 	public Notification Notification () throws Exception
 	{
-		Notification notification= new Notification( _notificationEndpoint, _applicationName);
+		Notification notification= new Notification( _applicationConfiguration.GetSettingAsString("notification"), _applicationName);
 		notification.KidozenUser = this.userIdentity;
 		notification.BypassSSLVerification = !StrictSSL;
 		return notification;
@@ -206,7 +173,7 @@ public class KZApplication  {
 	 */
 	public Configuration Configuration(String name) throws Exception{
 		checkMethodParameters(name);
-		Configuration configuration =new  Configuration(_configurationEndpoint, name);
+		Configuration configuration =new  Configuration(_applicationConfiguration.GetSettingAsString("configuration"), name);
 		configuration.KidozenUser = this.userIdentity;
 		configuration.BypassSSLVerification = !StrictSSL;
 		return configuration;
@@ -222,7 +189,7 @@ public class KZApplication  {
 	public Queue Queue (String name) throws Exception
 	{
 		checkMethodParameters(name);
-		Queue queue= new Queue(_queueEndpoint, name);
+		Queue queue= new Queue(_applicationConfiguration.GetSettingAsString("queue"), name);
 		queue.KidozenUser = this.userIdentity;
 		queue.BypassSSLVerification = !StrictSSL;
 		return queue;
@@ -235,9 +202,9 @@ public class KZApplication  {
 	 * @return a new Storage object
 	 * @throws Exception
 	 */
-	public Storage Storage(String name) throws Exception{
+	public Storage Storage(String name) throws Exception {
 		checkMethodParameters(name);
-		Storage storage = new Storage(_storageEndpoint, name);
+		Storage storage = new Storage(_applicationConfiguration.GetSettingAsString("storage"), name);
 		storage.KidozenUser = this.userIdentity;
 		storage.BypassSSLVerification = !StrictSSL;
 		return storage;
@@ -252,7 +219,7 @@ public class KZApplication  {
 	 */
 	public SMSSender SMSSender(String number) throws Exception{
 		checkMethodParameters(number);
-		SMSSender sender = new SMSSender(_smsEndpoint, number);
+		SMSSender sender = new SMSSender(_applicationConfiguration.GetSettingAsString("sms"), number);
 		sender.KidozenUser = this.userIdentity;
 		sender.BypassSSLVerification = !StrictSSL;
 		return sender;
@@ -271,7 +238,7 @@ public class KZApplication  {
 		}
         if (_mailSender==null)
         {
-            _mailSender = new MailSender(_emailEndpoint);
+            _mailSender = new MailSender(_applicationConfiguration.GetSettingAsString("email"));
             _mailSender.KidozenUser = this.userIdentity;
             _mailSender.BypassSSLVerification = !StrictSSL;
         }
@@ -317,10 +284,10 @@ public class KZApplication  {
 		_applicationLog.Write(new JSONObject(msg), level, callback);
 	}
 
-    private void checkApplicationLog() {
-        if (_applicationLog==null)
+    private void checkApplicationLog() throws Exception {
+    if (_applicationLog==null)
         {
-            _applicationLog = new Logging(_logEndpoint);
+            _applicationLog = new Logging(_applicationConfiguration.GetSettingAsString("logging"));
             _applicationLog.KidozenUser = this.userIdentity;
             _applicationLog.BypassSSLVerification = !StrictSSL;
         }
@@ -329,7 +296,7 @@ public class KZApplication  {
     /**
 	 * Clears the KZApplication log
 	 */
-	public void ClearLog()  {
+	public void ClearLog() throws Exception  {
         checkApplicationLog();
         _applicationLog.Clear(null);
 	}
@@ -339,7 +306,7 @@ public class KZApplication  {
 	 * 
 	 * @param callback The callback with the result of the service call
 	 */
-	public void ClearLog(ServiceEventListener callback)  {
+	public void ClearLog(ServiceEventListener callback)  throws Exception {
         checkApplicationLog();
         _applicationLog.Clear(callback);
 	}
@@ -349,8 +316,7 @@ public class KZApplication  {
 	 * 
 	 * @param callback The callback with the result of the service call
 	 */
-	public void AllLogMessages(ServiceEventListener callback)
-	{
+	public void AllLogMessages(ServiceEventListener callback) throws Exception {
         checkApplicationLog();
         HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER, this.userIdentity.Token);
@@ -379,7 +345,7 @@ public class KZApplication  {
      * @throws Exception
      */
     public Files FileStorage() throws Exception{
-        Files files = new Files(_filesEndpoint);
+        Files files = new Files(_applicationConfiguration.GetSettingAsString("files"));
         files.KidozenUser = this.userIdentity;
         files.BypassSSLVerification = !StrictSSL;
         return files;
@@ -462,45 +428,26 @@ public class KZApplication  {
 	 * 
 	 * @param onSessionExpirationRunnable a custom Runnable to invoke
 	 */
-	public void OnSessionExpirationRunnable(Runnable onSessionExpirationRunnable) {
-        expirationThread.start();
-        sessionExpiresHandler = new Handler(expirationThread.getLooper());
-        //sessionExpiresHandler.postDelayed(onSessionExpirationRunnable,KidozenUser.GetExpirationInMilliseconds());
-	}
+	//public void OnSessionExpirationRunnable(Runnable onSessionExpirationRunnable) {
 
-	private final Runnable defaultSessionExpirationEvent() {
-		return new Runnable() {
-			public void run() {
-					//Authenticate(_provider, _username, _password);
-			}
-		};
-	}
+	//private final Runnable defaultSessionExpirationEvent() {
+	//	return new Runnable() {
+	//		public void run() {
+	//				//Authenticate(_provider, _username, _password);
+	//		}
+	//	};
+	//}
 
 	/**
      * * TODO: Sirve? Aplica?
 	 * Allows to register a new Identity provider.
-	 * 
+	 *
 	 * @param key The key that will identify the new provider
 	 * @param protocol The protocol that implements
 	 * @param endpoint The Identity Provider endpoint
 	 * @param provider  An instance of an object that implements the IIdentityProvider interface
 	 * @throws Exception
 	 */
-	public void RegisterIdentityProvider(String key, String protocol, String endpoint, IIdentityProvider provider) throws Exception
-	{
-		if (!_identityProviders.containsKey(key)) {
-			JSONObject kzip = new JSONObject();
-			//kzip.put("_authServiceScope", _authServiceScope);
-			//kzip.put("authServiceEndpoint", _authServiceEndpoint);
-			//kzip.put("_applicationScope", _applicationScope);
-			kzip.put("key", key);
-			kzip.put("endpoint", endpoint);
-			kzip.put("protocol", protocol);
-			provider.Configure(kzip);
-			kzip.put("instance", provider);
-			_identityProviders.put(key, kzip );
-		}
-	}
 
     /**
      * Creates a new LOBService object
@@ -509,9 +456,9 @@ public class KZApplication  {
      * @return a new LOBService object
      * @throws Exception
      */
-    public Service LOBService(String name) {
+    public Service LOBService(String name) throws Exception {
         checkMethodParameters(name);
-        Service service = new Service(_lobEndpoint, name);
+        Service service = new Service(_applicationConfiguration.GetSettingAsString("url"), name);
         service.KidozenUser = this.userIdentity;
         service.BypassSSLVerification = !StrictSSL;
         return service;
@@ -524,14 +471,41 @@ public class KZApplication  {
      * @return a new DataSource object
      * @throws Exception
      */
-    public DataSource DataSource(String name) {
+    public DataSource DataSource(String name) throws Exception {
         checkMethodParameters(name);
-        DataSource service = new DataSource(_dataSourceEndpoint, name);
+        DataSource service = new DataSource(_applicationConfiguration.GetSettingAsString("datasource"), name);
         service.KidozenUser = this.userIdentity;
         service.BypassSSLVerification = !StrictSSL;
         return service;
     }
 
 
+    private class InitializationWithKeyCallback implements ServiceEventListener {
+        ServiceEventListener _callback;
+        public InitializationWithKeyCallback(ServiceEventListener cb) {
+            _callback = cb;
+        }
+        @Override
+        public void onFinish(ServiceEvent e) {
+            JSONObject authConfig = null;
+            try {
+                authConfig = _applicationConfiguration.GetSettingAsJObject("authConfig");
+                authConfig.put("domain", _applicationConfiguration.GetSettingAsString("domain"));
+                IdentityManager.getInstance().Setup(authConfig, StrictSSL);
+                IdentityManager.getInstance().Authenticate(_applicationKey, new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        if (e.StatusCode== HttpStatus.SC_OK) {
+                            Authenticated = true;
+                            applicationIdentity = (KidoZenUser) e.Response;
+                        }
+                        _callback.onFinish(e);
+                    }
+                });
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
 }
 
