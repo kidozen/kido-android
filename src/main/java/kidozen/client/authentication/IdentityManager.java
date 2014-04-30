@@ -75,16 +75,16 @@ public class IdentityManager {
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
 
                 Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
-                if (response[0]!=null)
+                if (response[1]!=null)
+                {
+                    invokeCallbackWithException(callback, (Exception) response[1]);
+                }
+                else
                 {
                     String token = response[0].toString();
                     addToTokensCache(cacheKey, token);
                     rawToken = getRawToken(token);
                     invokeCallback(callback, rawToken, TokensCache.get(cacheKey).get("user"));
-                }
-                else
-                {
-                    invokeCallbackWithException(callback, (Exception) response[1]);
                 }
             }
         }
@@ -152,17 +152,17 @@ public class IdentityManager {
                 String domain = _authConfig.getString("domain");
                 String applicationScope = _authConfig.getString("applicationScope");
                 Object[] response = ki.execute(oauthTokenEndpoint,domain,applicationScope,key).get();
-                if (response[0]!=null)
+                if (response[1]!=null)
+                {
+                    invokeCallbackWithException(callback, (Exception) response[1]);
+                }
+                else
                 {
                     //Quick and dirty fix to use 'createKidoZenUser function
                     String token = response[0].toString().replace("access_token","rawToken");
                     addToTokensCache(key, token);
                     rawToken = getRawToken(token);
                     invokeCallback(callback, rawToken, TokensCache.get(key).get("user"));
-                }
-                else
-                {
-                    invokeCallbackWithException(callback, (Exception) response[1]);
                 }
             }
         } catch (JSONException e) {
@@ -225,7 +225,7 @@ public class IdentityManager {
                 _userTokeFromAuthService = authResponse.get("responseBody");
                 _statusCode = authResponse.get("statusCode");
                 _lcd.countDown();
-                if (Integer.parseInt(_statusCode) > HttpStatus.SC_CONFLICT) throw new Exception(String.format("Invalid Response (Http Status Code = %s)", _statusCode));
+                if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
                 }
             });
         }
@@ -256,7 +256,7 @@ public class IdentityManager {
                 body = authResponse.get("responseBody");
                 statusCode = authResponse.get("statusCode");
                 response[0] = body;
-                if (Integer.parseInt(statusCode) > HttpStatus.SC_CONFLICT) throw new Exception(String.format("Invalid Response (Http StatusCode = %s)", statusCode));
+                if (Integer.parseInt(statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http StatusCode = %s). Body : %s", statusCode, body));
             }
             catch (JSONException e) {
                 response[1] = e;
@@ -329,7 +329,7 @@ public class IdentityManager {
     private void invokeCallbackWithException(ServiceEventListener serviceEventListener, Exception ex) {
         ex.printStackTrace();
         if (serviceEventListener!=null) {
-            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_EXPECTATION_FAILED, ex.getMessage(), null, ex);
+            ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, ex.getMessage(), null, ex);
             serviceEventListener.onFinish(event);
         }
     }

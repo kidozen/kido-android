@@ -69,7 +69,7 @@ public class IdentityManagerTests {
         im.Authenticate(provider,user,"", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertNotEquals(e.StatusCode,HttpStatus.SC_OK);
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
                 lcd.countDown();
             }
         });
@@ -137,7 +137,7 @@ public class IdentityManagerTests {
         im.Authenticate("",new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertNotEquals(e.StatusCode,HttpStatus.SC_OK);
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
                 lcd.countDown();
             }
         });
