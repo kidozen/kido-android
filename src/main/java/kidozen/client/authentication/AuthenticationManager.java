@@ -155,9 +155,9 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
             _currentIdentityProvider.RequestToken(endpoint, new KZAction<String>() {
                 @SuppressWarnings("deprecation")
                 public void onServiceResponse(String response) throws Exception {
-                Log.d(TAG, String.format("Got auth token from Identity Provider"));
-                _userTokeFromAuthService = requestKidoZenToken(response);
-                _kidoZenUser = createKidoZenUser(_userTokeFromAuthService);
+                    Log.d(TAG, String.format("Got auth token from Identity Provider"));
+                    _userTokeFromAuthService = requestKidoZenToken(response);
+                    _kidoZenUser = createKidoZenUser(_userTokeFromAuthService);
                 }
             });
         }

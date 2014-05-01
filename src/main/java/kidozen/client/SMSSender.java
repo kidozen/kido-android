@@ -22,7 +22,7 @@ public class SMSSender extends KZService  implements Observer {
 	
 	public void update(Observable observable, Object data) {
 		Log.d(TAG, "token updated");
-		this.KidozenUser = (KidoZenUser) data;
+		this.mUserIdentity = (KidoZenUser) data;
 	}
 	
 	

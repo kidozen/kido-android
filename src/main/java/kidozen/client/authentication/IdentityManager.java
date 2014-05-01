@@ -203,7 +203,7 @@ public class IdentityManager {
             {
                 rawToken = cacheItem.getString("rawToken");
                 KidoZenUser usr = (KidoZenUser) _tokensCache.get(cacheKey).get("user");
-                if (usr.HasExpired())
+                if (!usr.HasExpired())
                 {
                     _tokensCache.remove(cacheKey);
                     this.Authenticate(providerName, username, password, callback);
@@ -217,22 +217,23 @@ public class IdentityManager {
         }
     }
 
-    public void GetRawToken(final String key,final ServiceEventListener callback) {
+    public void GetRawToken(final String hashKey, final ServiceEventListener callback) {
         String rawToken = null;
         try {
-            JSONObject cacheItem = _tokensCache.get(key);
+            JSONObject cacheItem = _tokensCache.get(hashKey);
             if (cacheItem!=null)
             {
                 rawToken = cacheItem.getString("rawToken");
-                KidoZenUser usr = (KidoZenUser) _tokensCache.get(key).get("user");
+                KidoZenUser usr = (KidoZenUser) _tokensCache.get(hashKey).get("user");
+
                 if (usr.HasExpired())
                 {
-                    _tokensCache.remove(key);
-                    this.Authenticate(key, callback);
+                    _tokensCache.remove(hashKey);
+                    this.Authenticate(hashKey, callback);
                 }
                 else invokeCallback(callback, rawToken, usr);
             }
-            else this.Authenticate(key, callback);
+            else this.Authenticate(hashKey, callback);
         }
         catch (Exception e) {
             invokeCallbackWithException(callback, e);
@@ -283,6 +284,7 @@ public class IdentityManager {
     private void addToTokensCache(String cacheKey, String token, KidoZenUserIdentityType userIdentity) throws JSONException {
         String rawToken = getRawToken(token);
         KidoZenUser user = createKidoZenUser(token, userIdentity);
+        user.HashKey = cacheKey;
         JSONObject cacheItem = new JSONObject()
                 .put("user", user)
                 .put("rawToken", rawToken);

@@ -159,7 +159,7 @@ public class KZApplication  {
 	public Notification Notification () throws Exception
 	{
 		Notification notification= new Notification( _applicationConfiguration.GetSettingAsString("notification"), _applicationName);
-		notification.KidozenUser = this.userIdentity;
+		notification.mUserIdentity = this.userIdentity;
 		notification.BypassSSLVerification = !StrictSSL;
 		return notification;
 	}
@@ -174,7 +174,7 @@ public class KZApplication  {
 	public Configuration Configuration(String name) throws Exception{
 		checkMethodParameters(name);
 		Configuration configuration =new  Configuration(_applicationConfiguration.GetSettingAsString("configuration"), name);
-		configuration.KidozenUser = this.userIdentity;
+		configuration.mUserIdentity = this.userIdentity;
 		configuration.BypassSSLVerification = !StrictSSL;
 		return configuration;
 	}
@@ -190,7 +190,7 @@ public class KZApplication  {
 	{
 		checkMethodParameters(name);
 		Queue queue= new Queue(_applicationConfiguration.GetSettingAsString("queue"), name);
-		queue.KidozenUser = this.userIdentity;
+		queue.mUserIdentity = this.userIdentity;
 		queue.BypassSSLVerification = !StrictSSL;
 		return queue;
 	}
@@ -204,8 +204,10 @@ public class KZApplication  {
 	 */
 	public Storage Storage(String name) throws Exception {
 		checkMethodParameters(name);
-		Storage storage = new Storage(_applicationConfiguration.GetSettingAsString("storage"), name);
-		storage.KidozenUser = this.userIdentity;
+		Storage storage = new Storage(_applicationConfiguration.GetSettingAsString("storage"),
+                name,
+                userIdentity,
+                applicationIdentity);
 		storage.BypassSSLVerification = !StrictSSL;
 		return storage;
 	}
@@ -220,7 +222,7 @@ public class KZApplication  {
 	public SMSSender SMSSender(String number) throws Exception{
 		checkMethodParameters(number);
 		SMSSender sender = new SMSSender(_applicationConfiguration.GetSettingAsString("sms"), number);
-		sender.KidozenUser = this.userIdentity;
+		sender.mUserIdentity = this.userIdentity;
 		sender.BypassSSLVerification = !StrictSSL;
 		return sender;
 	}
@@ -239,7 +241,7 @@ public class KZApplication  {
         if (_mailSender==null)
         {
             _mailSender = new MailSender(_applicationConfiguration.GetSettingAsString("email"));
-            _mailSender.KidozenUser = this.userIdentity;
+            _mailSender.mUserIdentity = this.userIdentity;
             _mailSender.BypassSSLVerification = !StrictSSL;
         }
 
@@ -288,7 +290,7 @@ public class KZApplication  {
     if (_applicationLog==null)
         {
             _applicationLog = new Logging(_applicationConfiguration.GetSettingAsString("logging"));
-            _applicationLog.KidozenUser = this.userIdentity;
+            _applicationLog.mUserIdentity = this.userIdentity;
             _applicationLog.BypassSSLVerification = !StrictSSL;
         }
     }
@@ -346,7 +348,7 @@ public class KZApplication  {
      */
     public Files FileStorage() throws Exception{
         Files files = new Files(_applicationConfiguration.GetSettingAsString("files"));
-        files.KidozenUser = this.userIdentity;
+        files.mUserIdentity = this.userIdentity;
         files.BypassSSLVerification = !StrictSSL;
         return files;
     }
@@ -459,7 +461,7 @@ public class KZApplication  {
     public Service LOBService(String name) throws Exception {
         checkMethodParameters(name);
         Service service = new Service(_applicationConfiguration.GetSettingAsString("url"), name);
-        service.KidozenUser = this.userIdentity;
+        service.mUserIdentity = this.userIdentity;
         service.BypassSSLVerification = !StrictSSL;
         return service;
     }
@@ -474,7 +476,7 @@ public class KZApplication  {
     public DataSource DataSource(String name) throws Exception {
         checkMethodParameters(name);
         DataSource service = new DataSource(_applicationConfiguration.GetSettingAsString("datasource"), name);
-        service.KidozenUser = this.userIdentity;
+        service.mUserIdentity = this.userIdentity;
         service.BypassSSLVerification = !StrictSSL;
         return service;
     }

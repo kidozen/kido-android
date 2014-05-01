@@ -1,7 +1,6 @@
 package kidozen.client;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
@@ -13,10 +12,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 
-import kidozen.client.authentication.AuthenticationManager;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 
@@ -24,8 +20,6 @@ public class KZService
 {
     public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;
     public Boolean BypassSSLVerification = false;
-	public KidoZenUser KidozenUser = new KidoZenUser();
-    public KidoZenUser KidoZenAnonymousUser = new KidoZenUser();
 
     protected static final String ACCEPT = "Accept";
     protected static final String APPLICATION_JSON = "application/json";
@@ -53,8 +47,16 @@ public class KZService
     private String _scope;
     private String _authScope;
 
+    protected  String nName;
+    protected String mEndpoint;
+    protected KidoZenUser mUserIdentity = new KidoZenUser();
+    protected KidoZenUser mApplicationIdentity = new KidoZenUser();
 
     public boolean ProcessAsStream = false;
+
+    public KZService() {
+
+    }
 
 
     /*
@@ -65,29 +67,53 @@ public class KZService
     * */
     public String CreateAuthHeaderValue()
 	{
-        /*
-        long delay = this.KidozenUser.GetExpirationInMilliseconds();
-        if (delay<=0)
-        {
-            _authenticationManager.RemoveCurrentTokenFromCache(KidozenUser.Token);
-            _authenticationManager.Authenticate(_provider, _username, _password, new ServiceEventListener() {
+        // User Identity is the higher priority
+        if (mUserIdentity != null) {
+            IdentityManager.getInstance().GetRawToken(mUserIdentity.HashKey, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    KidozenUser = ((KidoZenUser) e.Response);
+                    mUserIdentity = ((KidoZenUser) e.Response);
                 }
             });
         }
-        return "WRAP access_token=\"" + KidozenUser.Token +"\"";
-        */
-        return "nada";
+        return "WRAP access_token=\"" + mUserIdentity.Token +"\"";
     }
 
-    protected void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
+    public void CreateAuthHeaderValue (final KZServiceEvent<String> cb )
+    {
+        // User Identity is the higher priority
+        if (mUserIdentity != null) {
+            IdentityManager.getInstance().GetRawToken(mUserIdentity.HashKey, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                mUserIdentity = ((KidoZenUser) e.Response);
+                cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
+                }
+            });
+        }
+    }
+
+    /**
+     * Constructor
+     *
+     * You should not create a new instances of this constructor. Instead use the Storage[""] method of the KZApplication object.
+     * @param endpoint The service endpoint
+     * @param name The name of the service to be created
+     */
+    public KZService(String endpoint, String name, KidoZenUser userIdentity, KidoZenUser applicationIdentity)
+    {
+        mEndpoint = endpoint;
+        nName = name;
+        this.mApplicationIdentity = applicationIdentity;
+        this.mUserIdentity = userIdentity;
+    }
+
+    public void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
     {
         new KZServiceAsyncTask(method,params,headers,callback, bypassSSLValidation).execute(url);
     }
 
-    protected void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, JSONObject message,Boolean bypassSSLValidation)
+    public void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, JSONObject message,Boolean bypassSSLValidation)
     {
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
@@ -95,7 +121,8 @@ public class KZService
     public void ExecuteTask(String url, KZHttpMethod method, HashMap<String,String> params, HashMap<String,String> headers, ServiceEventListener callback, InputStream message, Boolean bypassSSLValidation) {
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
-    private class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
+
+    public class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
         HashMap<String, String> _params = null;
         HashMap<String, String> _headers = null;
         KZHttpMethod _method= null;

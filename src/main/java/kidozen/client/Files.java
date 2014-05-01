@@ -27,11 +27,10 @@ public class Files extends KZService  implements Observer {
     public static final String PRAGMA_HEADER = "Pragma";
     public static final String CACHE_CONTROL_HEADER = "Cache-Control";
     public static final String NO_CACHE = "no-cache";
-    String _endpoint;
 
 	public void update(Observable observable, Object data) {
 		Log.d(TAG, "token updated");
-		this.KidozenUser = (KidoZenUser) data;
+		this.mUserIdentity = (KidoZenUser) data;
 	}
 
 
@@ -43,7 +42,8 @@ public class Files extends KZService  implements Observer {
 	 */
 	public Files(String endpoint)
 	{
-		_endpoint=endpoint;
+        super();
+        mEndpoint =endpoint;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class Files extends KZService  implements Observer {
         headers.put(X_FILE_NAME_HEADER, nameAndPath.getKey());
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
 
-        String url = _endpoint + nameAndPath.getValue();
+        String url = mEndpoint + nameAndPath.getValue();
 
         this.ProcessAsStream = true;
         this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback,fileStream, BypassSSLVerification);
@@ -93,7 +93,7 @@ public class Files extends KZService  implements Observer {
         headers.put(PRAGMA_HEADER, NO_CACHE);
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
-        String url = _endpoint + fullFilePath;
+        String url = mEndpoint + fullFilePath;
         this.ProcessAsStream = true;
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
     }
@@ -116,7 +116,7 @@ public class Files extends KZService  implements Observer {
         headers.put(PRAGMA_HEADER, NO_CACHE);
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
-        String url = _endpoint + path;
+        String url = mEndpoint + path;
         this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
     }
     /**
@@ -140,7 +140,7 @@ public class Files extends KZService  implements Observer {
         headers.put(PRAGMA_HEADER, NO_CACHE);
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
-        String url = _endpoint + path;
+        String url = mEndpoint + path;
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
     }
 

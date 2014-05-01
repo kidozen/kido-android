@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import kidozen.client.Constants;
+
 /**
  * The kidozen user identity
  * 
@@ -29,13 +31,16 @@ public class KidoZenUser {
 	 * The claims of this user
 	 */
 	public Hashtable<String, String> Claims = new Hashtable<String, String>();
+    /**
+     * The Hash key that we can use to find it in the IdentityManager token's cache
+     */
+    public String HashKey;
 
-	private Long _expiration;
+    private Long _expiration;
 	public String Token;
-    private static final int ONE_SECOND = 1000;
 
 
-	/**
+    /**
 	 * Checks if the user belongs to the role
 	 * @param role
 	 * @return True if the user in in the specified role
@@ -72,10 +77,11 @@ public class KidoZenUser {
 	 * @return the token expiration time in miliseconds
 	 */
 	public Long GetExpirationInMilliseconds() {
-        Date later = new Date(_expiration * ONE_SECOND); // segundos
+        Date later = new Date(_expiration * Constants.ONE_THOUSAND);
 		Date now = new Date();
 		Long diffInMis = later.getTime()  - now.getTime();
-		return diffInMis;//TimeUnit.MILLISECONDS.toSeconds(diffInMis);
+		return diffInMis;
+		//TimeUnit.MILLISECONDS.toSeconds(diffInMis);
 	}
 
     public Boolean HasExpired() {

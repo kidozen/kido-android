@@ -50,7 +50,6 @@ public class AuthenticationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, KZ_KEY, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.print("call ");
 
                 lcd.countDown();
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
@@ -67,7 +66,6 @@ public class AuthenticationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, "fail", false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.print("call ");
 
                 lcd.countDown();
                 assertEquals(e.StatusCode, HttpStatus.SC_BAD_REQUEST);
@@ -84,6 +82,8 @@ public class AuthenticationIntegrationTest {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
+                System.out.print("call init");
+
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
             }
         });
@@ -92,6 +92,8 @@ public class AuthenticationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                System.out.print("call auth");
+
                 alcd.countDown();
                 Assert.assertEquals(e.StatusCode, HttpStatus.SC_OK);
                 Assert.assertFalse(kidozen.Authenticated);
@@ -106,6 +108,8 @@ public class AuthenticationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false , new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                System.out.print("call init");
+
                 lcd.countDown();
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
             }
@@ -115,6 +119,8 @@ public class AuthenticationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                System.out.print("call auth");
+
                 alcd.countDown();
                 assertEquals(e.StatusCode, HttpStatus.SC_BAD_REQUEST);
             }

@@ -1,5 +1,4 @@
 import org.apache.http.HttpStatus;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -13,9 +12,7 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import kidozen.client.KZAction;
 import kidozen.client.KZApplication;
-import kidozen.client.PubSubChannel;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.Storage;

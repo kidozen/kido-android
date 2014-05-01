@@ -191,7 +191,7 @@ public class ApplicationIntegrationTest {
             }
         });
         assertEquals(true, kidozen.Authenticated);
-        Hashtable<String,String> claims; // TODO FIX THIS: = kidozen.KidozenUser.Claims;
+        Hashtable<String,String> claims; // TODO FIX THIS: = kidozen.mUserIdentity.Claims;
 
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }

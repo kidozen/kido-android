@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import kidozen.client.authentication.KidoZenUser;
+
 /**
  * Storage  service interface
  * 
@@ -16,23 +18,11 @@ import java.util.HashMap;
  * @version 1.00, April 2013
  */
 public class Storage extends KZService {
-	private static final String DATEFORMAT_YYYYMMDDTHHMMSSSSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-	private static final String KEY = "Storage";
-	String _endpoint;
-	String _name;
-	
-	/**
-	 * Constructor
-	 * 
-	 * You should not create a new instances of this constructor. Instead use the Storage[""] method of the KZApplication object. 
-	 * @param endpoint The service endpoint
-	 * @param name The name of the queue to be created
-	 */
-	public Storage(String endpoint, String name)
-	{
-		_endpoint=endpoint;
-		_name = name;		
-	}
+    private static final String LOGCAT_KEY = "Storage";
+
+    public Storage(String storage, String name, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(storage, name, userIdentity, applicationIdentity);
+    }
 
     /**
      * Creates a new object in the storage
@@ -54,16 +44,22 @@ public class Storage extends KZService {
             return;
         }
 
-        String  url = _endpoint + "/" + _name;
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("isPrivate", (isPrivate ? "true" : "false"));
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-        headers.put(CONTENT_TYPE,APPLICATION_JSON);
-        headers.put(ACCEPT, APPLICATION_JSON);
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String message) {
+                String  url = mEndpoint + "/" + nName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("isPrivate", (isPrivate ? "true" : "false"));
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(AUTHORIZATION_HEADER, message);
+                headers.put(CONTENT_TYPE,APPLICATION_JSON);
+                headers.put(ACCEPT, APPLICATION_JSON);
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, message, BypassSSLVerification);
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,callback, BypassSSLVerification).execute(url);
+            }
+        });
     }
+
 
     /**
 	 * Creates a new private object in the storage
@@ -83,14 +79,14 @@ public class Storage extends KZService {
 			JSONObject _metadata = original.getJSONObject("_metadata");
 			if (_metadata.get("createdOn").getClass().getName().toLowerCase().contains("date")) {
 				Date createdON = (Date) _metadata.get("createdOn");
-				SimpleDateFormat dateFormat = new SimpleDateFormat(DATEFORMAT_YYYYMMDDTHHMMSSSSS_Z);
+				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.GMT_DATE_FORMAT);
 				_metadata.remove("createdOn");
 				_metadata.put("createdOn", dateFormat.format(createdON));
 				updatedMetadata = _metadata;
 			}
 			if (_metadata.get("updatedOn").getClass().getName().toLowerCase().contains("date")) {
 				Date createdON = (Date) _metadata.get("updatedOn");
-				SimpleDateFormat dateFormat = new SimpleDateFormat(DATEFORMAT_YYYYMMDDTHHMMSSSSS_Z);
+				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.GMT_DATE_FORMAT);
 				_metadata.remove("updatedOn");
 				_metadata.put("updatedOn", dateFormat.format(createdON));
 				updatedMetadata = _metadata;
@@ -115,7 +111,7 @@ public class Storage extends KZService {
 	public void Update(final String id, final JSONObject message, final ServiceEventListener callback) throws Exception {
 		try {
 			JSONObject serializedMsg = this.checkDateSerialization(message);
-			String  url = _endpoint + "/" + _name + "/" + id;
+			String  url = mEndpoint + "/" + nName + "/" + id;
 			HashMap<String, String> params = null;
 			HashMap<String, String> headers = new HashMap<String, String>();
 			headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
@@ -145,7 +141,7 @@ public class Storage extends KZService {
 		if (id=="" || id==null) {
 			throw new InvalidParameterException();
 		}
-		String  url = _endpoint + "/" + _name + "/" + id;
+		String  url = mEndpoint + "/" + nName + "/" + id;
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
@@ -167,7 +163,7 @@ public class Storage extends KZService {
 	 */
 	public void Drop(final ServiceEventListener callback)
 	{
-		String  url = _endpoint + "/" + _name;
+		String  url = mEndpoint + "/" + nName;
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
@@ -185,7 +181,7 @@ public class Storage extends KZService {
 		if (idMessage=="" || idMessage==null) {
 			throw new InvalidParameterException();
 		}
-		String  url = _endpoint + "/" + _name + "/" + idMessage;
+		String  url = mEndpoint + "/" + nName + "/" + idMessage;
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
@@ -246,7 +242,7 @@ public class Storage extends KZService {
 		{
 			throw new  InvalidParameterException("query, options or fields, cannot be null or empty");
 		}
-		String  url = _endpoint + "/" + _name;
+		String  url = mEndpoint + "/" + nName;
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("query", query);
 		params.put("options", options);
