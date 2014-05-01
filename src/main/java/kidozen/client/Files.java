@@ -62,7 +62,7 @@ public class Files extends KZService  implements Observer {
 
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         headers.put(CONNECTION_HEADER, KEEP_ALIVE_HEADER_VALUE);
         headers.put(X_FILE_NAME_HEADER, nameAndPath.getKey());
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
@@ -89,7 +89,7 @@ public class Files extends KZService  implements Observer {
 
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         headers.put(PRAGMA_HEADER, NO_CACHE);
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
@@ -112,7 +112,7 @@ public class Files extends KZService  implements Observer {
 
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         headers.put(PRAGMA_HEADER, NO_CACHE);
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
@@ -136,7 +136,7 @@ public class Files extends KZService  implements Observer {
 
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         headers.put(PRAGMA_HEADER, NO_CACHE);
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 

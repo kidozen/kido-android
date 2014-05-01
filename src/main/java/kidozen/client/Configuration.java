@@ -3,7 +3,6 @@ package kidozen.client;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Observer;
 
 
 /**
@@ -51,9 +50,9 @@ public class Configuration  extends KZService {
 		String  url = _endpoint + "/" + _name; 
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(CONTENT_TYPE,APPLICATION_JSON);
-		headers.put(ACCEPT, APPLICATION_JSON);
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
         this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
 
@@ -69,7 +68,7 @@ public class Configuration  extends KZService {
 		String  url = _endpoint + "/" + _name; 
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
 	}
@@ -92,7 +91,7 @@ public class Configuration  extends KZService {
 		String  url = _endpoint + "/" + _name; 
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
         this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
 	}
@@ -107,7 +106,7 @@ public class Configuration  extends KZService {
 		String  url = _endpoint + "/" + _name; 
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
 	}

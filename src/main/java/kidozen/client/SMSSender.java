@@ -56,9 +56,9 @@ public class SMSSender extends KZService  implements Observer {
 		params.put("message", encodedMessage);
 		
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(CONTENT_TYPE,APPLICATION_JSON);
-		headers.put(ACCEPT, APPLICATION_JSON);
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
         this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, BypassSSLVerification);
 	}
@@ -74,7 +74,7 @@ public class SMSSender extends KZService  implements Observer {
     	String  url = _endpoint + "/" + messageId;
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
     }

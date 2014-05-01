@@ -16,18 +16,9 @@ import java.util.Map;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 
-public class KZService
-{
+public class KZService {
     public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;
     public Boolean BypassSSLVerification = false;
-
-    protected static final String ACCEPT = "Accept";
-    protected static final String APPLICATION_JSON = "application/json";
-    protected static final String CONTENT_TYPE = "content-type";
-    protected static final String AUTHORIZATION_HEADER = "Authorization";
-    protected ObservableUser tokenUpdater = new ObservableUser();
-
-    private static final String KEY = "KZService" ;
     private IdentityManager _authenticationManager;
     private ServiceEventListener _authenticateCallback;
 
@@ -47,7 +38,7 @@ public class KZService
     private String _scope;
     private String _authScope;
 
-    protected  String nName;
+    protected String nName;
     protected String mEndpoint;
     protected KidoZenUser mUserIdentity = new KidoZenUser();
     protected KidoZenUser mApplicationIdentity = new KidoZenUser();
@@ -79,15 +70,24 @@ public class KZService
         return "WRAP access_token=\"" + mUserIdentity.Token +"\"";
     }
 
-    public void CreateAuthHeaderValue (final KZServiceEvent<String> cb )
+    public void CreateAuthHeaderValue (String provider, String uname, String secret, final KZServiceEvent<String> cb )
     {
         // User Identity is the higher priority
         if (mUserIdentity != null) {
-            IdentityManager.getInstance().GetRawToken(mUserIdentity.HashKey, new ServiceEventListener() {
+            IdentityManager.getInstance().GetRawToken(provider,uname,secret, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                 mUserIdentity = ((KidoZenUser) e.Response);
                 cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
+                }
+            });
+        }
+        else {
+            IdentityManager.getInstance().GetRawToken(mApplicationIdentity.HashKey, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                mApplicationIdentity = ((KidoZenUser) e.Response);
+                cb.Fire(String.format("WRAP access_token=\"%s\"", mApplicationIdentity.Token));
                 }
             });
         }
@@ -100,8 +100,11 @@ public class KZService
      * @param endpoint The service endpoint
      * @param name The name of the service to be created
      */
-    public KZService(String endpoint, String name, KidoZenUser userIdentity, KidoZenUser applicationIdentity)
+    public KZService(String endpoint, String name,String provider , String username, String pass,  KidoZenUser userIdentity, KidoZenUser applicationIdentity)
     {
+        _provider = provider;
+        _username = username;
+        _password = pass;
         mEndpoint = endpoint;
         nName = name;
         this.mApplicationIdentity = applicationIdentity;

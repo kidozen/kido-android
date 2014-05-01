@@ -36,6 +36,9 @@ public class KZApplication  {
     private String _applicationKey;
     private String _tenantMarketPlace;
     private String _applicationName;
+    private String _provider;
+    private String _username;
+    private String _password;
 
     public static void EnableCrashReporter (Application application, String url) {
         if (_crashReporter==null)
@@ -206,6 +209,9 @@ public class KZApplication  {
 		checkMethodParameters(name);
 		Storage storage = new Storage(_applicationConfiguration.GetSettingAsString("storage"),
                 name,
+                _provider,
+                _username,
+                _password,
                 userIdentity,
                 applicationIdentity);
 		storage.BypassSSLVerification = !StrictSSL;
@@ -404,15 +410,18 @@ public class KZApplication  {
             IdentityManager.getInstance().Authenticate(providerKey, username, password, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
-                        Authenticated = true;
-                        long delay = ((KidoZenUser) e.Response).GetExpirationInMilliseconds();
-                        SetKidoZenUser((KidoZenUser) e.Response);
-                        if (delay < 0) {
-                            Log.e(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
-                        }
+                if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
+                    _provider = providerKey;
+                    _username = username;
+                    _password = password;
+                    Authenticated = true;
+                    long delay = ((KidoZenUser) e.Response).GetExpirationInMilliseconds();
+                    SetKidoZenUser((KidoZenUser) e.Response);
+                    if (delay < 0) {
+                        Log.e(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
                     }
-                    if (callback != null) callback.onFinish(e);
+                }
+                if (callback != null) callback.onFinish(e);
                 }
             });
         }

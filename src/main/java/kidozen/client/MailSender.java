@@ -12,11 +12,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.security.InvalidParameterException;
 import java.util.AbstractMap;
@@ -24,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -61,9 +57,9 @@ public class MailSender extends KZService {
         HashMap<String, String> headers = new HashMap<String, String>();
 
         String authValue = CreateAuthHeaderValue();
-        headers.put(AUTHORIZATION_HEADER,authValue);
-        headers.put(CONTENT_TYPE,APPLICATION_JSON);
-        headers.put(ACCEPT, APPLICATION_JSON);
+        headers.put(Constants.AUTHORIZATION_HEADER,authValue);
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
         if ( mail.Attachments!=null)
         {
@@ -193,7 +189,7 @@ public class MailSender extends KZService {
             conn.setUseCaches(false);
             conn.setRequestMethod(HTTP_METHOD_POST);
             conn.setRequestProperty(CONNECTION_HEADER, CONNECTION_KEEP_ALIVE);
-            conn.setRequestProperty(AUTHORIZATION_HEADER, _authHeaderValue);
+            conn.setRequestProperty(Constants.AUTHORIZATION_HEADER, _authHeaderValue);
             conn.setRequestProperty(CONTENT_TYPE_HEADER, MULTIPART_FORM_DATA_BOUNDARY + boundary);
             dos = new DataOutputStream( conn.getOutputStream() );
             dos.writeBytes(twoHyphens + boundary + lineEnd);

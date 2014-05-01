@@ -46,9 +46,9 @@ public class Logging extends KZService {
 
 		params.put("level", lvl.toString());
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(CONTENT_TYPE,APPLICATION_JSON);
-		headers.put(ACCEPT, APPLICATION_JSON);
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
         this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
 	}
@@ -73,7 +73,7 @@ public class Logging extends KZService {
 	{
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
         this.ExecuteTask(_endpoint, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
 	}
@@ -141,7 +141,7 @@ public class Logging extends KZService {
             params.put("query", fixedQuery);
             params.put("options", options);
             HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+            headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
 
             ServiceEventListener se = new ServiceEventListener() {

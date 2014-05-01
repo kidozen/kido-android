@@ -52,9 +52,9 @@ public class Service extends KZService {
         String url = _endpoint + "api/services/"+ _name +"/invoke/" + method;
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER, CreateAuthHeaderValue());
-        headers.put(CONTENT_TYPE, APPLICATION_JSON);
-        headers.put(ACCEPT, APPLICATION_JSON);
+        headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 

@@ -56,9 +56,9 @@ public class Notification extends KZService implements Observer {
 		String  url = _endpoint + "/subscriptions/" + _name + "/" + _channel;
 		
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(CONTENT_TYPE,APPLICATION_JSON);
-		headers.put(ACCEPT, APPLICATION_JSON);
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
         this.ExecuteTask(url,KZHttpMethod.POST, null, headers, callback,new JSONObject(s), BypassSSLVerification);
 	}
@@ -75,7 +75,7 @@ public class Notification extends KZService implements Observer {
 		String  url = _endpoint + "/subscriptions/" + _name + "/" + channel + "/" + subscriptionId ;
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
         this.ExecuteTask(url,KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
 	}
@@ -92,9 +92,9 @@ public class Notification extends KZService implements Observer {
 		String  url = _endpoint + "/push/" + _name + "/" + channel;
 
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(CONTENT_TYPE,APPLICATION_JSON);
-		headers.put(ACCEPT, APPLICATION_JSON);
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
         this.ExecuteTask(url, KZHttpMethod.POST, null, headers, callback, data, BypassSSLVerification);
 	}
@@ -110,7 +110,7 @@ public class Notification extends KZService implements Observer {
 
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
 	}
 

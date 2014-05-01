@@ -37,7 +37,7 @@ public class DataSource extends KZService {
         String  url = _endpoint + "/" + _name + "/";
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
@@ -62,9 +62,9 @@ public class DataSource extends KZService {
         String  url = _endpoint + "/" + _name + "/";
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER, CreateAuthHeaderValue());
-        headers.put(CONTENT_TYPE, APPLICATION_JSON);
-        headers.put(ACCEPT, APPLICATION_JSON);
+        headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
@@ -94,9 +94,9 @@ public class DataSource extends KZService {
         String  url = _endpoint + "/" + _name;
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER, CreateAuthHeaderValue());
-        headers.put(CONTENT_TYPE, APPLICATION_JSON);
-        headers.put(ACCEPT, APPLICATION_JSON);
+        headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
@@ -141,7 +141,7 @@ public class DataSource extends KZService {
         String  url = _endpoint + "/" + _name + "?" + data.toString();
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(AUTHORIZATION_HEADER, CreateAuthHeaderValue());
+        headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);

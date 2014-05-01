@@ -20,8 +20,8 @@ import kidozen.client.authentication.KidoZenUser;
 public class Storage extends KZService {
     private static final String LOGCAT_KEY = "Storage";
 
-    public Storage(String storage, String name, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(storage, name, userIdentity, applicationIdentity);
+    public Storage(String storage, String name, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(storage, name, provider, username, pass, userIdentity, applicationIdentity);
     }
 
     /**
@@ -44,18 +44,18 @@ public class Storage extends KZService {
             return;
         }
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
             @Override
             public void Fire(String message) {
                 String  url = mEndpoint + "/" + nName;
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("isPrivate", (isPrivate ? "true" : "false"));
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(AUTHORIZATION_HEADER, message);
-                headers.put(CONTENT_TYPE,APPLICATION_JSON);
-                headers.put(ACCEPT, APPLICATION_JSON);
-
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,callback, BypassSSLVerification).execute(url);
+                headers.put(Constants.AUTHORIZATION_HEADER, message);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                // TODO: change true for StrictSSL
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,callback, true).execute(url);
             }
         });
     }
@@ -114,9 +114,9 @@ public class Storage extends KZService {
 			String  url = mEndpoint + "/" + nName + "/" + id;
 			HashMap<String, String> params = null;
 			HashMap<String, String> headers = new HashMap<String, String>();
-			headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-			headers.put(CONTENT_TYPE,APPLICATION_JSON);
-			headers.put(ACCEPT, APPLICATION_JSON);
+			headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+			headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+			headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
             this.ExecuteTask(url, KZHttpMethod.PUT, params, headers,  callback, serializedMsg, BypassSSLVerification);
 		}
         catch (Exception e)
@@ -144,7 +144,7 @@ public class Storage extends KZService {
 		String  url = mEndpoint + "/" + nName + "/" + id;
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
 		ServiceEventListener sel = new ServiceEventListener() {
 			@Override
@@ -166,7 +166,7 @@ public class Storage extends KZService {
 		String  url = mEndpoint + "/" + nName;
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers,  callback, BypassSSLVerification);
 	}
 
@@ -184,7 +184,7 @@ public class Storage extends KZService {
 		String  url = mEndpoint + "/" + nName + "/" + idMessage;
 		HashMap<String, String> params = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers,  callback, BypassSSLVerification);
 	}
 
@@ -248,7 +248,7 @@ public class Storage extends KZService {
 		params.put("options", options);
 		params.put("fields", fields);
 		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
         this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
 	}
 
