@@ -31,10 +31,10 @@ public class Storage extends KZService {
      * @param isPrivate marks the object as private (true) / public (false)
      * @param callback The callback with the result of the service call
      */
-    public void Create(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
+    public void Create(final JSONObject jMessage, final boolean isPrivate, final ServiceEventListener callback)
     {
         Object id = null;
-        try {id = message.get("_id");} catch (JSONException e) {}
+        try {id = jMessage.get("_id");} catch (JSONException e) {}
 
         if (id!=null)
         {
@@ -55,7 +55,7 @@ public class Storage extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
                 // TODO: change true for StrictSSL
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,callback, true).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,jMessage,callback, true).execute(url);
             }
         });
     }

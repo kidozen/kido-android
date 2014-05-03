@@ -4,6 +4,7 @@ import org.json.simple.parser.JSONParser;
 import java.io.FileReader;
 
 public class IntegrationTestConfiguration {
+    public static  String KZ_KEY ;
     public static  String KZ_TENANT;
     public static  String KZ_APP;
     public static  String KZ_USER;
@@ -34,7 +35,7 @@ public class IntegrationTestConfiguration {
                 JSONObject settings =(JSONObject) jp.parse(new FileReader(current_directory + "/" + file_settings));
 
 
-
+                KZ_TENANT = settings.get("kz_app_key").toString();
                 KZ_TENANT = settings.get("kz_tenant").toString();
                 KZ_APP = settings.get("kz_app").toString();
                 KZ_USER = settings.get("kz_usr").toString();
@@ -76,6 +77,7 @@ public class IntegrationTestConfiguration {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
+        KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
         KZ_TENANT =             "https://contoso.local.kidozen.com";
         KZ_APP =                "ioscrashapp";
         KZ_USER =               "contoso@kidozen.com";

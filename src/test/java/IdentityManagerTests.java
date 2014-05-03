@@ -3,7 +3,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -13,7 +12,6 @@ import org.robolectric.annotation.Config;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.authentication.IdentityManager;
@@ -39,7 +37,6 @@ import static org.junit.Assert.assertTrue;
 public class IdentityManagerTests {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     private JSONObject cfg, cfgKey;
-    private static final String KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
     private static final String KZ_TENANT = "https://contoso.local.kidozen.com";
     private static final String KZ_APP = "ioscrashapp";
     String provider = "kidozen";
@@ -127,7 +124,7 @@ public class IdentityManagerTests {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = IdentityManager.getInstance();
         im.Setup(cfg,false);
-        im.Authenticate(KZ_KEY,new ServiceEventListener() {
+        im.Authenticate(IntegrationTestConfiguration.KZ_KEY,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -158,7 +155,7 @@ public class IdentityManagerTests {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = IdentityManager.getInstance();
         im.Setup(cfg,false);
-        im.Authenticate(KZ_KEY, new ServiceEventListener() {
+        im.Authenticate(IntegrationTestConfiguration.KZ_KEY, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -169,7 +166,7 @@ public class IdentityManagerTests {
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch lcd2 = new CountDownLatch(1);
-        im.Authenticate(KZ_KEY, new ServiceEventListener() {
+        im.Authenticate(IntegrationTestConfiguration.KZ_KEY, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd2.countDown();
