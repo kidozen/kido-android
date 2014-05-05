@@ -39,7 +39,6 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class EMailIntegrationTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 3;
@@ -53,13 +52,13 @@ public class EMailIntegrationTest {
     {
         try {
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, kidoInitCallback(signal));
             kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
-            fail();
+            fail(e.getMessage());
         }
     }
 

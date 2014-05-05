@@ -14,4 +14,5 @@ public class Constants {
     public static final String ACCEPT = "Accept";
     public static final String CONTENT_TYPE = "content-type";
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String SERVICE_TIMEOUT_HEADER = "timeout";
 }

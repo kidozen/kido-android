@@ -15,7 +15,7 @@ import kidozen.client.authentication.KidoZenUser;
 public class Queue  extends KZService {
 	private static final String TAG = "Queue";
 	public Queue(String queue, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(queue,"", provider, username, pass, userIdentity, applicationIdentity);
+        super(queue,name, provider, username, pass, userIdentity, applicationIdentity);
     }
 	/**
 	 * Enqueues a message
@@ -32,7 +32,7 @@ public class Queue  extends KZService {
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("isPrivate","true");
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                headers.put(Constants.AUTHORIZATION_HEADER,token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
@@ -56,9 +56,9 @@ public class Queue  extends KZService {
 
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(mEndpoint);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
             }
         });
        }

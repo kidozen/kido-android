@@ -34,10 +34,10 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+
 public class FileIntegrationTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 10;
-    public static final String FOTOS_TESTFILE_TXT = "/fotos/testfile.txt";
+    public static final String FOTOS_TESTFILE_TXT = "/Users/christain/hosts";
     public static final String FOTOS_TESTDIR = "/fotos/";
     KZApplication kidozen = null;
     public static final String FILE_CONTENT = "This is a String ~ GoGoGo";
@@ -47,13 +47,13 @@ public class FileIntegrationTest {
     {
         try {
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, kidoInitCallback(signal));
             kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
-            fail();
+            fail(e.getMessage());
         }
     }
     @Test
@@ -137,19 +137,6 @@ public class FileIntegrationTest {
                 signal.countDown();
             }
         };
-    }
-
-    private String CreateRandomValue()
-    {
-        Random rng= new Random();
-        String characters ="qwertyuiopñlkjhgfdsazxcvbnm";
-        char[] text = new char[10];
-        for (int i = 0; i < 10; i++)
-        {
-            text[i] = characters.charAt(rng.nextInt(characters.length()));
-        }
-        return new String(text);
-
     }
 }
 

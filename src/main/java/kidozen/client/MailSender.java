@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import kidozen.client.authentication.KidoZenUser;
+
 /**
  * Mail service interface
  *
@@ -30,18 +32,17 @@ import java.util.concurrent.ExecutionException;
  * @version 1.00, April 2013
  */
 public class MailSender extends KZService {
-    String _endpoint;
     public KZApplication Application;
     private String KEY = "MailSender";
-
+    private MailSender mSelf;
     /**
      * Constructor
      *
      * @param endpoint The Configuration service endpoint
      */
-    public MailSender(String endpoint)
-    {
-        _endpoint=endpoint;
+    public MailSender(String mailsender, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(mailsender, "", provider, username, pass, userIdentity, applicationIdentity);
+        mSelf = this;
     }
 
     /**
@@ -52,24 +53,30 @@ public class MailSender extends KZService {
         if ( mail == null)
             throw new InvalidParameterException("mail cannot be null");
 
-        JSONObject message= new JSONObject(mail.GetHashMap());
-        HashMap<String, String> params = new HashMap<String, String>();
-        HashMap<String, String> headers = new HashMap<String, String>();
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
 
-        String authValue = CreateAuthHeaderValue();
-        headers.put(Constants.AUTHORIZATION_HEADER,authValue);
-        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+            JSONObject message= new JSONObject(mail.GetHashMap());
+            HashMap<String, String> params = new HashMap<String, String>();
+            HashMap<String, String> headers = new HashMap<String, String>();
 
-        if ( mail.Attachments!=null)
-        {
-            Uploader upd =  new Uploader(this, mail, headers, params, callback, _endpoint, mail.Attachments, authValue);
-            upd.execute();
-        }
-        else
-        {
-            this.ExecuteTask(_endpoint, KZHttpMethod.POST, params, headers, callback, message, StrictSSL);
-        }
+            headers.put(Constants.AUTHORIZATION_HEADER, token);
+            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+
+            if ( mail.Attachments!=null)
+            {
+                Uploader upd =  new Uploader(mSelf, mail, headers, params, callback, mEndpoint, mail.Attachments, token);
+                upd.execute();
+            }
+            else
+            {
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, StrictSSL).execute(mEndpoint);
+            }
+
+            }
+        });
     }
 
     private class Uploader extends AsyncTask {
@@ -148,7 +155,7 @@ public class MailSender extends KZService {
 
                 JSONObject jo = getJsonObjectMessage();
 
-                _mailService.ExecuteTask(_endpoint, KZHttpMethod.POST, _params, _headers, _callback, jo, StrictSSL);
+                _mailService.ExecuteTask(mEndpoint, KZHttpMethod.POST, _params, _headers, _callback, jo, StrictSSL);
 
             } catch (Exception e) {
                 _callback.onFinish(new ServiceEvent(this, HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getMessage(), null, e));

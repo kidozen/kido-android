@@ -259,7 +259,12 @@ public class KZApplication  {
 		}
         if (_mailSender==null)
         {
-            _mailSender = new MailSender(_applicationConfiguration.GetSettingAsString("email"));
+            _mailSender = new MailSender(_applicationConfiguration.GetSettingAsString("email"),
+                    _provider,
+                    _username,
+                    _password,
+                    userIdentity,
+                    applicationIdentity);
             _mailSender.mUserIdentity = this.userIdentity;
             _mailSender.StrictSSL = !StrictSSL;
         }
@@ -372,7 +377,12 @@ public class KZApplication  {
      * @throws Exception
      */
     public Files FileStorage() throws Exception{
-        Files files = new Files(_applicationConfiguration.GetSettingAsString("files"));
+        Files files = new Files(_applicationConfiguration.GetSettingAsString("files"),
+                _provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
         files.mUserIdentity = this.userIdentity;
         files.StrictSSL = !StrictSSL;
         return files;
@@ -503,7 +513,13 @@ public class KZApplication  {
      */
     public DataSource DataSource(String name) throws Exception {
         checkMethodParameters(name);
-        DataSource service = new DataSource(_applicationConfiguration.GetSettingAsString("datasource"), name);
+        DataSource service = new DataSource(_applicationConfiguration.GetSettingAsString("datasource"),
+                name,
+                _provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
         service.mUserIdentity = this.userIdentity;
         service.StrictSSL = !StrictSSL;
         return service;

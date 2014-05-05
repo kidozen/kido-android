@@ -5,26 +5,15 @@ import org.json.JSONObject;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 
+import kidozen.client.authentication.KidoZenUser;
+
 /**
  * Created by christian on 2/27/14.
  */
 public class DataSource extends KZService {
-    private static final String SERVICETIMEOUT_HEADER = "timeout";
 
-    private String _endpoint = null;
-    private String _name = null;
-
-    /**
-     * Constructor
-     * <p/>
-     * You should not create a new instances of this constructor. Instead use the DataSource[""] method of the KZApplication object.
-     *
-     * @param endpoint The service endpoint
-     * @param name     The name of the datasource to be created
-     */
-    public DataSource(String endpoint, String name) {
-        _endpoint = endpoint;
-        _name = name;
+    public DataSource(String ds, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(ds,name, provider, username, pass, userIdentity, applicationIdentity);
     }
 
     /**
@@ -33,15 +22,22 @@ public class DataSource extends KZService {
      * @param timeout  service timeout
      * @param callback The callback with the result of the service call
      */
-    public void Query(int timeout, final ServiceEventListener callback) {
-        String  url = _endpoint + "/" + _name + "/";
-        HashMap<String, String> params = new HashMap<String, String>();
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-        if (timeout>0)
-            headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
+    public void Query(final int timeout, final ServiceEventListener callback) {
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
 
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
+                String  url = mEndpoint + "/" + mName + "/";
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                if (timeout>0)
+                    headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
+
+                //this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
+                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+            }
+        });
     }
     /**
      * Invokes a Query DataSource
@@ -58,17 +54,25 @@ public class DataSource extends KZService {
      * @param timeout  service timeout
      * @param callback The callback with the result of the service call
      */
-    public void Invoke(int timeout,final ServiceEventListener callback) {
-        String  url = _endpoint + "/" + _name + "/";
-        HashMap<String, String> params = new HashMap<String, String>();
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
-        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-        if (timeout>0)
-            headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
+    public void Invoke(final int timeout,final ServiceEventListener callback) {
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, new JSONObject(), StrictSSL);
+                String  url = mEndpoint + "/" + mName + "/";
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                if (timeout>0)
+                    headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
+
+                //this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, new JSONObject(), StrictSSL);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  new JSONObject(), callback, StrictSSL).execute(url);
+            }
+        });
+
     }
     /**
      * Invokes a DataSource
@@ -87,20 +91,28 @@ public class DataSource extends KZService {
      * @param callback The callback with the result of the service call
      *
      */
-    public void Invoke(final JSONObject data, int timeout, final ServiceEventListener callback) {
-        if (data==null)
-            throw new InvalidParameterException("data cannot be null or empty");
+    public void Invoke(final JSONObject data, final int timeout, final ServiceEventListener callback) {
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
 
-        String  url = _endpoint + "/" + _name;
-        HashMap<String, String> params = new HashMap<String, String>();
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
-        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-        if (timeout>0)
-            headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
+                if (data==null)
+                    throw new InvalidParameterException("data cannot be null or empty");
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, StrictSSL);
+                String  url = mEndpoint + "/" + mName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                if (timeout>0)
+                    headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
+
+                //this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, StrictSSL);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  data, callback, StrictSSL).execute(url);
+            }
+        });
+
     }
 
     /**
@@ -134,16 +146,24 @@ public class DataSource extends KZService {
      * @param callback The callback with the result of the service call
      *
      */
-    public void Query(final JSONObject data,int timeout, final ServiceEventListener callback) {
-        if (data==null)
-            throw new InvalidParameterException("data cannot be null or empty");
+    public void Query(final JSONObject data,final int timeout, final ServiceEventListener callback) {
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
 
-        String  url = _endpoint + "/" + _name + "?" + data.toString();
-        HashMap<String, String> params = new HashMap<String, String>();
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
-        if (timeout>0)
-            headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
+            if (data==null)
+                throw new InvalidParameterException("data cannot be null or empty");
+
+            String  url = mEndpoint + "/" + mName + "?" + data.toString();
+            HashMap<String, String> params = new HashMap<String, String>();
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put(Constants.AUTHORIZATION_HEADER, token);
+            if (timeout>0)
+                headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
+//        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
+                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+            }
+        });
+
     }
 }
