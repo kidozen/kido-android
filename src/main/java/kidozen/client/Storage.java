@@ -72,35 +72,6 @@ public class Storage extends KZService {
         this.Create(message, true, callback);
 	}
 
-	protected JSONObject checkDateSerialization(JSONObject original) throws JSONException {
-		JSONObject updatedMessage = original;
-		JSONObject updatedMetadata = null;
-		try {
-			JSONObject _metadata = original.getJSONObject("_metadata");
-			if (_metadata.get("createdOn").getClass().getName().toLowerCase().contains("date")) {
-				Date createdON = (Date) _metadata.get("createdOn");
-				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.GMT_DATE_FORMAT);
-				_metadata.remove("createdOn");
-				_metadata.put("createdOn", dateFormat.format(createdON));
-				updatedMetadata = _metadata;
-			}
-			if (_metadata.get("updatedOn").getClass().getName().toLowerCase().contains("date")) {
-				Date createdON = (Date) _metadata.get("updatedOn");
-				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.GMT_DATE_FORMAT);
-				_metadata.remove("updatedOn");
-				_metadata.put("updatedOn", dateFormat.format(createdON));
-				updatedMetadata = _metadata;
-			}
-			if (updatedMetadata!=null) {
-				updatedMessage.remove("_metadata");
-				updatedMessage.put("_metadata", updatedMetadata);
-			}
-		} catch (JSONException e) {
-            throw e;
-		}
-		return updatedMessage;
-	}
-
 	/**
 	 * Updates an object 
 	 * 
@@ -109,28 +80,28 @@ public class Storage extends KZService {
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Update(final String id, final JSONObject message, final ServiceEventListener callback) throws Exception {
-		try {
-			JSONObject serializedMsg = this.checkDateSerialization(message);
-			String  url = mEndpoint + "/" + nName + "/" + id;
-			HashMap<String, String> params = null;
-			HashMap<String, String> headers = new HashMap<String, String>();
-			headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-			headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-			headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-            this.ExecuteTask(url, KZHttpMethod.PUT, params, headers,  callback, serializedMsg, BypassSSLVerification);
-		}
-        catch (Exception e)
-        {
-			ServiceEvent se = new ServiceEvent(this);
-			se.Response = e;
-			se.Body = e.getMessage();
-			se.StatusCode = HttpStatus.SC_BAD_REQUEST;
-            se.Exception = e;
-			callback.onFinish(se);
-		}
-	}
+		CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                try {
+                    JSONObject serializedMsg = checkDateSerialization(message);
+                    String  url = mEndpoint + "/" + nName + "/" + id;
+                    HashMap<String, String> params = null;
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put(Constants.AUTHORIZATION_HEADER, token);
+                    headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                    headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                    // TODO: change true for StrictSSL
+                    new KZServiceAsyncTask(KZHttpMethod.PUT,params,headers,serializedMsg,callback, true).execute(url);
+                }
+                catch (Exception e) {
+                    createServiceEventWithException(e, callback);
+                }
+            }
+        });
+    }
 
-	/**
+    /**
 	 * Gets an object
 	 * 
 	 * @param id The unique identifier of the object
@@ -141,19 +112,28 @@ public class Storage extends KZService {
 		if (id=="" || id==null) {
 			throw new InvalidParameterException();
 		}
-		String  url = mEndpoint + "/" + nName + "/" + id;
-		HashMap<String, String> params = null;
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
-		ServiceEventListener sel = new ServiceEventListener() {
-			@Override
-			public void onFinish(ServiceEvent e) {
-				if(e.Exception==null)
-					callback.onFinish(e);
-			}
-		};
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + nName + "/" + id;
+                HashMap<String, String> params = null;
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER,token);
+
+                ServiceEventListener sel = new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        if(e.Exception==null)
+                            callback.onFinish(e);
+                    }
+                };
+
+                // TODO: change true for StrictSSL
+                new KZServiceAsyncTask(KZHttpMethod.GET ,params,headers, callback, true).execute(url);
+            }
+        });
+
 	}
 
 	/**
@@ -163,12 +143,20 @@ public class Storage extends KZService {
 	 */
 	public void Drop(final ServiceEventListener callback)
 	{
-		String  url = mEndpoint + "/" + nName;
-		HashMap<String, String> params = null;
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers,  callback, BypassSSLVerification);
-	}
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + nName;
+                HashMap<String, String> params = null;
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER,token);
+
+                // TODO: change true for StrictSSL
+                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, true).execute(url);
+            }
+        });
+
+    }
 
 	/**
 	 * Deletes a message from the storage
@@ -181,12 +169,19 @@ public class Storage extends KZService {
 		if (idMessage=="" || idMessage==null) {
 			throw new InvalidParameterException();
 		}
-		String  url = mEndpoint + "/" + nName + "/" + idMessage;
-		HashMap<String, String> params = null;
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers,  callback, BypassSSLVerification);
-	}
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + nName + "/" + idMessage;
+                HashMap<String, String> params = null;
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER,token);
+
+                // TODO: change true for StrictSSL
+                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, true).execute(url);
+            }
+        });
+    }
 
 	/**
 	 * Returns all the objects from the storage
@@ -242,14 +237,21 @@ public class Storage extends KZService {
 		{
 			throw new  InvalidParameterException("query, options or fields, cannot be null or empty");
 		}
-		String  url = mEndpoint + "/" + nName;
-		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("query", query);
-		params.put("options", options);
-		params.put("fields", fields);
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + nName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("query", query);
+                params.put("options", options);
+                params.put("fields", fields);
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER,token);
+                // TODO: change true for StrictSSL
+                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, true).execute(url);
+            }
+        });
+
 	}
 
     /**
@@ -293,4 +295,45 @@ public class Storage extends KZService {
             Create(message, isPrivate, callback);
         }
     }
+
+
+    private void createServiceEventWithException(Exception e, ServiceEventListener callback) {
+        ServiceEvent se = new ServiceEvent(this);
+        se.Response = e;
+        se.Body = e.getMessage();
+        se.StatusCode = HttpStatus.SC_BAD_REQUEST;
+        se.Exception = e;
+        callback.onFinish(se);
+    }
+
+    private JSONObject checkDateSerialization(JSONObject original) throws JSONException {
+        JSONObject updatedMessage = original;
+        JSONObject updatedMetadata = null;
+        try {
+            JSONObject _metadata = original.getJSONObject("_metadata");
+            if (_metadata.get("createdOn").getClass().getName().toLowerCase().contains("date")) {
+                Date createdON = (Date) _metadata.get("createdOn");
+                SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.GMT_DATE_FORMAT);
+                _metadata.remove("createdOn");
+                _metadata.put("createdOn", dateFormat.format(createdON));
+                updatedMetadata = _metadata;
+            }
+            if (_metadata.get("updatedOn").getClass().getName().toLowerCase().contains("date")) {
+                Date createdON = (Date) _metadata.get("updatedOn");
+                SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.GMT_DATE_FORMAT);
+                _metadata.remove("updatedOn");
+                _metadata.put("updatedOn", dateFormat.format(createdON));
+                updatedMetadata = _metadata;
+            }
+            if (updatedMetadata!=null) {
+                updatedMessage.remove("_metadata");
+                updatedMessage.put("_metadata", updatedMetadata);
+            }
+        } catch (JSONException e) {
+            throw e;
+        }
+        return updatedMessage;
+    }
+
+
 }
