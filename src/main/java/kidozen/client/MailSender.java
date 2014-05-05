@@ -68,7 +68,7 @@ public class MailSender extends KZService {
         }
         else
         {
-            this.ExecuteTask(_endpoint, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
+            this.ExecuteTask(_endpoint, KZHttpMethod.POST, params, headers, callback, message, StrictSSL);
         }
     }
 
@@ -148,7 +148,7 @@ public class MailSender extends KZService {
 
                 JSONObject jo = getJsonObjectMessage();
 
-                _mailService.ExecuteTask(_endpoint, KZHttpMethod.POST, _params, _headers, _callback, jo, BypassSSLVerification);
+                _mailService.ExecuteTask(_endpoint, KZHttpMethod.POST, _params, _headers, _callback, jo, StrictSSL);
 
             } catch (Exception e) {
                 _callback.onFinish(new ServiceEvent(this, HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getMessage(), null, e));

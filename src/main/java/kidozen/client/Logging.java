@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import kidozen.client.authentication.KidoZenUser;
+
 /**
  * Log service interface
  * 
@@ -18,18 +20,9 @@ import java.util.HashMap;
  * @version 1.00, April 2013
  */
 public class Logging extends KZService {
-	String _endpoint;
-
-	/**
-	 * Constructor
-	 * 
-	 * You should not create a new instances of this constructor. Instead use Write, Clear, etc. log related methods of the KZApplication object. 
-	 * @param endpoint The Configuration service endpoint
-	 */
-	public Logging(String endpoint)
-	{
-		_endpoint=endpoint;
-	}
+	public Logging(String logging, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(logging,"", provider, username, pass, userIdentity, applicationIdentity);
+    }
 
 	/**
 	 * Writes a new entry in the application Log
@@ -40,17 +33,21 @@ public class Logging extends KZService {
 	 */
 	public void Write(final JSONObject message, final LogLevel level, final ServiceEventListener callback) 
 	{
-		Integer lvl = level.ordinal();
-		String  url = _endpoint + "?level=" + level.ordinal() ;
-		HashMap<String, String> params = new HashMap<String, String>();
+        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                Integer lvl = level.ordinal();
+                String url = mEndpoint + "?level=" + level.ordinal();
 
-		params.put("level", lvl.toString());
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("level", lvl.toString());
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, StrictSSL).execute(url);
+            }
+        });
 	}
 
 	/**
@@ -71,11 +68,15 @@ public class Logging extends KZService {
 	 */
 	public void Clear(final ServiceEventListener callback) 
 	{
-		HashMap<String, String> params = null;
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-
-        this.ExecuteTask(_endpoint, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
+        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                HashMap<String, String> params = null;
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(mEndpoint);
+            }
+        });
 	}
 
 	/**
@@ -133,36 +134,41 @@ public class Logging extends KZService {
 		{
 			throw new  InvalidParameterException("options cannot be empty");
 		}
-        try
-        {
-		    String fixedQuery = checkDateTimeInQuery(query);
-            String  url = _endpoint;
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put("query", fixedQuery);
-            params.put("options", options);
-            HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                try
+                {
+                    String fixedQuery = checkDateTimeInQuery(query);
+                    String  url = mEndpoint;
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    params.put("query", fixedQuery);
+                    params.put("options", options);
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put(Constants.AUTHORIZATION_HEADER,token);
+        
 
+                    ServiceEventListener se = new ServiceEventListener() {
 
-            ServiceEventListener se = new ServiceEventListener() {
+                        @Override
+                        public void onFinish(ServiceEvent e) {
+                            if(e.Exception==null)
+                                callback.onFinish( serializeJsonArray( e ) );
+                        }
+                    };
 
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    if(e.Exception==null)
-                        callback.onFinish( serializeJsonArray( e ) );
+                    new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(url);
                 }
-            };
-
-            this.ExecuteTask(url, KZHttpMethod.GET, params, headers, se, BypassSSLVerification);
-        }
-        catch (Exception e)
-        {
-            ServiceEvent se = new ServiceEvent(this);
-            se.Exception = e;
-            se.Body = e.getMessage();
-            se.StatusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-            callback.onFinish(se);
-        }
+                catch (Exception e)
+                {
+                    ServiceEvent se = new ServiceEvent(this);
+                    se.Exception = e;
+                    se.Body = e.getMessage();
+                    se.StatusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                    callback.onFinish(se);
+                }
+            }
+        });
 	}
 
 	private ServiceEvent serializeJsonArray(ServiceEvent e) 

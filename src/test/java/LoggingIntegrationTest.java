@@ -1,4 +1,5 @@
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -33,7 +34,6 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class LoggingIntegrationTest {
 
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
@@ -47,14 +47,14 @@ public class LoggingIntegrationTest {
     {
         try {
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, kidoInitCallback(signal));
             kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
-            signal.await();
+            signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
             _storage = kidozen.Storage(KZ_STORAGE_SERVICEID);
         }
         catch (Exception e)
         {
-            fail();
+            fail(e.getMessage());
         }
     }
     @Test
@@ -94,6 +94,21 @@ public class LoggingIntegrationTest {
         });
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldCreateMessageUsingKey() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+
+        KZApplication k = new KZApplication(IntegrationTestConfiguration.KZ_TENANT,
+                IntegrationTestConfiguration.KZ_APP,
+                IntegrationTestConfiguration.KZ_KEY,
+                false,
+                kidoInitCallback(lcd));
+
+        k.WriteLog("LoggingIntegrationTests",LogLevel.LogLevelCritical, createCallback(lcd));
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+
     }
 
     //

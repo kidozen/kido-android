@@ -209,7 +209,7 @@ public class TokenRenewTest {
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
             }
         });
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES * 1000 * 60 + IntegrationTestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS * 1000 * 60 + IntegrationTestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT, TimeUnit.MILLISECONDS));
     }
     */
 }

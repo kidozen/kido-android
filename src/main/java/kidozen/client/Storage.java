@@ -47,15 +47,15 @@ public class Storage extends KZService {
         CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
             @Override
             public void Fire(String message) {
-                String  url = mEndpoint + "/" + nName;
+                String  url = mEndpoint + "/" + mName;
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("isPrivate", (isPrivate ? "true" : "false"));
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, message);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                // TODO: change true for StrictSSL
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,jMessage,callback, true).execute(url);
+
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,jMessage,callback, StrictSSL).execute(url);
             }
         });
     }
@@ -85,14 +85,14 @@ public class Storage extends KZService {
             public void Fire(String token) {
                 try {
                     JSONObject serializedMsg = checkDateSerialization(message);
-                    String  url = mEndpoint + "/" + nName + "/" + id;
+                    String  url = mEndpoint + "/" + mName + "/" + id;
                     HashMap<String, String> params = null;
                     HashMap<String, String> headers = new HashMap<String, String>();
                     headers.put(Constants.AUTHORIZATION_HEADER, token);
                     headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                     headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                    // TODO: change true for StrictSSL
-                    new KZServiceAsyncTask(KZHttpMethod.PUT,params,headers,serializedMsg,callback, true).execute(url);
+
+                    new KZServiceAsyncTask(KZHttpMethod.PUT,params,headers,serializedMsg,callback, StrictSSL).execute(url);
                 }
                 catch (Exception e) {
                     createServiceEventWithException(e, callback);
@@ -116,7 +116,7 @@ public class Storage extends KZService {
         CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
-                String  url = mEndpoint + "/" + nName + "/" + id;
+                String  url = mEndpoint + "/" + mName + "/" + id;
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
@@ -129,8 +129,7 @@ public class Storage extends KZService {
                     }
                 };
 
-                // TODO: change true for StrictSSL
-                new KZServiceAsyncTask(KZHttpMethod.GET ,params,headers, callback, true).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.GET ,params,headers, callback, StrictSSL).execute(url);
             }
         });
 
@@ -146,13 +145,12 @@ public class Storage extends KZService {
         CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
-                String  url = mEndpoint + "/" + nName;
+                String  url = mEndpoint + "/" + mName;
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                // TODO: change true for StrictSSL
-                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, true).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, StrictSSL).execute(url);
             }
         });
 
@@ -172,13 +170,12 @@ public class Storage extends KZService {
         CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
-                String  url = mEndpoint + "/" + nName + "/" + idMessage;
+                String  url = mEndpoint + "/" + mName + "/" + idMessage;
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                // TODO: change true for StrictSSL
-                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, true).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, StrictSSL).execute(url);
             }
         });
     }
@@ -240,15 +237,15 @@ public class Storage extends KZService {
         CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
-                String  url = mEndpoint + "/" + nName;
+                String  url = mEndpoint + "/" + mName;
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("query", query);
                 params.put("options", options);
                 params.put("fields", fields);
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
-                // TODO: change true for StrictSSL
-                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, true).execute(url);
+
+                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(url);
             }
         });
 

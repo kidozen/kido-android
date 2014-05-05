@@ -70,7 +70,7 @@ public class Files extends KZService  implements Observer {
         String url = mEndpoint + nameAndPath.getValue();
 
         this.ProcessAsStream = true;
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback,fileStream, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback,fileStream, StrictSSL);
 	}
 
     /**
@@ -95,7 +95,7 @@ public class Files extends KZService  implements Observer {
 
         String url = mEndpoint + fullFilePath;
         this.ProcessAsStream = true;
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, StrictSSL);
     }
     /**
      * Deletes a file
@@ -117,7 +117,7 @@ public class Files extends KZService  implements Observer {
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
         String url = mEndpoint + path;
-        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, StrictSSL);
     }
     /**
      * Browse the folder
@@ -141,7 +141,7 @@ public class Files extends KZService  implements Observer {
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
         String url = mEndpoint + path;
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, StrictSSL);
     }
 
     private AbstractMap.SimpleEntry<String, String> getNameAndPath(String fullFilePath)

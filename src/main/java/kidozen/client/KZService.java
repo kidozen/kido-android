@@ -18,7 +18,7 @@ import kidozen.client.authentication.KidoZenUser;
 
 public class KZService {
     public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;
-    public Boolean BypassSSLVerification = false;
+    public Boolean StrictSSL = true;
     private IdentityManager _authenticationManager;
     private ServiceEventListener _authenticateCallback;
 
@@ -38,7 +38,7 @@ public class KZService {
     private String _scope;
     private String _authScope;
 
-    protected String nName;
+    protected String mName;
     protected String mEndpoint;
     protected KidoZenUser mUserIdentity = new KidoZenUser();
     protected KidoZenUser mApplicationIdentity = new KidoZenUser();
@@ -83,6 +83,7 @@ public class KZService {
             });
         }
         else {
+            //TODO: Porque queda en null cuando tengo 2 KZApplications distintos!??
             IdentityManager.getInstance().GetRawToken(mApplicationIdentity.HashKey, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
@@ -106,7 +107,7 @@ public class KZService {
         _username = username;
         _password = pass;
         mEndpoint = endpoint;
-        nName = name;
+        mName = name;
         this.mApplicationIdentity = applicationIdentity;
         this.mUserIdentity = userIdentity;
     }
@@ -256,7 +257,7 @@ public class KZService {
         _authenticationManager = IdentityManager.getInstance();
 
         //new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
-        //_authenticationManager.bypassSSLValidation = BypassSSLVerification;
+        //_authenticationManager.bypassSSLValidation = StrictSSL;
     }
 
     public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){

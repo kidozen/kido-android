@@ -60,7 +60,7 @@ public class Notification extends KZService implements Observer {
 		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
 		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-        this.ExecuteTask(url,KZHttpMethod.POST, null, headers, callback,new JSONObject(s), BypassSSLVerification);
+        this.ExecuteTask(url,KZHttpMethod.POST, null, headers, callback,new JSONObject(s), StrictSSL);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class Notification extends KZService implements Observer {
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
-        this.ExecuteTask(url,KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
+        this.ExecuteTask(url,KZHttpMethod.DELETE, params, headers, callback, StrictSSL);
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Notification extends KZService implements Observer {
 		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
 		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-        this.ExecuteTask(url, KZHttpMethod.POST, null, headers, callback, data, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.POST, null, headers, callback, data, StrictSSL);
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class Notification extends KZService implements Observer {
 		HashMap<String, String> params = new HashMap<String, String>();
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, StrictSSL);
 	}
 
 	/* (non-Javadoc)

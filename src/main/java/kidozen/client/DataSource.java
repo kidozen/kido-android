@@ -41,7 +41,7 @@ public class DataSource extends KZService {
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
     }
     /**
      * Invokes a Query DataSource
@@ -68,7 +68,7 @@ public class DataSource extends KZService {
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, new JSONObject(), BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, new JSONObject(), StrictSSL);
     }
     /**
      * Invokes a DataSource
@@ -100,7 +100,7 @@ public class DataSource extends KZService {
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, StrictSSL);
     }
 
     /**
@@ -144,6 +144,6 @@ public class DataSource extends KZService {
         headers.put(Constants.AUTHORIZATION_HEADER, CreateAuthHeaderValue());
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
     }
 }

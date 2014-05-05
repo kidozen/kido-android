@@ -58,6 +58,6 @@ public class Service extends KZService {
         if (timeout>0)
             headers.put(SERVICETIMEOUT_HEADER, Integer.toString(timeout));
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, BypassSSLVerification);
+        this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, StrictSSL);
     }
 }

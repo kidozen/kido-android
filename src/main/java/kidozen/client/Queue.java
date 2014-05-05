@@ -4,6 +4,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import kidozen.client.authentication.KidoZenUser;
+
 /**
  * Queue service interface
  * 
@@ -12,22 +14,9 @@ import java.util.HashMap;
  */
 public class Queue  extends KZService {
 	private static final String TAG = "Queue";
-	String _endpoint;
-	String _name;
-	
-	/**
-	 * Constructor
-	 * 
-	 * You should not create a new instances of this constructor. Instead use the PubSubChannel[""] method of the KZApplication object. 
-	 * @param endpoint The service endpoint
-	 * @param name The name of the queue to be created
-	 */
-	public Queue(String endpoint, String name)
-	{
-		_endpoint=endpoint;
-		_name = name;
-	}
-
+	public Queue(String queue, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(queue,"", provider, username, pass, userIdentity, applicationIdentity);
+    }
 	/**
 	 * Enqueues a message
 	 * 
@@ -36,15 +25,20 @@ public class Queue  extends KZService {
 	 */
 	public void Enqueue(final JSONObject message, final ServiceEventListener callback) 
 	{
-		String  url = _endpoint + "/" + _name;
-		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("isPrivate","true");
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + mName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("isPrivate","true");
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, StrictSSL).execute(url);
+            }
+        });
 	}
 
 
@@ -55,13 +49,17 @@ public class Queue  extends KZService {
 	 */
 	public void Dequeue(final ServiceEventListener callback) 
 	{
-		String  url = _endpoint + "/" + _name + "/next";
+        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + mName + "/next";
 
-		HashMap<String, String> params = null;
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                HashMap<String, String> params = null;
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
 
-        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
-	}
-
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(mEndpoint);
+            }
+        });
+       }
 }

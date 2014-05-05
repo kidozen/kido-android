@@ -27,6 +27,11 @@ class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
     private Exception _exception;
     public boolean IsInitialized = false;
 
+    public void Setup(ServiceEventListener cb, boolean strictSSL){
+        _strictSSL = strictSSL;
+        _callback = cb;
+    }
+
     @Override
     protected JSONObject doInBackground(String... params) {
         try {
@@ -48,18 +53,21 @@ class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
         finally {
             return  _settings;
         }
+
     }
 
     @Override
     protected void onPostExecute(JSONObject jsonObject) {
         super.onPostExecute(jsonObject);
-        if (jsonObject!=null) {
-            IsInitialized = true;
-            _callback.onFinish(new ServiceEvent(this, _statusCode, _response, jsonObject));
-        }
-        else {
-            IsInitialized = false;
-            _callback.onFinish(new ServiceEvent(this, _statusCode, _response, null, _exception));
+        if (_callback!=null) {
+            if (jsonObject!=null) {
+                IsInitialized = true;
+                _callback.onFinish(new ServiceEvent(this, _statusCode, _response, jsonObject));
+            }
+            else {
+                IsInitialized = false;
+                _callback.onFinish(new ServiceEvent(this, _statusCode, _response, null, _exception));
+            }
         }
     }
 
@@ -71,34 +79,23 @@ class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
         return _settings.getJSONObject(name);
     }
 
-    private KidoAppSettings(Boolean strictSSL) {
-        _strictSSL = strictSSL;
+    private KidoAppSettings() {
     }
 
-    // Private constructor suppresses
-    private KidoAppSettings(ServiceEventListener cb, Boolean strictSSL) {
-        this(strictSSL);
-        _callback = cb;
-    }
-
-    private static void createInstance(ServiceEventListener cb, Boolean strictSSL) {
+    private static void createInstance() {
         if (INSTANCE == null) {
             // synchronized to avoid possible  multi-thread issues
             synchronized(IdentityManager.class) {
                 // must check for null again
                 if (INSTANCE == null) {
-                    INSTANCE = new KidoAppSettings(cb, strictSSL);
+                    INSTANCE = new KidoAppSettings();
                 }
             }
         }
     }
 
     public static KidoAppSettings getInstance() {
-        return INSTANCE;
-    }
-
-    public static KidoAppSettings getInstance(ServiceEventListener cb, Boolean strictSSL) {
-        createInstance(cb, strictSSL);
+        createInstance();
         return INSTANCE;
     }
 }

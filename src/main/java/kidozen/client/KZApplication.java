@@ -123,13 +123,13 @@ public class KZApplication  {
         if (!_tenantMarketPlace.endsWith("/")) _tenantMarketPlace = _tenantMarketPlace + "/";
 
         String url = _tenantMarketPlace + Constants.PUBLICAPI_PATH + _applicationName;
-
+        _applicationConfiguration = KidoAppSettings.getInstance();
         if (applicationKey != Constants.UNSET_APPLICATION_KEY) {
             // chains the getSettings callback with the keyAuth callback
-            _applicationConfiguration = KidoAppSettings.getInstance(new InitializationWithKeyCallback(callback), this.StrictSSL);
+            _applicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
         }
         else {
-            _applicationConfiguration = KidoAppSettings.getInstance(callback, this.StrictSSL);
+            _applicationConfiguration.Setup(callback, this.StrictSSL);
         }
         _applicationConfiguration.execute(url).get();
     }
@@ -163,7 +163,7 @@ public class KZApplication  {
 	{
 		Notification notification= new Notification( _applicationConfiguration.GetSettingAsString("notification"), _applicationName);
 		notification.mUserIdentity = this.userIdentity;
-		notification.BypassSSLVerification = !StrictSSL;
+		notification.StrictSSL = !StrictSSL;
 		return notification;
 	}
 
@@ -176,9 +176,16 @@ public class KZApplication  {
 	 */
 	public Configuration Configuration(String name) throws Exception{
 		checkMethodParameters(name);
-		Configuration configuration =new  Configuration(_applicationConfiguration.GetSettingAsString("configuration"), name);
-		configuration.mUserIdentity = this.userIdentity;
-		configuration.BypassSSLVerification = !StrictSSL;
+		Configuration configuration =new  Configuration(_applicationConfiguration.GetSettingAsString("configuration"),
+                name,
+                _provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
+
+        configuration.mUserIdentity = this.userIdentity;
+		configuration.StrictSSL = !StrictSSL;
 		return configuration;
 	}
 
@@ -192,9 +199,15 @@ public class KZApplication  {
 	public Queue Queue (String name) throws Exception
 	{
 		checkMethodParameters(name);
-		Queue queue= new Queue(_applicationConfiguration.GetSettingAsString("queue"), name);
+		Queue queue= new Queue(_applicationConfiguration.GetSettingAsString("queue"),
+                name,
+                _provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
 		queue.mUserIdentity = this.userIdentity;
-		queue.BypassSSLVerification = !StrictSSL;
+		queue.StrictSSL = !StrictSSL;
 		return queue;
 	}
 
@@ -214,7 +227,7 @@ public class KZApplication  {
                 _password,
                 userIdentity,
                 applicationIdentity);
-		storage.BypassSSLVerification = !StrictSSL;
+		storage.StrictSSL = StrictSSL;
 		return storage;
 	}
 
@@ -229,7 +242,7 @@ public class KZApplication  {
 		checkMethodParameters(number);
 		SMSSender sender = new SMSSender(_applicationConfiguration.GetSettingAsString("sms"), number);
 		sender.mUserIdentity = this.userIdentity;
-		sender.BypassSSLVerification = !StrictSSL;
+		sender.StrictSSL = !StrictSSL;
 		return sender;
 	}
 
@@ -248,7 +261,7 @@ public class KZApplication  {
         {
             _mailSender = new MailSender(_applicationConfiguration.GetSettingAsString("email"));
             _mailSender.mUserIdentity = this.userIdentity;
-            _mailSender.BypassSSLVerification = !StrictSSL;
+            _mailSender.StrictSSL = !StrictSSL;
         }
 
 		_mailSender.Send( mail,  callback) ;
@@ -293,11 +306,17 @@ public class KZApplication  {
 	}
 
     private void checkApplicationLog() throws Exception {
-    if (_applicationLog==null)
+        if (_applicationLog==null)
         {
-            _applicationLog = new Logging(_applicationConfiguration.GetSettingAsString("logging"));
+            _applicationLog = new Logging(
+                    _applicationConfiguration.GetSettingAsString("logging"),
+                    _provider,
+                    _username,
+                    _password,
+                    userIdentity,
+                    applicationIdentity);
             _applicationLog.mUserIdentity = this.userIdentity;
-            _applicationLog.BypassSSLVerification = !StrictSSL;
+            _applicationLog.StrictSSL = !StrictSSL;
         }
     }
 
@@ -355,7 +374,7 @@ public class KZApplication  {
     public Files FileStorage() throws Exception{
         Files files = new Files(_applicationConfiguration.GetSettingAsString("files"));
         files.mUserIdentity = this.userIdentity;
-        files.BypassSSLVerification = !StrictSSL;
+        files.StrictSSL = !StrictSSL;
         return files;
     }
 	private void checkMethodParameters(String name) throws InvalidParameterException {
@@ -471,7 +490,7 @@ public class KZApplication  {
         checkMethodParameters(name);
         Service service = new Service(_applicationConfiguration.GetSettingAsString("url"), name);
         service.mUserIdentity = this.userIdentity;
-        service.BypassSSLVerification = !StrictSSL;
+        service.StrictSSL = !StrictSSL;
         return service;
     }
 
@@ -486,7 +505,7 @@ public class KZApplication  {
         checkMethodParameters(name);
         DataSource service = new DataSource(_applicationConfiguration.GetSettingAsString("datasource"), name);
         service.mUserIdentity = this.userIdentity;
-        service.BypassSSLVerification = !StrictSSL;
+        service.StrictSSL = !StrictSSL;
         return service;
     }
 

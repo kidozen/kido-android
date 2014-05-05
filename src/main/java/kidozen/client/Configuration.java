@@ -4,6 +4,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import kidozen.client.authentication.KidoZenUser;
+
 
 /**
  * Configuration service interface
@@ -13,31 +15,9 @@ import java.util.HashMap;
  *
  */
 public class Configuration  extends KZService {
-	String _endpoint;
-	String _name;
-
-	/**
-	 * Constructor
-	 * 
-	 * You should not create a new instances of this constructor. Instead use the Configuration[""] method of the KZApplication object. 
-	 * @param endpoint The Configuration service endpoint
-	 */
-	public Configuration(String endpoint)
-	{
-		_endpoint=endpoint;
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param endpoint The Configuration service endpoint
-	 * @param name The name of the configuration 
-	 */
-	public Configuration(String endpoint, String name)
-	{
-		_endpoint=endpoint;
-		_name = name;
-	}
+	public Configuration(String configuration,String name,  String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(configuration,name, provider, username, pass, userIdentity, applicationIdentity);
+    }
 
 	/**
 	 * Save the value of the configuration
@@ -47,15 +27,18 @@ public class Configuration  extends KZService {
 	 */
 	public void Save(final JSONObject message, final ServiceEventListener callback) 
 	{
-		String  url = _endpoint + "/" + _name; 
-		HashMap<String, String> params = new HashMap<String, String>();
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, message, BypassSSLVerification);
-
+        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + mName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, StrictSSL).execute(url);
+            }
+        });
 	}
 
 	/**
@@ -65,12 +48,17 @@ public class Configuration  extends KZService {
 	 */
 	public void Get(final ServiceEventListener callback) 
 	{
-		String  url = _endpoint + "/" + _name; 
-		HashMap<String, String> params = new HashMap<String, String>();
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + mName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
 
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
+                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(url);
+            }
+        });
 	}
 
 	/**
@@ -88,13 +76,18 @@ public class Configuration  extends KZService {
 	 */
 	public void Delete(final ServiceEventListener callback) 
 	{
-		String  url = _endpoint + "/" + _name; 
-		HashMap<String, String> params = new HashMap<String, String>();
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + mName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
 
-        this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, BypassSSLVerification);
-	}
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
+            }
+        });
+    }
 
 	/**
 	 * Pulls all the configuration values
@@ -103,11 +96,15 @@ public class Configuration  extends KZService {
 	 */
 	public void All(final ServiceEventListener callback) 
 	{
-		String  url = _endpoint + "/" + _name; 
-		HashMap<String, String> params = new HashMap<String, String>();
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, BypassSSLVerification);
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                String  url = mEndpoint + "/" + mName;
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
+            }
+        });
 	}
 }
