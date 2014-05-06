@@ -34,43 +34,38 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
-public class EnterpriseServiceIntegrationTest {
-    private static final String KZ_SHAREFILE_GETAUTHID_METHODID = "getAuthID";
-    private static final String KZ_SHAREFILE_INVALID_METHODID = "Invalid";
+public class EApiIntegrationTest {
+    private static final String KZ_SERVICE_METHODID = "get";
+    private static final String KZ_SERVICE_INVALID_METHODID = "Invalid";
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
-
+    private JSONObject data = new JSONObject();
     KZApplication kidozen = null;
-    private JSONObject data;
 
     @Before
     public void Setup()
     {
         try {
-            data = new JSONObject();
-            data.put("username", IntegrationTestConfiguration.KZ_SHAREFILE_USER);
-            data.put("password", IntegrationTestConfiguration.KZ_SHAREFILE_PASS);
-
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, kidoInitCallback(signal));
             kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS,kidoAuthCallback(signal));
             signal.await();
+            data.put("path","?q=buenos aires,ar");
         }
         catch (Exception e)
         {
-            fail();
+            fail(e.getMessage());
         }
     }
 
     //@Test
     public void CallInvalidAgentShouldReturnException() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        Service fileshare = kidozen.LOBService(IntegrationTestConfiguration.KZ_SHAREFILE_SERVICEID);
-        fileshare.InvokeMethod(KZ_SHAREFILE_GETAUTHID_METHODID, data, new ServiceEventListener() {
+        Service service = kidozen.LOBService(IntegrationTestConfiguration.KZ_SERVICEID);
+        service.InvokeMethod(KZ_SERVICE_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertEquals(e.StatusCode, HttpStatus.SC_BAD_REQUEST);
-                assertEquals(e.Body,"There aren't any agent online that handles invocations to service 'ShareFile'");
+                assertEquals(e.Body, "There aren't any agent online that handles invocations to service 'ShareFile'");
                 lcd.countDown();
             }
         });
@@ -79,8 +74,8 @@ public class EnterpriseServiceIntegrationTest {
     @Test
     public void ShouldInvokeMethod() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        Service fileshare = kidozen.LOBService(IntegrationTestConfiguration.KZ_SHAREFILE_SERVICEID);
-        fileshare.InvokeMethod(KZ_SHAREFILE_GETAUTHID_METHODID, data, new ServiceEventListener() {
+        Service service = kidozen.LOBService(IntegrationTestConfiguration.KZ_SERVICEID);
+        service.InvokeMethod(KZ_SERVICE_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
@@ -92,8 +87,8 @@ public class EnterpriseServiceIntegrationTest {
     @Test
     public void InvokeMethodShouldReturnException() throws Exception{
         final CountDownLatch lcd = new CountDownLatch(1);
-        Service fileshare = kidozen.LOBService(IntegrationTestConfiguration.KZ_SHAREFILE_SERVICEID);
-        fileshare.InvokeMethod(KZ_SHAREFILE_INVALID_METHODID, data, new ServiceEventListener() {
+        Service service = kidozen.LOBService(IntegrationTestConfiguration.KZ_SERVICEID);
+        service.InvokeMethod(KZ_SERVICE_INVALID_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertNotNull(e.Exception);

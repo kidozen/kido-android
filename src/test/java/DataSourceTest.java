@@ -32,8 +32,8 @@ import static org.junit.Assert.fail;
 
 public class DataSourceTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 5;
-    private static final String OPERATION_DATASOURCE_NAME = "test-operation";
-    private static final String QUERY_DATASOURCE_NAME = "test-query";
+    private static final String OPERATION_DATASOURCE_NAME = "WeatherBsAs";
+    private static final String QUERY_DATASOURCE_NAME = "WeatherBsAs";
     private static final String OPERATION_PARAMS_DATASOURCE_NAME = "test-operation-params";
     private static final String QUERY_PARAMS_DATASOURCE_NAME = "test-query-params";
     KZApplication kidozen = null;
@@ -71,6 +71,7 @@ public class DataSourceTest {
     }
 
     @Test
+    @Ignore
     public void ShouldCallQueryInDataSourceWithParams() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATASOURCE_NAME);
@@ -87,6 +88,7 @@ public class DataSourceTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
+    @Ignore
     public void ShouldCallOperationInDataSourceWithParams() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(OPERATION_PARAMS_DATASOURCE_NAME);
@@ -104,6 +106,7 @@ public class DataSourceTest {
     }
 
     @Test
+    @Ignore
     public void ShouldCallQueryInDataSource() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_DATASOURCE_NAME);

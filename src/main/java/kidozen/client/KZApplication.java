@@ -498,7 +498,13 @@ public class KZApplication  {
      */
     public Service LOBService(String name) throws Exception {
         checkMethodParameters(name);
-        Service service = new Service(_applicationConfiguration.GetSettingAsString("url"), name);
+        Service service = new Service(_applicationConfiguration.GetSettingAsString("url"), name,
+                _provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
+
         service.mUserIdentity = this.userIdentity;
         service.StrictSSL = !StrictSSL;
         return service;

@@ -12,9 +12,7 @@ public class IntegrationTestConfiguration {
     public static  String KZ_PASS;
     public static  String KZ_PROVIDER;
 
-    public static  String KZ_SHAREFILE_SERVICEID;
-    public static  String KZ_SHAREFILE_USER;
-    public static  String KZ_SHAREFILE_PASS;
+    public static  String KZ_SERVICEID;
 
     public static  String KZ_EMAIL_TO;
     public static  String KZ_EMAIL_FROM;
@@ -41,9 +39,7 @@ public class IntegrationTestConfiguration {
                 KZ_USER = settings.get("kz_usr").toString();
                 KZ_PASS = settings.get("kz_pass").toString();
                 KZ_PROVIDER= settings.get("kz_provider").toString();
-                KZ_SHAREFILE_PASS = settings.get("kz_sharefile_pass").toString();
-                KZ_SHAREFILE_SERVICEID = settings.get("kz_sharefile_serviceid").toString();
-                KZ_SHAREFILE_USER = settings.get("kz_sharefile_user").toString();
+                KZ_SERVICEID = settings.get("kz_serviceid").toString();
                 KZ_EMAIL_FROM = settings.get("kz_email_from").toString();
                 KZ_EMAIL_TO = settings.get("kz_email_to").toString();
                 KZ_EMAIL_ATTACH = settings.get("kz_email_attach").toString();
@@ -53,9 +49,7 @@ public class IntegrationTestConfiguration {
                 System.out.print("Application: " + KZ_APP + "\n");
                 System.out.print("User: " + KZ_USER + "\n");
                 System.out.print("Password: " + KZ_PASS + "\n");
-                System.out.print("ShareFile Password: " + KZ_SHAREFILE_PASS + "\n");
-                System.out.print("ShareFile Service ID: " + KZ_SHAREFILE_SERVICEID+ "\n");
-                System.out.print("ShareFile User: " + KZ_SHAREFILE_USER + "\n");
+                System.out.print("ShareFile Service ID: " + KZ_SERVICEID + "\n");
                 System.out.print("Email from: " + KZ_EMAIL_FROM + "\n");
                 System.out.print("Email to: " + KZ_EMAIL_TO + "\n");
                 System.out.print("Email Attach Path: " + KZ_EMAIL_ATTACH + "\n");
@@ -82,9 +76,7 @@ public class IntegrationTestConfiguration {
         KZ_APP =                "ioscrashapp";
         KZ_USER =               "contoso@kidozen.com";
         KZ_PASS =               "pass";
-        KZ_SHAREFILE_PASS =     "your sharefile secret";
-        KZ_SHAREFILE_SERVICEID ="sharefile";
-        KZ_SHAREFILE_USER =     "your sharefile user";
+        KZ_SERVICEID =          "Weather";
         KZ_EMAIL_FROM =         "someone@kidozen.com.com";
         KZ_EMAIL_TO =           "chris@kidozen.com";
         KZ_EMAIL_ATTACH =       "/Users/christian/hosts";
