@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import kidozen.client.KZApplication;
+import kidozen.client.PubSubChannel;
 import kidozen.client.Service;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
@@ -100,7 +101,6 @@ public class EApiIntegrationTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
     }
-
     //
     private ServiceEventListener kidoInitCallback(final CountDownLatch signal) {
         return new ServiceEventListener() {

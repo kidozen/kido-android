@@ -311,6 +311,10 @@ public class IdentityManager {
         }
     }
 
+    public void SignOut(String cacheKey) {
+        _tokensCache.remove(cacheKey);
+    }
+
     //Calls IP and then KidoZen identity provider to get the token
     private class FederatedIdentity extends AsyncTask<String, Void, Object[]> {
         IIdentityProvider _identityProvider;

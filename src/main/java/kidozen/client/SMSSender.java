@@ -15,27 +15,13 @@ import kidozen.client.authentication.KidoZenUser;
  * @author kidozen
  * @version 1.00, April 2013
  */
-public class SMSSender extends KZService  implements Observer {
+public class SMSSender extends KZService {
 	private static final String TAG = "SMSSender";
-	String _endpoint;
 	String _number;
-	
-	public void update(Observable observable, Object data) {
-		Log.d(TAG, "token updated");
-		this.mUserIdentity = (KidoZenUser) data;
-	}
-	
-	
-	/**
-	 * Constructor
-	 * 
-	 * You should not create a new instances of this constructor. Instead use the SMSSender["number"] method of the KZApplication object. 
-	 * @param endpoint The service endpoint
-	 * @param number The sms number to send messages
-	 */
-	public SMSSender(String endpoint, String number)
-	{
-		_endpoint=endpoint;
+
+	public SMSSender(String endpoint, String number, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(endpoint, number, provider, username, pass, userIdentity, applicationIdentity);
+		mEndpoint=endpoint;
 		_number = number;
 	}
 
@@ -48,20 +34,26 @@ public class SMSSender extends KZService  implements Observer {
 	@SuppressWarnings("deprecation")
 	public void Send(final String message, final ServiceEventListener callback) 
     {
-		String encodedNumber =  URLEncoder.encode(_number);
-		String encodedMessage =  URLEncoder.encode(message);
-		String  url = _endpoint;
-		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("to", encodedNumber);
-		params.put("message", encodedMessage);
-		
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
-		headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-		headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
 
-        this.ExecuteTask(url, KZHttpMethod.POST, params, headers, callback, StrictSSL);
-	}
+                String encodedNumber =  URLEncoder.encode(_number);
+                String encodedMessage =  URLEncoder.encode(message);
+                String  url = mEndpoint;
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("to", encodedNumber);
+                params.put("message", encodedMessage);
+
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, callback, StrictSSL).execute(url);
+            }
+        });
+
+    }
 
     /**
      * Get the status of one message: Sent or queued
@@ -71,11 +63,17 @@ public class SMSSender extends KZService  implements Observer {
      */
     public void GetStatus(final String messageId,  final ServiceEventListener callback) 
     {
-    	String  url = _endpoint + "/" + messageId;
-		HashMap<String, String> params = new HashMap<String, String>();
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
 
-        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, StrictSSL);
+            String  url = mEndpoint + "/" + messageId;
+            HashMap<String, String> params = new HashMap<String, String>();
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put(Constants.AUTHORIZATION_HEADER, token);
+
+            new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+            }
+        });
     }
 }

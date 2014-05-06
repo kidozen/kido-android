@@ -12,7 +12,7 @@ import kidozen.client.authentication.KidoZenUser;
  */
 public class DataSource extends KZService {
 
-    public DataSource(String ds, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+    public DataSource(String ds, String name, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(ds,name, provider, username, pass, userIdentity, applicationIdentity);
     }
 

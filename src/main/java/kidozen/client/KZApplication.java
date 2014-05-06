@@ -135,24 +135,24 @@ public class KZApplication  {
     }
 
 
-	/**
-     * TODO: Revisar cuidadosamente esto
-	 * Creates a new PubSubChannel object
-	 * 
-	 * @param name The name that references the channel instance
-	 * @return A new PubSubChannel object
-	 * @throws Exception
-
 	public PubSubChannel PubSubChannel(String name) throws Exception{
 		checkMethodParameters(name);
-		PubSubChannel channel = new PubSubChannel(_wsSubscriberEndpoint, _publisherEndpoint, name, this.userIdentity, !StrictSSL);
-        channel.setKidozenUser(this.userIdentity);
-        channel._bypassSSLVerification = !StrictSSL;
-        channel.SetCredentials(_provider, _username, _password, null);
-        channel.SetAuthenticateParameters(_tenantMarketPlace, _applicationName, _identityProviders, _applicationScope, _authServiceScope, _authServiceEndpoint, _ipEndpoint);
-		return channel;
+		PubSubChannel channel = new PubSubChannel(
+                _applicationConfiguration.GetSettingAsString("pubsub"),
+                _applicationConfiguration.GetSettingAsString("ws"),
+                name,
+                _provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
+
+        channel.mUserIdentity = this.userIdentity;
+        channel.StrictSSL = !StrictSSL;
+
+        return channel;
 	}
-     */
+
 	/**
 	 * Push notification service main entry point
 	 * 
@@ -161,8 +161,14 @@ public class KZApplication  {
 	 */
 	public Notification Notification () throws Exception
 	{
-		Notification notification= new Notification( _applicationConfiguration.GetSettingAsString("notification"), _applicationName);
-		notification.mUserIdentity = this.userIdentity;
+		Notification notification= new Notification( _applicationConfiguration.GetSettingAsString("notification"), _applicationName,
+                _provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
+
+        notification.mUserIdentity = this.userIdentity;
 		notification.StrictSSL = !StrictSSL;
 		return notification;
 	}
@@ -240,8 +246,13 @@ public class KZApplication  {
 	 */
 	public SMSSender SMSSender(String number) throws Exception{
 		checkMethodParameters(number);
-		SMSSender sender = new SMSSender(_applicationConfiguration.GetSettingAsString("sms"), number);
-		sender.mUserIdentity = this.userIdentity;
+		SMSSender sender = new SMSSender(_applicationConfiguration.GetSettingAsString("sms"), number,_provider,
+                _username,
+                _password,
+                userIdentity,
+                applicationIdentity);
+
+        sender.mUserIdentity = this.userIdentity;
 		sender.StrictSSL = !StrictSSL;
 		return sender;
 	}
@@ -400,7 +411,12 @@ public class KZApplication  {
 	 */
 	public void SignOut()
 	{
-        //TODO: super.SignOut();
+        if (userIdentity!=null) {
+            IdentityManager.getInstance().SignOut(userIdentity.HashKey);
+        }
+        if (applicationIdentity!=null) {
+            IdentityManager.getInstance().SignOut(applicationIdentity.HashKey);
+        }
 		Authenticated = false;
 	}
 
