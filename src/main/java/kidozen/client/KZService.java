@@ -23,10 +23,6 @@ public class KZService {
     private ServiceEventListener _authenticateCallback;
 
     String _ipEndpoint;
-	String _applicationScope;
-	String _authServiceScope;
-	String _domain;
-    String _oauthTokenEndpoint;
     String _authServiceEndpoint;
     String _applicationName;
     String _tenantMarketPlace;
@@ -56,19 +52,6 @@ public class KZService {
     * AuthHeader value to the requested service, it checks if the auth timeout has been reached and executes authentication
     * to get a new token again.
     * */
-    public String CreateAuthHeaderValue()
-	{
-        // User Identity is the higher priority
-        if (mUserIdentity != null) {
-            IdentityManager.getInstance().GetRawToken(mUserIdentity.HashKey, new ServiceEventListener() {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    mUserIdentity = ((KidoZenUser) e.Response);
-                }
-            });
-        }
-        return "WRAP access_token=\"" + mUserIdentity.Token +"\"";
-    }
 
     public void CreateAuthHeaderValue (String provider, String uname, String secret, final KZServiceEvent<String> cb )
     {
@@ -112,17 +95,8 @@ public class KZService {
         this.mUserIdentity = userIdentity;
     }
 
-    public void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
-    {
-        new KZServiceAsyncTask(method,params,headers,callback, bypassSSLValidation).execute(url);
-    }
-
     public void ExecuteTask(String url, KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, JSONObject message,Boolean bypassSSLValidation)
     {
-        new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
-    }
-
-    public void ExecuteTask(String url, KZHttpMethod method, HashMap<String,String> params, HashMap<String,String> headers, ServiceEventListener callback, InputStream message, Boolean bypassSSLValidation) {
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
 
@@ -242,31 +216,6 @@ public class KZService {
         }
 
     }
-
-    //TODO: only used in PubSubChannel
-
-    protected void SetAuthenticateParameters(String marketplace, String application, Map<String, JSONObject> providers, String scope, String authScope, String authServiceEndpoint, String ipEndpoint) {
-        _tenantMarketPlace = marketplace;
-        _applicationName = application;
-        _providers = providers;
-        _scope = scope;
-        _authScope = authScope;
-        _authServiceEndpoint = authServiceEndpoint;
-        _ipEndpoint = ipEndpoint;
-
-        _authenticationManager = IdentityManager.getInstance();
-
-        //new AuthenticationManager(_tenantMarketPlace, _applicationName, _providers, _scope,  _authScope, _authServiceEndpoint, _ipEndpoint, this.tokenUpdater);
-        //_authenticationManager.bypassSSLValidation = StrictSSL;
-    }
-
-    public void SetCredentials(String providerKey, String username, String password, ServiceEventListener e ){
-        this._provider = providerKey;
-        this._username = username;
-        this._password = password;
-        this._authenticateCallback = e;
-    }
-
 
 }
 

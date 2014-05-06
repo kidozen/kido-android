@@ -34,7 +34,6 @@ public class DataSource extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                //this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
                 new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
             }
         });
@@ -68,7 +67,6 @@ public class DataSource extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                //this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, new JSONObject(), StrictSSL);
                 new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  new JSONObject(), callback, StrictSSL).execute(url);
             }
         });
@@ -108,7 +106,6 @@ public class DataSource extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                //this.ExecuteTask(url, KZHttpMethod.POST, params, headers,  callback, data, StrictSSL);
                 new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  data, callback, StrictSSL).execute(url);
             }
         });
@@ -160,7 +157,6 @@ public class DataSource extends KZService {
             headers.put(Constants.AUTHORIZATION_HEADER, token);
             if (timeout>0)
                 headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-//        this.ExecuteTask(url, KZHttpMethod.GET, params, headers,  callback, StrictSSL);
                 new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
             }
         });

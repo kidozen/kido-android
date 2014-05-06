@@ -1,6 +1,7 @@
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -21,10 +22,11 @@ import static org.junit.Assert.fail;
 /**
  * Created by christian on 5/6/14.
  */
+@Ignore
 public class PubsubIntegrationTest {
 private static final String KZ_CHANNEL_ID = "testChannelId";
 public static final int TEST_TIMEOUT_IN_MINUTES = 1;
-KZApplication kidozen = null;
+    KZApplication kidozen = null;
 
     @Before
     public void Setup()

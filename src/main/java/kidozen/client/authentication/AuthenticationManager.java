@@ -322,8 +322,5 @@ public class AuthenticationManager extends AsyncTask<Void, Void, Void> {
         }
         finally {
         }
-
-        //_kidoApplication.ExecuteTask(oauthTokenEndpoint, KZHttpMethod.POST, params, headers,  _onAuthenticateApplication, message, bypassSSLValidation);
-
     }
 }

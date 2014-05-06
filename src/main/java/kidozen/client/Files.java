@@ -98,13 +98,11 @@ public class Files extends KZService {
 
                 HashMap<String, String> params = new HashMap<String, String>();
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(PRAGMA_HEADER, NO_CACHE);
                 headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
                 String url = mEndpoint + fullFilePath;
-                //this.ProcessAsStream = true;
-                //this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, StrictSSL);
                 mSelf.ProcessAsStream = true;
                 KZServiceAsyncTask at = new KZServiceAsyncTask(KZHttpMethod.GET,params,headers, callback, StrictSSL);
                 at.execute(url);
@@ -132,12 +130,11 @@ public class Files extends KZService {
 
                 HashMap<String, String> params = new HashMap<String, String>();
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(PRAGMA_HEADER, NO_CACHE);
                 headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
                 String url = mEndpoint + fullpath;
-                //this.ExecuteTask(url, KZHttpMethod.DELETE, params, headers, callback, StrictSSL);
                 new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
             }
         });
@@ -164,12 +161,11 @@ public class Files extends KZService {
 
                 HashMap<String, String> params = new HashMap<String, String>();
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(PRAGMA_HEADER, NO_CACHE);
                 headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
                 String url = mEndpoint + fullpath;
-//        this.ExecuteTask(url, KZHttpMethod.GET, params, headers, callback, StrictSSL);
                 new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
             }
         });

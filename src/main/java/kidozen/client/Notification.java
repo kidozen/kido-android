@@ -121,7 +121,7 @@ public class Notification extends KZService  {
 
                 HashMap<String, String> params = new HashMap<String, String>();
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,CreateAuthHeaderValue());
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
                 new KZServiceAsyncTask(KZHttpMethod.GET, params, headers,  callback, StrictSSL).execute(url);
             }
         });

@@ -45,7 +45,8 @@ class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
         }
         catch (JSONException e)
         {
-            _exception = e;
+            _statusCode = HttpStatus.SC_NOT_FOUND;
+            _exception = new Exception(String.format("Application not found. %s",  _response));
         }
         catch (Exception e) {
             _exception = new Exception(String.format("Invalid Response (Http StatusCode = %s). Body : %s", _statusCode, _response));
