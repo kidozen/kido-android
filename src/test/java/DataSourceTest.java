@@ -33,9 +33,9 @@ import static org.junit.Assert.fail;
 public class DataSourceTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 5;
     private static final String OPERATION_DATASOURCE_NAME = "WeatherBsAs";
-    private static final String QUERY_DATASOURCE_NAME = "WeatherBsAs";
-    private static final String OPERATION_PARAMS_DATASOURCE_NAME = "test-operation-params";
-    private static final String QUERY_PARAMS_DATASOURCE_NAME = "test-query-params";
+    private static final String QUERY_DATASOURCE_NAME = "WeatherQuery";
+    private static final String OPERATION_PARAMS_DATASOURCE_NAME = "WeatherOpParams";
+    private static final String QUERY_PARAMS_DATASOURCE_NAME = "WeatherQueryParams";
     KZApplication kidozen = null;
 
     @Before
@@ -71,11 +71,10 @@ public class DataSourceTest {
     }
 
     @Test
-    @Ignore
     public void ShouldCallQueryInDataSourceWithParams() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATASOURCE_NAME);
-        JSONObject data = new JSONObject().put("path","?k=kidozen");
+        JSONObject data = new JSONObject().put("q","?q=buenos aires,ar");
         dataSource.Query(data,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -106,7 +105,6 @@ public class DataSourceTest {
     }
 
     @Test
-    @Ignore
     public void ShouldCallQueryInDataSource() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_DATASOURCE_NAME);
