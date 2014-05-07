@@ -1,7 +1,11 @@
 package kidozen.client;
 
+import android.util.Log;
+
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 
@@ -11,6 +15,8 @@ import kidozen.client.authentication.KidoZenUser;
  * Created by christian on 2/27/14.
  */
 public class DataSource extends KZService {
+
+    private String TAG="DataSource";
 
     public DataSource(String ds, String name, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(ds,name, provider, username, pass, userIdentity, applicationIdentity);
@@ -150,14 +156,16 @@ public class DataSource extends KZService {
 
             if (data==null)
                 throw new InvalidParameterException("data cannot be null or empty");
-
-            String  url = mEndpoint + "/" + mName + "?" + data.toString();
+            JsonStringToMap jsm = new JsonStringToMap();
+            String qs = Utilities.MapAsQueryString(jsm.parse(data.toString()),false,null);
+            qs = qs.substring(0, qs.length() - 1);
+            String  url = mEndpoint + "/" + mName + "?" + qs;
             HashMap<String, String> params = new HashMap<String, String>();
             HashMap<String, String> headers = new HashMap<String, String>();
             headers.put(Constants.AUTHORIZATION_HEADER, token);
             if (timeout>0)
                 headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+            new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
             }
         });
 

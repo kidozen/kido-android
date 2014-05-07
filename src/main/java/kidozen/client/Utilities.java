@@ -1,6 +1,10 @@
 package kidozen.client;
 
+import android.util.Log;
+
 import org.apache.http.NameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -13,13 +17,16 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 public class Utilities {
 
-	public static  String convertStreamToString(java.io.InputStream instream) throws IOException{
+    private static final String TAG = "Utilities";
+
+    public static  String convertStreamToString(java.io.InputStream instream) throws IOException{
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
 		StringBuilder sb = new StringBuilder();
@@ -108,5 +115,32 @@ public class Utilities {
 
         if (faultBegin)
             throw new IllegalArgumentException(faultMessage);
+    }
+
+    public static String MapAsQueryString(Map<String, Object> map, Boolean isChild, String parentKey) {
+        StringBuilder retVal = new StringBuilder();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                retVal.append(MapAsQueryString((Map) value, true, entry.getKey()));
+            }
+            else {
+                if (!isChild)
+                    retVal.append(entry.getKey()).append("=").append(EncodeUTF8(value.toString())).append("&");
+                else
+                    retVal.append(parentKey).append("[").append(entry.getKey()).append("]=").append(EncodeUTF8(value.toString())).append("&");
+            }
+        }
+        return retVal.toString();
+    }
+
+    private static String EncodeUTF8(String value) {
+        String retVal = value;
+        try {
+            retVal = URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Log.i(TAG, e.getMessage());
+        }
+        return retVal;
     }
 }

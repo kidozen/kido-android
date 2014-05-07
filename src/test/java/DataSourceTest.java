@@ -74,7 +74,7 @@ public class DataSourceTest {
     public void ShouldCallQueryInDataSourceWithParams() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATASOURCE_NAME);
-        JSONObject data = new JSONObject().put("q","?q=buenos aires,ar");
+        JSONObject data = new JSONObject().put("path","?q=buenos aires,ar");
         dataSource.Query(data,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -87,7 +87,6 @@ public class DataSourceTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
     @Test
-    @Ignore
     public void ShouldCallOperationInDataSourceWithParams() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(OPERATION_PARAMS_DATASOURCE_NAME);
