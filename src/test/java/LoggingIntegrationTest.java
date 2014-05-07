@@ -58,7 +58,7 @@ public class LoggingIntegrationTest {
         }
     }
     @Test
-    public void ShouldCreateLogMessage() throws Exception {
+    public void ShouldLogString() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
 
         kidozen.WriteLog("LoggingIntegrationTests",LogLevel.LogLevelCritical, createCallback(lcd));
@@ -72,10 +72,21 @@ public class LoggingIntegrationTest {
         kidozen.ClearLog(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
             }
         });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+
+    @Test
+    public void ShouldLogJSONObject() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject().put("message", "ShouldLogJSONObject");
+        kidozen.WriteLog(data,
+                LogLevel.LogLevelCritical,
+                createCallback(lcd));
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
@@ -142,17 +153,5 @@ public class LoggingIntegrationTest {
         };
     }
 
-    private String CreateRandomValue()
-    {
-        Random rng= new Random();
-        String characters ="qwertyuiopñlkjhgfdsazxcvbnm";
-        char[] text = new char[10];
-        for (int i = 0; i < 10; i++)
-        {
-            text[i] = characters.charAt(rng.nextInt(characters.length()));
-        }
-        return new String(text);
-
-    }
 }
 

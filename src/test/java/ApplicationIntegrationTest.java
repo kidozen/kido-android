@@ -1,4 +1,8 @@
+import junit.framework.Assert;
+
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -223,5 +227,12 @@ public class ApplicationIntegrationTest {
         assertEquals(false, kidozen.Authenticated);
 
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+
+    @Test
+    public void WriteString() throws JSONException {
+        JSONObject o = new JSONObject("\"a\"");
+
+        Assert.assertTrue(true);
     }
 }

@@ -1,11 +1,18 @@
 package kidozen.client;
 
+import android.os.AsyncTask;
+
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,8 +27,47 @@ import kidozen.client.authentication.KidoZenUser;
  * @version 1.00, April 2013
  */
 public class Logging extends KZService {
-	public Logging(String logging, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+    private final Logging mSelf;
+
+    public Logging(String logging, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(logging,"", provider, username, pass, userIdentity, applicationIdentity);
+        mSelf = this;
+
+    }
+
+    /**
+     * Writes a new entry in the application Log
+     *
+     * @param message The message you want to save
+     * @param level The log level: Verbose, Information, Warning, Error, Critical
+     * @param callback The callback with the result of the service call
+     */
+    public void Write(final String message, final LogLevel level, final ServiceEventListener callback)
+    {
+        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                InputStream is = null;
+                try {
+                    String messageEnvelope = String.format("\"%s\"", message);
+                    is = new ByteArrayInputStream(messageEnvelope.getBytes("UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                Integer lvl = level.ordinal();
+                String url = mEndpoint + "?level=" + level.ordinal();
+
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("level", lvl.toString());
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                mSelf.ProcessAsStream = true;
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, is, callback, StrictSSL).execute(url);
+            }
+        });
     }
 
 	/**
@@ -227,4 +273,8 @@ public class Logging extends KZService {
 		}
 		return value;
 	}
+
+    public void Write(String message, LogLevel level, Object callback) {
+
+    }
 }

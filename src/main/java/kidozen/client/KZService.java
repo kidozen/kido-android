@@ -212,7 +212,9 @@ public class KZService {
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            _callback.onFinish(result);
+            if (_callback!=null) {
+                _callback.onFinish(result);
+            }
         }
 
     }

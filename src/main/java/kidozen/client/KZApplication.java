@@ -292,14 +292,7 @@ public class KZApplication  {
 	 * @throws Exception
 	 */
 	public void WriteLog(String message, LogLevel level) throws Exception  {
-		checkMethodParameters(message);
-		if (level==null) {
-			throw new Exception("Level must not be null");
-		}
-        checkApplicationLog();
-        HashMap<String, String> msg = new HashMap<String, String>();
-        msg.put("message", message);
-        _applicationLog.Write(new JSONObject(msg), level, null);
+        this.WriteLog(message, level, null);
 	}
 
 	/**
@@ -316,10 +309,29 @@ public class KZApplication  {
 			throw new Exception("Level must not be null");
 		}
         checkApplicationLog();
-        HashMap<String, String> msg = new HashMap<String, String>();
-		msg.put("message", message);
-		_applicationLog.Write(new JSONObject(msg), level, callback);
+		_applicationLog.Write(message, level, callback);
 	}
+
+    /**
+     * Creates a new entry in the KZApplication log
+     *
+     * @param message The message to write
+     * @param level The log level: Verbose, Information, Warning, Error, Critical
+     * @throws Exception
+     */
+    public void WriteLog(JSONObject jsonObject, LogLevel level) throws Exception  {
+        this.WriteLog(jsonObject, level, null);
+    }
+
+    public void WriteLog(JSONObject jsonObject, LogLevel level, ServiceEventListener callback) throws Exception {
+        checkMethodParameters(String.valueOf(jsonObject));
+        if (level==null) {
+            throw new Exception("Level must not be null");
+        }
+        checkApplicationLog();
+        _applicationLog.Write(jsonObject, level, callback);
+    }
+
 
     private void checkApplicationLog() throws Exception {
         if (_applicationLog==null)
@@ -398,6 +410,7 @@ public class KZApplication  {
         files.StrictSSL = !StrictSSL;
         return files;
     }
+
 	private void checkMethodParameters(String name) throws InvalidParameterException {
 		if (name.isEmpty() || name == null) {
 			throw new InvalidParameterException("name cannot be null or empty");
