@@ -45,8 +45,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertEquals(HttpStatus.SC_OK,e.StatusCode);
                 lcd.countDown();
+                assertEquals(HttpStatus.SC_OK,e.StatusCode);
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -58,8 +58,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, INVALIDAPP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_NOT_FOUND));
                 lcd.countDown();
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_NOT_FOUND));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -71,8 +71,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -90,8 +90,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             lcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -100,8 +100,8 @@ public class ApplicationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                alcd.countDown();
+            alcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         assertEquals(true, kidozen.Authenticated);
@@ -114,8 +114,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
+            lcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -124,8 +124,8 @@ public class ApplicationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
-                alcd.countDown();
+            alcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
             }
         });
         assertEquals(false, kidozen.Authenticated);
@@ -138,8 +138,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
+            lcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -148,8 +148,8 @@ public class ApplicationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
-                alcd.countDown();
+            alcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
             }
         });
         assertEquals(false, kidozen.Authenticated);
@@ -163,8 +163,8 @@ public class ApplicationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_CONFLICT));
-                lcd.countDown();
+            lcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_CONFLICT));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -176,8 +176,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
+            lcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -186,8 +186,8 @@ public class ApplicationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                alcd.countDown();
+            alcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         assertEquals(true, kidozen.Authenticated);
@@ -202,8 +202,8 @@ public class ApplicationIntegrationTest {
         kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
+            lcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -212,10 +212,9 @@ public class ApplicationIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                System.out.print("Authenticate");
-
-                alcd.countDown();
+            alcd.countDown();
+            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+            System.out.print("Authenticate");
             }
         });
         kidozen.SignOut();
@@ -225,7 +224,4 @@ public class ApplicationIntegrationTest {
 
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
-
-
-
 }

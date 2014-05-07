@@ -30,7 +30,6 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
 public class WSTrustIntegrationTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     KZApplication kidozen = null;
@@ -43,11 +42,11 @@ public class WSTrustIntegrationTest {
     @Test
     public void ShouldAuthenticateUsingDefaultSettingsWithoutAuthCallback() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -62,11 +61,11 @@ public class WSTrustIntegrationTest {
     @Test
     public void AuthenticationShouldFailWithInvalidUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -75,8 +74,8 @@ public class WSTrustIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, "none@kidozen.com", IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
                 alcd.countDown();
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
             }
         });
         assertEquals(false, kidozen.Authenticated);
@@ -87,11 +86,11 @@ public class WSTrustIntegrationTest {
     @Test
     public void AuthenticationShouldFailAndReturnMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
@@ -100,9 +99,9 @@ public class WSTrustIntegrationTest {
         kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER,IntegrationTestConfiguration.KZ_USER, "1", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                alcd.countDown();
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
                 assertTrue(e.Body.toLowerCase().contains("Error trying to call KidoZen Authentication Service Endpoint".toLowerCase()));
-                alcd.countDown();
             }
         });
         assertEquals(false, kidozen.Authenticated);
