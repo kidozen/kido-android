@@ -13,6 +13,7 @@ import java.util.HashMap;
 
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.crash.CrashReporter;
 
 /**
  * @author kidozen
@@ -39,10 +40,15 @@ public class KZApplication  {
     private String _provider;
     private String _username;
     private String _password;
+    private String mReportingUrl;
 
-    public static void EnableCrashReporter (Application application, String url) {
-        if (_crashReporter==null)
-            _crashReporter = new CrashReporter(application,url);
+    public void EnableCrashReporter (Application application) throws IllegalStateException {
+        if (_applicationKey == Constants.UNSET_APPLICATION_KEY) {
+            throw new IllegalStateException("Crash report feature can only be enabled using an application key.");
+        }
+        else {
+            _crashReporter = new CrashReporter(application,mReportingUrl);
+        }
     }
     //
     //New variables because of refactor
@@ -101,7 +107,7 @@ public class KZApplication  {
      * @param callback The ServiceEventListener callback with the operation results
      * @throws Exception The latest exception is there was any
      */
-    public KZApplication(String tenantMarketPlace, String application,  Boolean strictSSL, ServiceEventListener callback) throws Exception{
+    public KZApplication(String tenantMarketPlace, String application,  Boolean strictSSL, ServiceEventListener callback) throws IllegalStateException{
         this(tenantMarketPlace, application, Constants.UNSET_APPLICATION_KEY, strictSSL, callback);
     }
 
@@ -115,23 +121,30 @@ public class KZApplication  {
      * @param callback The ServiceEventListener callback with the operation results
      * @throws Exception The latest exception is there was any
      */
-    public KZApplication(String tenantMarketPlace, String application, String applicationKey, Boolean strictSSL, final ServiceEventListener callback) throws Exception {
+    public KZApplication(String tenantMarketPlace, String application, String applicationKey, Boolean strictSSL, final ServiceEventListener callback) throws IllegalStateException {
         this.StrictSSL = !strictSSL;
         this._applicationKey = applicationKey;
         _tenantMarketPlace = tenantMarketPlace;
         _applicationName = application;
         if (!_tenantMarketPlace.endsWith("/")) _tenantMarketPlace = _tenantMarketPlace + "/";
 
-        String url = _tenantMarketPlace + Constants.PUBLICAPI_PATH + _applicationName;
-        _applicationConfiguration = KidoAppSettings.getInstance();
-        if (applicationKey != Constants.UNSET_APPLICATION_KEY) {
-            // chains the getSettings callback with the keyAuth callback
-            _applicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
+        try {
+            String url = _tenantMarketPlace + Constants.PUBLICAPI_PATH + _applicationName;
+            _applicationConfiguration = KidoAppSettings.getInstance();
+            if (applicationKey != Constants.UNSET_APPLICATION_KEY) {
+                // chains the getSettings callback with the keyAuth callback
+                _applicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
+            }
+            else {
+                _applicationConfiguration.Setup(callback, this.StrictSSL);
+            }
+            _applicationConfiguration.execute(url).get();
+            mReportingUrl = _applicationConfiguration.GetSettingAsString("url");
         }
-        else {
-            _applicationConfiguration.Setup(callback, this.StrictSSL);
+        catch (Exception e)
+        {
+            throw  new IllegalStateException("Initialization failure",e);
         }
-        _applicationConfiguration.execute(url).get();
     }
 
 
@@ -161,7 +174,8 @@ public class KZApplication  {
 	 */
 	public Notification Notification () throws Exception
 	{
-		Notification notification= new Notification( _applicationConfiguration.GetSettingAsString("notification"), _applicationName,
+		Notification notification= new Notification( _applicationConfiguration.GetSettingAsString("notification"),
+                _applicationName,
                 _provider,
                 _username,
                 _password,

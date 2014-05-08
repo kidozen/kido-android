@@ -10,7 +10,7 @@ out/
 target/
 build/reports/
 build/test-results/
-build/tmp/
+build/tmp/ls
 */.DS_Store
 
 
