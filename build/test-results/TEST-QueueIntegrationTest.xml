@@ -1,8 +1,0 @@
-<?xml version="1.1" encoding="UTF-8"?>
-<testsuite name="QueueIntegrationTest" tests="2" failures="0" errors="0" timestamp="2014-05-08T01:08:50" hostname="Christians-MacBook-Pro.local" time="10.115">
-  <properties/>
-  <testcase name="ShouldDequeue" classname="QueueIntegrationTest" time="7.647"/>
-  <testcase name="ShouldEnqueue" classname="QueueIntegrationTest" time="2.467"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

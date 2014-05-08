@@ -1,8 +1,0 @@
-<?xml version="1.1" encoding="UTF-8"?>
-<testsuite name="TokenRenewTest" tests="2" failures="0" errors="0" timestamp="2014-05-08T01:09:19" hostname="Christians-MacBook-Pro.local" time="0.0">
-  <properties/>
-  <ignored-testcase name="ShouldExecuteOnSessionExpirationRunnable" classname="TokenRenewTest" time="0.0"/>
-  <ignored-testcase name="ShouldRenewTokenUsingDefaultSettings" classname="TokenRenewTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
