@@ -113,6 +113,7 @@ public class StorageIntegrationTest {
 
     }
     @Test
+    @Ignore
     public void ShouldGetMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = this.CreateRandomValue();
