@@ -1,0 +1,10 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<testsuite name="EMailIntegrationTest" tests="4" failures="0" errors="0" timestamp="2014-05-08T01:07:26" hostname="Christians-MacBook-Pro.local" time="7.837">
+  <properties/>
+  <testcase name="ShouldAttachFiles" classname="EMailIntegrationTest" time="2.143"/>
+  <testcase name="ShouldReturnInternalServerError" classname="EMailIntegrationTest" time="1.169"/>
+  <testcase name="ShouldSendEmail" classname="EMailIntegrationTest" time="1.973"/>
+  <testcase name="ShouldSendEmailWithMultipleRecipients" classname="EMailIntegrationTest" time="2.551"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

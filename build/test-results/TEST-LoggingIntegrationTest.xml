@@ -1,0 +1,11 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<testsuite name="LoggingIntegrationTest" tests="5" failures="0" errors="0" timestamp="2014-05-08T01:08:43" hostname="Christians-MacBook-Pro.local" time="7.114">
+  <properties/>
+  <testcase name="ShouldCreateMessageUsingKey" classname="LoggingIntegrationTest" time="2.412"/>
+  <testcase name="ShouldGetAllLog" classname="LoggingIntegrationTest" time="1.226"/>
+  <testcase name="ShouldLogJSONObject" classname="LoggingIntegrationTest" time="1.228"/>
+  <testcase name="ShouldLogString" classname="LoggingIntegrationTest" time="1.224"/>
+  <testcase name="ShouldTruncateLog" classname="LoggingIntegrationTest" time="1.022"/>
+  <system-out><![CDATA[....]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

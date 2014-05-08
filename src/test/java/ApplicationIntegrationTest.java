@@ -229,10 +229,4 @@ public class ApplicationIntegrationTest {
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
-    @Test
-    public void WriteString() throws JSONException {
-        JSONObject o = new JSONObject("\"a\"");
-
-        Assert.assertTrue(true);
-    }
 }
