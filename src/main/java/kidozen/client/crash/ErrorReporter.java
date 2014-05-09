@@ -155,6 +155,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
                 }
             });
         }
+        Log.d("Crash", String.format("CrashReportDataFactory: ", prefs.toString()) );
 
         crashReportDataFactory = new CrashReportDataFactory(mContext, prefs, appStartDate, initialConfiguration);
 
@@ -878,10 +879,11 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         }
         // If formUri is set, instantiate a sender for a generic HTTP POST form
         // with default mapping.
-        if (conf.formUri() != null && !"".equals(conf.formUri())) {
-            setReportSender(new HttpSender(conf.formUri()));
-            return;
-        }
+        //Log.d(LOG_TAG, String.format("conf.formUri() : %s ", conf.formUri().toString()) );
+        //if (conf.formUri() != null && !"".equals(conf.formUri())) {
+        //    setReportSender(new HttpSender(conf.formUri()));
+        //    return;
+        //}
         /*
         // The default behavior is to use the formKey for a Google Docs Form. If
         // a formUri was also provided, we keep its sender.

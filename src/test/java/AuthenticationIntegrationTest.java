@@ -35,7 +35,6 @@ public class AuthenticationIntegrationTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final int TEST_TIMEOUT_IN_SECONDS = 5;
 
-    private static final String KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
     KZApplication kidozen = null;
 
     @Before
@@ -47,7 +46,7 @@ public class AuthenticationIntegrationTest {
     public void ShouldAuthenticateUsingApplicationKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
 
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, KZ_KEY, false, new ServiceEventListener() {
+        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, IntegrationTestConfiguration.KZ_KEY, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
 

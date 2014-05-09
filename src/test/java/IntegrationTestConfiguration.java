@@ -71,10 +71,10 @@ public class IntegrationTestConfiguration {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_KEY = "jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
-        KZ_TENANT =             "https://contoso.local.kidozen.com";
-        KZ_APP =                "ioscrashapp";
-        KZ_USER =               "contoso@kidozen.com";
+        KZ_KEY =                "z4WC8pUm+mWfZaGQhJ7G3Q2YcEhcvHecYuzBAchk3OQ=";//"jHf9GxVw2VwQcLYIrkvPcb+Swlh4M2wcd53WcxhdMsU=";
+        KZ_TENANT =             "https://tests.qa.kidozen.com";
+        KZ_APP =                "androidtests";
+        KZ_USER =               "tests@kidozen.com";
         KZ_PASS =               "pass";
         KZ_SERVICEID =          "Weather";
         KZ_EMAIL_FROM =         "someone@kidozen.com.com";

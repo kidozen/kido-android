@@ -14,27 +14,66 @@
  *  limitations under the License.
  */
 package kidozen.client.crash;
+import android.util.Log;
+
 import java.util.Hashtable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import kidozen.client.Constants;
 import kidozen.client.KZHttpMethod;
+import kidozen.client.KZService;
 import kidozen.client.SNIConnectionManager;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
+import kidozen.client.authentication.IdentityManager;
+import kidozen.client.authentication.KidoZenUser;
 
 import org.apache.http.HttpStatus;
 
-public class HttpSender implements ReportSender {
+import static kidozen.client.crash.CrashReporter.LOG_TAG;
+
+public class HttpSender extends KZService implements ReportSender {
     private String _endpoint;
     private SNIConnectionManager _sniManager;
     protected static final String APPLICATION_JSON = "application/json";
     protected static final String CONTENT_TYPE = "content-type";
+    private long DEFAULT_TIMEOUT = 2;
+    private String mApplicationKey = "none";
+    private String mToken = "empty";
 
-    public HttpSender(String formUri) {
+    public HttpSender(String formUri, String token) {
+        mApplicationKey = token;
         _endpoint = formUri;
     }
 
     @Override
     public void send(CrashReportData report) throws ReportSenderException {
-        try {
+        try
+        {
+            final CountDownLatch cdl = new CountDownLatch(1);
+            Log.d(LOG_TAG, String.format("About to call IdentityManager.getInstance, Token: %s"
+                    , mApplicationKey));
+
+            IdentityManager.getInstance().GetRawToken(mApplicationKey, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                mToken = ((KidoZenUser) e.Response).Token;
+                Log.d(LOG_TAG, String.format("Token in Crash HTTPSender: %s ", mToken));
+
+                cdl.countDown();
+                }
+            });
+            cdl.await(DEFAULT_TIMEOUT, TimeUnit.MINUTES);
+            String authHeaderValue = String.format("WRAP access_token=\"%s\"", mToken);
+
+            Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", _endpoint));
+
             Hashtable<String, String> headers = new Hashtable<String, String>();
-            headers.put(CONTENT_TYPE, APPLICATION_JSON);
+            headers.put(Constants.AUTHORIZATION_HEADER,authHeaderValue);
+            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+
             _sniManager = new SNIConnectionManager(_endpoint, report.toJSON().toString(), headers, null, true);
             Hashtable<String, String> response = _sniManager.ExecuteHttp(KZHttpMethod.POST);
             String body = response.get("responseBody");
@@ -44,8 +83,18 @@ public class HttpSender implements ReportSender {
                 throw new Exception(exceptionMessage);
             }
         }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+
+            throw new ReportSenderException("Timeout trying to send report to KidoZen services." , e);
+        }
+
         catch (Exception e) {
+            e.printStackTrace();
+
             throw new ReportSenderException("Error while sending  report to KidoZen services." , e);
         }
+
+
     }
 }

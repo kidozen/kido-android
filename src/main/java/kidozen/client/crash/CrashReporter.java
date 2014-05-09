@@ -4,9 +4,11 @@ import android.app.Application;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import kidozen.client.KZService;
 import kidozen.client.authentication.IdentityManager;
+import kidozen.client.authentication.KidoZenUser;
 
 /**
  * Created by christian on 3/18/14.
@@ -14,6 +16,7 @@ import kidozen.client.authentication.IdentityManager;
 public class CrashReporter extends KZService {
     private static CrashReporter INSTANCE;
     private static Application _hostApplication;
+    private String mApplicationKey;
     private String _endpoint;
     private static ErrorReporter errorReporterSingleton;
 
@@ -69,13 +72,18 @@ public class CrashReporter extends KZService {
      */
     public static final String PREF_LAST_VERSION_NR = "acra.lastVersionNr";
 
-    public CrashReporter(Application application, String endpoint) {
+    private CrashReporter() {
+    }
+
+    public CrashReporter(Application application, String endpoint, String applicationKey) {
         super();
         _hostApplication = application;
         if (!endpoint.endsWith("/")) {
             endpoint = endpoint + "/";
         }
         _endpoint  = endpoint + "api/v3/logging/crash/android/dump";
+        Log.d("Crash", String.format("Sending crash to application: %s", _endpoint));
+
         ACRAConfiguration conf = getConfig();
         conf.setFormUri(_endpoint);
 
@@ -83,13 +91,9 @@ public class CrashReporter extends KZService {
                 _hostApplication.getSharedPreferences(conf.sharedPreferencesName(), conf.sharedPreferencesMode()),
                 true);
 
-        // Append ReportSenders.
-        errorReporter.setDefaultReportSenders();
+        mApplicationKey = applicationKey;
+        errorReporter.addReportSender(new HttpSender(_endpoint,applicationKey));
         errorReporterSingleton = errorReporter;
-    }
-
-
-    private CrashReporter() {
     }
 
     private static void createInstance() {

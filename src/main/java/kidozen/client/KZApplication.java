@@ -41,20 +41,24 @@ public class KZApplication  {
     private String _username;
     private String _password;
     private String mReportingUrl;
+    //New variables because of refactor
+    //
+    KidoZenUser userIdentity;
+    KidoZenUser applicationIdentity;
 
     public void EnableCrashReporter (Application application) throws IllegalStateException {
         if (_applicationKey == Constants.UNSET_APPLICATION_KEY) {
             throw new IllegalStateException("Crash report feature can only be enabled using an application key.");
         }
         else {
-            _crashReporter = new CrashReporter(application,mReportingUrl);
+            // EnableCrashReporter is called only when the ctor has the app key,
+            // in this case the application has already initialized and has a valid Application token ( see ctor code )
+            // so, we can send the applicationIdentity with the
+            Log.d("Crash", String.format("Sending crash to application: %s", mReportingUrl) );
+            _crashReporter = new CrashReporter(application,mReportingUrl, _applicationKey);
         }
     }
     //
-    //New variables because of refactor
-    //
-    KidoZenUser userIdentity;
-    KidoZenUser applicationIdentity;
     /**
 	 * Returns the current KidoZen identity
 	 * 

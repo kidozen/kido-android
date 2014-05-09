@@ -168,10 +168,18 @@ final class SendWorker extends Thread {
      *             if unable to send the crash report.
      */
     private void sendCrashReport(CrashReportData errorContent) throws ReportSenderException {
+        Log.d(LOG_TAG, String.format( "CrashReporter.isDebuggable() : %s", String.valueOf(CrashReporter.isDebuggable())));
+        Log.d(LOG_TAG, String.format( "CrashReporter.getConfig().sendReportsInDevMode() : %s", String.valueOf(CrashReporter.getConfig().sendReportsInDevMode())  ));
+        Log.d(LOG_TAG, String.format( "reportSenders size : %s", String.valueOf(reportSenders.size()) ));
+
         if (!CrashReporter.isDebuggable() || CrashReporter.getConfig().sendReportsInDevMode()) {
             boolean sentAtLeastOnce = false;
             for (ReportSender sender : reportSenders) {
                 try {
+                    Log.d(LOG_TAG, String.format("Sender class : %s, ErrorContent: %s"
+                            , sender.getClass().toString()
+                            , errorContent
+                    ));
                     sender.send(errorContent);
                     // If at least one sender worked, don't re-send the report
                     // later.

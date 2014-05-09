@@ -47,12 +47,9 @@ public class KZService {
 
 
     /*
-    * REMARK!!!
-    * This method was created because there was a problen with the 'proactive' authentication. Now before sending the
-    * AuthHeader value to the requested service, it checks if the auth timeout has been reached and executes authentication
-    * to get a new token again.
+    * Before sending the AuthHeader value to the requested service, it checks if the auth timeout
+    * has been reached and executes authentication to get a new token again.
     * */
-
     public void CreateAuthHeaderValue (String provider, String uname, String secret, final KZServiceEvent<String> cb )
     {
         // User Identity is the higher priority
