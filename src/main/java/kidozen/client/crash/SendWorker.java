@@ -89,8 +89,8 @@ final class SendWorker extends Thread {
 
                 // TODO look into how this could cause a file to go from
                 // -approved.stacktrace to -approved-approved.stacktrace
-                final String newName = reportFileName.replace(ACRAConstants.REPORTFILE_EXTENSION,
-                        ACRAConstants.APPROVED_SUFFIX + ACRAConstants.REPORTFILE_EXTENSION);
+                final String newName = reportFileName.replace(CrashConstants.REPORTFILE_EXTENSION,
+                        CrashConstants.APPROVED_SUFFIX + CrashConstants.REPORTFILE_EXTENSION);
 
                 // TODO Look into whether rename is atomic. Is there a better
                 // option?
@@ -125,7 +125,7 @@ final class SendWorker extends Thread {
                 continue;
             }
 
-            if (reportsSentCount >= ACRAConstants.MAX_SEND_REPORTS) {
+            if (reportsSentCount >= CrashConstants.MAX_SEND_REPORTS) {
                 break; // send only a few reports to avoid overloading the
                        // network
             }
@@ -149,7 +149,7 @@ final class SendWorker extends Thread {
             } catch (ReportSenderException e) {
                 Log.e(LOG_TAG, "Failed to send crash report for " + curFileName, e);
                 // An issue occurred while sending this report but we can still try to
-                // send other reports. Report sending is limited by ACRAConstants.MAX_SEND_REPORTS
+                // send other reports. Report sending is limited by CrashConstants.MAX_SEND_REPORTS
                 // so there's not much to fear about overloading a failing server.
             }
             reportsSentCount++;

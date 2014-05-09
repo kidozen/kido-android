@@ -26,7 +26,7 @@ import static kidozen.client.crash.ReportField.*;
  * @author William Ferguson
  * @since 4.3.0
  */
-public final class ACRAConstants {
+public final class CrashConstants {
 
     public static final String REPORTFILE_EXTENSION = ".stacktrace";
 
@@ -71,7 +71,7 @@ public final class ACRAConstants {
      * A special String value to allow the usage of a pseudo-null default value
      * in annotation parameters.
      */
-    public static final String NULL_VALUE = "ACRA-NULL-STRING";
+    public static final String NULL_VALUE = "CRASH-NULL-STRING";
 
     public static final boolean DEFAULT_FORCE_CLOSE_DIALOG_AFTER_TOAST = false;
 

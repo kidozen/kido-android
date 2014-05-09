@@ -9,7 +9,7 @@ import android.util.Log;
  * @author William Ferguson
  * @since 4.3.0
  */
-public final class AndroidLogDelegate implements ACRALog {
+public final class AndroidLogDelegate implements CrashLog {
     public int v(String tag, String msg) {
         return Log.v(tag, msg);
     }

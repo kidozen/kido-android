@@ -30,7 +30,7 @@ final class CrashReportFileNameParser {
      * @return True if the report has been declared explicitly silent using {@link ErrorReporter#handleSilentException(Throwable)}.
      */
     public boolean isSilent(String reportFileName) {
-        return reportFileName.contains(ACRAConstants.SILENT_SUFFIX);
+        return reportFileName.contains(CrashConstants.SILENT_SUFFIX);
     }
 
     /**
@@ -47,6 +47,6 @@ final class CrashReportFileNameParser {
      * @return True if a report can be sent.
      */
     public boolean isApproved(String reportFileName) {
-        return isSilent(reportFileName) || reportFileName.contains(ACRAConstants.APPROVED_SUFFIX);
+        return isSilent(reportFileName) || reportFileName.contains(CrashConstants.APPROVED_SUFFIX);
     }
 }

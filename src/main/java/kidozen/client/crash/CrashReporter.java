@@ -3,12 +3,10 @@ package kidozen.client.crash;
 import android.app.Application;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import kidozen.client.KZService;
 import kidozen.client.authentication.IdentityManager;
-import kidozen.client.authentication.KidoZenUser;
 
 /**
  * Created by christian on 3/18/14.
@@ -24,7 +22,7 @@ public class CrashReporter extends KZService {
     // release.
     public static final String LOG_TAG = CrashReporter.class.getSimpleName();
 
-    public static ACRALog log = new AndroidLogDelegate();
+    public static CrashLog log = new AndroidLogDelegate();
 
     /**
      * The key of the application default SharedPreference where you can put a
@@ -84,7 +82,7 @@ public class CrashReporter extends KZService {
         _endpoint  = endpoint + "api/v3/logging/crash/android/dump";
         Log.d("Crash", String.format("Sending crash to application: %s", _endpoint));
 
-        ACRAConfiguration conf = getConfig();
+        CrashConfiguration conf = getConfig();
         conf.setFormUri(_endpoint);
 
         final ErrorReporter errorReporter = new ErrorReporter(_hostApplication,
@@ -113,8 +111,8 @@ public class CrashReporter extends KZService {
         return INSTANCE;
     }
 
-    public static ACRAConfiguration getConfig() {
-        return new ACRAConfiguration();
+    public static CrashConfiguration getConfig() {
+        return new CrashConfiguration();
     }
 
     /**

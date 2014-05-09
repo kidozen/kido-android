@@ -34,17 +34,15 @@ import org.apache.http.HttpStatus;
 import static kidozen.client.crash.CrashReporter.LOG_TAG;
 
 public class HttpSender extends KZService implements ReportSender {
-    private String _endpoint;
-    private SNIConnectionManager _sniManager;
-    protected static final String APPLICATION_JSON = "application/json";
-    protected static final String CONTENT_TYPE = "content-type";
+    private String mCrashEndpoint;
+    private SNIConnectionManager mSniManager;
     private long DEFAULT_TIMEOUT = 2;
     private String mApplicationKey = "none";
     private String mToken = "empty";
 
-    public HttpSender(String formUri, String token) {
+    public HttpSender(String crashEndpoint, String token) {
         mApplicationKey = token;
-        _endpoint = formUri;
+        mCrashEndpoint = crashEndpoint;
     }
 
     @Override
@@ -52,30 +50,25 @@ public class HttpSender extends KZService implements ReportSender {
         try
         {
             final CountDownLatch cdl = new CountDownLatch(1);
-            Log.d(LOG_TAG, String.format("About to call IdentityManager.getInstance, Token: %s"
-                    , mApplicationKey));
-
             IdentityManager.getInstance().GetRawToken(mApplicationKey, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 mToken = ((KidoZenUser) e.Response).Token;
-                Log.d(LOG_TAG, String.format("Token in Crash HTTPSender: %s ", mToken));
-
                 cdl.countDown();
                 }
             });
             cdl.await(DEFAULT_TIMEOUT, TimeUnit.MINUTES);
             String authHeaderValue = String.format("WRAP access_token=\"%s\"", mToken);
 
-            Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", _endpoint));
+            Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", mCrashEndpoint));
 
             Hashtable<String, String> headers = new Hashtable<String, String>();
             headers.put(Constants.AUTHORIZATION_HEADER,authHeaderValue);
             headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
             headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-            _sniManager = new SNIConnectionManager(_endpoint, report.toJSON().toString(), headers, null, true);
-            Hashtable<String, String> response = _sniManager.ExecuteHttp(KZHttpMethod.POST);
+            mSniManager = new SNIConnectionManager(mCrashEndpoint, report.toJSON().toString(), headers, null, true);
+            Hashtable<String, String> response = mSniManager.ExecuteHttp(KZHttpMethod.POST);
             String body = response.get("responseBody");
             Integer statusCode = Integer.parseInt(response.get("statusCode"));
             if (statusCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
@@ -84,17 +77,10 @@ public class HttpSender extends KZService implements ReportSender {
             }
         }
         catch (InterruptedException e) {
-            e.printStackTrace();
-
             throw new ReportSenderException("Timeout trying to send report to KidoZen services." , e);
         }
-
         catch (Exception e) {
-            e.printStackTrace();
-
             throw new ReportSenderException("Error while sending  report to KidoZen services." , e);
         }
-
-
     }
 }

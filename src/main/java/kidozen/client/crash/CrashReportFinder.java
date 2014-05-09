@@ -44,7 +44,7 @@ final class CrashReportFinder {
      */
     public String[] getCrashReportFiles() {
         if (context == null) {
-            Log.e(LOG_TAG, "Trying to get ACRA reports but ACRA is not initialized.");
+            Log.e(LOG_TAG, "Trying to get CRASH reports but is not initialized.");
             return new String[0];
         }
 
@@ -59,7 +59,7 @@ final class CrashReportFinder {
         // Filter for ".stacktrace" files
         final FilenameFilter filter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.endsWith(ACRAConstants.REPORTFILE_EXTENSION);
+                return name.endsWith(CrashConstants.REPORTFILE_EXTENSION);
             }
         };
         final String[] result = dir.list(filter);

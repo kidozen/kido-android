@@ -289,11 +289,11 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
             // defaultExceptionHandler.
             if (!enabled) {
                 if (mDfltExceptionHandler != null) {
-                    Log.e(CrashReporter.LOG_TAG, "ACRA is disabled for " + mContext.getPackageName()
+                    Log.e(CrashReporter.LOG_TAG, "CRASH is disabled for " + mContext.getPackageName()
                             + " - forwarding uncaught Exception on to default ExceptionHandler");
                     mDfltExceptionHandler.uncaughtException(t, e);
                 } else {
-                    Log.e(CrashReporter.LOG_TAG, "ACRA is disabled for " + mContext.getPackageName()
+                    Log.e(CrashReporter.LOG_TAG, "CRASH is disabled for " + mContext.getPackageName()
                             + " - no default ExceptionHandler");
                 }
                 return;
@@ -363,11 +363,11 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         // Mark this report as silent.
         if (enabled) {
             handleException(e, ReportingInteractionMode.SILENT, true, false);
-            Log.d(CrashReporter.LOG_TAG, "ACRA sent Silent report.");
+            Log.d(CrashReporter.LOG_TAG, "CRASH sent Silent report.");
             return;
         }
 
-        Log.d(CrashReporter.LOG_TAG, "ACRA is disabled. Silent report not sent.");
+        Log.d(CrashReporter.LOG_TAG, "CRASH is disabled. Silent report not sent.");
     }
 
     /**
@@ -378,7 +378,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
      *            forward them as crash reports.
      */
     public void setEnabled(boolean enabled) {
-        Log.i(CrashReporter.LOG_TAG, "ACRA is " + (enabled ? "enabled" : "disabled") + " for " + mContext.getPackageName());
+        Log.i(CrashReporter.LOG_TAG, "CRASH is " + (enabled ? "enabled" : "disabled") + " for " + mContext.getPackageName());
         this.enabled = enabled;
     }
 
@@ -618,10 +618,10 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
                     beforeWait.setToNow();
                     final long beforeWaitInMillis = beforeWait.toMillis(false);
                     long elapsedTimeInMillis = 0;
-                    while (elapsedTimeInMillis < ACRAConstants.TOAST_WAIT_DURATION) {
+                    while (elapsedTimeInMillis < CrashConstants.TOAST_WAIT_DURATION) {
                         try {
                             // Wait a bit to let the user read the toast
-                            Thread.sleep(ACRAConstants.TOAST_WAIT_DURATION);
+                            Thread.sleep(CrashConstants.TOAST_WAIT_DURATION);
                         } catch (InterruptedException e1) {
                             Log.d(LOG_TAG, "Interrupted while waiting for Toast to end.", e1);
                         }
@@ -685,7 +685,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         /*
         Log.d(LOG_TAG, "Creating Dialog for " + reportFileName);
         Intent dialogIntent = new Intent(mContext, CrashReportDialog.class);
-        dialogIntent.putExtra(ACRAConstants.EXTRA_REPORT_FILE_NAME, reportFileName);
+        dialogIntent.putExtra(CrashConstants.EXTRA_REPORT_FILE_NAME, reportFileName);
         dialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(dialogIntent);
         */
@@ -709,7 +709,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         final NotificationManager notificationManager = (NotificationManager) mContext
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
-        final ACRAConfiguration conf = CrashReporter.getConfig();
+        final CrashConfiguration conf = CrashReporter.getConfig();
 
         // Default notification icon is the warning symbol
         final int icon = conf.resNotifIcon();
@@ -724,18 +724,18 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         /*
         final Intent notificationIntent = new Intent(mContext, CrashReportDialog.class);
         Log.d(LOG_TAG, "Creating Notification for " + reportFileName);
-        notificationIntent.putExtra(ACRAConstants.EXTRA_REPORT_FILE_NAME, reportFileName);
+        notificationIntent.putExtra(CrashConstants.EXTRA_REPORT_FILE_NAME, reportFileName);
         final PendingIntent contentIntent = PendingIntent.getActivity(mContext, mNotificationCounter++, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         notification.setLatestEventInfo(mContext, contentTitle, contentText, contentIntent);
 
         final Intent deleteIntent = new Intent(mContext, CrashReportDialog.class);
-        deleteIntent.putExtra(ACRAConstants.EXTRA_FORCE_CANCEL, true);
+        deleteIntent.putExtra(CrashConstants.EXTRA_FORCE_CANCEL, true);
         final PendingIntent pendingDeleteIntent = PendingIntent.getActivity(mContext, -1, deleteIntent, 0);
         notification.deleteIntent = pendingDeleteIntent;
         */
         // Send new notification
-        notificationManager.notify(ACRAConstants.NOTIF_CRASH_ID, notification);
+        notificationManager.notify(CrashConstants.NOTIF_CRASH_ID, notification);
     }
 
     private String getReportFileName(CrashReportData crashData) {
@@ -743,8 +743,8 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         now.setToNow();
         final long timestamp = now.toMillis(false);
         final String isSilent = crashData.getProperty(IS_SILENT);
-        return "" + timestamp + (isSilent != null ? ACRAConstants.SILENT_SUFFIX : "")
-                + ACRAConstants.REPORTFILE_EXTENSION;
+        return "" + timestamp + (isSilent != null ? CrashConstants.SILENT_SUFFIX : "")
+                + CrashConstants.REPORTFILE_EXTENSION;
     }
 
     /**
@@ -850,7 +850,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
      * previously set ReportSender.
      */
     public void setDefaultReportSenders() {
-        ACRAConfiguration conf = CrashReporter.getConfig();
+        CrashConfiguration conf = CrashReporter.getConfig();
         Application mApplication = CrashReporter.getApplication();
         removeAllReportSenders();
 

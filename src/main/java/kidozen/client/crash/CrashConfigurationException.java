@@ -20,11 +20,11 @@ package kidozen.client.crash;
  * 
  * @author Kevin Gaudin
  */
-public class ACRAConfigurationException extends Exception {
+public class CrashConfigurationException extends Exception {
 
     private static final long serialVersionUID = -7355339673505996110L;
 
-    public ACRAConfigurationException(String msg) {
+    public CrashConfigurationException(String msg) {
         super(msg);
     }
 }

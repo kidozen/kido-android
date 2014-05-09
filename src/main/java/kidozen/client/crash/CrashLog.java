@@ -9,7 +9,7 @@ package kidozen.client.crash;
  * @author William Ferguson
  * @since 4.3.0
  */
-public interface ACRALog {
+public interface CrashLog {
     public int v(java.lang.String tag, java.lang.String msg);
     public int v(java.lang.String tag, java.lang.String msg, java.lang.Throwable tr);
     public int d(java.lang.String tag, java.lang.String msg);

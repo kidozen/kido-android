@@ -15,27 +15,27 @@
  */
 package kidozen.client.crash;
 
-import static kidozen.client.crash.ACRAConstants.DEFAULT_APPLICATION_LOGFILE;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_APPLICATION_LOGFILE_LINES;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_CONNECTION_TIMEOUT;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_DELETE_OLD_UNSENT_REPORTS_ON_APPLICATION_START;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_DELETE_UNAPPROVED_REPORTS_ON_APPLICATION_START;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_DIALOG_ICON;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_DISABLE_SSL_CERT_VALIDATION;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_DROPBOX_COLLECTION_MINUTES;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_FORCE_CLOSE_DIALOG_AFTER_TOAST;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_GOOGLE_FORM_URL_FORMAT;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_INCLUDE_DROPBOX_SYSTEM_TAGS;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_LOGCAT_FILTER_BY_PID;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_LOGCAT_LINES;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_MAX_NUMBER_OF_REQUEST_RETRIES;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_NOTIFICATION_ICON;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_RES_VALUE;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_SEND_REPORTS_IN_DEV_MODE;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_SHARED_PREFERENCES_MODE;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_SOCKET_TIMEOUT;
-import static kidozen.client.crash.ACRAConstants.DEFAULT_STRING_VALUE;
-import static kidozen.client.crash.ACRAConstants.NULL_VALUE;
+import static kidozen.client.crash.CrashConstants.DEFAULT_APPLICATION_LOGFILE;
+import static kidozen.client.crash.CrashConstants.DEFAULT_APPLICATION_LOGFILE_LINES;
+import static kidozen.client.crash.CrashConstants.DEFAULT_CONNECTION_TIMEOUT;
+import static kidozen.client.crash.CrashConstants.DEFAULT_DELETE_OLD_UNSENT_REPORTS_ON_APPLICATION_START;
+import static kidozen.client.crash.CrashConstants.DEFAULT_DELETE_UNAPPROVED_REPORTS_ON_APPLICATION_START;
+import static kidozen.client.crash.CrashConstants.DEFAULT_DIALOG_ICON;
+import static kidozen.client.crash.CrashConstants.DEFAULT_DISABLE_SSL_CERT_VALIDATION;
+import static kidozen.client.crash.CrashConstants.DEFAULT_DROPBOX_COLLECTION_MINUTES;
+import static kidozen.client.crash.CrashConstants.DEFAULT_FORCE_CLOSE_DIALOG_AFTER_TOAST;
+import static kidozen.client.crash.CrashConstants.DEFAULT_GOOGLE_FORM_URL_FORMAT;
+import static kidozen.client.crash.CrashConstants.DEFAULT_INCLUDE_DROPBOX_SYSTEM_TAGS;
+import static kidozen.client.crash.CrashConstants.DEFAULT_LOGCAT_FILTER_BY_PID;
+import static kidozen.client.crash.CrashConstants.DEFAULT_LOGCAT_LINES;
+import static kidozen.client.crash.CrashConstants.DEFAULT_MAX_NUMBER_OF_REQUEST_RETRIES;
+import static kidozen.client.crash.CrashConstants.DEFAULT_NOTIFICATION_ICON;
+import static kidozen.client.crash.CrashConstants.DEFAULT_RES_VALUE;
+import static kidozen.client.crash.CrashConstants.DEFAULT_SEND_REPORTS_IN_DEV_MODE;
+import static kidozen.client.crash.CrashConstants.DEFAULT_SHARED_PREFERENCES_MODE;
+import static kidozen.client.crash.CrashConstants.DEFAULT_SOCKET_TIMEOUT;
+import static kidozen.client.crash.CrashConstants.DEFAULT_STRING_VALUE;
+import static kidozen.client.crash.CrashConstants.NULL_VALUE;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -48,7 +48,7 @@ import java.util.Map;
  * annotation parameters values.
  * 
  */
-public class ACRAConfiguration {
+public class CrashConfiguration {
 
     private String[] mAdditionalDropboxTags = null;
 
@@ -270,10 +270,10 @@ public class ACRAConfiguration {
      * 
      * @param mode
      *            the new mode to set.
-     * @throws ACRAConfigurationException
+     * @throws CrashConfigurationException
      *             if a configuration item is missing for this mode.
      */
-    public void setMode(ReportingInteractionMode mode) throws ACRAConfigurationException {
+    public void setMode(ReportingInteractionMode mode) throws CrashConfigurationException {
         this.mMode = mode;
         //ACRA.checkCrashResources();
     }
@@ -532,7 +532,7 @@ public class ACRAConfiguration {
     /**
      * 
      * @param defaults
-    public ACRAConfiguration(ReportsCrashes defaults) {
+    public CrashConfiguration(ReportsCrashes defaults) {
         mReportsCrashes = defaults;
     }
      */
@@ -840,7 +840,7 @@ public class ACRAConfiguration {
     }
 
     public static boolean isNull(String aString) {
-        return aString == null || ACRAConstants.NULL_VALUE.equals(aString);
+        return aString == null || CrashConstants.NULL_VALUE.equals(aString);
     }
 
 }

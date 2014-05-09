@@ -35,8 +35,8 @@ import android.os.Environment;
 import android.text.format.Time;
 import android.util.Log;
 
-import kidozen.client.crash.ACRAConfiguration;
-import kidozen.client.crash.ACRAConstants;
+import kidozen.client.crash.CrashConfiguration;
+import kidozen.client.crash.CrashConstants;
 import kidozen.client.crash.Compatibility;
 import kidozen.client.crash.CrashReportData;
 import kidozen.client.crash.CrashReporter;
@@ -303,7 +303,7 @@ public final class CrashReportDataFactory {
             if (prefs.getBoolean(CrashReporter.PREF_ENABLE_SYSTEM_LOGS, true)
             		&& (pm.hasPermission(Manifest.permission.READ_LOGS))
             			|| Compatibility.getAPILevel() >= 16) {
-                Log.i(CrashReporter.LOG_TAG, "READ_LOGS granted! ACRA can include LogCat and DropBox data.");
+                Log.i(CrashReporter.LOG_TAG, "READ_LOGS granted! CRASH can include LogCat and DropBox data.");
                 if (crashReportFields.contains(LOGCAT)) {
                     crashReportData.put(LOGCAT, LogCatCollector.collectLogCat(null));
                 }
@@ -318,7 +318,7 @@ public final class CrashReportDataFactory {
                             DropBoxCollector.read(context, CrashReporter.getConfig().additionalDropBoxTags()));
                 }
             } else {
-                Log.i(CrashReporter.LOG_TAG, "READ_LOGS not allowed. ACRA will not include LogCat and DropBox data.");
+                Log.i(CrashReporter.LOG_TAG, "READ_LOGS not allowed. CRASH will not include LogCat and DropBox data.");
             }
 
             // Application specific log file
@@ -395,7 +395,7 @@ public final class CrashReportDataFactory {
     }
 
     private List<ReportField> getReportFields() {
-        final ACRAConfiguration config = CrashReporter.getConfig();
+        final CrashConfiguration config = CrashReporter.getConfig();
         final ReportField[] customReportFields = config.customReportContent();
 
         final ReportField[] fieldsList;
@@ -405,11 +405,11 @@ public final class CrashReportDataFactory {
         }
         //else if (config.mailTo() == null || "".equals(config.mailTo())) {
         //    Log.d(LOG_TAG, "Using default Report Fields");
-        //    fieldsList = ACRAConstants.DEFAULT_REPORT_FIELDS;
+        //    fieldsList = CrashConstants.DEFAULT_REPORT_FIELDS;
         //}
         else {
             Log.d(LOG_TAG, "Using default Mail Report Fields");
-            fieldsList = ACRAConstants.DEFAULT_MAIL_REPORT_FIELDS;
+            fieldsList = CrashConstants.DEFAULT_MAIL_REPORT_FIELDS;
         }
         return Arrays.asList(fieldsList);
     }

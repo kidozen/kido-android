@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import kidozen.client.crash.ACRAConstants;
+import kidozen.client.crash.CrashConstants;
 import kidozen.client.crash.BoundedLinkedList;
 import kidozen.client.crash.Compatibility;
 import kidozen.client.crash.CrashReporter;
@@ -97,7 +97,7 @@ class LogCatCollector {
 
         try {
             final Process process = Runtime.getRuntime().exec(commandLine.toArray(new String[commandLine.size()]));
-            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()), ACRAConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
+            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()), CrashConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
 
             Log.d(LOG_TAG, "Retrieving logcat output...");
 
@@ -106,7 +106,7 @@ class LogCatCollector {
                 public void run() {
                     try {
                         InputStream stderr = process.getErrorStream();
-                        byte[] dummy = new byte[ACRAConstants.DEFAULT_BUFFER_SIZE_IN_BYTES];
+                        byte[] dummy = new byte[CrashConstants.DEFAULT_BUFFER_SIZE_IN_BYTES];
                         while (stderr.read(dummy) >= 0)
                             ;
                     } catch (IOException e) {

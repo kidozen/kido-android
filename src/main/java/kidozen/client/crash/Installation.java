@@ -29,7 +29,7 @@ import android.util.Log;
 public class Installation {
 
     private static String sID;
-    private static final String INSTALLATION = "ACRA-INSTALLATION";
+    private static final String INSTALLATION = "CRASH-INSTALLATION";
 
     public synchronized static String id(Context context) {
         if (sID == null) {

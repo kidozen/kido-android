@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import kidozen.client.crash.ACRAConstants;
+import kidozen.client.crash.CrashConstants;
 import kidozen.client.crash.CrashReporter;
 
 /**
@@ -48,7 +48,7 @@ final class DumpSysCollector {
             commandLine.add(Integer.toString(android.os.Process.myPid()));
 
             final Process process = Runtime.getRuntime().exec(commandLine.toArray(new String[commandLine.size()]));
-            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()), ACRAConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
+            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()), CrashConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
 
             while (true) {
                 final String line = bufferedReader.readLine();

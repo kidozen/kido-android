@@ -65,7 +65,7 @@ final class CrashReportPersister {
         }
 
         try {
-            final BufferedInputStream bis = new BufferedInputStream(in, ACRAConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
+            final BufferedInputStream bis = new BufferedInputStream(in, CrashConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
             bis.mark(Integer.MAX_VALUE);
             final boolean isEbcdic = isEbcdic(bis);
             bis.reset();
@@ -164,7 +164,7 @@ final class CrashReportPersister {
         boolean firstChar = true;
 
         final CrashReportData crashData = new CrashReportData();
-        final BufferedReader br = new BufferedReader(reader, ACRAConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
+        final BufferedReader br = new BufferedReader(reader, CrashConstants.DEFAULT_BUFFER_SIZE_IN_BYTES);
 
         while (true) {
             intVal = br.read();
