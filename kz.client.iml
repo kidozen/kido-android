@@ -110,7 +110,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: nekohtml:xercesMinimal:1.9.6.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: nekohtml:nekohtml:1.9.6.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:1.7.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
   </component>
 </module>
 

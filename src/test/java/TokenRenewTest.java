@@ -44,7 +44,7 @@ public class TokenRenewTest {
     @Ignore //Cannot run this test with current robolectric version
     public void ShouldExecuteOnSessionExpirationRunnable() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(TestConfiguration.KZ_TENANT, TestConfiguration.KZ_APP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -54,7 +54,7 @@ public class TokenRenewTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(TestConfiguration.KZ_PROVIDER, TestConfiguration.KZ_USER, TestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -63,7 +63,7 @@ public class TokenRenewTest {
         });
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
 
-        Thread.sleep(IntegrationTestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
+        Thread.sleep(TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
 
         final CountDownLatch lcde = new CountDownLatch(1);
         Runnable whenExpires = new Runnable() {
@@ -86,8 +86,8 @@ public class TokenRenewTest {
     {
         try {
             final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, kidoInitCallback(signal));
-            kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, kidoAuthCallback(signal));
+            kidozen = new KZApplication(TestConfiguration.KZ_TENANT, TestConfiguration.KZ_APP, true, kidoInitCallback(signal));
+            kidozen.Authenticate(TestConfiguration.KZ_PROVIDER, TestConfiguration.KZ_USER, TestConfiguration.KZ_PASS, kidoAuthCallback(signal));
             signal.await();
             _storage = kidozen.Storage(KZ_STORAGE_SERVICEID);
         }
@@ -99,7 +99,7 @@ public class TokenRenewTest {
     @Test
     public void ShouldRenewTokenUsingDefaultSettings() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(IntegrationTestConfiguration.KZ_TENANT, IntegrationTestConfiguration.KZ_APP, true, new ServiceEventListener() {
+        kidozen = new KZApplication(TestConfiguration.KZ_TENANT, TestConfiguration.KZ_APP, true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -109,7 +109,7 @@ public class TokenRenewTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MILLISECONDS);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(IntegrationTestConfiguration.KZ_PROVIDER, IntegrationTestConfiguration.KZ_USER, IntegrationTestConfiguration.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(TestConfiguration.KZ_PROVIDER, TestConfiguration.KZ_USER, TestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -121,7 +121,7 @@ public class TokenRenewTest {
         //Assert
         final CountDownLatch qcdl = new CountDownLatch(1);
 
-        Thread.sleep(IntegrationTestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
+        Thread.sleep(TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
 
         _storage.Query("{}", new ServiceEventListener() {
             @Override
@@ -130,7 +130,7 @@ public class TokenRenewTest {
                 qcdl.countDown();
             }
         });
-        assertTrue(qcdl.await(IntegrationTestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT * 1000 * 60, TimeUnit.MINUTES));
+        assertTrue(qcdl.await(TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT * 1000 * 60, TimeUnit.MINUTES));
     }
 
 
@@ -201,7 +201,7 @@ public class TokenRenewTest {
         q.Subscribe(onMessage, onError);
 
         //Force token expiration
-        Thread.sleep(IntegrationTestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
+        Thread.sleep(TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
 
         q.Publish(data, new ServiceEventListener() {
             @Override
@@ -209,7 +209,7 @@ public class TokenRenewTest {
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
             }
         });
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS * 1000 * 60 + IntegrationTestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT, TimeUnit.MILLISECONDS));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS * 1000 * 60 + TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT, TimeUnit.MILLISECONDS));
     }
     */
 }

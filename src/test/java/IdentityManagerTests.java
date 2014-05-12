@@ -124,7 +124,7 @@ public class IdentityManagerTests {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = IdentityManager.getInstance();
         im.Setup(cfg,false);
-        im.Authenticate(IntegrationTestConfiguration.KZ_KEY,new ServiceEventListener() {
+        im.Authenticate(TestConfiguration.KZ_KEY,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -155,7 +155,7 @@ public class IdentityManagerTests {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = IdentityManager.getInstance();
         im.Setup(cfg,false);
-        im.Authenticate(IntegrationTestConfiguration.KZ_KEY, new ServiceEventListener() {
+        im.Authenticate(TestConfiguration.KZ_KEY, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -166,7 +166,7 @@ public class IdentityManagerTests {
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch lcd2 = new CountDownLatch(1);
-        im.Authenticate(IntegrationTestConfiguration.KZ_KEY, new ServiceEventListener() {
+        im.Authenticate(TestConfiguration.KZ_KEY, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd2.countDown();

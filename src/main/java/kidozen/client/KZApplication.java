@@ -15,6 +15,7 @@ import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.KidoAppSettings;
 
 /**
  * @author kidozen

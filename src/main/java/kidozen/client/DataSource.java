@@ -8,6 +8,7 @@ import java.util.HashMap;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.JsonStringToMap;
+import kidozen.client.internal.KidoEntitySerializer;
 import kidozen.client.internal.Utilities;
 
 /**
@@ -152,19 +153,18 @@ public class DataSource extends KZService {
         CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
-
-            if (data==null)
-                throw new InvalidParameterException("data cannot be null or empty");
-            JsonStringToMap jsm = new JsonStringToMap();
-            String qs = Utilities.MapAsQueryString(jsm.parse(data.toString()), false, null);
-            qs = qs.substring(0, qs.length() - 1);
-            String  url = mEndpoint + "/" + mName + "?" + qs;
-            HashMap<String, String> params = new HashMap<String, String>();
-            HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put(Constants.AUTHORIZATION_HEADER, token);
-            if (timeout>0)
-                headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-            new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+                if (data==null)
+                    throw new InvalidParameterException("data cannot be null or empty");
+                JsonStringToMap jsm = new JsonStringToMap();
+                String qs = Utilities.MapAsQueryString(jsm.parse(data.toString()), false, null);
+                qs = qs.substring(0, qs.length() - 1);
+                String  url = mEndpoint + "/" + mName + "?" + qs;
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                if (timeout>0)
+                    headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
+                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
             }
         });
 
