@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
 
 /**
  * Queue service interface

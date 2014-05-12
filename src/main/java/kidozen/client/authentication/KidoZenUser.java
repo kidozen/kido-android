@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-import kidozen.client.Constants;
+import kidozen.client.internal.Constants;
 
 /**
  * The kidozen user identity

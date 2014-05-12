@@ -1,16 +1,11 @@
 package kidozen.client;
 
-import android.util.Log;
-
-import com.sun.swing.internal.plaf.metal.resources.metal_sv;
-
 import java.io.InputStream;
 import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
 
 
 /**

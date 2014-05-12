@@ -14,6 +14,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
+
 /**
  * Publish and subscribe service interface
  *

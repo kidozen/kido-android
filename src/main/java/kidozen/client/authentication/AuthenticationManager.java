@@ -22,10 +22,10 @@ import java.util.Map;
 import kidozen.client.KZAction;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.ObservableUser;
-import kidozen.client.SNIConnectionManager;
+import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
-import kidozen.client.Utilities;
+import kidozen.client.internal.Utilities;
 
 
 public class AuthenticationManager extends AsyncTask<Void, Void, Void> {

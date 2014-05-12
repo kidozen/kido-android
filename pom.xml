@@ -36,11 +36,11 @@
             <version>2.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- dependency>
-            <groupId>ch.acra</groupId>
-            <artifactId>acra</artifactId>
-            <version>4.5.0</version>
-        </dependency -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>1.7.2</version>
+        </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>

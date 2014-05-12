@@ -1,14 +1,12 @@
 package kidozen.client;
 
-import android.util.Log;
-
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
+
 /**
  * Push notifications service interface
  * 

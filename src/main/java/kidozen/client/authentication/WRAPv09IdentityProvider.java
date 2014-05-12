@@ -10,8 +10,8 @@ import java.util.List;
 
 import kidozen.client.KZAction;
 import kidozen.client.KZHttpMethod;
-import kidozen.client.SNIConnectionManager;
-import kidozen.client.Utilities;
+import kidozen.client.internal.SNIConnectionManager;
+import kidozen.client.internal.Utilities;
 
 /**
  * WRAP V 09 Identity Provider

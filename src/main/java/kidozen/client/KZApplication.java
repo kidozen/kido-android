@@ -14,6 +14,7 @@ import java.util.HashMap;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
+import kidozen.client.internal.Constants;
 
 /**
  * @author kidozen

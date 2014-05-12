@@ -15,6 +15,8 @@ import java.util.Map;
 
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
+import kidozen.client.internal.SNIConnectionManager;
 
 public class KZService {
     public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;

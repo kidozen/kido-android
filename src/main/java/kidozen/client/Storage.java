@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
 
 /**
  * Storage  service interface

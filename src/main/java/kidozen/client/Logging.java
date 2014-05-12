@@ -1,17 +1,13 @@
 package kidozen.client;
 
-import android.os.AsyncTask;
-
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
@@ -19,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
 
 /**
  * Log service interface

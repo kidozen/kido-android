@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.internal.Constants;
+import kidozen.client.internal.Utilities;
 
 /**
  * Mail service interface

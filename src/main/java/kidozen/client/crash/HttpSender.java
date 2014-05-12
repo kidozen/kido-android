@@ -20,10 +20,10 @@ import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import kidozen.client.Constants;
+import kidozen.client.internal.Constants;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.KZService;
-import kidozen.client.SNIConnectionManager;
+import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.authentication.IdentityManager;

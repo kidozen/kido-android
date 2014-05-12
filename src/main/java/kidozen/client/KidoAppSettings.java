@@ -7,12 +7,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 
-import javax.swing.text.html.HTMLDocument;
-
 import kidozen.client.authentication.IdentityManager;
+import kidozen.client.internal.SNIConnectionManager;
 
 /**
 * Created by christian on 4/30/14.

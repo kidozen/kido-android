@@ -5,8 +5,8 @@ import java.util.Hashtable;
 
 import kidozen.client.KZAction;
 import kidozen.client.KZHttpMethod;
-import kidozen.client.SNIConnectionManager;
-import kidozen.client.Utilities;
+import kidozen.client.internal.SNIConnectionManager;
+import kidozen.client.internal.Utilities;
 
 /**
  * Active Directory Federation Services Identity Provider
