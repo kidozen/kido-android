@@ -1,13 +1,16 @@
 .plugins/
 .settings/
-target
 .metadata
 .log
 .zip
 .DS_Store
 .idea/
+.gradle
+
 out/
 target/
+classes/
+target
 
 # Built application files
 *.apk
