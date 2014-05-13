@@ -168,7 +168,7 @@ public class TokenRenewTest {
     private String CreateRandomValue()
     {
         Random rng= new Random();
-        String characters ="qwertyuiopñlkjhgfdsazxcvbnm";
+        String characters ="qwertyuioplkjhgfdsazxcvbnm";
         char[] text = new char[10];
         for (int i = 0; i < 10; i++)
         {
@@ -177,39 +177,4 @@ public class TokenRenewTest {
         return new String(text);
 
     }
-/* TODO: FIX TEST
-    @Test
-    public void ShouldSubscribeAndReceiveMessageRenewingToken() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
-        final PubSubChannel q = kidozen.PubSubChannel(PUBSUB_INTEGRATION_TESTS);
-
-        KZAction<JSONObject> onMessage = new KZAction<JSONObject>() {
-            @Override
-            public void onServiceResponse(JSONObject response) throws Exception {
-                lcd.countDown();
-            }
-        };
-
-        KZAction<Exception> onError = new KZAction<Exception>() {
-            @Override
-            public void onServiceResponse(Exception response) throws Exception {
-                fail();
-            }
-        };
-
-        q.Subscribe(onMessage, onError);
-
-        //Force token expiration
-        Thread.sleep(TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
-
-        q.Publish(data, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
-            }
-        });
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS * 1000 * 60 + TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT, TimeUnit.MILLISECONDS));
-    }
-    */
 }

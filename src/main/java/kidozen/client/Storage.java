@@ -61,7 +61,6 @@ public class Storage extends KZService {
         });
     }
 
-
     /**
 	 * Creates a new private object in the storage
 	 * 

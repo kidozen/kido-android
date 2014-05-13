@@ -9,7 +9,6 @@ description = """kz.client"""
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-//...
 task sourcesJar(type: Jar, dependsOn:classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -20,7 +19,8 @@ artifacts {
 
 jar {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Quickstart', 'Implementation-Version': version
+        attributes 'Implementation-Title': 'KidoZen SDK v2.0',
+                'Implementation-Version': version
     }
 }
 

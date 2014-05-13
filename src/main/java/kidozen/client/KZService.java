@@ -135,6 +135,11 @@ public class KZService {
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
         protected ServiceEvent doInBackground(String... params) {
             int statusCode = HttpStatus.SC_BAD_REQUEST;
             try

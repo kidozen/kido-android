@@ -79,7 +79,7 @@ public class TestConfiguration {
         KZ_KEY =                "ODqirc87jbBINP9ebQi6aVb53V5r33VYVHs2YopuvUc=";
         KZ_TENANT =             "https://contoso.local.kidozen.com";
         KZ_APP =                "androidcrashapp";
-        KZ_USER =               "tests@kidozen.com";
+        KZ_USER =               "contoso@kidozen.com";
         KZ_PASS =               "pass";
         KZ_SERVICEID =          "Weather";
         KZ_EMAIL_FROM =         "contoso@kidozen.com.com";

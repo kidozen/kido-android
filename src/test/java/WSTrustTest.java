@@ -1,6 +1,7 @@
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -29,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class WSTrustTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     KZApplication kidozen = null;

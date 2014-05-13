@@ -1,6 +1,7 @@
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -38,6 +39,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 public class EMailTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 3;
@@ -160,7 +162,7 @@ public class EMailTest {
     private String CreateRandomValue()
     {
         Random rng= new Random();
-        String characters ="qwertyuiopñlkjhgfdsazxcvbnm";
+        String characters ="qwertyuioplkjhgfdsazxcvbnm";
         char[] text = new char[10];
         for (int i = 0; i < 10; i++)
         {

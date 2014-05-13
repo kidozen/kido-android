@@ -1,8 +1,13 @@
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +26,9 @@ import static org.junit.Assert.fail;
 /**
  * Created by christian on 5/6/14.
  */
+@RunWith(RobolectricTestRunner.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Config(manifest= Config.NONE)
 @Ignore
 public class PubSubTest {
 private static final String KZ_CHANNEL_ID = "testChannelId";

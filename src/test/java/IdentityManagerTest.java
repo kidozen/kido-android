@@ -3,6 +3,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -34,14 +35,10 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-public class IdentityManagerTests {
+@Ignore
+public class IdentityManagerTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     private JSONObject cfg, cfgKey;
-    private static final String KZ_TENANT = "https://contoso.local.kidozen.com";
-    private static final String KZ_APP = "ioscrashapp";
-    String provider = "kidozen";
-    String user = "contoso@kidozen.com";
-    String pass = "pass";
 
     @Before
     public void Setup() throws JSONException
@@ -65,7 +62,7 @@ public class IdentityManagerTests {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = IdentityManager.getInstance();
         im.Setup(cfg,false);
-        im.Authenticate(provider,user,"", new ServiceEventListener() {
+        im.Authenticate(TestConfiguration.KZ_TENANT,TestConfiguration.KZ_USER,"", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_BAD_REQUEST));
@@ -79,7 +76,7 @@ public class IdentityManagerTests {
         final CountDownLatch lcd = new CountDownLatch(1);
         IdentityManager im = IdentityManager.getInstance();
         im.Setup(cfg,false);
-        im.Authenticate(provider,user,pass, new ServiceEventListener() {
+        im.Authenticate(TestConfiguration.KZ_TENANT,TestConfiguration.KZ_USER,TestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
@@ -97,7 +94,7 @@ public class IdentityManagerTests {
         IdentityManager im = IdentityManager.getInstance();
         im.Setup(cfg,false);
 
-        im.Authenticate(provider,user,pass, new ServiceEventListener() {
+        im.Authenticate(TestConfiguration.KZ_TENANT,TestConfiguration.KZ_USER,TestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -108,7 +105,7 @@ public class IdentityManagerTests {
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch lcd2 = new CountDownLatch(1);
-        im.Authenticate(provider,user,pass, new ServiceEventListener() {
+        im.Authenticate(TestConfiguration.KZ_TENANT,TestConfiguration.KZ_USER,TestConfiguration.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd2.countDown();

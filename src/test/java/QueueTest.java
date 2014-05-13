@@ -2,6 +2,7 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -32,7 +33,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-
+@Ignore
 public class QueueTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
@@ -117,7 +118,7 @@ public class QueueTest {
     private String CreateRandomValue()
     {
         Random rng= new Random();
-        String characters ="qwertyuiopñlkjhgfdsazxcvbnm";
+        String characters ="qwertyuioplkjhgfdsazxcvbnm";
         char[] text = new char[10];
         for (int i = 0; i < 10; i++)
         {
