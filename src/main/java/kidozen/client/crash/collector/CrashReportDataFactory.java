@@ -403,10 +403,10 @@ public final class CrashReportDataFactory {
             Log.d(LOG_TAG, "Using custom Report Fields");
             fieldsList = customReportFields;
         }
-        //else if (config.mailTo() == null || "".equals(config.mailTo())) {
-        //    Log.d(LOG_TAG, "Using default Report Fields");
-        //    fieldsList = CrashConstants.DEFAULT_REPORT_FIELDS;
-        //}
+        else if (config.mailTo() == null || "".equals(config.mailTo())) {
+            Log.d(LOG_TAG, "Using default Report Fields");
+            fieldsList = CrashConstants.DEFAULT_REPORT_FIELDS;
+        }
         else {
             Log.d(LOG_TAG, "Using default Mail Report Fields");
             fieldsList = CrashConstants.DEFAULT_MAIL_REPORT_FIELDS;

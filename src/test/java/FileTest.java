@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+//@Ignore
 public class FileTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 10;
     public static final String FOTOS_TESTFILE_TXT = "/Users/christain/hosts";

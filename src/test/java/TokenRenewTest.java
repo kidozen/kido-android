@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+//@Ignore
 public class TokenRenewTest {
     private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
     public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests";
@@ -37,49 +37,6 @@ public class TokenRenewTest {
     public static final String DATA_VALUE_KEY = "value";
     KZApplication kidozen = null;
     Storage _storage;
-
-    boolean onSessionExpirationRun = false;
-
-    @Test
-    @Ignore //Cannot run this test with current robolectric version
-    public void ShouldExecuteOnSessionExpirationRunnable() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(TestConfiguration.KZ_TENANT, TestConfiguration.KZ_APP, true, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
-            }
-        });
-        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-        final CountDownLatch alcd = new CountDownLatch(1);
-
-        kidozen.Authenticate(TestConfiguration.KZ_PROVIDER, TestConfiguration.KZ_USER, TestConfiguration.KZ_PASS, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                alcd.countDown();
-            }
-        });
-        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-
-        Thread.sleep(TestConfiguration.KZ_TOKEN_EXPIRES_TIMEOUT);
-
-        final CountDownLatch lcde = new CountDownLatch(1);
-        Runnable whenExpires = new Runnable() {
-            @Override
-            public void run() {
-                onSessionExpirationRun = true;
-                lcde.countDown();
-            }
-        };
-        //TODO: FIX  kidozen.OnSessionExpirationRunnable(whenExpires);
-
-        lcde.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-
-        assertTrue(onSessionExpirationRun);
-    }
-
 
     @Before
     public void Setup()

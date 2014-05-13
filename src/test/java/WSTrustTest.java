@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+//@Ignore
 public class WSTrustTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     KZApplication kidozen = null;

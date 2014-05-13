@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
+//@Ignore
 public class EApiTest {
     private static final String KZ_SERVICE_METHODID = "get";
     private static final String KZ_SERVICE_INVALID_METHODID = "Invalid";
