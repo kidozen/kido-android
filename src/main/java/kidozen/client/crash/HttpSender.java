@@ -16,6 +16,7 @@
 package kidozen.client.crash;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,7 @@ import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 
 import static kidozen.client.crash.CrashReporter.LOG_TAG;
 
@@ -39,10 +41,18 @@ public class HttpSender extends KZService implements ReportSender {
     private long DEFAULT_TIMEOUT = 2;
     private String mApplicationKey = "none";
     private String mToken = "empty";
+    private ArrayList<String> mBreadCrumbs;
+    private static final String APPLICATION_BREADCRUMB = "APPLICATION_BREADCRUMB";
+
 
     public HttpSender(String crashEndpoint, String token) {
         mApplicationKey = token;
         mCrashEndpoint = crashEndpoint;
+        mBreadCrumbs = new ArrayList<String>();
+    }
+
+    public void AddBreadCrumb(String value) {
+        mBreadCrumbs.add(value);
     }
 
     @Override
@@ -61,13 +71,15 @@ public class HttpSender extends KZService implements ReportSender {
             String authHeaderValue = String.format("WRAP access_token=\"%s\"", mToken);
 
             Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", mCrashEndpoint));
+            JSONObject reportAsJson = report.toJSON();
+            reportAsJson.put(APPLICATION_BREADCRUMB, mBreadCrumbs.toArray().toString());
 
             Hashtable<String, String> headers = new Hashtable<String, String>();
             headers.put(Constants.AUTHORIZATION_HEADER,authHeaderValue);
             headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
             headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-            mSniManager = new SNIConnectionManager(mCrashEndpoint, report.toJSON().toString(), headers, null, true);
+            mSniManager = new SNIConnectionManager(mCrashEndpoint, reportAsJson.toString(), headers, null, true);
             Hashtable<String, String> response = mSniManager.ExecuteHttp(KZHttpMethod.POST);
             String body = response.get("responseBody");
             Integer statusCode = Integer.parseInt(response.get("statusCode"));

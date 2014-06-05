@@ -60,6 +60,12 @@ public class KZApplication  {
             _crashReporter = new CrashReporter(application,mReportingUrl, _applicationKey);
         }
     }
+
+    public void SetBreadCrumb(String value) {
+        _crashReporter.AddBreadCrumb(value);
+    }
+
+
     //
     /**
 	 * Returns the current KidoZen identity

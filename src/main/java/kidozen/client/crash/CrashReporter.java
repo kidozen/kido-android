@@ -5,6 +5,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 import kidozen.client.KZService;
 import kidozen.client.authentication.IdentityManager;
 
@@ -14,9 +16,9 @@ import kidozen.client.authentication.IdentityManager;
 public class CrashReporter extends KZService {
     private static CrashReporter INSTANCE;
     private static Application _hostApplication;
+    private ErrorReporter errorReporterSingleton;
     private String mApplicationKey;
     private String _endpoint;
-    private static ErrorReporter errorReporterSingleton;
 
     public static final boolean DEV_LOGGING = false; // Should be false for
     // release.
@@ -69,6 +71,7 @@ public class CrashReporter extends KZService {
      * because they are old and out of date.
      */
     public static final String PREF_LAST_VERSION_NR = "acra.lastVersionNr";
+    private HttpSender mSender;
 
     private CrashReporter() {
     }
@@ -76,6 +79,8 @@ public class CrashReporter extends KZService {
     public CrashReporter(Application application, String endpoint, String applicationKey) {
         super();
         _hostApplication = application;
+        mSender = new HttpSender(_endpoint, applicationKey);
+
         if (!endpoint.endsWith("/")) {
             endpoint = endpoint + "/";
         }
@@ -85,13 +90,17 @@ public class CrashReporter extends KZService {
         CrashConfiguration conf = getConfig();
         conf.setFormUri(_endpoint);
 
-        final ErrorReporter errorReporter = new ErrorReporter(_hostApplication,
-                _hostApplication.getSharedPreferences(conf.sharedPreferencesName(), conf.sharedPreferencesMode()),
+        errorReporterSingleton = new ErrorReporter(_hostApplication,
+                _hostApplication.getSharedPreferences(conf.sharedPreferencesName(),
+                conf.sharedPreferencesMode()),
                 true);
 
         mApplicationKey = applicationKey;
-        errorReporter.addReportSender(new HttpSender(_endpoint,applicationKey));
-        errorReporterSingleton = errorReporter;
+        errorReporterSingleton.addReportSender(mSender);
+    }
+
+    public void AddBreadCrumb(String value) {
+        mSender.AddBreadCrumb(value);
     }
 
     private static void createInstance() {
