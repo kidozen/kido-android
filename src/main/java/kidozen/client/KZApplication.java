@@ -61,7 +61,7 @@ public class KZApplication  {
         }
     }
 
-    public void SetBreadCrumb(String value) {
+    public void AddBreadCrumb(String value) {
         _crashReporter.AddBreadCrumb(value);
     }
 

@@ -79,7 +79,6 @@ public class CrashReporter extends KZService {
     public CrashReporter(Application application, String endpoint, String applicationKey) {
         super();
         _hostApplication = application;
-        mSender = new HttpSender(_endpoint, applicationKey);
 
         if (!endpoint.endsWith("/")) {
             endpoint = endpoint + "/";
@@ -89,6 +88,7 @@ public class CrashReporter extends KZService {
 
         CrashConfiguration conf = getConfig();
         conf.setFormUri(_endpoint);
+        mSender = new HttpSender(_endpoint, applicationKey);
 
         errorReporterSingleton = new ErrorReporter(_hostApplication,
                 _hostApplication.getSharedPreferences(conf.sharedPreferencesName(),
