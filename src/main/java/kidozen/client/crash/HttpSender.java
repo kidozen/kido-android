@@ -31,6 +31,7 @@ import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import static kidozen.client.crash.CrashReporter.LOG_TAG;
@@ -72,7 +73,9 @@ public class HttpSender extends KZService implements ReportSender {
 
             Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", mCrashEndpoint));
             JSONObject reportAsJson = report.toJSON();
-            reportAsJson.put(APPLICATION_BREADCRUMB, mBreadCrumbs.toArray().toString());
+
+            String bc = new JSONArray(mBreadCrumbs).toString();
+            reportAsJson.put(APPLICATION_BREADCRUMB, bc);
 
             Hashtable<String, String> headers = new Hashtable<String, String>();
             headers.put(Constants.AUTHORIZATION_HEADER,authHeaderValue);
