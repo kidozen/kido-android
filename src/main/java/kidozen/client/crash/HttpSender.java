@@ -43,7 +43,7 @@ public class HttpSender extends KZService implements ReportSender {
     private String mApplicationKey = "none";
     private String mToken = "empty";
     private ArrayList<String> mBreadCrumbs;
-    private static final String APPLICATION_BREADCRUMB = "APPLICATION_BREADCRUMB";
+    private static final String APPLICATION_BREADCRUMBS = "APP_BREADCRUMBS";
 
 
     public HttpSender(String crashEndpoint, String token) {
@@ -75,7 +75,7 @@ public class HttpSender extends KZService implements ReportSender {
             JSONObject reportAsJson = report.toJSON();
 
             String bc = new JSONArray(mBreadCrumbs).toString();
-            reportAsJson.put(APPLICATION_BREADCRUMB, bc);
+            reportAsJson.put(APPLICATION_BREADCRUMBS, bc);
 
             Hashtable<String, String> headers = new Hashtable<String, String>();
             headers.put(Constants.AUTHORIZATION_HEADER,authHeaderValue);
