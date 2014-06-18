@@ -39,7 +39,7 @@ import static kidozen.client.crash.CrashReporter.LOG_TAG;
 public class HttpSender extends KZService implements ReportSender {
     private String mCrashEndpoint;
     private SNIConnectionManager mSniManager;
-    private long DEFAULT_TIMEOUT = 2;
+    private long DEFAULT_TIMEOUT = 5;
     private String mApplicationKey = "none";
     private String mToken = "empty";
     private ArrayList<String> mBreadCrumbs;
@@ -68,7 +68,7 @@ public class HttpSender extends KZService implements ReportSender {
                 cdl.countDown();
                 }
             });
-            cdl.await(DEFAULT_TIMEOUT, TimeUnit.MINUTES);
+            cdl.await(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
             String authHeaderValue = String.format("WRAP access_token=\"%s\"", mToken);
 
             Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", mCrashEndpoint));
