@@ -119,10 +119,10 @@ public class SNIConnectionManager
             while (dataRead >= 0)
             {
                 dataRead = bis.read(dataChunk,0,CHUNK_SIZE);
-                System.out.print(".");
                 // only write out if there is data to be read
-                if ( dataRead > 0 )
-                    fos.write(dataChunk,0,dataRead);
+                if ( dataRead > 0 ) {
+                    fos.write(dataChunk, 0, dataRead);
+                }
             }
             bis.close();
             fos.close();

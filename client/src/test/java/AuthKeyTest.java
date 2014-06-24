@@ -1,6 +1,7 @@
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+
 public class AuthKeyTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     int actualStatusCode = 0;
@@ -48,10 +50,11 @@ public class AuthKeyTest {
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-        assertEquals(actualStatusCode, HttpStatus.SC_OK);
+        assertEquals( HttpStatus.SC_OK,actualStatusCode);
     }
 
     @Test
+    @Ignore
     public void ShouldFailUsingApplicationKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, "fail", false, new ServiceEventListener() {
@@ -62,7 +65,7 @@ public class AuthKeyTest {
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-        assertEquals(actualStatusCode, HttpStatus.SC_BAD_REQUEST);
+        assertEquals(HttpStatus.SC_BAD_REQUEST,actualStatusCode);
     }
 
 

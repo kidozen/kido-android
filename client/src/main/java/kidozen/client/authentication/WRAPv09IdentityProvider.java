@@ -59,7 +59,6 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
         try {
             String url = identityProviderUrl.toString();
             String message = Utilities.getQuery(nameValuePairs);
-
             SNIConnectionManager sniManager = new SNIConnectionManager(url, message, null, null, bypassSSLValidation);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
 

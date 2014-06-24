@@ -296,7 +296,6 @@ public class IdentityManager {
     }
 
     public KidoZenUser createKidoZenUser(String tokenAsString, KidoZenUserIdentityType userIdentity) throws JSONException {
-        System.out.print(tokenAsString);
         JSONObject token = new JSONObject(tokenAsString);
         String rawTokenAsString = token.get("rawToken").toString();
         String refreshToken  = token.get("refresh_token").toString();
@@ -406,12 +405,11 @@ public class IdentityManager {
                     nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
                     nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
                     String message = Utilities.getQuery(nameValuePairs);
-
                     SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, mStrictSSL);
                     Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                     _userTokeFromAuthService = authResponse.get("responseBody");
                     _statusCode = authResponse.get("statusCode");
-                    //_lcd.countDown();
+
                     if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
                 }
             });
@@ -441,8 +439,15 @@ public class IdentityManager {
                 SNIConnectionManager sniManager = new SNIConnectionManager(oauthEndpoint, message, requestProperties, null, mStrictSSL);
                 Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                 body = authResponse.get("responseBody");
+
+                // TODO: Refactor entire class and use Interfaces
+                // Adds a refresh_token json property.
+                JSONObject updatedBody = new JSONObject(body)
+                        .put("refresh_token", "");
+
                 statusCode = authResponse.get("statusCode");
-                response[0] = body;
+                response[0] = updatedBody.toString();
+
                 if (Integer.parseInt(statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http StatusCode = %s). Body : %s", statusCode, body));
             }
             catch (JSONException e) {

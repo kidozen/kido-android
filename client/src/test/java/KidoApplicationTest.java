@@ -2,6 +2,7 @@ import org.apache.http.HttpStatus;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -79,31 +80,5 @@ public class KidoApplicationTest {
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-    }
-
-    @Test
-    public void ShouldReturnClaimsUsingDefaultSettings() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP,  AppSettings.KZ_KEY,false, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-            lcd.countDown();
-            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-            }
-        });
-        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-        final CountDownLatch alcd = new CountDownLatch(1);
-
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-            alcd.countDown();
-            assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-            }
-        });
-        assertEquals(true, kidozen.UserIsAuthenticated);
-        Hashtable<String,String> claims; // TODO FIX THIS: = kidozen.mUserIdentity.Claims;
-
-        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 }
