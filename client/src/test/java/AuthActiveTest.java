@@ -31,8 +31,6 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-
-@Ignore
 public class AuthActiveTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final int TEST_TIMEOUT_IN_SECONDS = 5;

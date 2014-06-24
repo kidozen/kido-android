@@ -200,15 +200,11 @@ public class StorageTest {
 
         updatedObject.put(DATA_VALUE_KEY, expected);
 
-        System.out.print("updated: " + updatedObject.toString());
-
         //Assert
         _storage.Update(updatedObject.getString("_id"),updatedObject, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertEquals(e.StatusCode, HttpStatus.SC_OK);
-                System.out.print("updated response: " + e.Body);
-
                 lcd.countDown();
             }
         });
@@ -287,7 +283,10 @@ public class StorageTest {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = this.CreateRandomValue();
         final String KEY2="additional";
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected).put(KEY2, this.CreateRandomValue());
+        JSONObject data = new JSONObject()
+                .put(DATA_VALUE_KEY,expected)
+                .put(KEY2, this.CreateRandomValue());
+
         StorageEventListener cb = createObjectForStorage(data);
 
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
@@ -307,8 +306,10 @@ public class StorageTest {
                 catch (JSONException je)
                 {
                     String msg = je.getMessage();
-                    String expectedMessage = "JSONObject[\"additional\"] not found.";
-                    assertEquals(msg,expectedMessage);
+                    System.out.println("msg = " + msg);
+
+                    String expectedMessage = "No value for additional";
+                    assertEquals(expectedMessage, msg);
                     lcd.countDown();
                 }
                 catch (Exception e1)

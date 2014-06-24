@@ -260,9 +260,10 @@ public class IdentityManager {
             if (cacheItem!=null)
             {
                 rawToken = cacheItem.getString("rawToken");
-                KidoZenUser usr = (KidoZenUser) mTokensCache.get(cacheKey).get("user");
+                KidoZenUser usr = (KidoZenUser) cacheItem.get("user");
                 if (usr.HasExpired())
                 {
+
                     mTokensCache.remove(cacheKey);
                     this.Authenticate(providerName, username, password, callback);
                 }

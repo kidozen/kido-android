@@ -27,8 +27,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-@Ignore
-
 public class AuthKeyTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     int actualStatusCode = 0;
