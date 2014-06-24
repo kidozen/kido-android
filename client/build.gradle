@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+    dependencies {
+        //Prior to AS 0.5.9: classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath 'com.android.tools.build:gradle:0.10.1'
+
+        //Prior to AS 0.5.9: classpath 'org.robolectric.gradle:gradle-android-test-plugin:0.9.+'
+        classpath 'org.robolectric.gradle:gradle-android-test-plugin:0.10.0'
+        //previous plugin >> classpath 'com.novoda.gradle:robolectric-plugin:0.0.1-SNAPSHOT'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+}
+
+
+
+apply plugin: 'android-library'
+apply plugin: 'android-test' //previously >> apply plugin: 'robolectric'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '19.1.0'
+    defaultConfig {
+        applicationId 'com.kidozen.client'
+        minSdkVersion 15
+        targetSdkVersion 19
+        versionCode 1
+        versionName '1.0'
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+    }
+    sourceSets {
+        androidTest.setRoot('src/test')
+    }
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.netiq:websocket:0.7'
+    provided 'org.json:json:20090211'
+    compile 'com.google.code.gson:gson:1.7.2'
+    androidTestCompile 'junit:junit:4.11'
+    androidTestCompile 'org.robolectric:robolectric:2.3'
+}
+
+//only include files that are suffixed with Test.class and set the max heap size
+androidTest {
+    include '**/*Test.class'
+    maxHeapSize = "2048m"
+}
