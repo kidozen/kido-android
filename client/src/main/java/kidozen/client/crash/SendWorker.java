@@ -15,15 +15,15 @@
  */
 package kidozen.client.crash;
 
-import static kidozen.client.crash.CrashReporter.LOG_TAG;
+import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import android.content.Context;
-import android.util.Log;
+import static kidozen.client.crash.CrashReporter.LOG_TAG;
 
 /**
  * Checks and send reports on a separate Thread.

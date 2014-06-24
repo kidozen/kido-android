@@ -37,12 +37,12 @@ public class KZApplication  {
     private String mProvider;
     private String mUsername;
     private String mPassword;
+    private String mPassiveClientId;
     private String mReportingUrl;
     private Boolean mIsAuthenticatedWithAppKey = false;
 
     private KidoZenUser mUserIdentity;
     private KidoZenUser mApplicationIdentity;
-    private KidoZenUser mPassiveUserIdentity;
     private static JSONArray mAllApplicationLogEvents;
     private kidozen.client.Logging mApplicationLog;
     private kidozen.client.MailSender mMailSender;
@@ -129,6 +129,7 @@ public class KZApplication  {
 
             mApplicationConfiguration.execute(url).get();
             mReportingUrl = mApplicationConfiguration.GetSettingAsString("url");
+            mPassiveClientId = mApplicationConfiguration.GetSettingAsString("name");
         }
         catch (Exception e)
         {
@@ -146,6 +147,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
 
@@ -168,6 +170,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
 
@@ -190,6 +193,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
 
@@ -213,6 +217,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
 		queue.mUserIdentity = this.mUserIdentity;
@@ -234,6 +239,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
 		storage.StrictSSL = StrictSSL;
@@ -249,9 +255,12 @@ public class KZApplication  {
 	 */
 	public SMSSender SMSSender(String number) throws Exception{
 		checkMethodParameters(number);
-		SMSSender sender = new SMSSender(mApplicationConfiguration.GetSettingAsString("sms"), number, mProvider,
+		SMSSender sender = new SMSSender(mApplicationConfiguration.GetSettingAsString("sms"),
+                number,
+                mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
 
@@ -277,6 +286,7 @@ public class KZApplication  {
                     mProvider,
                     mUsername,
                     mPassword,
+                    mPassiveClientId,
                     mUserIdentity,
                     mApplicationIdentity);
             mMailSender.mUserIdentity = this.mUserIdentity;
@@ -344,6 +354,7 @@ public class KZApplication  {
                     mProvider,
                     mUsername,
                     mPassword,
+                    mPassiveClientId,
                     mUserIdentity,
                     mApplicationIdentity);
             mApplicationLog.mUserIdentity = this.mUserIdentity;
@@ -407,6 +418,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
         files.mUserIdentity = this.mUserIdentity;
@@ -534,6 +546,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
 
@@ -556,6 +569,7 @@ public class KZApplication  {
                 mProvider,
                 mUsername,
                 mPassword,
+                mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
         service.mUserIdentity = this.mUserIdentity;

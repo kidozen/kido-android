@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
+@Ignore
 
 public class AuthKeyTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
@@ -54,7 +55,6 @@ public class AuthKeyTest {
     }
 
     @Test
-    @Ignore
     public void ShouldFailUsingApplicationKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, "fail", false, new ServiceEventListener() {

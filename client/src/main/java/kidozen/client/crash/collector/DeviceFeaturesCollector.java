@@ -15,11 +15,11 @@
  */
 package kidozen.client.crash.collector;
 
-import java.lang.reflect.Method;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
+
+import java.lang.reflect.Method;
 
 import kidozen.client.crash.Compatibility;
 import kidozen.client.crash.CrashReporter;

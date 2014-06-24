@@ -18,8 +18,8 @@ public class Notification extends KZService  {
 	private String _deviceId;
 	private String _channel;
 
-	public Notification(String endpoint, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(endpoint, name, provider, username, pass, userIdentity, applicationIdentity);
+	public Notification(String endpoint, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(endpoint, name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
 
 	/**
@@ -31,7 +31,7 @@ public class Notification extends KZService  {
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Subscribe(final String androidId,final String channel,final String subscriptionID, final ServiceEventListener callback) {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -65,7 +65,7 @@ public class Notification extends KZService  {
 	 */
 	public void Unsubscribe(final String channel, final String subscriptionId, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -89,7 +89,7 @@ public class Notification extends KZService  {
 	 */
 	public void Push(final String channel,final JSONObject data, final ServiceEventListener callback)
 	{
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -112,7 +112,7 @@ public class Notification extends KZService  {
 	 */
 	public void  GetSubscriptions(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/devices/" + _deviceId + "/" + mName;

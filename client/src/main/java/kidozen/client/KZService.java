@@ -16,33 +16,20 @@ import java.util.Map;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.authentication.KidoZenUserIdentityType;
-import kidozen.client.internal.Constants;
 import kidozen.client.internal.SNIConnectionManager;
 
 public class KZService {
-    public String ApplicationKey = Constants.UNSET_APPLICATION_KEY;
     public Boolean StrictSSL = true;
-    private IdentityManager _authenticationManager;
-    private ServiceEventListener _authenticateCallback;
-
-    String _ipEndpoint;
-    String _authServiceEndpoint;
-    String _applicationName;
-    String _tenantMarketPlace;
-    String _provider;
-    String _username;
-    String _password;
-
-    private Map<String, JSONObject> _providers;
-    private String _scope;
-    private String _authScope;
-
+    public boolean ProcessAsStream = false;
     protected String mName;
     protected String mEndpoint;
     protected KidoZenUser mUserIdentity = new KidoZenUser();
     protected KidoZenUser mApplicationIdentity = new KidoZenUser();
 
-    public boolean ProcessAsStream = false;
+    String mPassiveClientId;
+    String mActiveProvider;
+    String mActiveUsername;
+    String mActivePassword;
 
     public KZService() {
 
@@ -52,31 +39,25 @@ public class KZService {
     * Before sending the AuthHeader value to the requested service, it checks if the auth timeout
     * has been reached and executes authentication to get a new token again.
     * */
-    public void CreateAuthHeaderValue (String provider, String uname, String secret, final KZServiceEvent<String> cb )
+    public void CreateAuthHeaderValue(final KZServiceEvent<String> cb)
     {
         // User Identity is the higher priority
         if (mUserIdentity != null) {
+            ServiceEventListener formatAuthHeaderCallback = new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    mUserIdentity = ((KidoZenUser) e.Response);
+                    cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
+                }
+            };
             if (mUserIdentity.IdentityType==KidoZenUserIdentityType.USER_IDENTITY) {
-                IdentityManager.getInstance().GetRawToken(provider, uname, secret, new ServiceEventListener() {
-                    @Override
-                    public void onFinish(ServiceEvent e) {
-                        mUserIdentity = ((KidoZenUser) e.Response);
-                        cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
-                    }
-                });
+                IdentityManager.getInstance().GetRawToken(mActiveProvider, mActiveUsername, mActivePassword, formatAuthHeaderCallback);
             }
             else {
-                IdentityManager.getInstance().GetToken(mUserIdentity, "",new ServiceEventListener() {
-                    @Override
-                    public void onFinish(ServiceEvent e) {
-                        mUserIdentity = ((KidoZenUser) e.Response);
-                        cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
-                    }
-                });
+                IdentityManager.getInstance().GetToken(mUserIdentity,mPassiveClientId, formatAuthHeaderCallback);
             }
         }
         else {
-            //TODO: Porque queda en null cuando tengo 2 KZApplications distintos!??
             IdentityManager.getInstance().GetRawToken(mApplicationIdentity.HashKey, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
@@ -94,11 +75,12 @@ public class KZService {
      * @param endpoint The service endpoint
      * @param name The name of the service to be created
      */
-    public KZService(String endpoint, String name,String provider , String username, String pass,  KidoZenUser userIdentity, KidoZenUser applicationIdentity)
+    public KZService(String endpoint, String name,String provider , String username, String pass, String clientSecret,  KidoZenUser userIdentity, KidoZenUser applicationIdentity)
     {
-        _provider = provider;
-        _username = username;
-        _password = pass;
+        mPassiveClientId = clientSecret;
+        mActiveProvider = provider;
+        mActiveUsername = username;
+        mActivePassword = pass;
         mEndpoint = endpoint;
         mName = name;
         this.mApplicationIdentity = applicationIdentity;

@@ -15,13 +15,6 @@
  */
 package kidozen.client.crash;
 
-import static kidozen.client.crash.CrashReporter.LOG_TAG;
-import static kidozen.client.crash.ReportField.IS_SILENT;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import android.Manifest.permission;
 import android.app.Activity;
 import android.app.Application;
@@ -34,10 +27,18 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import kidozen.client.crash.collector.ConfigurationCollector;
 import kidozen.client.crash.collector.CrashReportDataFactory;
 import kidozen.client.crash.jraf.android.util.activitylifecyclecallbackscompat.ActivityLifecycleCallbacksCompat;
 import kidozen.client.crash.jraf.android.util.activitylifecyclecallbackscompat.ApplicationHelper;
+
+import static kidozen.client.crash.CrashReporter.LOG_TAG;
+import static kidozen.client.crash.ReportField.IS_SILENT;
 
 public class ErrorReporter implements Thread.UncaughtExceptionHandler {
 

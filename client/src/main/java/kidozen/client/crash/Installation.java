@@ -4,16 +4,14 @@
  */
 package kidozen.client.crash;
 
+import android.content.Context;
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.UUID;
-
-import kidozen.client.crash.CrashReporter;
-
-import android.content.Context;
-import android.util.Log;
 
 /**
  * <p>

@@ -1,5 +1,12 @@
 package kidozen.client.crash;
 
+import android.content.Context;
+import android.os.Environment;
+import android.os.StatFs;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.util.SparseArray;
+
 import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -7,13 +14,6 @@ import java.net.SocketException;
 import java.util.Enumeration;
 
 import static kidozen.client.crash.CrashReporter.LOG_TAG;
-
-import android.content.Context;
-import android.os.Environment;
-import android.os.StatFs;
-import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.util.SparseArray;
 
 /**
  * Responsible for providing base utilities used when constructing the report.

@@ -15,8 +15,8 @@ import kidozen.client.internal.Constants;
  */
 public class Queue  extends KZService {
 	private static final String TAG = "Queue";
-	public Queue(String queue, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(queue,name, provider, username, pass, userIdentity, applicationIdentity);
+	public Queue(String queue, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(queue,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
 	/**
 	 * Enqueues a message
@@ -26,7 +26,7 @@ public class Queue  extends KZService {
 	 */
 	public void Enqueue(final JSONObject message, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;
@@ -50,7 +50,7 @@ public class Queue  extends KZService {
 	 */
 	public void Dequeue(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName + "/next";

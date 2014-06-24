@@ -16,6 +16,7 @@
 package kidozen.client.crash.collector;
 
 import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,9 +26,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import kidozen.client.crash.CrashConstants;
 import kidozen.client.crash.BoundedLinkedList;
 import kidozen.client.crash.Compatibility;
+import kidozen.client.crash.CrashConstants;
 import kidozen.client.crash.CrashReporter;
 
 import static kidozen.client.crash.CrashReporter.LOG_TAG;

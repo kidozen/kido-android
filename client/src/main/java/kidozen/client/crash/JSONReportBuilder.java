@@ -1,13 +1,14 @@
 package kidozen.client.crash;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class JSONReportBuilder {
     /**

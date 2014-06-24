@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-import kidozen.client.*;
+import kidozen.client.KZAction;
+import kidozen.client.KZHttpMethod;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
 import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.internal.Utilities;
 

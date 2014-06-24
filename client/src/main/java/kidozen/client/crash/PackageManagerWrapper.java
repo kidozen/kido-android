@@ -1,11 +1,11 @@
 package kidozen.client.crash;
 
-import static kidozen.client.crash.CrashReporter.LOG_TAG;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
+
+import static kidozen.client.crash.CrashReporter.LOG_TAG;
 
 /**
  * Responsible for wrapping calls to PackageManager to ensure that they always complete without throwing RuntimeExceptions.

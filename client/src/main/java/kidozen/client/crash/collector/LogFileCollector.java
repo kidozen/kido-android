@@ -16,13 +16,13 @@
 
 package kidozen.client.crash.collector;
 
+import android.app.Application;
+import android.content.Context;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import android.app.Application;
-import android.content.Context;
 
 import kidozen.client.crash.BoundedLinkedList;
 

@@ -21,8 +21,8 @@ import kidozen.client.internal.Constants;
 public class Storage extends KZService {
     private static final String LOGCAT_KEY = "Storage";
 
-    public Storage(String storage, String name, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(storage, name, provider, username, pass, userIdentity, applicationIdentity);
+    public Storage(String storage, String name, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(storage, name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
 
     /**
@@ -45,7 +45,7 @@ public class Storage extends KZService {
             return;
         }
 
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String message) {
                 String  url = mEndpoint + "/" + mName;
@@ -80,7 +80,7 @@ public class Storage extends KZService {
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Update(final String id, final JSONObject message, final ServiceEventListener callback) throws Exception {
-		CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+		CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 try {
@@ -113,7 +113,7 @@ public class Storage extends KZService {
 			throw new InvalidParameterException();
 		}
 
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName + "/" + id;
@@ -142,7 +142,7 @@ public class Storage extends KZService {
 	 */
 	public void Drop(final ServiceEventListener callback)
 	{
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;
@@ -167,7 +167,7 @@ public class Storage extends KZService {
 		if (idMessage=="" || idMessage==null) {
 			throw new InvalidParameterException();
 		}
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName + "/" + idMessage;
@@ -234,7 +234,7 @@ public class Storage extends KZService {
 		{
 			throw new  InvalidParameterException("query, options or fields, cannot be null or empty");
 		}
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;

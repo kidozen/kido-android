@@ -42,8 +42,8 @@ public class MailSender extends KZService {
      *
      * @param endpoint The Configuration service endpoint
      */
-    public MailSender(String mailsender, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(mailsender, "", provider, username, pass, userIdentity, applicationIdentity);
+    public MailSender(String mailsender, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(mailsender, "", provider, username, pass, clientId, userIdentity, applicationIdentity);
         mSelf = this;
     }
 
@@ -55,7 +55,7 @@ public class MailSender extends KZService {
         if ( mail == null)
             throw new InvalidParameterException("mail cannot be null");
 
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 

@@ -24,12 +24,12 @@
  */
 package kidozen.client.crash.jraf.android.util.activitylifecyclecallbackscompat;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.Application;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.os.Bundle;
+
+import java.util.ArrayList;
 
 /**
  * Keeps a list of {@link ActivityLifecycleCallbacksCompat}s that will be called following the life cycle of the application's {@link Activity activities}.

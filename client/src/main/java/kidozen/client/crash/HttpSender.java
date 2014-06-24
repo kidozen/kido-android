@@ -14,25 +14,26 @@
  *  limitations under the License.
  */
 package kidozen.client.crash;
+
 import android.util.Log;
+
+import org.apache.http.HttpStatus;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import kidozen.client.internal.Constants;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.KZService;
-import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
-
-import org.apache.http.HttpStatus;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import kidozen.client.internal.Constants;
+import kidozen.client.internal.SNIConnectionManager;
 
 import static kidozen.client.crash.CrashReporter.LOG_TAG;
 

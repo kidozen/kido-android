@@ -15,13 +15,13 @@
  */
 package kidozen.client.crash;
 
-import static kidozen.client.crash.CrashReporter.LOG_TAG;
+import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
-import android.content.Context;
-import android.util.Log;
+import static kidozen.client.crash.CrashReporter.LOG_TAG;
 
 /**
  * Responsible for retrieving the location of Crash Report files.

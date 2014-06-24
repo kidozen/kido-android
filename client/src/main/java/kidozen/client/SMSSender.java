@@ -16,8 +16,8 @@ public class SMSSender extends KZService {
 	private static final String TAG = "SMSSender";
 	String _number;
 
-	public SMSSender(String endpoint, String number, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(endpoint, number, provider, username, pass, userIdentity, applicationIdentity);
+	public SMSSender(String endpoint, String number, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(endpoint, number, provider, username, pass, clientId, userIdentity, applicationIdentity);
 		mEndpoint=endpoint;
 		_number = number;
 	}
@@ -31,7 +31,7 @@ public class SMSSender extends KZService {
 	@SuppressWarnings("deprecation")
 	public void Send(final String message, final ServiceEventListener callback) 
     {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -60,7 +60,7 @@ public class SMSSender extends KZService {
      */
     public void GetStatus(final String messageId,  final ServiceEventListener callback) 
     {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 

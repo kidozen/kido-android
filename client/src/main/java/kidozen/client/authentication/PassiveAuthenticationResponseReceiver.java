@@ -3,7 +3,6 @@ package kidozen.client.authentication;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.provider.ContactsContract;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONException;

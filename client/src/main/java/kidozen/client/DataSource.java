@@ -8,7 +8,6 @@ import java.util.HashMap;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.JsonStringToMap;
-import kidozen.client.internal.KidoEntitySerializer;
 import kidozen.client.internal.Utilities;
 
 /**
@@ -18,8 +17,8 @@ public class DataSource extends KZService {
 
     private String TAG="DataSource";
 
-    public DataSource(String ds, String name, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(ds,name, provider, username, pass, userIdentity, applicationIdentity);
+    public DataSource(String ds, String name, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(ds,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
 
     /**
@@ -29,7 +28,7 @@ public class DataSource extends KZService {
      * @param callback The callback with the result of the service call
      */
     public void Query(final int timeout, final ServiceEventListener callback) {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -60,7 +59,7 @@ public class DataSource extends KZService {
      * @param callback The callback with the result of the service call
      */
     public void Invoke(final int timeout,final ServiceEventListener callback) {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -96,7 +95,7 @@ public class DataSource extends KZService {
      *
      */
     public void Invoke(final JSONObject data, final int timeout, final ServiceEventListener callback) {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -150,7 +149,7 @@ public class DataSource extends KZService {
      *
      */
     public void Query(final JSONObject data,final int timeout, final ServiceEventListener callback) {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 if (data==null)

@@ -16,13 +16,13 @@
 
 package kidozen.client.crash.collector;
 
+import android.util.SparseArray;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-
-import android.util.SparseArray;
 
 /**
  * Collects data about available codecs on the device through the MediaCodecList

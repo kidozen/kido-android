@@ -15,12 +15,12 @@
  */
 package kidozen.client.crash.collector;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 import kidozen.client.crash.CrashReporter;
 

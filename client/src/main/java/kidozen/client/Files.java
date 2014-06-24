@@ -33,8 +33,8 @@ public class Files extends KZService {
 	 * You should not create a new instances of this constructor. Instead use the SMSSender["number"] method of the KZApplication object.
 	 * @param endpoint The service endpoint
 	 */
-	public Files(String filestorage, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(filestorage, "", provider, username, pass, userIdentity, applicationIdentity);
+	public Files(String filestorage, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(filestorage, "", provider, username, pass, clientId, userIdentity, applicationIdentity);
         mSelf = this;
     }
 
@@ -51,7 +51,7 @@ public class Files extends KZService {
             throw new IllegalArgumentException("fullDestinationPath");
 
 
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -80,7 +80,7 @@ public class Files extends KZService {
     * */
     public void Download(final String filePath, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -113,7 +113,7 @@ public class Files extends KZService {
      * */
     public void Delete(final String path, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 
@@ -143,7 +143,7 @@ public class Files extends KZService {
      * */
     public void Browse(final String path,final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String fullpath = path;

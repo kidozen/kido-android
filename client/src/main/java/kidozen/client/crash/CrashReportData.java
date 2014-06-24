@@ -16,9 +16,10 @@
 
 package kidozen.client.crash;
 
+import org.json.JSONObject;
+
 import java.util.EnumMap;
 import java.util.Properties;
-import org.json.JSONObject;
 
 /**
  * Stores a crash reports data with {@link org.acra.ReportField} enum values as keys.

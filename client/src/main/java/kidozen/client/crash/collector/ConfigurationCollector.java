@@ -15,14 +15,14 @@
  */
 package kidozen.client.crash.collector;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.util.SparseArray;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
 
 import kidozen.client.crash.CrashReporter;
 

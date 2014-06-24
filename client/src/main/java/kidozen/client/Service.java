@@ -16,8 +16,8 @@ import kidozen.client.internal.Constants;
  */
 public class Service extends KZService {
 
-    public Service(String service, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(service,name, provider, username, pass, userIdentity, applicationIdentity);
+    public Service(String service, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(service,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Service extends KZService {
      */
     public void InvokeMethod(final String method, final JSONObject data,final int timeout, final ServiceEventListener callback) {
 
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
 

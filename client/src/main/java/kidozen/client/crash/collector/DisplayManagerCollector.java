@@ -1,9 +1,5 @@
 package kidozen.client.crash.collector;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -12,6 +8,10 @@ import android.util.SparseArray;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import kidozen.client.crash.Compatibility;
 import kidozen.client.crash.CrashReporter;

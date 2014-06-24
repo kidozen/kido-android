@@ -16,6 +16,14 @@
 
 package kidozen.client.crash.collector;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.os.Environment;
+import android.text.format.Time;
+import android.util.Log;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,17 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.os.Environment;
-import android.text.format.Time;
-import android.util.Log;
-
+import kidozen.client.crash.Compatibility;
 import kidozen.client.crash.CrashConfiguration;
 import kidozen.client.crash.CrashConstants;
-import kidozen.client.crash.Compatibility;
 import kidozen.client.crash.CrashReportData;
 import kidozen.client.crash.CrashReporter;
 import kidozen.client.crash.Installation;
@@ -45,8 +45,45 @@ import kidozen.client.crash.PackageManagerWrapper;
 import kidozen.client.crash.ReportField;
 import kidozen.client.crash.ReportUtils;
 
-import static kidozen.client.crash.ReportField.*;
-import static kidozen.client.crash.CrashReporter.*;
+import static kidozen.client.crash.CrashReporter.LOG_TAG;
+import static kidozen.client.crash.ReportField.ANDROID_VERSION;
+import static kidozen.client.crash.ReportField.APPLICATION_LOG;
+import static kidozen.client.crash.ReportField.APP_VERSION_CODE;
+import static kidozen.client.crash.ReportField.APP_VERSION_NAME;
+import static kidozen.client.crash.ReportField.AVAILABLE_MEM_SIZE;
+import static kidozen.client.crash.ReportField.BRAND;
+import static kidozen.client.crash.ReportField.BUILD;
+import static kidozen.client.crash.ReportField.BUILD_CONFIG;
+import static kidozen.client.crash.ReportField.CRASH_CONFIGURATION;
+import static kidozen.client.crash.ReportField.CUSTOM_DATA;
+import static kidozen.client.crash.ReportField.DEVICE_FEATURES;
+import static kidozen.client.crash.ReportField.DEVICE_ID;
+import static kidozen.client.crash.ReportField.DISPLAY;
+import static kidozen.client.crash.ReportField.DROPBOX;
+import static kidozen.client.crash.ReportField.DUMPSYS_MEMINFO;
+import static kidozen.client.crash.ReportField.ENVIRONMENT;
+import static kidozen.client.crash.ReportField.EVENTSLOG;
+import static kidozen.client.crash.ReportField.FILE_PATH;
+import static kidozen.client.crash.ReportField.INITIAL_CONFIGURATION;
+import static kidozen.client.crash.ReportField.INSTALLATION_ID;
+import static kidozen.client.crash.ReportField.IS_SILENT;
+import static kidozen.client.crash.ReportField.LOGCAT;
+import static kidozen.client.crash.ReportField.MEDIA_CODEC_LIST;
+import static kidozen.client.crash.ReportField.PACKAGE_NAME;
+import static kidozen.client.crash.ReportField.PHONE_MODEL;
+import static kidozen.client.crash.ReportField.PRODUCT;
+import static kidozen.client.crash.ReportField.RADIOLOG;
+import static kidozen.client.crash.ReportField.REPORT_ID;
+import static kidozen.client.crash.ReportField.SETTINGS_GLOBAL;
+import static kidozen.client.crash.ReportField.SETTINGS_SECURE;
+import static kidozen.client.crash.ReportField.SETTINGS_SYSTEM;
+import static kidozen.client.crash.ReportField.SHARED_PREFERENCES;
+import static kidozen.client.crash.ReportField.STACK_TRACE;
+import static kidozen.client.crash.ReportField.THREAD_DETAILS;
+import static kidozen.client.crash.ReportField.TOTAL_MEM_SIZE;
+import static kidozen.client.crash.ReportField.USER_CRASH_DATE;
+import static kidozen.client.crash.ReportField.USER_EMAIL;
+import static kidozen.client.crash.ReportField.USER_IP;
 
 
 /**

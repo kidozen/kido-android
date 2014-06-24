@@ -16,9 +16,10 @@ import kidozen.client.internal.Constants;
  *
  */
 public class Configuration  extends KZService {
-	public Configuration(String configuration,String name,  String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(configuration,name, provider, username, pass, userIdentity, applicationIdentity);
+	public Configuration(String configuration, String name,  String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(configuration,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
+
 
 	/**
 	 * Save the value of the configuration
@@ -28,7 +29,7 @@ public class Configuration  extends KZService {
 	 */
 	public void Save(final JSONObject message, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;
@@ -49,7 +50,7 @@ public class Configuration  extends KZService {
 	 */
 	public void Get(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;
@@ -77,7 +78,7 @@ public class Configuration  extends KZService {
 	 */
 	public void Delete(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;
@@ -97,7 +98,7 @@ public class Configuration  extends KZService {
 	 */
 	public void All(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;

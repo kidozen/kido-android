@@ -30,15 +30,15 @@ public class PubSubChannel extends KZService {
     private ServiceEventListener _messagesCallback;
     private ServiceEventListener _apiCallback;
 
-    public PubSubChannel(String ep, String wsEndpoint, String name,String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(ep,name, provider, username, pass, userIdentity, applicationIdentity);
+    public PubSubChannel(String ep, String wsEndpoint, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(ep,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
         _wsEndpoint = wsEndpoint;
     }
 
 
     public void Publish(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 String  url = mEndpoint + "/" + mName;

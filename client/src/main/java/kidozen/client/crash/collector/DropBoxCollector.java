@@ -14,15 +14,16 @@
  *  limitations under the License.
  */
 package kidozen.client.crash.collector;
+
+import android.content.Context;
+import android.text.format.Time;
+import android.util.Log;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import android.content.Context;
-import android.text.format.Time;
-import android.util.Log;
 
 import kidozen.client.crash.Compatibility;
 import kidozen.client.crash.CrashReporter;

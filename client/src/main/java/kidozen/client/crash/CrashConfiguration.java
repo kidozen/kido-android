@@ -15,6 +15,10 @@
  */
 package kidozen.client.crash;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Map;
+
 import static kidozen.client.crash.CrashConstants.DEFAULT_APPLICATION_LOGFILE;
 import static kidozen.client.crash.CrashConstants.DEFAULT_APPLICATION_LOGFILE_LINES;
 import static kidozen.client.crash.CrashConstants.DEFAULT_CONNECTION_TIMEOUT;
@@ -36,10 +40,6 @@ import static kidozen.client.crash.CrashConstants.DEFAULT_SHARED_PREFERENCES_MOD
 import static kidozen.client.crash.CrashConstants.DEFAULT_SOCKET_TIMEOUT;
 import static kidozen.client.crash.CrashConstants.DEFAULT_STRING_VALUE;
 import static kidozen.client.crash.CrashConstants.NULL_VALUE;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Map;
 
 /**
  * This class is to be used if you need to apply dynamic settings. This is

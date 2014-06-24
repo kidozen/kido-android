@@ -5,8 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
-import java.util.ArrayList;
-
 import kidozen.client.KZService;
 import kidozen.client.authentication.IdentityManager;
 

@@ -26,8 +26,8 @@ import kidozen.client.internal.Constants;
 public class Logging extends KZService {
     private final Logging mSelf;
 
-    public Logging(String logging, String provider , String username, String pass, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super(logging,"", provider, username, pass, userIdentity, applicationIdentity);
+    public Logging(String logging, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+        super(logging,"", provider, username, pass, clientId, userIdentity, applicationIdentity);
         mSelf = this;
 
     }
@@ -41,7 +41,7 @@ public class Logging extends KZService {
      */
     public void Write(final String message, final LogLevel level, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 InputStream is = null;
@@ -76,7 +76,7 @@ public class Logging extends KZService {
 	 */
 	public void Write(final JSONObject message, final LogLevel level, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 Integer lvl = level.ordinal();
@@ -111,7 +111,7 @@ public class Logging extends KZService {
 	 */
 	public void Clear(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(_provider, _username, _password, new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 HashMap<String, String> params = null;
@@ -177,7 +177,7 @@ public class Logging extends KZService {
 		{
 			throw new  InvalidParameterException("options cannot be empty");
 		}
-        CreateAuthHeaderValue(_provider,_username,_password,new KZServiceEvent<String>() {
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 try
