@@ -1,4 +1,4 @@
-package com.kidozen.client.authentication;
+package kidozen.client.authentication;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,7 +42,7 @@ public class PassiveAuthenticationResponseReceiver extends BroadcastReceiver {
                         kidozen.client.authentication.KidoZenUser user = im.createKidoZenUser(token, kidozen.client.authentication.KidoZenUserIdentityType.PASSIVE_IDENTITY);
                         if (user!=null) {
                             String userUniqueIdentifier = user.Claims.get("http://schemas.kidozen.com/userid").toString();
-                            im.addToTokensCache(userUniqueIdentifier, token, kidozen.client.authentication.KidoZenUserIdentityType.APPLICATION_IDENTITY);
+                            im.addToTokensCache(userUniqueIdentifier, token, user.RefreshToken, kidozen.client.authentication.KidoZenUserIdentityType.APPLICATION_IDENTITY);
 
                         }
                         event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_OK, token, user);

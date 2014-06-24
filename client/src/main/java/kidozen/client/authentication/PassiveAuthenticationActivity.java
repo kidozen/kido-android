@@ -90,7 +90,7 @@ public class PassiveAuthenticationActivity extends Activity {
 
     private Intent createResponseReceiverIntent(int value) {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(com.kidozen.client.authentication.PassiveAuthenticationResponseReceiver.ACTION_RESP);
+        broadcastIntent.setAction(PassiveAuthenticationResponseReceiver.ACTION_RESP);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.putExtra(AUTHENTICATION_RESULT, value);
 

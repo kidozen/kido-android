@@ -3,7 +3,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class AppConfig {
+public class AppSettings {
     public static  String KZ_KEY ;
     public static  String KZ_TENANT;
     public static  String KZ_APP;
@@ -76,10 +76,10 @@ public class AppConfig {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_KEY =                "t8Iz3NN6S/0nXQUWwS221f79/7p/3Fbuae351x7VhbA=";
-        KZ_TENANT =             "https://loadtests.qa.kidozen.com";
-        KZ_APP =                "tasks";
-        KZ_USER =               "loadtests@kidozen.com";
+        KZ_KEY =                "LJHHZdGaFzssi34IGS+wDygiqAPJyansNPLKAUljVmQ=";
+        KZ_TENANT =             "https://att.kidocloud.com";
+        KZ_APP =                "contacts";
+        KZ_USER =               "att@kidozen.com";
         KZ_PASS =               "pass";
         KZ_SERVICEID =          "Weather";
         KZ_EMAIL_FROM =         "contoso@kidozen.com.com";

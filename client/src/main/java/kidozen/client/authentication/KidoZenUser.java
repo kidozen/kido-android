@@ -16,6 +16,16 @@ import kidozen.client.internal.Constants;
  */
 public class KidoZenUser {
     /**
+     * The Hash key that we can use to find it in the IdentityManager token's cache
+     */
+    public String HashKey;
+    public String Token;
+    public String RefreshToken;
+
+    public String getUserHash() {
+        return Claims.get("http://schemas.kidozen.com/userid").toString();
+    }
+    /**
      * Is UserIdentity or ApplicationIdentity
      */
     public KidoZenUserIdentityType IdentityType = KidoZenUserIdentityType.APPLICATION_IDENTITY;
@@ -31,13 +41,8 @@ public class KidoZenUser {
 	 * The claims of this user
 	 */
 	public Hashtable<String, String> Claims = new Hashtable<String, String>();
-    /**
-     * The Hash key that we can use to find it in the IdentityManager token's cache
-     */
-    public String HashKey;
 
     private Long _expiration;
-	public String Token;
 
 
     /**

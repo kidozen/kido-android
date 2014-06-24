@@ -15,6 +15,7 @@ import java.util.Map;
 
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
+import kidozen.client.authentication.KidoZenUserIdentityType;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.SNIConnectionManager;
 
@@ -47,7 +48,6 @@ public class KZService {
 
     }
 
-
     /*
     * Before sending the AuthHeader value to the requested service, it checks if the auth timeout
     * has been reached and executes authentication to get a new token again.
@@ -56,13 +56,24 @@ public class KZService {
     {
         // User Identity is the higher priority
         if (mUserIdentity != null) {
-            IdentityManager.getInstance().GetRawToken(provider,uname,secret, new ServiceEventListener() {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                mUserIdentity = ((KidoZenUser) e.Response);
-                cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
-                }
-            });
+            if (mUserIdentity.IdentityType==KidoZenUserIdentityType.USER_IDENTITY) {
+                IdentityManager.getInstance().GetRawToken(provider, uname, secret, new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        mUserIdentity = ((KidoZenUser) e.Response);
+                        cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
+                    }
+                });
+            }
+            else {
+                IdentityManager.getInstance().GetToken(mUserIdentity, "",new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        mUserIdentity = ((KidoZenUser) e.Response);
+                        cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
+                    }
+                });
+            }
         }
         else {
             //TODO: Porque queda en null cuando tengo 2 KZApplications distintos!??

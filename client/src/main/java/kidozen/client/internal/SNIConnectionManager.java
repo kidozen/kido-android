@@ -108,25 +108,21 @@ public class SNIConnectionManager
         }
         else
         {
-            int dataread = 0;
-            int count = 0;
+            int dataRead = 0;
             int CHUNK_SIZE = 8192;                   // TCP/IP packet size
             byte[] dataChunk = new byte[CHUNK_SIZE]; // byte array for storing temporary data.
 
             OutputStream fos = new ByteArrayOutputStream();
-            //BufferedOutputStream bos = new BufferedOutputStream(fos);
 
             BufferedInputStream bis = new BufferedInputStream(con.getInputStream());
             InputStreamReader isr = new InputStreamReader( bis );
-            //BufferedReader br = new BufferedReader( isr );
-            while (dataread >= 0)
+            while (dataRead >= 0)
             {
-                count++;
-                dataread = bis.read(dataChunk,0,CHUNK_SIZE);
+                dataRead = bis.read(dataChunk,0,CHUNK_SIZE);
                 System.out.print(".");
                 // only write out if there is data to be read
-                if ( dataread > 0 )
-                    fos.write(dataChunk,0,dataread);
+                if ( dataRead > 0 )
+                    fos.write(dataChunk,0,dataRead);
             }
             bis.close();
             fos.close();
@@ -214,18 +210,15 @@ public class SNIConnectionManager
 
     protected Hashtable<String, String> getExecutionResponse( HttpURLConnection con) throws IOException {
         Hashtable<String, String> retVal = new Hashtable<String, String>();
-        //try {
-            int responseCode = con.getResponseCode();
+        int responseCode = con.getResponseCode();
 
-            retVal.put("statusCode", String.valueOf(responseCode));
-            retVal.put("responseMessage", con.getResponseMessage());
+        retVal.put("statusCode", String.valueOf(responseCode));
+        retVal.put("responseMessage", con.getResponseMessage());
 
-            if (responseCode>= HttpStatus.SC_BAD_REQUEST)
-                retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
-            else
-                retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
-            return retVal;
-        //}
-        //catch (Exception ex) {System.out.print("\n" + ex.getMessage() +"\n");return  null;}
+        if (responseCode>= HttpStatus.SC_BAD_REQUEST)
+            retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
+        else
+            retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
+        return retVal;
     }
 }

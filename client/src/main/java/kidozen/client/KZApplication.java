@@ -467,7 +467,7 @@ public class KZApplication  {
         }
         try {
             JSONObject authConfig = KidoAppSettings.getInstance().GetSettingAsJObject("authConfig");
-            IdentityManager.getInstance().Setup(authConfig, StrictSSL);
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
             IdentityManager.getInstance().Authenticate(providerKey, username, password, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
@@ -500,13 +500,13 @@ public class KZApplication  {
 
         if (!KidoAppSettings.getInstance().IsInitialized) {
             if (callback!=null) {
-                callback.onFinish(new kidozen.client.ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"The application is not initialized", null));
+                callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"The application is not initialized", null));
             }
             return;
         }
         try {
             JSONObject authConfig = KidoAppSettings.getInstance().GetSettingAsJObject("authConfig");
-            IdentityManager.getInstance().Setup(authConfig, StrictSSL);
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
             IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new kidozen.client.ServiceEventListener()   {
                 @Override
                 public void onFinish(kidozen.client.ServiceEvent e) {
@@ -574,7 +574,7 @@ public class KZApplication  {
             try {
                 authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
                 authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
-                IdentityManager.getInstance().Setup(authConfig, StrictSSL);
+                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
                 IdentityManager.getInstance().Authenticate(mApplicationKey, new kidozen.client.ServiceEventListener() {
                     @Override
                     public void onFinish(kidozen.client.ServiceEvent e) {

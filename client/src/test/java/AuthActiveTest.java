@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-public class ActiveAuthTest {
+public class AuthActiveTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final int TEST_TIMEOUT_IN_SECONDS = 5;
 
@@ -43,7 +43,7 @@ public class ActiveAuthTest {
     @Test
     public void ShouldAuthenticateUsingDefaultSettingsWithoutCallback() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppConfig.KZ_TENANT, AppConfig.KZ_APP, AppConfig.KZ_KEY,false,  new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY,false,  new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -53,7 +53,7 @@ public class ActiveAuthTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(AppConfig.KZ_PROVIDER, AppConfig.KZ_USER, AppConfig.KZ_PASS);
+        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS);
         assertEquals(true, kidozen.UserIsAuthenticated);
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
@@ -61,7 +61,7 @@ public class ActiveAuthTest {
     @Test
     public void ShouldAuthenticateUsingDefaultSettings() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppConfig.KZ_TENANT, AppConfig.KZ_APP, AppConfig.KZ_KEY, false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -71,7 +71,7 @@ public class ActiveAuthTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(AppConfig.KZ_PROVIDER, AppConfig.KZ_USER, AppConfig.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -85,7 +85,7 @@ public class ActiveAuthTest {
     @Test
     public void AuthenticationShouldFailWithInvalidUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppConfig.KZ_TENANT, AppConfig.KZ_APP, AppConfig.KZ_KEY, false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -95,7 +95,7 @@ public class ActiveAuthTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(AppConfig.KZ_PROVIDER, "none@kidozen.com", AppConfig.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(AppSettings.KZ_PROVIDER, "none@kidozen.com", AppSettings.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -110,7 +110,7 @@ public class ActiveAuthTest {
     @Test
     public void ShouldSignOutUser() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppConfig.KZ_TENANT, AppConfig.KZ_APP, AppConfig.KZ_KEY,false,  new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY,false,  new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -120,7 +120,7 @@ public class ActiveAuthTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(AppConfig.KZ_PROVIDER, AppConfig.KZ_USER, AppConfig.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -139,7 +139,7 @@ public class ActiveAuthTest {
     @Test
     public void AuthenticationShouldFailAndReturnMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppConfig.KZ_TENANT, AppConfig.KZ_APP,AppConfig.KZ_KEY, false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -149,7 +149,7 @@ public class ActiveAuthTest {
         lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(AppConfig.KZ_PROVIDER, AppConfig.KZ_USER, "1", new ServiceEventListener() {
+        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, "1", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -161,61 +161,4 @@ public class ActiveAuthTest {
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
-
-/*
-    @Test
-    public void ShouldAuthenticateUser() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(TestConfiguration.KZ_TENANT, TestConfiguration.KZ_APP, TestConfiguration.KZ_KEY, false , new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                lcd.countDown();
-                System.out.print("call init");
-
-                assertEquals(e.StatusCode, HttpStatus.SC_OK);
-            }
-        });
-        lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-        final CountDownLatch alcd = new CountDownLatch(1);
-        kidozen.Authenticate(TestConfiguration.KZ_PROVIDER, TestConfiguration.KZ_USER, TestConfiguration.KZ_PASS, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                System.out.print("call auth");
-
-                alcd.countDown();
-                Assert.assertEquals(e.StatusCode, HttpStatus.SC_OK);
-                Assert.assertFalse(kidozen.Authenticated);
-            }
-        });
-        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-    }
-
-    @Test
-    public void AuthenticationShouldFailWithInvalidUser() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(TestConfiguration.KZ_TENANT, TestConfiguration.KZ_APP, TestConfiguration.KZ_KEY, false , new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                System.out.print("call init");
-
-                lcd.countDown();
-                assertEquals(e.StatusCode, HttpStatus.SC_OK);
-            }
-        });
-        lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-        final CountDownLatch alcd = new CountDownLatch(1);
-        kidozen.Authenticate(TestConfiguration.KZ_PROVIDER, "none@kidozen.com", TestConfiguration.KZ_PASS, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                System.out.print("call auth");
-
-                alcd.countDown();
-                assertEquals(e.StatusCode, HttpStatus.SC_BAD_REQUEST);
-            }
-        });
-        assertEquals(false, kidozen.UserIsAuthenticated);
-        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-    }
-
-*/
 }

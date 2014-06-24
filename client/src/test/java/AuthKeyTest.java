@@ -15,8 +15,6 @@ import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
-public class KeyAuthTest {
+public class AuthKeyTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     int actualStatusCode = 0;
     KZApplication kidozen = null;
@@ -42,7 +40,7 @@ public class KeyAuthTest {
     public void ShouldAuthenticateUsingApplicationKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
 
-        kidozen = new KZApplication(AppConfig.KZ_TENANT, AppConfig.KZ_APP, AppConfig.KZ_KEY, false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 actualStatusCode = e.StatusCode;
@@ -56,7 +54,7 @@ public class KeyAuthTest {
     @Test
     public void ShouldFailUsingApplicationKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppConfig.KZ_TENANT, AppConfig.KZ_APP, "fail", false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, "fail", false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 actualStatusCode = e.StatusCode;
