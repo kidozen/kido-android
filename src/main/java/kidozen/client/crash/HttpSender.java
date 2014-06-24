@@ -74,7 +74,7 @@ public class HttpSender extends KZService implements ReportSender {
             Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", mCrashEndpoint));
             JSONObject reportAsJson = report.toJSON();
 
-            String bc = new JSONArray(mBreadCrumbs).toString();
+            JSONArray bc = new JSONArray(mBreadCrumbs);
             reportAsJson.put(APPLICATION_BREADCRUMBS, bc);
 
             Hashtable<String, String> headers = new Hashtable<String, String>();
