@@ -2,7 +2,6 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -30,12 +29,13 @@ import static org.junit.Assert.fail;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
 //@Ignore
-public class DataSourceTest {
+public class DsTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 5;
     private static final String OPERATION_DATASOURCE_NAME = "WeatherBsAs";
-    private static final String QUERY_DATASOURCE_NAME = "WeatherQuery";
+    private static final String QUERY_DATA_SOURCE_NAME = "GetCityWeather";
     private static final String OPERATION_PARAMS_DATASOURCE_NAME = "WeatherOpParams";
-    private static final String QUERY_PARAMS_DATASOURCE_NAME = "WeatherQueryParams";
+
+    private static final String QUERY_PARAMS_DATA_SOURCE_NAME = "GetCityWeather";
     KZApplication kidozen = null;
 
     @Before
@@ -53,7 +53,24 @@ public class DataSourceTest {
         }
     }
 
-    @Test
+    public void ShouldCallOperationInDataSourceWithParams() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        DataSource dataSource = kidozen.DataSource(OPERATION_PARAMS_DATASOURCE_NAME);
+        JSONObject data = new JSONObject().put("path","?k=kidozen");
+        dataSource.Invoke(data,new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertEquals(HttpStatus.SC_OK, e.StatusCode);
+
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+
+
+
     public void ShouldCallOperationInDataSource() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(OPERATION_DATASOURCE_NAME);
@@ -71,31 +88,16 @@ public class DataSourceTest {
     }
 
     @Test
-    public void ShouldCallQueryInDataSourceWithParams() throws Exception {
+    public void ShouldExecuteQueryWithParameters() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATASOURCE_NAME);
-        JSONObject data = new JSONObject().put("path","?q=buenos aires,ar");
+        DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATA_SOURCE_NAME);
+        JSONObject data = new JSONObject("{\"qs\": { \"q\": \"Miami, USA\" }}");
         dataSource.Query(data,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                System.out.println(e.Body);
+
                 assertEquals(HttpStatus.SC_OK, e.StatusCode);
-
-                lcd.countDown();
-            }
-        });
-
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
-    }
-    @Test
-    public void ShouldCallOperationInDataSourceWithParams() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        DataSource dataSource = kidozen.DataSource(OPERATION_PARAMS_DATASOURCE_NAME);
-        JSONObject data = new JSONObject().put("path","?k=kidozen");
-        dataSource.Invoke(data,new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertEquals(HttpStatus.SC_OK, e.StatusCode);
-
                 lcd.countDown();
             }
         });
@@ -104,21 +106,23 @@ public class DataSourceTest {
     }
 
     @Test
-    public void ShouldCallQueryInDataSource() throws Exception {
+    public void ShouldExecuteQueryWithDefaults() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        DataSource dataSource = kidozen.DataSource(QUERY_DATASOURCE_NAME);
+        DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATA_SOURCE_NAME);
 
         dataSource.Query(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertEquals(HttpStatus.SC_OK, e.StatusCode);
+                System.out.println(e.Body);
 
+                assertEquals(HttpStatus.SC_OK, e.StatusCode);
                 lcd.countDown();
             }
         });
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
     private ServiceEventListener kidoInitCallback(final CountDownLatch signal) {
         return new ServiceEventListener() {
             @Override

@@ -60,6 +60,6 @@ dependencies {
 
 //only include files that are suffixed with Test.class and set the max heap size
 androidTest {
-    include '**/EApiTest.class'
+    include '**/DsTest.class'
     maxHeapSize = "2048m"
 }
