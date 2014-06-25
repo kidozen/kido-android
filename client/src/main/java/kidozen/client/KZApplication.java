@@ -350,7 +350,7 @@ public class KZApplication  {
         if (mApplicationLog ==null)
         {
             mApplicationLog = new Logging(
-                    mApplicationConfiguration.GetSettingAsString("logging"),
+                    mApplicationConfiguration.GetSettingAsString("logging-v3"),
                     mProvider,
                     mUsername,
                     mPassword,

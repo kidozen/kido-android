@@ -52,7 +52,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.netiq:websocket:0.7'
-    provided 'org.json:json:20090211'
+    //provided 'org.json:json:20090211'
     compile 'com.google.code.gson:gson:1.7.2'
     androidTestCompile 'junit:junit:4.11'
     androidTestCompile 'org.robolectric:robolectric:2.3'
@@ -60,6 +60,6 @@ dependencies {
 
 //only include files that are suffixed with Test.class and set the max heap size
 androidTest {
-    include '**/*Test.class'
+    include '**/EApiTest.class'
     maxHeapSize = "2048m"
 }

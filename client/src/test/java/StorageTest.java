@@ -4,7 +4,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -280,11 +279,12 @@ public class StorageTest {
     @Test
     public void ShouldQueryObjectAndReturnRequestedValues() throws Exception
     {
+        //Robolectric.addHttpResponseRule();
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = this.CreateRandomValue();
         final String KEY2="additional";
         JSONObject data = new JSONObject()
-                .put(DATA_VALUE_KEY,expected)
+                .put(DATA_VALUE_KEY, expected)
                 .put(KEY2, this.CreateRandomValue());
 
         StorageEventListener cb = createObjectForStorage(data);
@@ -294,7 +294,7 @@ public class StorageTest {
         String values = new JSONObject().put(DATA_VALUE_KEY,true).toString();
 
         //Assert
-        _storage.Query(query,values,"{}", new ServiceEventListener() {
+        _storage.Query(query, values, "{}", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 try {
@@ -302,18 +302,14 @@ public class StorageTest {
                     JSONObject obj = ((JSONArray) e.Response).getJSONObject(0);
                     assertNotNull(obj.getString(DATA_VALUE_KEY));
                     String fail = obj.getString(KEY2);
-                }
-                catch (JSONException je)
-                {
+                } catch (JSONException je) {
                     String msg = je.getMessage();
                     System.out.println("msg = " + msg);
 
                     String expectedMessage = "No value for additional";
                     assertEquals(expectedMessage, msg);
                     lcd.countDown();
-                }
-                catch (Exception e1)
-                {
+                } catch (Exception e1) {
                     fail();
                 }
             }

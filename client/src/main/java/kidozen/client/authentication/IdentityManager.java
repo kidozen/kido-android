@@ -439,7 +439,7 @@ public class IdentityManager {
                         .put("client_secret", applicationKey)
                         .put("grant_type", "client_credentials")
                         .put("scope", applicationScope).toString();
-
+System.out.println("MSG:" + message);
                 SNIConnectionManager sniManager = new SNIConnectionManager(oauthEndpoint, message, requestProperties, null, mStrictSSL);
                 Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                 body = authResponse.get("responseBody");

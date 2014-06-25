@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import org.json.JSONObject;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -15,6 +17,7 @@ import kidozen.client.*;
 
 public class MainActivity extends Activity {
     KZApplication kido;
+    Storage storage;
 
     Button initbutton , authbutton;
     MainActivity mSelf;
@@ -24,36 +27,50 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mSelf = this;
         initbutton = (Button) findViewById(R.id.buttonInit);
+
         initbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try
-                {
-                    kido = new kidozen.client.KZApplication("https://att.kidocloud.com","contacts", "", false, new kidozen.client.ServiceEventListener() {
-                        @Override
-                        public void onFinish(kidozen.client.ServiceEvent e) {
-                            Log.d("Debug", "init");
-                        }
-                    });
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-
+            try
+            {
+                kido = new kidozen.client.KZApplication("https://att.kidocloud.com","contacts", "", false, new kidozen.client.ServiceEventListener() {
+                    @Override
+                    public void onFinish(kidozen.client.ServiceEvent e) {
+                        Log.d("Debug", "init");
+                        authbutton.setEnabled(true);
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
             }
         });
 
         authbutton = (Button) findViewById(R.id.buttonAuth);
+        authbutton.setEnabled(false);
         authbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                kido.StartPassiveAuthentication(mSelf, new kidozen.client.ServiceEventListener() {
-                    @Override
-                    public void onFinish(kidozen.client.ServiceEvent e) {
-                        Log.d("Debug", "auth");
+            kido.StartPassiveAuthentication(mSelf, new kidozen.client.ServiceEventListener() {
+                @Override
+                public void onFinish(kidozen.client.ServiceEvent e) {
+                    Log.d("Debug", "auth");
+                    try {
+                        storage = kido.Storage("teststorage");
+                        JSONObject itm = new JSONObject().put("name","value");
+                        storage.Create(itm, new ServiceEventListener() {
+                            @Override
+                            public void onFinish(ServiceEvent e) {
+                                Log.d("Debug", "onFinish");
+                            }
+                        });
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
-                });
+                }
+            });
             }
         });
 

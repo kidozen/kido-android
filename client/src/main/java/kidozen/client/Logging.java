@@ -53,7 +53,7 @@ public class Logging extends KZService {
                 }
 
                 Integer lvl = level.ordinal();
-                String url = mEndpoint + "?level=" + level.ordinal();
+                String url = String.format("%s/log?level=%s",mEndpoint, level.ordinal());
 
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("level", lvl.toString());
@@ -80,7 +80,7 @@ public class Logging extends KZService {
             @Override
             public void Fire(String token) {
                 Integer lvl = level.ordinal();
-                String url = mEndpoint + "?level=" + level.ordinal();
+                String url = String.format("%s/log?level=%s",mEndpoint, level.ordinal());
 
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("level", lvl.toString());
@@ -114,6 +114,8 @@ public class Logging extends KZService {
         CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
+                String url = String.format("%s/log/",mEndpoint);
+
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
@@ -183,7 +185,8 @@ public class Logging extends KZService {
                 try
                 {
                     String fixedQuery = checkDateTimeInQuery(query);
-                    String  url = mEndpoint;
+                    String url = String.format("%s/log",mEndpoint);
+
                     HashMap<String, String> params = new HashMap<String, String>();
                     params.put("query", fixedQuery);
                     params.put("options", options);
