@@ -479,6 +479,9 @@ public class KZApplication  {
         }
         try {
             JSONObject authConfig = KidoAppSettings.getInstance().GetSettingAsJObject("authConfig");
+            authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
             IdentityManager.getInstance().Authenticate(providerKey, username, password, new ServiceEventListener() {
                 @Override
@@ -518,6 +521,9 @@ public class KZApplication  {
         }
         try {
             JSONObject authConfig = KidoAppSettings.getInstance().GetSettingAsJObject("authConfig");
+            authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
             IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new kidozen.client.ServiceEventListener()   {
                 @Override
@@ -588,6 +594,7 @@ public class KZApplication  {
             try {
                 authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
                 authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+
                 IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
                 IdentityManager.getInstance().Authenticate(mApplicationKey, new kidozen.client.ServiceEventListener() {
                     @Override

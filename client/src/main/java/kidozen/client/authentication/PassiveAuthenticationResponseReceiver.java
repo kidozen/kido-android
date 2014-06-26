@@ -23,25 +23,25 @@ public class PassiveAuthenticationResponseReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         kidozen.client.ServiceEvent event = null;
-        int response = intent.getIntExtra(kidozen.client.authentication.PassiveAuthenticationActivity.AUTHENTICATION_RESULT,0);
+        int response = intent.getIntExtra(PassiveAuthenticationActivity.AUTHENTICATION_RESULT,0);
         switch (response) {
             case 0:
                 event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_METHOD_FAILURE, COULD_NOT_GET_AUTHENTICATION_RESPONSE, null, new Exception(COULD_NOT_GET_AUTHENTICATION_RESPONSE));
                 break;
-            case kidozen.client.authentication.PassiveAuthenticationActivity.REQUEST_FAILED:
-                String errorDescription = intent.getStringExtra(kidozen.client.authentication.PassiveAuthenticationActivity.ERROR_DESCRIPTION);
+            case PassiveAuthenticationActivity.REQUEST_FAILED:
+                String errorDescription = intent.getStringExtra(PassiveAuthenticationActivity.ERROR_DESCRIPTION);
                 event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_UNAUTHORIZED, errorDescription, null, new Exception(errorDescription));
                 break;
-            case kidozen.client.authentication.PassiveAuthenticationActivity.REQUEST_COMPLETE:
-                String authServicePayload = intent.getStringExtra(kidozen.client.authentication.PassiveAuthenticationActivity.AUTH_SERVICE_PAYLOAD);
+            case PassiveAuthenticationActivity.REQUEST_COMPLETE:
+                String authServicePayload = intent.getStringExtra(PassiveAuthenticationActivity.AUTH_SERVICE_PAYLOAD);
                 if(authServicePayload != null && !authServicePayload.isEmpty()) {
                     String token = authServicePayload.replace("access_token", "rawToken");
                     try {
-                        kidozen.client.authentication.IdentityManager im = kidozen.client.authentication.IdentityManager.getInstance();
-                        kidozen.client.authentication.KidoZenUser user = im.createKidoZenUser(token, kidozen.client.authentication.KidoZenUserIdentityType.PASSIVE_IDENTITY);
+                        IdentityManager im = IdentityManager.getInstance();
+                        KidoZenUser user = im.createKidoZenUser(token, KidoZenUserIdentityType.PASSIVE_IDENTITY);
                         if (user!=null) {
                             String userUniqueIdentifier = user.Claims.get("http://schemas.kidozen.com/userid").toString();
-                            im.addToTokensCache(userUniqueIdentifier, token, user.RefreshToken, kidozen.client.authentication.KidoZenUserIdentityType.APPLICATION_IDENTITY);
+                            im.addToTokensCache(userUniqueIdentifier, token, user.RefreshToken, KidoZenUserIdentityType.PASSIVE_IDENTITY);
 
                         }
                         event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_OK, token, user);

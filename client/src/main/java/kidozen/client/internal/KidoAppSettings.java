@@ -80,6 +80,10 @@ public class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
         return _settings.getJSONObject(name);
     }
 
+    public JSONObject Get()  {
+        return _settings;
+    }
+
     private KidoAppSettings() {
     }
 

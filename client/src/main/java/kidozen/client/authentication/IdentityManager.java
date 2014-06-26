@@ -27,6 +27,7 @@ import kidozen.client.KZAction;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.internal.Constants;
 import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.internal.Utilities;
 
@@ -220,24 +221,25 @@ public class IdentityManager {
     }
 
     // Next release must use this method for all auth types
-    public void GetToken(final KidoZenUser user, final String clientId, final ServiceEventListener callback) {
+    public void GetToken(final KidoZenUser user, final ServiceEventListener callback) {
         try {
             if (user.HasExpired()) {
                 JSONObject message = new JSONObject()
-                        .put("client_id", clientId)
-                        .put("grant_type", "client_credentials")
+                        .put("client_id", mAuthConfig.getString("domain"))
+                        .put("grant_type", "refresh_token")
                         .put("client_secret", mApplicationKey)
+                        .put("refresh_token", user.RefreshToken)
                         .put("scope", mAuthConfig.getString("applicationScope"));
 
-                SNIConnectionManager snim = new SNIConnectionManager(mAuthConfig.getString("oauthTokenEndpoint"), message.toString(), null, null, mStrictSSL);
-                Hashtable<String, String> authResponse = snim.ExecuteHttp(KZHttpMethod.POST);
-                String body = authResponse.get("responseBody");
-                String status = authResponse.get("statusCode");
-
-                if (Integer.parseInt(status) >= HttpStatus.SC_BAD_REQUEST) {
+                Object[] response = new RefreshTokenTask(message.toString()).execute().get();
+                int status = Integer.parseInt(response[0].toString());
+                String body = new JSONObject(response[1].toString()).getString("access_token");
+                if (status >= HttpStatus.SC_BAD_REQUEST) {
                     Exception ex = new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", status, body));
                     invokeCallbackWithException(callback, ex);
                 }
+                invokeCallback(callback, body, user);
+
             }
             else {
                 JSONObject cacheItem = mTokensCache.get(user.getUserHash());
@@ -439,7 +441,7 @@ public class IdentityManager {
                         .put("client_secret", applicationKey)
                         .put("grant_type", "client_credentials")
                         .put("scope", applicationScope).toString();
-System.out.println("MSG:" + message);
+
                 SNIConnectionManager sniManager = new SNIConnectionManager(oauthEndpoint, message, requestProperties, null, mStrictSSL);
                 Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                 body = authResponse.get("responseBody");
@@ -468,5 +470,38 @@ System.out.println("MSG:" + message);
 
     }
 
+    //
+    private class RefreshTokenTask extends AsyncTask<String,Void, Object[]> {
+        String mMessage;
+        public RefreshTokenTask(String message) {
+            mMessage = message;
+        }
+        @Override
+        protected Object[] doInBackground(String... strings) {
+            Object[] response = new Object[2];
+
+            try {
+                Hashtable<String, String> requestProperties = new Hashtable<String, String>();
+                requestProperties.put(CONTENT_TYPE,APPLICATION_JSON);
+                requestProperties.put(ACCEPT, APPLICATION_JSON);
+
+                SNIConnectionManager snim = new SNIConnectionManager(mAuthConfig.getString("oauthTokenEndpoint"), mMessage.toString(), requestProperties, null, mStrictSSL);
+                Hashtable<String, String> authResponse = snim.ExecuteHttp(KZHttpMethod.POST);
+                String body = authResponse.get("responseBody");
+                String status = authResponse.get("statusCode");
+                response[0] = status;
+                response[1] = body;
+
+                if (Integer.parseInt(status) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http StatusCode = %s). Body : %s", status, body));
+
+            }
+            catch (Exception e) {
+                response[1] = e.getMessage();
+            }
+            finally {
+                return response;
+            }
+        }
+    }
 }
 

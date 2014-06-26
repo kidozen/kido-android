@@ -43,18 +43,23 @@ public class KZService {
     {
         // User Identity is the higher priority
         if (mUserIdentity != null) {
-            ServiceEventListener formatAuthHeaderCallback = new ServiceEventListener() {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    mUserIdentity = ((KidoZenUser) e.Response);
-                    cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
-                }
-            };
+
             if (mUserIdentity.IdentityType==KidoZenUserIdentityType.USER_IDENTITY) {
-                IdentityManager.getInstance().GetRawToken(mActiveProvider, mActiveUsername, mActivePassword, formatAuthHeaderCallback);
+                IdentityManager.getInstance().GetRawToken(mActiveProvider, mActiveUsername, mActivePassword, new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        mUserIdentity = ((KidoZenUser) e.Response);
+                        cb.Fire(String.format("WRAP access_token=\"%s\"", mUserIdentity.Token));
+                    }
+                });
             }
-            else {
-                IdentityManager.getInstance().GetToken(mUserIdentity,mPassiveClientId, formatAuthHeaderCallback);
+            else  {
+                IdentityManager.getInstance().GetToken(mUserIdentity, new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        cb.Fire(String.format("WRAP access_token=\"%s\"", e.Body));
+                    }
+                });
             }
         }
         else {

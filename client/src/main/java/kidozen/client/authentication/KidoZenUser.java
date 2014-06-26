@@ -90,6 +90,6 @@ public class KidoZenUser {
 	}
 
     public Boolean HasExpired() {
-        return GetExpirationInMilliseconds()<=0;
+        return new Date().after(new Date(_expiration * Constants.ONE_THOUSAND));
     }
 }

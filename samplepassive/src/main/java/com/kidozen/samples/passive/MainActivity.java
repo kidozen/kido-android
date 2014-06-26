@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
             try
             {
-                kido = new kidozen.client.KZApplication("https://att.kidocloud.com","contacts", "", false, new kidozen.client.ServiceEventListener() {
+                kido = new kidozen.client.KZApplication("https://contoso.local.kidozen.com","testexpiration", "PaQIDZoDaI8nZD0fM2+8lkNiXvjWBdOO0sYzYntWkwo=", false, new kidozen.client.ServiceEventListener() {
                     @Override
                     public void onFinish(kidozen.client.ServiceEvent e) {
                         Log.d("Debug", "init");
