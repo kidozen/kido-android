@@ -1,7 +1,11 @@
 package kidozen.client;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 
@@ -154,10 +158,13 @@ public class DataSource extends KZService {
             public void Fire(String token) {
                 if (data==null)
                     throw new InvalidParameterException("data cannot be null or empty");
+
                 JsonStringToMap jsm = new JsonStringToMap();
-                String qs = Utilities.MapAsQueryString(jsm.parse(data.toString()), false, null);
-                qs = qs.substring(0, qs.length() - 1);
-                String  url = mEndpoint + "/" + mName + "?" + qs;
+                String ds = Utilities.MapAsQueryString(jsm.parse(data.toString()), false, null);
+                //String d = data.toString();
+
+                String  url = mEndpoint + "/" + mName + "?" + ds;
+
                 HashMap<String, String> params = new HashMap<String, String>();
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);

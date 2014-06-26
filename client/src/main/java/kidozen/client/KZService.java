@@ -170,6 +170,8 @@ public class KZService {
                     Hashtable<String, String> response = _sniManager.ExecuteHttp(_method);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
+System.out.println("======>" + body);
+System.out.println("======>" +statusCode);
                     if (statusCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
                         String exceptionMessage = (body!=null ? body : "Unexpected HTTP Status Code: " + statusCode);
                         throw new Exception(exceptionMessage);
@@ -201,6 +203,7 @@ public class KZService {
             }
             catch(Exception e)
             {
+System.out.println("======>" + e.getMessage());
                 String exMessage = (e.getMessage()==null ? "Unexpected error" : e.getMessage().toString());
                 _event = new ServiceEvent(this, statusCode, exMessage, null,e);
             }

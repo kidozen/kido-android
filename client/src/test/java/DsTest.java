@@ -31,11 +31,8 @@ import static org.junit.Assert.fail;
 //@Ignore
 public class DsTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 5;
-    private static final String OPERATION_DATASOURCE_NAME = "WeatherBsAs";
+    private static final String INVOKE_DATA_SOURCE_NAME = "InvokeCityWeather";
     private static final String QUERY_DATA_SOURCE_NAME = "GetCityWeather";
-    private static final String OPERATION_PARAMS_DATASOURCE_NAME = "WeatherOpParams";
-
-    private static final String QUERY_PARAMS_DATA_SOURCE_NAME = "GetCityWeather";
     KZApplication kidozen = null;
 
     @Before
@@ -53,10 +50,11 @@ public class DsTest {
         }
     }
 
-    public void ShouldCallOperationInDataSourceWithParams() throws Exception {
+    @Test
+    public void ShouldExecuteInvokeWithParameters() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        DataSource dataSource = kidozen.DataSource(OPERATION_PARAMS_DATASOURCE_NAME);
-        JSONObject data = new JSONObject().put("path","?k=kidozen");
+        DataSource dataSource = kidozen.DataSource(INVOKE_DATA_SOURCE_NAME);
+        JSONObject data = new JSONObject("{\"qs\": { \"q\": \"Miami, USA\" }}");
         dataSource.Invoke(data,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -69,11 +67,10 @@ public class DsTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
-
-
-    public void ShouldCallOperationInDataSource() throws Exception {
+    @Test
+    public void ShouldExecuteInvokeWithDefaults() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        DataSource dataSource = kidozen.DataSource(OPERATION_DATASOURCE_NAME);
+        DataSource dataSource = kidozen.DataSource(INVOKE_DATA_SOURCE_NAME);
 
         dataSource.Invoke(new ServiceEventListener() {
             @Override
@@ -90,7 +87,7 @@ public class DsTest {
     @Test
     public void ShouldExecuteQueryWithParameters() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATA_SOURCE_NAME);
+        DataSource dataSource = kidozen.DataSource(QUERY_DATA_SOURCE_NAME);
         JSONObject data = new JSONObject("{\"qs\": { \"q\": \"Miami, USA\" }}");
         dataSource.Query(data,new ServiceEventListener() {
             @Override
@@ -108,7 +105,7 @@ public class DsTest {
     @Test
     public void ShouldExecuteQueryWithDefaults() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        DataSource dataSource = kidozen.DataSource(QUERY_PARAMS_DATA_SOURCE_NAME);
+        DataSource dataSource = kidozen.DataSource(QUERY_DATA_SOURCE_NAME);
 
         dataSource.Query(new ServiceEventListener() {
             @Override
