@@ -52,6 +52,7 @@ public class IdentityManager {
     private static IdentityManager INSTANCE = null;
     private PassiveAuthenticationResponseReceiver mReceiver;
     private String mApplicationKey;
+    private Context mContext;
 
     // Private constructor suppresses
     private IdentityManager(){}
@@ -199,6 +200,7 @@ public class IdentityManager {
     // Social / passive authentication
     public void Authenticate(Context context, String userUniqueIdentifier, ServiceEventListener callback) throws JSONException{
         String key = userUniqueIdentifier;
+        mContext = context;
         JSONObject cacheItem = mTokensCache.get(key);
         if (cacheItem != null) {
             String rawToken = cacheItem.getString("rawToken"); // usar el token de refresh
@@ -223,31 +225,35 @@ public class IdentityManager {
     // Next release must use this method for all auth types
     public void GetToken(final KidoZenUser user, final ServiceEventListener callback) {
         try {
-            if (user.HasExpired()) {
-                JSONObject message = new JSONObject()
-                        .put("client_id", mAuthConfig.getString("domain"))
-                        .put("grant_type", "refresh_token")
-                        .put("client_secret", mApplicationKey)
-                        .put("refresh_token", user.RefreshToken)
-                        .put("scope", mAuthConfig.getString("applicationScope"));
-
-                Object[] response = new RefreshTokenTask(message.toString()).execute().get();
-                int status = Integer.parseInt(response[0].toString());
-                String body = new JSONObject(response[1].toString()).getString("access_token");
-                if (status >= HttpStatus.SC_BAD_REQUEST) {
-                    Exception ex = new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", status, body));
-                    invokeCallbackWithException(callback, ex);
-                }
-                invokeCallback(callback, body, user);
-
-            }
-            else {
                 JSONObject cacheItem = mTokensCache.get(user.getUserHash());
                 if (cacheItem!=null) {
-                    KidoZenUser usr = (KidoZenUser) cacheItem.get("user");
-                    invokeCallback(callback, cacheItem.getString("rawToken"), usr);
+                    if (user.HasExpired()) {
+                        JSONObject message = new JSONObject()
+                                .put("client_id", mAuthConfig.getString("domain"))
+                                .put("grant_type", "refresh_token")
+                                .put("client_secret", mApplicationKey)
+                                .put("refresh_token", user.RefreshToken)
+                                .put("scope", mAuthConfig.getString("applicationScope"));
+
+                        Object[] response = new RefreshTokenTask(message.toString()).execute().get();
+                        int status = Integer.parseInt(response[0].toString());
+                        String body = new JSONObject(response[1].toString()).getString("access_token");
+                        if (status >= HttpStatus.SC_BAD_REQUEST) {
+                            Exception ex = new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", status, body));
+                            invokeCallbackWithException(callback, ex);
+                        }
+                        invokeCallback(callback, body, user);
+                    }
+                    else {
+                        KidoZenUser usr = (KidoZenUser) cacheItem.get("user");
+                        invokeCallback(callback, cacheItem.getString("rawToken"), usr);
+                    }
                 }
-            }
+                // Something failed. Try to launch the Authentication activity again.
+                else {
+                    Log.i(TAG,"Something failed. Try to launch the Authentication activity again ....");
+                    this.Authenticate(mContext,"", callback);
+                }
         }
         catch (Exception e) {
             invokeCallbackWithException(callback, e);

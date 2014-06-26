@@ -77,18 +77,6 @@ public class KidoZenUser {
 		_expiration=expiration;
 	}
 
-	/**
-	 * Get the expiration time in miliseconds
-	 * @return the token expiration time in miliseconds
-	 */
-	public Long GetExpirationInMilliseconds() {
-        Date later = new Date(_expiration * Constants.ONE_THOUSAND);
-		Date now = new Date();
-		Long diffInMis = later.getTime()  - now.getTime();
-		return diffInMis;
-		//TimeUnit.MILLISECONDS.toSeconds(diffInMis);
-	}
-
     public Boolean HasExpired() {
         return new Date().after(new Date(_expiration * Constants.ONE_THOUSAND));
     }

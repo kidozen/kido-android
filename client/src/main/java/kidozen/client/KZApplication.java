@@ -124,6 +124,7 @@ public class KZApplication  {
         try {
             String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + mApplicationName;
             mApplicationConfiguration = KidoAppSettings.getInstance();
+            
             // chains the getSettings callback with the keyAuth callback
             mApplicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
 
@@ -491,10 +492,9 @@ public class KZApplication  {
                         mUsername = username;
                         mPassword = password;
                         UserIsAuthenticated = true;
-                        long delay = ((KidoZenUser) e.Response).GetExpirationInMilliseconds();
                         SetKidoZenUser((KidoZenUser) e.Response);
-                        if (delay < 0) {
-                            Log.e(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the kidozen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
+                        if (mUserIdentity.HasExpired()) {
+                            Log.w(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the KidoZen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
                         }
                     }
                     if (callback != null) callback.onFinish(e);
@@ -508,7 +508,7 @@ public class KZApplication  {
 
 	}
 
-    public void StartPassiveAuthentication(Context context,final kidozen.client.ServiceEventListener callback) {
+    public void Authenticate(Context context, final kidozen.client.ServiceEventListener callback) {
         String mUserUniqueIdentifier = "";
         if (mUserIdentity!=null)
             mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();

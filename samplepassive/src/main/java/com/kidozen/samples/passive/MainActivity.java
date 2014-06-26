@@ -2,78 +2,107 @@ package com.kidozen.samples.passive;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import org.json.JSONObject;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import kidozen.client.*;
 
 public class MainActivity extends Activity {
     KZApplication kido;
     Storage storage;
-
-    Button initbutton , authbutton;
+    TextView textviewMessages;
+    Button initbutton , authbutton, storagebutton, logoffbutton;
     MainActivity mSelf;
+    private String tenantMarketPlace;
+    private String application;
+    private String appkey;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSelf = this;
-        initbutton = (Button) findViewById(R.id.buttonInit);
+        tenantMarketPlace = "https://contoso.local.kidozen.com";
+        application = "testexpiration";
+        appkey = "PaQIDZoDaI8nZD0fM2+8lkNiXvjWBdOO0sYzYntWkwo=";
 
+        initbutton = (Button) findViewById(R.id.buttonInit);
+        textviewMessages= (TextView) findViewById(R.id.textViewMessages);
         initbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             try
             {
-                kido = new kidozen.client.KZApplication("https://contoso.local.kidozen.com","testexpiration", "PaQIDZoDaI8nZD0fM2+8lkNiXvjWBdOO0sYzYntWkwo=", false, new kidozen.client.ServiceEventListener() {
+                kido = new kidozen.client.KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
                     @Override
                     public void onFinish(kidozen.client.ServiceEvent e) {
-                        Log.d("Debug", "init");
                         authbutton.setEnabled(true);
+                        textviewMessages.setText( String.valueOf(e.StatusCode));
                     }
                 });
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                textviewMessages.setText(e.getMessage());
             }
             }
         });
+
+        logoffbutton = (Button) findViewById(R.id.buttonLogoff);
+        logoffbutton.setEnabled(false);
+        logoffbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                kido.SignOut();
+                storagebutton.setEnabled(false);
+                authbutton.setEnabled(false);
+
+            }
+        });
+
 
         authbutton = (Button) findViewById(R.id.buttonAuth);
         authbutton.setEnabled(false);
         authbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            kido.StartPassiveAuthentication(mSelf, new kidozen.client.ServiceEventListener() {
-                @Override
-                public void onFinish(kidozen.client.ServiceEvent e) {
-                    Log.d("Debug", "auth");
-                    try {
-                        storage = kido.Storage("teststorage");
-                        JSONObject itm = new JSONObject().put("name","value");
-                        storage.Create(itm, new ServiceEventListener() {
-                            @Override
-                            public void onFinish(ServiceEvent e) {
-                                Log.d("Debug", "onFinish");
-                            }
-                        });
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
+                kido.Authenticate(mSelf, new kidozen.client.ServiceEventListener() {
+                    @Override
+                    public void onFinish(kidozen.client.ServiceEvent e) {
+                        textviewMessages.setText(String.valueOf(e.StatusCode));
+                        storagebutton.setEnabled(true);
+                        logoffbutton.setEnabled(true);
+
                     }
-                }
-            });
+                });
             }
         });
 
+        storagebutton = (Button) findViewById(R.id.buttonStorage);
+        storagebutton.setEnabled(false);
+        storagebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    storage = kido.Storage("teststorage");
+                    JSONObject itm = new JSONObject().put("name","value");
+                    storage.Create(itm, new ServiceEventListener() {
+                        @Override
+                        public void onFinish(ServiceEvent e) {
+                            textviewMessages.setText(String.valueOf(e.StatusCode));
+                        }
+                    });
+                } catch (Exception e1) {
+                    textviewMessages.setText(e1.getMessage());
+                }
+            }
+        });
     }
 
 

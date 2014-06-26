@@ -41,14 +41,16 @@ public class PassiveAuthenticationResponseReceiver extends BroadcastReceiver {
                         KidoZenUser user = im.createKidoZenUser(token, KidoZenUserIdentityType.PASSIVE_IDENTITY);
                         if (user!=null) {
                             String userUniqueIdentifier = user.Claims.get("http://schemas.kidozen.com/userid").toString();
+                            user.HashKey = userUniqueIdentifier;
                             im.addToTokensCache(userUniqueIdentifier, token, user.RefreshToken, KidoZenUserIdentityType.PASSIVE_IDENTITY);
-
+                            event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_OK, token, user);
                         }
-                        event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_OK, token, user);
-
+                        else {
+                            throw new Exception("Cannot create user");
+                        }
                     }
-                    catch(JSONException je) {
-                        event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_METHOD_FAILURE, je.getMessage(), null, je);
+                    catch(Exception e) {
+                        event = new kidozen.client.ServiceEvent(this, HttpStatus.SC_METHOD_FAILURE, e.getMessage(), null, e);
                     }
                 }
                 else {
