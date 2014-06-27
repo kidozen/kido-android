@@ -123,8 +123,8 @@ public class KZApplication  {
 
         try {
             String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + mApplicationName;
-            mApplicationConfiguration = KidoAppSettings.getInstance();
-            
+            mApplicationConfiguration = new KidoAppSettings();
+
             // chains the getSettings callback with the keyAuth callback
             mApplicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
 
@@ -472,14 +472,14 @@ public class KZApplication  {
 	 * @throws Exception
 	 */
 	public void Authenticate(final String providerKey,final String username, final String password,final ServiceEventListener callback) {
-        if (!KidoAppSettings.getInstance().IsInitialized) {
+        if (!mApplicationConfiguration.IsInitialized) {
             if (callback!=null) {
                 callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"The application is not initialized", null));
             }
             return;
         }
         try {
-            JSONObject authConfig = KidoAppSettings.getInstance().GetSettingAsJObject("authConfig");
+            JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
 
@@ -513,14 +513,14 @@ public class KZApplication  {
         if (mUserIdentity!=null)
             mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
 
-        if (!KidoAppSettings.getInstance().IsInitialized) {
+        if (!mApplicationConfiguration.IsInitialized) {
             if (callback!=null) {
                 callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"The application is not initialized", null));
             }
             return;
         }
         try {
-            JSONObject authConfig = KidoAppSettings.getInstance().GetSettingAsJObject("authConfig");
+            JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
 
