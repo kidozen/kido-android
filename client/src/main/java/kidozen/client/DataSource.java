@@ -110,7 +110,6 @@ public class DataSource extends KZService {
                     throw new InvalidParameterException("data cannot be null or empty");
 
                 String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
@@ -118,7 +117,7 @@ public class DataSource extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  data, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, StrictSSL).execute(url);
             }
         });
 
@@ -164,14 +163,13 @@ public class DataSource extends KZService {
 
                 try {
                     String url = mEndpoint + "/" + mName + appendJsonAsQueryString(data);
-                    HashMap<String, String> params = new HashMap<String, String>();
                     HashMap<String, String> headers = new HashMap<String, String>();
                     headers.put(Constants.AUTHORIZATION_HEADER, token);
                     if (timeout>0)
                         headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-                    new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+                    new KZServiceAsyncTask(KZHttpMethod.GET, null, headers, callback, StrictSSL).execute(url);
 
-                } catch (UnsupportedEncodingException e) {
+                } catch (Exception e) {
                     if (callback!=null)
                         callback.onFinish(new ServiceEvent(this, HttpStatus.SC_NOT_FOUND, e.getMessage(), e));
                 }
@@ -181,7 +179,11 @@ public class DataSource extends KZService {
 
     }
 
-    protected String appendJsonAsQueryString(JSONObject data) throws UnsupportedEncodingException {
-        return "?json=" + URLEncoder.encode(data.toString(), "utf-8");
+    private String appendJsonAsQueryString(JSONObject data) {
+        JsonStringToMap jsm = new JsonStringToMap();
+        String qs = Utilities.MapAsQueryString(jsm.parse(data.toString()), false, null);
+        qs = qs.substring(0, qs.length() - 1);
+        return "?" + qs;
     }
+
 }

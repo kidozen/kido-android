@@ -3,6 +3,7 @@ package kidozen.client.internal;
 import android.util.Log;
 
 import org.apache.http.NameValuePair;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -140,5 +141,9 @@ public class Utilities {
             Log.i(TAG, e.getMessage());
         }
         return retVal;
+    }
+
+    public static String AppendJsonAsQueryString(JSONObject data) throws UnsupportedEncodingException {
+        return "?json=" + URLEncoder.encode(data.toString(), "utf-8");
     }
 }
