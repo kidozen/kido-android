@@ -343,7 +343,7 @@ public class KZApplication  {
             throw new Exception("Level must not be null");
         }
         checkApplicationLog();
-        mApplicationLog.Write(jsonObject, level, callback);
+        mApplicationLog.Write("", jsonObject, level, callback);
     }
 
 

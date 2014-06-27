@@ -27,10 +27,15 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSelf = this;
+
         tenantMarketPlace = "https://contoso.local.kidozen.com";
+        application = "androide";
+        appkey = "o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
+
+        /*
         application = "testexpiration";
         appkey = "PaQIDZoDaI8nZD0fM2+8lkNiXvjWBdOO0sYzYntWkwo=";
-
+        */
         initbutton = (Button) findViewById(R.id.buttonInit);
         textviewMessages= (TextView) findViewById(R.id.textViewMessages);
         initbutton.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +91,30 @@ public class MainActivity extends Activity {
 
         storagebutton = (Button) findViewById(R.id.buttonStorage);
         storagebutton.setEnabled(false);
-        storagebutton.setOnClickListener(new View.OnClickListener() {
+        storagebutton.setOnClickListener(LogEventClick());
+    }
+
+    private View.OnClickListener LogEventClick() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    JSONObject w = new JSONObject().put("error", "zarlanga");
+                    kido.WriteLog(w,LogLevel.LogLevelCritical, new ServiceEventListener() {
+                        @Override
+                        public void onFinish(ServiceEvent e) {
+                            textviewMessages.setText(String.valueOf(e.StatusCode));
+                        }
+                    });
+                } catch (Exception e1) {
+                    textviewMessages.setText(e1.getMessage());
+                }
+            }
+        };
+    }
+
+    private View.OnClickListener SaveOnStorageClick() {
+        return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -102,7 +130,7 @@ public class MainActivity extends Activity {
                     textviewMessages.setText(e1.getMessage());
                 }
             }
-        });
+        };
     }
 
 
