@@ -76,9 +76,9 @@ public class AppSettings {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_KEY =                "o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";//;"LJHHZdGaFzssi34IGS+wDygiqAPJyansNPLKAUljVmQ=";
+        KZ_KEY =                "o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
         KZ_TENANT =             "https://contoso.local.kidozen.com";
-        KZ_APP =                "androide";//"contacts";
+        KZ_APP =                "androide";
         KZ_USER =               "contoso@kidozen.com";
         KZ_PASS =               "pass";
         KZ_SERVICEID =          "Weather";
@@ -88,3 +88,22 @@ public class AppSettings {
         KZ_PROVIDER=            "Kidozen";
     }
 }
+
+/*
+        //tests.qa
+        KZ_KEY =                "GZJQetc+VH9JLWoHnLEwlk7tw+XPSniMUSuIzK9kDxE=";
+        KZ_TENANT =             "https://tests.qa.kidozen.com";
+        KZ_APP =                "tasks";
+        KZ_USER =               "tests@kidozen.com";
+        KZ_PASS =               "pass";
+*/
+
+/*
+        //att
+        KZ_KEY =                "LJHHZdGaFzssi34IGS+wDygiqAPJyansNPLKAUljVmQ=";
+        KZ_TENANT =             "https://";
+        KZ_APP =                "contacts";
+        KZ_USER =               "att@kidozen.com";
+        KZ_PASS =               "pass";
+
+* */

@@ -310,7 +310,7 @@ public class IdentityManager {
     public KidoZenUser createKidoZenUser(String tokenAsString, KidoZenUserIdentityType userIdentity) throws JSONException {
         JSONObject token = new JSONObject(tokenAsString);
         String rawTokenAsString = token.get("rawToken").toString();
-        String refreshToken  = token.get("refresh_token").toString();
+        String refreshToken  = getRefreshToken(token);
         Log.d(TAG, String.format("Got KidoZen auth token from AuthService"));
         String rawToken = URLDecoder.decode(tokenAsString);
         String[] claims = rawToken.split("&");
@@ -342,6 +342,15 @@ public class IdentityManager {
             user.Roles = Arrays.asList(tokenClaims.get("role").split(","));
         }
         return user;
+    }
+
+    private String getRefreshToken(JSONObject token)  {
+        try {
+            return token.get("refresh_token").toString();
+        } catch (JSONException e) {
+            Log.i(TAG, "Auth service does not provide 'refresh_token'");
+            return "";
+        }
     }
 
     public void addToTokensCache(String cacheKey, String token, String refreshToken, KidoZenUserIdentityType userIdentity) throws JSONException {

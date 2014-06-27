@@ -3,9 +3,12 @@ package kidozen.client;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 
@@ -18,7 +21,7 @@ import kidozen.client.internal.Utilities;
  * Created by christian on 2/27/14.
  */
 public class DataSource extends KZService {
-
+    private DataSource mSelf = this;
     private String TAG="DataSource";
 
     public DataSource(String ds, String name, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
@@ -159,20 +162,26 @@ public class DataSource extends KZService {
                 if (data==null)
                     throw new InvalidParameterException("data cannot be null or empty");
 
-                JsonStringToMap jsm = new JsonStringToMap();
-                String ds = Utilities.MapAsQueryString(jsm.parse(data.toString()), false, null);
-                //String d = data.toString();
+                try {
+                    String url = mEndpoint + "/" + mName + appendJsonAsQueryString(data);
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put(Constants.AUTHORIZATION_HEADER, token);
+                    if (timeout>0)
+                        headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
+                    new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
 
-                String  url = mEndpoint + "/" + mName + "?" + ds;
+                } catch (UnsupportedEncodingException e) {
+                    if (callback!=null)
+                        callback.onFinish(new ServiceEvent(this, HttpStatus.SC_NOT_FOUND, e.getMessage(), e));
+                }
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                if (timeout>0)
-                    headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
             }
         });
 
+    }
+
+    protected String appendJsonAsQueryString(JSONObject data) throws UnsupportedEncodingException {
+        return "?json=" + URLEncoder.encode(data.toString(), "utf-8");
     }
 }

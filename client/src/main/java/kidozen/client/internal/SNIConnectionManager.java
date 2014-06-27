@@ -1,6 +1,7 @@
 package kidozen.client.internal;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -11,8 +12,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -147,11 +150,13 @@ public class SNIConnectionManager
 
     protected HttpURLConnection CreateConnectionThatHandlesRedirects(KZHttpMethod method) throws  IOException, NoSuchAlgorithmException, KeyManagementException {
         if(_params!=null) {
+System.out.println("****** params not null");
             _urlAsString = _urlAsString + "?" + Utilities.getQuery(_params);
         }
-
+System.out.println("****** params not null");
         URL url = new URL(_urlAsString);
 
+        //just in case services doesnt have configured redirection
         if (url.getProtocol().toLowerCase().equals("https")) {
             return CreateSNIConnection(_urlAsString, method);
         }
@@ -211,7 +216,8 @@ public class SNIConnectionManager
     protected Hashtable<String, String> getExecutionResponse( HttpURLConnection con) throws IOException {
         Hashtable<String, String> retVal = new Hashtable<String, String>();
         int responseCode = con.getResponseCode();
-
+System.out.println("*********->" + _urlAsString);
+System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
         retVal.put("statusCode", String.valueOf(responseCode));
         retVal.put("responseMessage", con.getResponseMessage());
 
@@ -220,5 +226,9 @@ public class SNIConnectionManager
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
         return retVal;
+    }
+
+    protected String appendJsonAsQueryString(JSONObject data) throws UnsupportedEncodingException {
+        return "?json=" + URLEncoder.encode(data.toString(), "utf-8");
     }
 }

@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 public class DsTest {
     public static final int TEST_TIMEOUT_IN_MINUTES = 5;
     private static final String INVOKE_DATA_SOURCE_NAME = "InvokeCityWeather";
-    private static final String QUERY_DATA_SOURCE_NAME = "GetCityWeather";
+    private static final String QUERY_DATA_SOURCE_NAME = "getWeatherForCity";
     KZApplication kidozen = null;
 
     @Before
@@ -50,7 +50,7 @@ public class DsTest {
         }
     }
 
-    @Test
+    //@Test
     public void ShouldExecuteInvokeWithParameters() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(INVOKE_DATA_SOURCE_NAME);
@@ -67,7 +67,7 @@ public class DsTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
-    @Test
+    //@Test
     public void ShouldExecuteInvokeWithDefaults() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(INVOKE_DATA_SOURCE_NAME);
@@ -88,7 +88,7 @@ public class DsTest {
     public void ShouldExecuteQueryWithParameters() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_DATA_SOURCE_NAME);
-        JSONObject data = new JSONObject("{\"qs\": { \"q\": \"Miami, USA\" }}");
+        JSONObject data = new JSONObject("{\"qs\": { \"q\": \"Buenos Aires, Argentina\" }}");
         dataSource.Query(data,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -102,7 +102,7 @@ public class DsTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
-    @Test
+    //@Test
     public void ShouldExecuteQueryWithDefaults() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         DataSource dataSource = kidozen.DataSource(QUERY_DATA_SOURCE_NAME);
