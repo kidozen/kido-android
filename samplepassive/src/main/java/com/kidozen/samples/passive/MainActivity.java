@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
 
         tenantMarketPlace = "https://contoso.local.kidozen.com";
         application = "androide";
-        appkey = "o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
+        appkey = "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY="; //"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
 
         /*
         application = "testexpiration";
@@ -91,7 +91,26 @@ public class MainActivity extends Activity {
 
         storagebutton = (Button) findViewById(R.id.buttonStorage);
         storagebutton.setEnabled(false);
-        storagebutton.setOnClickListener(LogEventClick());
+        storagebutton.setOnClickListener(GetLogsEventClick());
+    }
+
+    private View.OnClickListener GetLogsEventClick() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    kido.AllLogMessages( new ServiceEventListener() {
+                        @Override
+                        public void onFinish(ServiceEvent e) {
+
+                            textviewMessages.setText(String.valueOf(e.StatusCode));
+                        }
+                    });
+                } catch (Exception e1) {
+                    textviewMessages.setText(e1.getMessage());
+                }
+            }
+        };
     }
 
     private View.OnClickListener LogEventClick() {

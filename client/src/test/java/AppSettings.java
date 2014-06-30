@@ -76,7 +76,7 @@ public class AppSettings {
     private static void usedefaults() {
         System.out.print("No settings specified, using defaults\n");
 
-        KZ_KEY =                "o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
+        KZ_KEY =                "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY=";//"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
         KZ_TENANT =             "https://contoso.local.kidozen.com";
         KZ_APP =                "androide";
         KZ_USER =               "contoso@kidozen.com";

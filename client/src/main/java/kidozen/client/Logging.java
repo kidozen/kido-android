@@ -119,7 +119,7 @@ public class Logging extends KZService {
         CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
-                String url = String.format("%s/log/",mEndpoint);
+                String url = String.format("%s/log/", mEndpoint);
 
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
@@ -136,7 +136,7 @@ public class Logging extends KZService {
 	 */
 	public void All(final ServiceEventListener callback) 
 	{
-		this.Query("{}", "{}", callback);
+		this.Query(" { query: { match_all: { } } }", callback);
 	}
 
 	/**
@@ -145,27 +145,7 @@ public class Logging extends KZService {
 	 * @param query An string with the same syntax used for a MongoDb query
 	 * @param callback The callback with the result of the service call
 	 */
-	public void Query(final String query,final ServiceEventListener callback) 
-	{
-		if (query == null )
-		{
-			throw new  InvalidParameterException("query cannot be null or empty");
-		}
-		if (query == "")
-		{
-			throw new  InvalidParameterException("query cannot be null or empty");
-		}
-		this.Query(query, "{}", callback);
-	}
-
-	/**
-	 * Executes a query against the Log
-	 * 
-	 * @param query An string with the same syntax used for a MongoDb query
-	 * @param options An string with the same syntax used for a MongoDb query options
-	 * @param callback The callback with the result of the service call
-	 */
-	public void Query(final String query, final String options,final ServiceEventListener callback)
+	public void Query(final String query, final ServiceEventListener callback)
 	{
 		
 		if (query == null )
@@ -176,39 +156,17 @@ public class Logging extends KZService {
 		{
 			throw new  InvalidParameterException("query cannot be empty");
 		}
-		if (options == null )
-		{
-			throw new  InvalidParameterException("options cannot be null");
-		}
-		if (options == "" || options.isEmpty())
-		{
-			throw new  InvalidParameterException("options cannot be empty");
-		}
         CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
                 try
                 {
-                    String fixedQuery = checkDateTimeInQuery(query);
-                    String url = String.format("%s/log",mEndpoint);
-
                     HashMap<String, String> params = new HashMap<String, String>();
-                    params.put("query", fixedQuery);
-                    params.put("options", options);
+                    params.put("query", query);
                     HashMap<String, String> headers = new HashMap<String, String>();
                     headers.put(Constants.AUTHORIZATION_HEADER,token);
         
-
-                    ServiceEventListener se = new ServiceEventListener() {
-
-                        @Override
-                        public void onFinish(ServiceEvent e) {
-                            if(e.Exception==null)
-                                callback.onFinish( serializeJsonArray( e ) );
-                        }
-                    };
-
-                    new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(url);
+                    new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(mEndpoint);
                 }
                 catch (Exception e)
                 {
@@ -250,33 +208,6 @@ public class Logging extends KZService {
 			message.put("dateTime",upd);
 		}
 		return message;
-	}
-	
-	private String checkDateTimeInQuery(String query) throws JSONException {
-		if (query ==null || query.equals("null")) {
-			query = "{}";	
-		}
-		if (query.isEmpty() ) {
-			query = "{}";
-		}
-		String value = "";
-		try {
-			if (query.indexOf("dateTime")<0) {
-				HashMap<String, Boolean> dt = new HashMap<String, Boolean>();
-				dt.put("$exists", true);
-				
-				value = new JSONStringer().object()
-							.key("dateTime")
-							.value(new JSONObject(dt))
-						.endObject().toString();
-			}
-			else {
-				value = query;
-			}
-		} catch (JSONException e) {
-			throw e;
-		}
-		return value;
 	}
 
     public void Write(String message, LogLevel level, Object callback) {
