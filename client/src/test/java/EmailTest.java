@@ -70,8 +70,8 @@ public class EmailTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
     @Test
-    @Ignore
     public void ShouldAttachFiles() throws Exception {
         List<String> attachs = new ArrayList<String>();
         attachs.add(AppSettings.KZ_EMAIL_ATTACH);

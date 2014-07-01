@@ -9,11 +9,12 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import kidozen.client.KZApplication;
-import kidozen.client.LogLevel;
+import kidozen.client.Queue;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.Storage;
@@ -34,13 +35,12 @@ import static org.junit.Assert.fail;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
 
-public class LogTest {
+public class QueueTest {
 
-    private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final String DATA_VALUE_KEY = "value";
+    public static final String QUEUE_INTEGRATION_TESTS = "QueueIntegrationTests";
     KZApplication kidozen = null;
-    Storage _storage;
 
     @Before
     public void Setup()
@@ -50,74 +50,43 @@ public class LogTest {
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, kidoInitCallback(signal));
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-            _storage = kidozen.Storage(KZ_STORAGE_SERVICEID);
         }
         catch (Exception e)
         {
-            fail(e.getMessage());
+            fail();
         }
     }
-
     @Test
-    public void ShouldTruncateLog() throws Exception {
+    public void ShouldEnqueue() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        Queue q = kidozen.Queue(QUEUE_INTEGRATION_TESTS);
+        q.Enqueue (data, sendCallback(lcd));
 
-        kidozen.ClearLog(new ServiceEventListener() {
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+    @Test
+    public void ShouldDequeue() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        final Queue q = kidozen.Queue(QUEUE_INTEGRATION_TESTS);
+        q.Enqueue(data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                lcd.countDown();
+               q.Dequeue(new ServiceEventListener() {
+                   @Override
+                   public void onFinish(ServiceEvent e) {
+                       assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
+                       lcd.countDown();
+                   }
+               });
             }
-        });
+        } );
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
-    @Test
-    public void ShouldLogJSONObject() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        JSONObject data = new JSONObject().put("message", "ShouldLogJSONObject");
-        kidozen.WriteLog(data,
-                LogLevel.LogLevelCritical,
-                createCallback(lcd));
-
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
-    }
-
-    @Test
-    public void ShouldGetAllLog() throws Exception
-    {
-        final CountDownLatch lcd = new CountDownLatch(1);
-
-        kidozen.AllLogMessages(new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
-                lcd.countDown();
-            }
-        });
-
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
-    }
-
-    @Test
-    public void ShouldWriteMessageUsingKey() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-
-        KZApplication k = new KZApplication(AppSettings.KZ_TENANT,
-                AppSettings.KZ_APP,
-                AppSettings.KZ_KEY,
-                false,
-                kidoInitCallback(lcd));
-
-        k.WriteLog("LoggingIntegrationTests",LogLevel.LogLevelCritical, createCallback(lcd));
-
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
-
-    }
-
     //
-    private ServiceEventListener createCallback(final CountDownLatch signal) {
+    private ServiceEventListener sendCallback(final CountDownLatch signal) {
         return  new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -147,5 +116,17 @@ public class LogTest {
         };
     }
 
+    private String CreateRandomValue()
+    {
+        Random rng= new Random();
+        String characters ="qwertyuioplkjhgfdsazxcvbnm";
+        char[] text = new char[10];
+        for (int i = 0; i < 10; i++)
+        {
+            text[i] = characters.charAt(rng.nextInt(characters.length()));
+        }
+        return new String(text);
+
+    }
 }
 

@@ -1,22 +1,22 @@
 import org.apache.http.HttpStatus;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import kidozen.client.KZApplication;
-import kidozen.client.LogLevel;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
-import kidozen.client.Storage;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -34,13 +34,12 @@ import static org.junit.Assert.fail;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
 
-public class LogTest {
-
-    private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
-    public static final int TEST_TIMEOUT_IN_MINUTES = 1;
-    public static final String DATA_VALUE_KEY = "value";
+public class FileTest {
+    public static final int TEST_TIMEOUT_IN_MINUTES = 10;
+    public static final String PICTURE_FILE = "/Users/christian/Pictures/mono.png";
+    public static final String PICTURE_TEST_DIR = "/pictures/";
     KZApplication kidozen = null;
-    Storage _storage;
+    public static final String FILE_CONTENT = "This is a String ~ GoGoGo";
 
     @Before
     public void Setup()
@@ -50,74 +49,66 @@ public class LogTest {
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, kidoInitCallback(signal));
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-            _storage = kidozen.Storage(KZ_STORAGE_SERVICEID);
         }
         catch (Exception e)
         {
-            fail(e.getMessage());
+            fail();
         }
     }
-
     @Test
-    public void ShouldTruncateLog() throws Exception {
+    public void ShouldAddInputStreamToFiles() throws Exception {
+        InputStream is = new ByteArrayInputStream(FILE_CONTENT.getBytes());
         final CountDownLatch lcd = new CountDownLatch(1);
-
-        kidozen.ClearLog(new ServiceEventListener() {
+        kidozen.FileStorage().Upload(is, PICTURE_FILE, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
             }
         });
-
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
     @Test
-    public void ShouldLogJSONObject() throws Exception {
+    public void ShouldGetFile() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        JSONObject data = new JSONObject().put("message", "ShouldLogJSONObject");
-        kidozen.WriteLog(data,
-                LogLevel.LogLevelCritical,
-                createCallback(lcd));
-
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
-    }
-
-    @Test
-    public void ShouldGetAllLog() throws Exception
-    {
-        final CountDownLatch lcd = new CountDownLatch(1);
-
-        kidozen.AllLogMessages(new ServiceEventListener() {
+        kidozen.FileStorage().Download(PICTURE_FILE, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
+                ByteArrayOutputStream response = (ByteArrayOutputStream) e.Response;
+                String fileResponse = response.toString();
+                assertThat(fileResponse, equalTo(FILE_CONTENT));
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
                 lcd.countDown();
             }
         });
-
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
     @Test
-    public void ShouldWriteMessageUsingKey() throws Exception {
+    public void ShouldBrowseFiles() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-
-        KZApplication k = new KZApplication(AppSettings.KZ_TENANT,
-                AppSettings.KZ_APP,
-                AppSettings.KZ_KEY,
-                false,
-                kidoInitCallback(lcd));
-
-        k.WriteLog("LoggingIntegrationTests",LogLevel.LogLevelCritical, createCallback(lcd));
-
+        kidozen.FileStorage().Browse(PICTURE_TEST_DIR, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
-
     }
-
+    @Test
+    public void ShouldRemoveFile() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        kidozen.FileStorage().Delete(PICTURE_FILE, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_NO_CONTENT));
+                lcd.countDown();
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
     //
-    private ServiceEventListener createCallback(final CountDownLatch signal) {
+    private ServiceEventListener sendCallback(final CountDownLatch signal) {
         return  new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
@@ -147,5 +138,17 @@ public class LogTest {
         };
     }
 
+    private String CreateRandomValue()
+    {
+        Random rng= new Random();
+        String characters ="qwertyuioplkjhgfdsazxcvbnm";
+        char[] text = new char[10];
+        for (int i = 0; i < 10; i++)
+        {
+            text[i] = characters.charAt(rng.nextInt(characters.length()));
+        }
+        return new String(text);
+
+    }
 }
 
