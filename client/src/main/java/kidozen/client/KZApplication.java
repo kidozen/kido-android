@@ -300,30 +300,32 @@ public class KZApplication  {
 
 	/**
 	 * Creates a new entry in the KZApplication log
-	 * 
-	 * @param message The message to write
+	 *
+     * @param message The message
+     * @param data The data to write
 	 * @param level The log level: Verbose, Information, Warning, Error, Critical
 	 * @throws Exception
 	 */
-	public void WriteLog(String message, LogLevel level) throws Exception  {
-        this.WriteLog(message, level, null);
+	public void WriteLog(String message, String data, LogLevel level) throws Exception  {
+        this.WriteLog(message, data, level, null);
 	}
 
 	/**
 	 * Creates a new entry in the KZApplication log
-	 * 
-	 * @param message The message to write
+	 *
+     * @param title The message
+	 * @param message The data to write
 	 * @param level The log level: Verbose, Information, Warning, Error, Critical
 	 * @param callback The callback with the result of the service call
 	 * @throws Exception
 	 */
-	public void WriteLog(String message, LogLevel level, ServiceEventListener callback) throws Exception  {
+	public void WriteLog(String title, String message, LogLevel level, ServiceEventListener callback) throws Exception  {
 		checkMethodParameters(message);
 		if (level==null) {
 			throw new Exception("Level must not be null");
 		}
         checkApplicationLog();
-		mApplicationLog.Write(message, level, callback);
+		mApplicationLog.Write(title, message, level, callback);
 	}
 
     /**

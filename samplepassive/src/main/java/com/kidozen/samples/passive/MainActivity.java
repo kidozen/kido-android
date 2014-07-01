@@ -31,6 +31,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mSelf = this;
 
+
+
         tenantMarketPlace = "https://contoso.local.kidozen.com";
         application = "androide";
         appkey = "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY="; //"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";

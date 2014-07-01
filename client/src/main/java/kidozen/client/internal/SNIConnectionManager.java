@@ -150,10 +150,8 @@ public class SNIConnectionManager
 
     protected HttpURLConnection CreateConnectionThatHandlesRedirects(KZHttpMethod method) throws  IOException, NoSuchAlgorithmException, KeyManagementException {
         if(_params!=null) {
-System.out.println("****** params not null");
             _urlAsString = _urlAsString + "?" + Utilities.getQuery(_params);
         }
-System.out.println("****** params not null");
         URL url = new URL(_urlAsString);
 
         //just in case services doesnt have configured redirection

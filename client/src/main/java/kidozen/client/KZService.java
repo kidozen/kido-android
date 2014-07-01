@@ -8,8 +8,6 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -105,12 +103,12 @@ public class KZService {
         KZHttpMethod _method= null;
         ServiceEventListener _callback= null;
         ServiceEvent _event = null;
-        JSONObject _message;
 
-        InputStream _messageAsStream;
+        String mStringMessage;
+        InputStream mStreamMessage;
 
         Boolean _bypassSSLValidation;
-        private SNIConnectionManager _sniManager;
+        private SNIConnectionManager mSniManager;
 
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
@@ -123,15 +121,23 @@ public class KZService {
                 _params = params;
             }
         }
+
+        public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, String message, ServiceEventListener callback, Boolean bypassSSLValidation)
+        {
+            this(method, params, headers,  callback, bypassSSLValidation);
+            mStringMessage = message;
+        }
+
+
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, JSONObject message, ServiceEventListener callback, Boolean bypassSSLValidation)
         {
-            this(method,params, headers,  callback, bypassSSLValidation);
-            _message = message;
+            this(method, params, headers,  callback, bypassSSLValidation);
+            mStringMessage = message.toString();
         }
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, InputStream message, ServiceEventListener callback, Boolean bypassSSLValidation) {
-            this(method,params, headers,  callback, bypassSSLValidation);
-            _messageAsStream = message;
+            this(method, params, headers,  callback, bypassSSLValidation);
+            mStreamMessage = message;
         }
 
         @Override
@@ -153,28 +159,18 @@ public class KZService {
                 }
 
                 String  url = params[0];
-                if (ProcessAsStream)
-                {
-                    _sniManager = new SNIConnectionManager(url, _messageAsStream, requestProperties, _params, _bypassSSLValidation);
-                }
-                else
-                {
-                    String msg = _message == null ? null : _message.toString();
-                    _sniManager = new SNIConnectionManager(url, msg, requestProperties, _params, _bypassSSLValidation);
-                }
-
-                if (ProcessAsStream)
-                {
-                    OutputStream response = _sniManager.ExecuteHttpAsStream(_method);
-                    if (_sniManager.LastResponseCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
-                        String exceptionMessage = (_sniManager.LastResponseBody!=null ? _sniManager.LastResponseBody : "Unexpected HTTP Status Code: " + _sniManager.LastResponseCode);
+                if (ProcessAsStream) {
+                    mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, _params, _bypassSSLValidation);
+                    OutputStream response = mSniManager.ExecuteHttpAsStream(_method);
+                    if (mSniManager.LastResponseCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
+                        String exceptionMessage = (mSniManager.LastResponseBody!=null ? mSniManager.LastResponseBody : "Unexpected HTTP Status Code: " + mSniManager.LastResponseCode);
                         throw new Exception(exceptionMessage);
                     }
-                    _event = new ServiceEvent(this, _sniManager.LastResponseCode, null, response);
+                    _event = new ServiceEvent(this, mSniManager.LastResponseCode, null, response);
                 }
-                else
-                {
-                    Hashtable<String, String> response = _sniManager.ExecuteHttp(_method);
+                else {
+                    mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, _params, _bypassSSLValidation);
+                    Hashtable<String, String> response = mSniManager.ExecuteHttp(_method);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
                     if (statusCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
@@ -183,28 +179,21 @@ public class KZService {
                     }
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
                     // TODO: fix this based on content-type response
-                    if (body.replace("\n", "").toLowerCase().equals(response.get("responseMessage").toLowerCase()))
-                    {
+                    if (body.replace("\n", "").toLowerCase().equals(response.get("responseMessage").toLowerCase())) {
                         _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                     }
-                    else
-                        if (body.indexOf("[")==0)
-                        {
+                    else {
+                        if (body.indexOf("[") == 0) {
                             JSONArray theObject = new JSONArray(body);
                             _event = new ServiceEvent(this, statusCode, body, theObject);
+                        } else if (body.indexOf("{") == 0) {
+                            JSONObject theObject = new JSONObject(body);
+                            _event = new ServiceEvent(this, statusCode, body, theObject);
+                        } else {
+                            _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                         }
-                        else
-                            if (body.indexOf("{")==0)
-                            {
-                                JSONObject theObject = new JSONObject(body);
-                                _event = new ServiceEvent(this, statusCode, body, theObject);
-                            }
-                            else
-                            {
-                                _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
-                            }
+                    }
                 }
-
             }
             catch(Exception e)
             {
