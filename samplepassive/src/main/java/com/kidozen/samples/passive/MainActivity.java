@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
 
         storagebutton = (Button) findViewById(R.id.buttonStorage);
         storagebutton.setEnabled(false);
-        storagebutton.setOnClickListener(GetLogsEventClick());
+        storagebutton.setOnClickListener(LogEventClick());
     }
 
     private View.OnClickListener GetLogsEventClick() {
@@ -124,7 +124,7 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 try {
                     JSONObject w = new JSONObject().put("error", "zarlanga");
-                    kido.WriteLog(w,LogLevel.LogLevelCritical, new ServiceEventListener() {
+                    kido.WriteLog("el message","la data",LogLevel.LogLevelCritical, new ServiceEventListener() {
                         @Override
                         public void onFinish(ServiceEvent e) {
                             textviewMessages.setText(String.valueOf(e.StatusCode));

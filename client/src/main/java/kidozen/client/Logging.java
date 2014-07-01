@@ -36,7 +36,8 @@ public class Logging extends KZService {
 
     private String createLogEndpoint(String message, LogLevel level) {
 
-        return String.format("%s?level=%s",mEndpoint, level.ordinal());
+        return "https://androide.contoso.local.kidozen.com/storage/local/log";
+        //return String.format("%s?level=%s",mEndpoint, level.ordinal());
     }
 
     /**
@@ -57,7 +58,7 @@ public class Logging extends KZService {
                 String url = createLogEndpoint(message, level);
 
                 HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
+                //params.put("level", lvl.toString());
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
@@ -85,7 +86,7 @@ public class Logging extends KZService {
                 String url = createLogEndpoint(message, level);
 
                 HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
+                //params.put("level", lvl.toString());
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
@@ -113,7 +114,7 @@ public class Logging extends KZService {
                 String url = createLogEndpoint(message, level);
 
                 HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
+                //params.put("level", lvl.toString());
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
