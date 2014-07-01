@@ -2,11 +2,14 @@ package com.kidozen.samples.passive;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -99,7 +102,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 try {
-                    kido.AllLogMessages( new ServiceEventListener() {
+                    kido.AllLogMessages(new ServiceEventListener() {
                         @Override
                         public void onFinish(ServiceEvent e) {
 

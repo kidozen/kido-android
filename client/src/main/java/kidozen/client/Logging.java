@@ -32,41 +32,6 @@ public class Logging extends KZService {
 
     }
 
-    /**
-     * Writes a new entry in the application Log
-     *
-     * @param data The data you want to save
-     * @param level The log level: Verbose, Information, Warning, Error, Critical
-     * @param callback The callback with the result of the service call
-     */
-    public void Write(final String message, final String data, final LogLevel level, final ServiceEventListener callback)
-    {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                InputStream is = null;
-                try {
-                    String messageEnvelope = String.format("\"%s\"", data);
-                    is = new ByteArrayInputStream(messageEnvelope.getBytes("UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
-                Integer lvl = level.ordinal();
-                String url = createLogEndpoint(message, level);
-
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                mSelf.ProcessAsStream = true;
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, is, callback, StrictSSL).execute(url);
-            }
-        });
-    }
-
     private String createLogEndpoint(String message, LogLevel level) {
 
         return String.format("%s?level=%s",mEndpoint, level.ordinal());
