@@ -11,10 +11,15 @@ import org.json.JSONStringer;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Map;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
@@ -35,18 +40,56 @@ public class Logging extends KZService {
     }
 
     private String createLogEndpoint(String message, LogLevel level) {
-
-        return "https://androide.contoso.local.kidozen.com/storage/local/log";
-        //return String.format("%s?level=%s",mEndpoint, level.ordinal());
+        if (message!=null) message = String.format("&message=%s",message);
+        String logEndpoint = String.format("%s?level=%s",mEndpoint, level.ordinal());
+        return (message!=null ? logEndpoint + message : logEndpoint);
     }
 
-    /**
-     * Writes a new int entry in the application Log
-     *
-     * @param data The data you want to save
-     * @param level The log level: Verbose, Information, Warning, Error, Critical
-     * @param callback The callback with the result of the service call
-     */
+    public void Write(final String message, final ArrayList data, final LogLevel level, final ServiceEventListener callback)
+    {
+        final String jMessage = new LogSerializer<ArrayList>().ToJsonString(data);
+
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                Integer lvl = level.ordinal();
+                String url = createLogEndpoint(message, level);
+
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("level", lvl.toString());
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
+            }
+        });
+    }
+
+
+    public void Write(final String message,final Map data,final  LogLevel level,final  ServiceEventListener callback) {
+        final String jMessage = new LogSerializer<Map>().ToJsonString(data);
+
+        CreateAuthHeaderValue(new KZServiceEvent<String>() {
+            @Override
+            public void Fire(String token) {
+                Integer lvl = level.ordinal();
+                String url = createLogEndpoint(message, level);
+
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("level", lvl.toString());
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
+            }
+        });
+    }
+
+
     public void Write(final String message, final int data, final LogLevel level, final ServiceEventListener callback)
     {
         final String jMessage = new LogSerializer<Integer>().ToJsonString(data);
@@ -58,23 +101,17 @@ public class Logging extends KZService {
                 String url = createLogEndpoint(message, level);
 
                 HashMap<String, String> params = new HashMap<String, String>();
-                //params.put("level", lvl.toString());
+                params.put("level", lvl.toString());
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, jMessage, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
             }
         });
     }
-    /**
-     * Writes a new string entry in the application Log
-     *
-     * @param data The data you want to save
-     * @param level The log level: Verbose, Information, Warning, Error, Critical
-     * @param callback The callback with the result of the service call
-     */
+
     public void Write(final String message, final String data, final LogLevel level, final ServiceEventListener callback)
     {
         final String jMessage = new LogSerializer<String>().ToJsonString(data);
@@ -86,25 +123,18 @@ public class Logging extends KZService {
                 String url = createLogEndpoint(message, level);
 
                 HashMap<String, String> params = new HashMap<String, String>();
-                //params.put("level", lvl.toString());
+                params.put("level", lvl.toString());
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, jMessage, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
             }
         });
     }
 
 
-    /**
-	 * Writes a new entry in the application Log
-	 * 
-	 * @param data The data you want to save
-	 * @param level The log level: Verbose, Information, Warning, Error, Critical
-	 * @param callback The callback with the result of the service call
-	 */
 	public void Write(final String message, final JSONObject data, final LogLevel level, final ServiceEventListener callback)
 	{
         CreateAuthHeaderValue(new KZServiceEvent<String>() {
@@ -119,7 +149,7 @@ public class Logging extends KZService {
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, data, callback, StrictSSL).execute(url);
             }
         });
 	}
@@ -235,7 +265,6 @@ public class Logging extends KZService {
 		}
 		return message;
 	}
-
 
     class LogSerializer<T> {
         public String ToJsonString (T message) {

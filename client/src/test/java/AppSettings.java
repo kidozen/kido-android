@@ -14,10 +14,12 @@ public class AppSettings {
     public static  String KZ_EMAIL_ATTACH;
 
     static {
-        KZ_KEY =                "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY=";//"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
-        KZ_TENANT =             "https://contoso.local.kidozen.com";
-        KZ_APP =                "androide";
-        KZ_USER =               "contoso@kidozen.com";
+        KZ_KEY =                "z4WC8pUm+mWfZaGQhJ7G3Q2YcEhcvHecYuzBAchk3OQ=";
+        KZ_TENANT =             "https://tests.qa.kidozen.com";
+        KZ_APP =                "androidtests";
+        KZ_USER =               "tests@kidozen.com";
+
+
         KZ_PASS =               "pass";
         KZ_SERVICE_ID =         "Weather";
         KZ_EMAIL_FROM =         "contoso@kidozen.com.com";
@@ -30,7 +32,7 @@ public class AppSettings {
 }
 /*
         //contoso.local
-        KZ_KEY =                "o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
+        KZ_KEY =                "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY=";//"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
         KZ_TENANT =             "https://contoso.local.kidozen.com";
         KZ_APP =                "androide";
         KZ_USER =               "contoso@kidozen.com";
