@@ -152,7 +152,7 @@ public class SNIConnectionManager
 
     protected HttpURLConnection CreateConnectionThatHandlesRedirects(KZHttpMethod method) throws  IOException, NoSuchAlgorithmException, KeyManagementException {
         if(_params!=null) {
-            _urlAsString = _urlAsString + "?" + Utilities.getQuery(_params);
+            if (_params.keySet().size() > 0) _urlAsString = _urlAsString + "?" + Utilities.getQuery(_params);
         }
         URL url = new URL(_urlAsString);
 
@@ -236,11 +236,11 @@ public class SNIConnectionManager
             retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
-        /*
+
         System.out.println("*********->" + _urlAsString);
         System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
         System.out.println("*********-> Response Body:" + String.valueOf(retVal.get("responseBody")));
-        */
+
 
         return retVal;
     }

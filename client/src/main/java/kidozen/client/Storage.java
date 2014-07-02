@@ -149,7 +149,6 @@ public class Storage extends KZService {
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
-
                 new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, StrictSSL).execute(url);
             }
         });

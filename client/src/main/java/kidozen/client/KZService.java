@@ -160,6 +160,10 @@ public class KZService {
                 }
 
                 String  url = params[0];
+                System.out.println("***** =>> method:" + _method);
+                System.out.println("***** =>> url:" + url);
+                System.out.println("***** =>> isStream:" + ProcessAsStream);
+
                 if (ProcessAsStream) {
                     mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, _params, _bypassSSLValidation);
                     OutputStream response = mSniManager.ExecuteHttpAsStream(_method);
@@ -179,40 +183,41 @@ public class KZService {
                         throw new Exception(exceptionMessage);
                     }
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-                    // TODO: fix this based on content-type response
-                    //** HEADER KEY *******->content-type
-                    //** HEADER VALUE *****->[text/plain]
-                    //[application/json; charset=utf-8]
+                    System.out.println("***** =>> body:" + body);
+                    System.out.println("***** =>> status:" + response.get("statusCode"));
+                    System.out.println("***** =>> content:" + response.get("contentType"));
 
-                    if (response.get("contentType").indexOf("application/json")>-1) {
-                        System.out.println("body:" + body.substring(0,25));
-                        Object json = new JSONTokener(body).nextValue();
-                        if (json instanceof JSONObject) System.out.println("body is a JSONObject\n__");
-                        else if (json instanceof JSONArray) System.out.println("body is a JSONArray\n__");
-                        else if (json instanceof String) System.out.println("body is an string");
+                    Object json = new JSONTokener(body).nextValue();
+                    if (json instanceof JSONObject) {
+                        JSONObject theObject = new JSONObject(body);
+                        System.out.println("***** =>> is JSONObject ");
+                        _event = new ServiceEvent(this, statusCode, body, theObject);
                     }
-                    if (response.get("contentType").indexOf("[text/plain]")>-1) {
-                        System.out.println("body:" + body.substring(0,25));
-                        System.out.println("body is an stringy\n__");
-                    }
-                    if (body.replace("\n", "").toLowerCase().equals(response.get("responseMessage").toLowerCase())) {
-                        _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
-                    }
-                    else {
-                        if (body.indexOf("[") == 0) {
+                    else
+                        if (json instanceof JSONArray) {
                             JSONArray theObject = new JSONArray(body);
+                            System.out.println("***** =>> is JSONArray ");
                             _event = new ServiceEvent(this, statusCode, body, theObject);
-                        } else if (body.indexOf("{") == 0) {
-                            JSONObject theObject = new JSONObject(body);
-                            _event = new ServiceEvent(this, statusCode, body, theObject);
-                        } else {
+                        }
+                        else {
+                            System.out.println("***** =>> is ??? ");
+
                             _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                         }
-                    }
+                    //}
+
+                    //if (response.get("contentType").indexOf("[text/plain]")>-1) {
+                    //    _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
+                    //}
+
+                    System.out.println("--------------------------------------------------");
+
                 }
             }
             catch(Exception e)
             {
+                System.out.println("* Exception: =>>" + e.getCause() + " <<== *");
+
                 String exMessage = (e.getMessage()==null ? "Unexpected error" : e.getMessage().toString());
                 _event = new ServiceEvent(this, statusCode, exMessage, null,e);
             }
