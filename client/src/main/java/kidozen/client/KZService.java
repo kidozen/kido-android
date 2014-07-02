@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -179,6 +180,21 @@ public class KZService {
                     }
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
                     // TODO: fix this based on content-type response
+                    //** HEADER KEY *******->content-type
+                    //** HEADER VALUE *****->[text/plain]
+                    //[application/json; charset=utf-8]
+
+                    if (response.get("contentType").indexOf("application/json")>-1) {
+                        System.out.println("body:" + body.substring(0,25));
+                        Object json = new JSONTokener(body).nextValue();
+                        if (json instanceof JSONObject) System.out.println("body is a JSONObject\n__");
+                        else if (json instanceof JSONArray) System.out.println("body is a JSONArray\n__");
+                        else if (json instanceof String) System.out.println("body is an string");
+                    }
+                    if (response.get("contentType").indexOf("[text/plain]")>-1) {
+                        System.out.println("body:" + body.substring(0,25));
+                        System.out.println("body is an stringy\n__");
+                    }
                     if (body.replace("\n", "").toLowerCase().equals(response.get("responseMessage").toLowerCase())) {
                         _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                     }

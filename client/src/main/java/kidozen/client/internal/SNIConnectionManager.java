@@ -22,6 +22,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -216,16 +218,29 @@ public class SNIConnectionManager
         int responseCode = con.getResponseCode();
         retVal.put("statusCode", String.valueOf(responseCode));
         retVal.put("responseMessage", con.getResponseMessage());
+        retVal.put("contentType", con.getHeaderField("content-type"));
+
+        Map<String, List<String>> selects = con.getHeaderFields();
+
+        /*
+        for(Map.Entry<String, List<String>> entry : selects.entrySet()) {
+            String key = entry.getKey();
+            List<String> value = entry.getValue();
+
+            System.out.println("** HEADER KEY *******->" + key);
+            System.out.println("** HEADER VALUE *****->" + value.toString());
+        }
+        */
 
         if (responseCode>= HttpStatus.SC_BAD_REQUEST)
             retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
-
+        /*
         System.out.println("*********->" + _urlAsString);
         System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
         System.out.println("*********-> Response Body:" + String.valueOf(retVal.get("responseBody")));
-
+        */
 
         return retVal;
     }

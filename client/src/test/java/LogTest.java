@@ -62,7 +62,7 @@ public class LogTest {
             fail(e.getMessage());
         }
     }
-
+    /*
     //@Test
     public void ShouldTruncateLog() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -158,7 +158,7 @@ public class LogTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-
+*/
     @Test
     public void ShouldLogJSONObjectWithMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
