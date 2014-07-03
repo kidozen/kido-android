@@ -22,19 +22,17 @@
         android:layout_height="wrap_content"
         android:text="Authenticate"
         android:id="@+id/buttonAuth"
-        android:layout_alignTop="@+id/buttonInit"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/buttonOutOfIndex" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Storage"
         android:id="@+id/buttonStorage"
-        android:layout_below="@+id/buttonInit"
-        android:layout_alignParentLeft="true"
+        android:layout_above="@+id/buttonOutOfIndex"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="122dp" />
+        android:layout_marginBottom="43dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -52,8 +50,32 @@
         android:layout_height="wrap_content"
         android:text="LogOff"
         android:id="@+id/buttonLogoff"
-        android:layout_alignTop="@+id/buttonStorage"
-        android:layout_alignRight="@+id/buttonAuth"
-        android:layout_alignEnd="@+id/buttonAuth" />
+        android:layout_alignTop="@+id/textViewMessages"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OutOfIndex"
+        android:id="@+id/buttonOutOfIndex"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NullRef"
+        android:id="@+id/buttonNullref"
+        android:layout_below="@+id/buttonOutOfIndex"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/buttonOutOfIndex" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not Found Activity"
+        android:id="@+id/buttonactivitynotfound"
+        android:layout_below="@+id/buttonNullref"
+        android:layout_toLeftOf="@+id/buttonAuth" />
 
 </RelativeLayout>

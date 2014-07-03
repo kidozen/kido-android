@@ -1,6 +1,7 @@
 package com.kidozen.samples.passive;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,10 +17,12 @@ import org.json.JSONObject;
 import kidozen.client.*;
 
 public class MainActivity extends Activity {
+    private static final int SETTINGS_RESULT = 1;
     KZApplication kido;
     Storage storage;
     TextView textviewMessages;
     Button initbutton , authbutton, storagebutton, logoffbutton;
+    Button crashbutton, crashnullref, crashinvalidactivity;
     MainActivity mSelf;
     private String tenantMarketPlace;
     private String application;
@@ -31,16 +34,42 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mSelf = this;
 
+        tenantMarketPlace = "https://loadtests.qa.kidozen.com";
+        application = "passiveauthpluscrash";
+        appkey = "fbOqR5UVjn6Y+bkp2Z17k0R7TrqHtmeuP758YOE0M/k=";
 
+        crashinvalidactivity = (Button) findViewById(R.id.buttonactivitynotfound);
+        crashinvalidactivity.setEnabled(false);
+        crashinvalidactivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO NullRef
+                Intent i = new Intent(getApplication(), DummyActivity.class);
+                startActivityForResult(i, SETTINGS_RESULT);
 
-        tenantMarketPlace = "https://contoso.local.kidozen.com";
-        application = "androide";
-        appkey = "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY="; //"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
+            }
+        });
 
-        /*
-        application = "testexpiration";
-        appkey = "PaQIDZoDaI8nZD0fM2+8lkNiXvjWBdOO0sYzYntWkwo=";
-        */
+        crashnullref = (Button) findViewById(R.id.buttonNullref);
+        crashnullref.setEnabled(false);
+        crashnullref.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String value = null;
+                Integer crash = value.indexOf("boom");
+            }
+        });
+
+        crashbutton = (Button) findViewById(R.id.buttonOutOfIndex);
+        crashbutton.setEnabled(false);
+        crashbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Integer[] arrayOfInts = {0,1};
+                Integer crash = arrayOfInts[3];
+            }
+        });
+
         initbutton = (Button) findViewById(R.id.buttonInit);
         textviewMessages= (TextView) findViewById(R.id.textViewMessages);
         initbutton.setOnClickListener(new View.OnClickListener() {
@@ -52,7 +81,11 @@ public class MainActivity extends Activity {
                     @Override
                     public void onFinish(kidozen.client.ServiceEvent e) {
                         authbutton.setEnabled(true);
+                        crashbutton.setEnabled(true);
+                        crashnullref.setEnabled(true);
+                        crashinvalidactivity.setEnabled(true);
                         textviewMessages.setText( String.valueOf(e.StatusCode));
+                        kido.EnableCrashReporter(mSelf.getApplication());
                     }
                 });
             }
