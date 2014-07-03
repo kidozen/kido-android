@@ -37,7 +37,7 @@ public class Queue  extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
             }
         });
 	}
@@ -59,7 +59,7 @@ public class Queue  extends KZService {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
        }

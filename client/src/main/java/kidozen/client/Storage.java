@@ -56,7 +56,7 @@ public class Storage extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,jMessage,callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,jMessage,callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -92,7 +92,7 @@ public class Storage extends KZService {
                     headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                     headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                    new KZServiceAsyncTask(KZHttpMethod.PUT,params,headers,serializedMsg,callback, StrictSSL).execute(url);
+                    new KZServiceAsyncTask(KZHttpMethod.PUT,params,headers,serializedMsg,callback, getStrictSSL()).execute(url);
                 }
                 catch (Exception e) {
                     createServiceEventWithException(e, callback);
@@ -129,7 +129,7 @@ public class Storage extends KZService {
                     }
                 };
 
-                new KZServiceAsyncTask(KZHttpMethod.GET ,params,headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.GET ,params,headers, callback, getStrictSSL()).execute(url);
             }
         });
 
@@ -149,7 +149,7 @@ public class Storage extends KZService {
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
-                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, getStrictSSL()).execute(url);
             }
         });
 
@@ -174,7 +174,7 @@ public class Storage extends KZService {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE,params,headers,callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -244,7 +244,7 @@ public class Storage extends KZService {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(url);
             }
         });
 

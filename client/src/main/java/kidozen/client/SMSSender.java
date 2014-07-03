@@ -46,7 +46,7 @@ public class SMSSender extends KZService {
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
 
@@ -69,7 +69,7 @@ public class SMSSender extends KZService {
             HashMap<String, String> headers = new HashMap<String, String>();
             headers.put(Constants.AUTHORIZATION_HEADER, token);
 
-            new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+            new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
     }

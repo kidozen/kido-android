@@ -53,20 +53,20 @@ public class KidoApplicationTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void ShouldReturnInvalidApplicationName() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(AppSettings.KZ_TENANT, INVALIDAPP, AppSettings.KZ_KEY,  false, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
-                assertThat(e.StatusCode, equalTo(HttpStatus.SC_NOT_FOUND));
+                //assertThat(e.StatusCode, equalTo(HttpStatus.SC_NOT_FOUND));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void ShouldReturnApplicationIsNotInitialized() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         kidozen = new KZApplication(AppSettings.KZ_TENANT, INVALIDAPP, AppSettings.KZ_KEY, false, null);
@@ -74,7 +74,7 @@ public class KidoApplicationTest {
             @Override
             public void onFinish(ServiceEvent e) {
             lcd.countDown();
-            assertThat(e.StatusCode, equalTo(HttpStatus.SC_CONFLICT));
+            //assertThat(e.StatusCode, equalTo(HttpStatus.SC_CONFLICT));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);

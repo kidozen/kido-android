@@ -1,14 +1,8 @@
 package kidozen.client;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
-import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 
@@ -46,7 +40,7 @@ public class DataSource extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -79,7 +73,7 @@ public class DataSource extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  new JSONObject(), callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  new JSONObject(), callback, getStrictSSL()).execute(url);
             }
         });
 
@@ -117,7 +111,7 @@ public class DataSource extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
             }
         });
 
@@ -167,7 +161,7 @@ public class DataSource extends KZService {
                     headers.put(Constants.AUTHORIZATION_HEADER, token);
                     if (timeout>0)
                         headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-                    new KZServiceAsyncTask(KZHttpMethod.GET, null, headers, callback, StrictSSL).execute(url);
+                    new KZServiceAsyncTask(KZHttpMethod.GET, null, headers, callback, getStrictSSL()).execute(url);
 
                 } catch (Exception e) {
                     if (callback!=null)

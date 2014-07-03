@@ -49,7 +49,7 @@ public class PubSubChannel extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, StrictSSL).execute(url);
+                new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
             }
         });
     }

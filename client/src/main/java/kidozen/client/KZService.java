@@ -20,8 +20,8 @@ import kidozen.client.authentication.KidoZenUserIdentityType;
 import kidozen.client.internal.SNIConnectionManager;
 
 public class KZService {
-    public Boolean StrictSSL = true;
-    public boolean ProcessAsStream = false;
+    private Boolean mstrictSSL = true;
+    private boolean ProcessAsStream = false;
     protected String mName;
     protected String mEndpoint;
     protected KidoZenUser mUserIdentity = new KidoZenUser();
@@ -98,6 +98,22 @@ public class KZService {
         new KZServiceAsyncTask(method,params,headers,message,callback, bypassSSLValidation).execute(url);
     }
 
+    public Boolean getStrictSSL() {
+        return mstrictSSL;
+    }
+
+    public void setStrictSSL(Boolean strictSSL) {
+        mstrictSSL = strictSSL;
+    }
+
+    public boolean isProcessAsStream() {
+        return ProcessAsStream;
+    }
+
+    public void setProcessAsStream(boolean processAsStream) {
+        ProcessAsStream = processAsStream;
+    }
+
     public class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
         HashMap<String, String> mQueryStringParameters = null;
         HashMap<String, String> mHeaders = null;
@@ -108,7 +124,7 @@ public class KZService {
         String mStringMessage;
         InputStream mStreamMessage;
 
-        Boolean _bypassSSLValidation;
+        Boolean mBypassSSLValidation;
         private SNIConnectionManager mSniManager;
 
 
@@ -117,7 +133,7 @@ public class KZService {
             mHeaders = headers;
             mHttpMethod = method;
             mServiceEventCallback = callback;
-            _bypassSSLValidation = bypassSSLValidation;
+            mBypassSSLValidation = bypassSSLValidation;
             if (params!=null) {
                 mQueryStringParameters = params;
             }
@@ -159,24 +175,30 @@ public class KZService {
                     it.remove();
                 }
                 String  url = params[0];
-//                System.out.println("***** =>> method:" + mHttpMethod);
-//                System.out.println("***** =>> isStream:" + ProcessAsStream);
+                System.out.println("***** =>> method:" + mHttpMethod);
+                System.out.println("***** =>> isStream:" + ProcessAsStream);
 
-                if (ProcessAsStream) {
-                    mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, mQueryStringParameters, _bypassSSLValidation);
+                if (isProcessAsStream()) {
+                    mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, mQueryStringParameters, mBypassSSLValidation);
                     OutputStream response = mSniManager.ExecuteHttpAsStream(mHttpMethod);
                     createCallbackResponseForStream(statusCode, response);
                 }
                 else {
-                    mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, mQueryStringParameters, _bypassSSLValidation);
+                   /* System.out.println("***** =>> url:" + url);
+                    System.out.println("***** =>> mStringMessage:" + mStringMessage);
+                    System.out.println("***** =>> requestProperties:" + requestProperties.toString());
+                    System.out.println("***** =>> mQueryStringParameters:" + mQueryStringParameters);
+                    System.out.println("***** =>> mBypassSSLValidation:" + mBypassSSLValidation);*/
+
+                    mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, mQueryStringParameters, mBypassSSLValidation);
                     Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
                     createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-  //                  System.out.println("***** =>> body:" + body);
-  //                  System.out.println("***** =>> status:" + response.get("statusCode"));
-  //                  System.out.println("***** =>> content:" + response.get("contentType"));
+                    /*System.out.println("***** =>> body:" + body);
+                    System.out.println("***** =>> status:" + response.get("statusCode"));
+                    System.out.println("***** =>> content:" + response.get("contentType"));*/
                     Object json = new JSONTokener(body).nextValue();
                     if (json instanceof JSONObject) {
                         JSONObject theObject = new JSONObject(body);
@@ -194,7 +216,6 @@ public class KZService {
             }
             catch(Exception e)
             {
-//                System.out.println("* Exception: =>>" + e.getCause() + " <<== *");
                 String exMessage = (e.getMessage()==null ? "Unexpected error" : e.getMessage().toString());
                 mFinalServiceEvent = new ServiceEvent(this, statusCode, exMessage, null,e);
             }

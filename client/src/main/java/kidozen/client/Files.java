@@ -65,8 +65,8 @@ public class Files extends KZService {
                 headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
 
                 String url = mEndpoint + nameAndPath.getValue();
-                mSelf.ProcessAsStream = true;
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,fileStream,callback, StrictSSL).execute(url);
+                mSelf.setProcessAsStream(true);
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,fileStream,callback, getStrictSSL()).execute(url);
             }
     });
 
@@ -98,8 +98,8 @@ public class Files extends KZService {
                 headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
                 String url = mEndpoint + fullFilePath;
-                mSelf.ProcessAsStream = true;
-                KZServiceAsyncTask at = new KZServiceAsyncTask(KZHttpMethod.GET,params,headers, callback, StrictSSL);
+                mSelf.setProcessAsStream(true);
+                KZServiceAsyncTask at = new KZServiceAsyncTask(KZHttpMethod.GET,params,headers, callback, getStrictSSL());
                 at.execute(url);
             }
         });
@@ -130,7 +130,7 @@ public class Files extends KZService {
                 headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
                 String url = mEndpoint + fullpath;
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
 
@@ -161,7 +161,7 @@ public class Files extends KZService {
                 headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
                 String url = mEndpoint + fullpath;
-                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
 

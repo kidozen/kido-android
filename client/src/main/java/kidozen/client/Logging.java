@@ -2,22 +2,10 @@ package kidozen.client;
 
 import com.google.gson.Gson;
 
-import org.apache.http.HttpStatus;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.security.InvalidParameterException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,7 +50,7 @@ public class Logging extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -84,7 +72,7 @@ public class Logging extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -107,7 +95,7 @@ public class Logging extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -129,7 +117,7 @@ public class Logging extends KZService {
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -144,12 +132,12 @@ public class Logging extends KZService {
                 String url = createLogEndpoint(message, level);
 
                 HashMap<String, String> params = new HashMap<String, String>();
-                //params.put("level", lvl.toString());
+                params.put("level", lvl.toString());
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, data, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, data, callback, getStrictSSL()).execute(url);
             }
         });
 	}
@@ -180,7 +168,7 @@ public class Logging extends KZService {
                 HashMap<String, String> params = null;
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(mEndpoint);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(mEndpoint);
             }
         });
 	}
@@ -220,7 +208,7 @@ public class Logging extends KZService {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(mEndpoint);
+                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(mEndpoint);
             }
         });
 	}

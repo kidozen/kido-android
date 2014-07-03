@@ -74,7 +74,7 @@ public class MailSender extends KZService {
             }
             else
             {
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, StrictSSL).execute(mEndpoint);
+                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, getStrictSSL()).execute(mEndpoint);
             }
 
             }
@@ -157,7 +157,7 @@ public class MailSender extends KZService {
 
                 JSONObject jo = getJsonObjectMessage();
 
-                _mailService.ExecuteTask(mEndpoint, KZHttpMethod.POST, _params, _headers, _callback, jo, StrictSSL);
+                _mailService.ExecuteTask(mEndpoint, KZHttpMethod.POST, _params, _headers, _callback, jo, getStrictSSL());
 
             } catch (Exception e) {
                 _callback.onFinish(new ServiceEvent(this, HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getMessage(), null, e));

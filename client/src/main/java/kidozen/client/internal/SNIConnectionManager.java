@@ -138,7 +138,7 @@ public class SNIConnectionManager
     public Hashtable<String, String> ExecuteHttp(KZHttpMethod method) throws Exception
     {
         HttpURLConnection con = CreateConnectionThatHandlesRedirects(method);
-
+        System.out.println("ExecuteHttp");
         if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && _bodyAsString!=null) {
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
@@ -215,14 +215,22 @@ public class SNIConnectionManager
 
     protected Hashtable<String, String> getExecutionResponse( HttpURLConnection con) throws IOException {
         Hashtable<String, String> retVal = new Hashtable<String, String>();
+
         int responseCode = con.getResponseCode();
+        System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
+        String responsebody = con.getResponseMessage();
+        System.out.println("*********-> Response Body:" + responsebody);
+        String contentType =  con.getHeaderField("content-type");
+        System.out.println("*********-> Response contentType:" + contentType);
+
         retVal.put("statusCode", String.valueOf(responseCode));
-        retVal.put("responseMessage", con.getResponseMessage());
-        retVal.put("contentType", con.getHeaderField("content-type"));
+        retVal.put("responseMessage", responsebody);
+        retVal.put("contentType", (contentType == null ? "" : contentType) );
 
-        Map<String, List<String>> selects = con.getHeaderFields();
 
-        /*
+        /*Map<String, List<String>> selects = con.getHeaderFields();
+
+
         for(Map.Entry<String, List<String>> entry : selects.entrySet()) {
             String key = entry.getKey();
             List<String> value = entry.getValue();
@@ -238,8 +246,7 @@ public class SNIConnectionManager
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
 
         System.out.println("*********->" + _urlAsString);
-        System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
-        System.out.println("*********-> Response Body:" + String.valueOf(retVal.get("responseBody")));
+
 
 
         return retVal;

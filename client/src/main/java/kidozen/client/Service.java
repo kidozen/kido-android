@@ -54,7 +54,7 @@ public class Service extends KZService {
                 if (timeout>0)
                     headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, getStrictSSL()).execute(url);
             }
         });
 

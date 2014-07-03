@@ -9,10 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,8 +46,8 @@ public class KZApplication  {
     private KidoZenUser mUserIdentity;
     private KidoZenUser mApplicationIdentity;
     private static JSONArray mAllApplicationLogEvents;
-    private kidozen.client.Logging mApplicationLog;
-    private kidozen.client.MailSender mMailSender;
+    private Logging mApplicationLog;
+    private MailSender mMailSender;
     private static CrashReporter mCrashReporter;
 
     private KidoAppSettings mApplicationConfiguration;
@@ -157,7 +155,7 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         channel.mUserIdentity = this.mUserIdentity;
-        channel.StrictSSL = !StrictSSL;
+        channel.setStrictSSL(!StrictSSL);
 
         return channel;
 	}
@@ -180,7 +178,7 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         notification.mUserIdentity = this.mUserIdentity;
-		notification.StrictSSL = !StrictSSL;
+		notification.setStrictSSL(!StrictSSL);
 		return notification;
 	}
 
@@ -203,7 +201,7 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         configuration.mUserIdentity = this.mUserIdentity;
-		configuration.StrictSSL = !StrictSSL;
+		configuration.setStrictSSL(!StrictSSL);
 		return configuration;
 	}
 
@@ -226,7 +224,7 @@ public class KZApplication  {
                 mUserIdentity,
                 mApplicationIdentity);
 		queue.mUserIdentity = this.mUserIdentity;
-		queue.StrictSSL = !StrictSSL;
+		queue.setStrictSSL(!StrictSSL);
 		return queue;
 	}
 
@@ -247,7 +245,7 @@ public class KZApplication  {
                 mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
-		storage.StrictSSL = StrictSSL;
+		storage.setStrictSSL(StrictSSL);
 		return storage;
 	}
 
@@ -270,7 +268,7 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         sender.mUserIdentity = this.mUserIdentity;
-		sender.StrictSSL = !StrictSSL;
+		sender.setStrictSSL(!StrictSSL);
 		return sender;
 	}
 
@@ -295,7 +293,7 @@ public class KZApplication  {
                     mUserIdentity,
                     mApplicationIdentity);
             mMailSender.mUserIdentity = this.mUserIdentity;
-            mMailSender.StrictSSL = !StrictSSL;
+            mMailSender.setStrictSSL(!StrictSSL);
         }
 
 		mMailSender.Send(mail, callback) ;
@@ -323,7 +321,7 @@ public class KZApplication  {
             throw new Exception("query paramter must not be null");
         }
         checkApplicationLog();
-        mApplicationLog.Query(query,  callback);
+        mApplicationLog.Query(query, callback);
     }
 
     public void WriteLog(String title, ArrayList message, LogLevel level, ServiceEventListener callback) throws Exception  {
@@ -364,7 +362,7 @@ public class KZApplication  {
                     mUserIdentity,
                     mApplicationIdentity);
             mApplicationLog.mUserIdentity = this.mUserIdentity;
-            mApplicationLog.StrictSSL = !StrictSSL;
+            mApplicationLog.setStrictSSL(!StrictSSL);
         }
     }
 
@@ -428,7 +426,7 @@ public class KZApplication  {
                 mUserIdentity,
                 mApplicationIdentity);
         files.mUserIdentity = this.mUserIdentity;
-        files.StrictSSL = !StrictSSL;
+        files.setStrictSSL(!StrictSSL);
         return files;
     }
 
@@ -508,12 +506,12 @@ public class KZApplication  {
         }
         catch(Exception e)
         {
-            callback.onFinish(new kidozen.client.ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
+            callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
         }
 
 	}
 
-    public void Authenticate(Context context, final kidozen.client.ServiceEventListener callback) {
+    public void Authenticate(Context context, final ServiceEventListener callback) {
         String mUserUniqueIdentifier = "";
         if (mUserIdentity!=null)
             mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
@@ -530,9 +528,9 @@ public class KZApplication  {
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
 
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new kidozen.client.ServiceEventListener()   {
+            IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new ServiceEventListener()   {
                 @Override
-                public void onFinish(kidozen.client.ServiceEvent e) {
+                public void onFinish(ServiceEvent e) {
                     SetKidoZenUser((KidoZenUser) e.Response);
                     if (callback != null) callback.onFinish(e);
                 }
@@ -540,7 +538,7 @@ public class KZApplication  {
         }
         catch(Exception e)
         {
-            callback.onFinish(new kidozen.client.ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
+            callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
         }
     }
 
@@ -551,9 +549,9 @@ public class KZApplication  {
      * @return a new LOBService object
      * @throws Exception
      */
-    public kidozen.client.Service LOBService(String name) throws Exception {
+    public Service LOBService(String name) throws Exception {
         checkMethodParameters(name);
-        kidozen.client.Service service = new kidozen.client.Service(mApplicationConfiguration.GetSettingAsString("url"), name,
+        Service service = new Service(mApplicationConfiguration.GetSettingAsString("url"), name,
                 mProvider,
                 mUsername,
                 mPassword,
@@ -562,7 +560,7 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         service.mUserIdentity = this.mUserIdentity;
-        service.StrictSSL = !StrictSSL;
+        service.setStrictSSL(!StrictSSL);
         return service;
     }
 
@@ -584,31 +582,31 @@ public class KZApplication  {
                 mUserIdentity,
                 mApplicationIdentity);
         service.mUserIdentity = this.mUserIdentity;
-        service.StrictSSL = !StrictSSL;
+        service.setStrictSSL(!StrictSSL);
         return service;
     }
 
-    private class InitializationWithKeyCallback implements kidozen.client.ServiceEventListener {
-        kidozen.client.ServiceEventListener _callback;
-        public InitializationWithKeyCallback(kidozen.client.ServiceEventListener cb) {
-            _callback = cb;
+    private class InitializationWithKeyCallback implements ServiceEventListener {
+        ServiceEventListener mServiceEventListennerCallback;
+        public InitializationWithKeyCallback(ServiceEventListener cb) {
+            mServiceEventListennerCallback = cb;
         }
         @Override
-        public void onFinish(kidozen.client.ServiceEvent e) {
+        public void onFinish(ServiceEvent e) {
             JSONObject authConfig = null;
             try {
                 authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
                 authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
 
                 IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-                IdentityManager.getInstance().Authenticate(mApplicationKey, new kidozen.client.ServiceEventListener() {
+                IdentityManager.getInstance().Authenticate(mApplicationKey, new ServiceEventListener() {
                     @Override
-                    public void onFinish(kidozen.client.ServiceEvent e) {
+                    public void onFinish(ServiceEvent e) {
                         if (e.StatusCode== HttpStatus.SC_OK) {
                             mIsAuthenticatedWithAppKey = true;
                             mApplicationIdentity = (KidoZenUser) e.Response;
                         }
-                        _callback.onFinish(e);
+                        if (mServiceEventListennerCallback!=null) mServiceEventListennerCallback.onFinish(e);
                     }
                 });
             } catch (JSONException e1) {

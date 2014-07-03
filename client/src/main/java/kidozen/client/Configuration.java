@@ -38,7 +38,7 @@ public class Configuration  extends KZService {
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
                 headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
                 headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
             }
         });
 	}
@@ -58,7 +58,7 @@ public class Configuration  extends KZService {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
 
-                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(url);
             }
         });
 	}
@@ -86,7 +86,7 @@ public class Configuration  extends KZService {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
 
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
     }
@@ -105,7 +105,7 @@ public class Configuration  extends KZService {
                 HashMap<String, String> params = new HashMap<String, String>();
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put(Constants.AUTHORIZATION_HEADER, token);
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, StrictSSL).execute(url);
+                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
             }
         });
 	}
