@@ -192,7 +192,7 @@ public class Logging extends KZService {
 	 */
 	public void All(final ServiceEventListener callback) 
 	{
-		this.Query(" { query: { match_all: { } } }", callback);
+		this.Query("{\"query\":{\"match_all\":{}}}", callback);
 	}
 
 	/**
@@ -215,55 +215,14 @@ public class Logging extends KZService {
         CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {
-                try
-                {
-                    HashMap<String, String> params = new HashMap<String, String>();
-                    params.put("query", query);
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put(Constants.AUTHORIZATION_HEADER,token);
-        
-                    new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(mEndpoint);
-                }
-                catch (Exception e)
-                {
-                    ServiceEvent se = new ServiceEvent(this);
-                    se.Exception = e;
-                    se.Body = e.getMessage();
-                    se.StatusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    callback.onFinish(se);
-                }
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("query", query);
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(Constants.AUTHORIZATION_HEADER,token);
+
+                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, StrictSSL).execute(mEndpoint);
             }
         });
-	}
-
-	private ServiceEvent serializeJsonArray(ServiceEvent e) 
-	{
-		ServiceEvent updatedse = e;
-		try {
-			JSONArray response =(JSONArray) e.Response;
-			JSONArray serializedresponse = new JSONArray();
-			for (int i = 0; i < response.length(); i++) {
-				JSONObject itm = response.getJSONObject(i);
-				serializedresponse.put(serializeMessage(itm));
-				updatedse.Response = serializedresponse;
-			}
-
-		} catch (Exception e1) {
-			updatedse.Response = e1;
-			updatedse.Body = e1.getMessage();
-			updatedse.StatusCode = HttpStatus.SC_BAD_REQUEST;
-		}
-		return updatedse;		
-	}
-	
-	private JSONObject serializeMessage(JSONObject e) throws Exception {
-		JSONObject message = e;
-		if (message!=null) {
-			Date upd = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSS'Z'").parse(message.getString("dateTime"));
-			message.remove("dateTime");
-			message.put("dateTime",upd);
-		}
-		return message;
 	}
 
     class LogSerializer<T> {

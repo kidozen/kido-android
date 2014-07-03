@@ -99,11 +99,11 @@ public class KZService {
     }
 
     public class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
-        HashMap<String, String> _params = null;
-        HashMap<String, String> _headers = null;
-        KZHttpMethod _method= null;
-        ServiceEventListener _callback= null;
-        ServiceEvent _event = null;
+        HashMap<String, String> mQueryStringParameters = null;
+        HashMap<String, String> mHeaders = null;
+        KZHttpMethod mHttpMethod = null;
+        ServiceEventListener mServiceEventCallback = null;
+        ServiceEvent mFinalServiceEvent = null;
 
         String mStringMessage;
         InputStream mStreamMessage;
@@ -114,12 +114,12 @@ public class KZService {
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
         {
-            _headers = headers;
-            _method = method;
-            _callback = callback;
+            mHeaders = headers;
+            mHttpMethod = method;
+            mServiceEventCallback = callback;
             _bypassSSLValidation = bypassSSLValidation;
             if (params!=null) {
-                _params = params;
+                mQueryStringParameters = params;
             }
         }
 
@@ -152,82 +152,74 @@ public class KZService {
             try
             {
                 Hashtable<String, String> requestProperties = new Hashtable<String, String>();
-                Iterator<Map.Entry<String, String>> it = _headers.entrySet().iterator();
+                Iterator<Map.Entry<String, String>> it = mHeaders.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry<String, String> pairs = it.next();
                     requestProperties.put(pairs.getKey(), pairs.getValue());
                     it.remove();
                 }
-
                 String  url = params[0];
-                System.out.println("***** =>> method:" + _method);
-                System.out.println("***** =>> url:" + url);
-                System.out.println("***** =>> isStream:" + ProcessAsStream);
+//                System.out.println("***** =>> method:" + mHttpMethod);
+//                System.out.println("***** =>> isStream:" + ProcessAsStream);
 
                 if (ProcessAsStream) {
-                    mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, _params, _bypassSSLValidation);
-                    OutputStream response = mSniManager.ExecuteHttpAsStream(_method);
-                    if (mSniManager.LastResponseCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
-                        String exceptionMessage = (mSniManager.LastResponseBody!=null ? mSniManager.LastResponseBody : "Unexpected HTTP Status Code: " + mSniManager.LastResponseCode);
-                        throw new Exception(exceptionMessage);
-                    }
-                    _event = new ServiceEvent(this, mSniManager.LastResponseCode, null, response);
+                    mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, mQueryStringParameters, _bypassSSLValidation);
+                    OutputStream response = mSniManager.ExecuteHttpAsStream(mHttpMethod);
+                    createCallbackResponseForStream(statusCode, response);
                 }
                 else {
-                    mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, _params, _bypassSSLValidation);
-                    Hashtable<String, String> response = mSniManager.ExecuteHttp(_method);
+                    mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, mQueryStringParameters, _bypassSSLValidation);
+                    Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
-                    if (statusCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
-                        String exceptionMessage = (body!=null ? body : "Unexpected HTTP Status Code: " + statusCode);
-                        throw new Exception(exceptionMessage);
-                    }
+                    createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-                    System.out.println("***** =>> body:" + body);
-                    System.out.println("***** =>> status:" + response.get("statusCode"));
-                    System.out.println("***** =>> content:" + response.get("contentType"));
-
+  //                  System.out.println("***** =>> body:" + body);
+  //                  System.out.println("***** =>> status:" + response.get("statusCode"));
+  //                  System.out.println("***** =>> content:" + response.get("contentType"));
                     Object json = new JSONTokener(body).nextValue();
                     if (json instanceof JSONObject) {
                         JSONObject theObject = new JSONObject(body);
-                        System.out.println("***** =>> is JSONObject ");
-                        _event = new ServiceEvent(this, statusCode, body, theObject);
+                        mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
                     }
                     else
                         if (json instanceof JSONArray) {
                             JSONArray theObject = new JSONArray(body);
-                            System.out.println("***** =>> is JSONArray ");
-                            _event = new ServiceEvent(this, statusCode, body, theObject);
+                            mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
                         }
                         else {
-                            System.out.println("***** =>> is ??? ");
-
-                            _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
+                            mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                         }
-                    //}
-
-                    //if (response.get("contentType").indexOf("[text/plain]")>-1) {
-                    //    _event = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
-                    //}
-
-                    System.out.println("--------------------------------------------------");
-
                 }
             }
             catch(Exception e)
             {
-                System.out.println("* Exception: =>>" + e.getCause() + " <<== *");
-
+//                System.out.println("* Exception: =>>" + e.getCause() + " <<== *");
                 String exMessage = (e.getMessage()==null ? "Unexpected error" : e.getMessage().toString());
-                _event = new ServiceEvent(this, statusCode, exMessage, null,e);
+                mFinalServiceEvent = new ServiceEvent(this, statusCode, exMessage, null,e);
             }
-            return _event;
+            return mFinalServiceEvent;
+        }
+
+        private void createCallbackResponse(int statusCode, String body) {
+            if (statusCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
+                String exceptionMessage = (body!=null ? body : "Unexpected HTTP Status Code: " + statusCode);
+                mFinalServiceEvent = new ServiceEvent(this, statusCode, exceptionMessage, null, new Exception(exceptionMessage));
+            }
+        }
+
+        private void createCallbackResponseForStream(int statusCode, OutputStream response) {
+            if (mSniManager.LastResponseCode>= HttpStatus.SC_MULTIPLE_CHOICES) {
+                String exceptionMessage = (mSniManager.LastResponseBody!=null ? mSniManager.LastResponseBody : "Unexpected HTTP Status Code: " + mSniManager.LastResponseCode);
+                mFinalServiceEvent = new ServiceEvent(this, statusCode, exceptionMessage, null, new Exception(exceptionMessage));
+            }
+            mFinalServiceEvent = new ServiceEvent(this, mSniManager.LastResponseCode, null, response);
         }
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            if (_callback!=null) {
-                _callback.onFinish(result);
+            if (mServiceEventCallback !=null) {
+                mServiceEventCallback.onFinish(result);
             }
         }
 

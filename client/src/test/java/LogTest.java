@@ -40,12 +40,9 @@ import static org.junit.Assert.fail;
 @Config(manifest= Config.NONE)
 
 public class LogTest {
-
-    private static final String KZ_STORAGE_SERVICEID = "StorageIntegrationTestsCollection";
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
     public static final String DATA_VALUE_KEY = "value";
     KZApplication kidozen = null;
-    Storage _storage;
 
     @Before
     public void Setup()
@@ -55,15 +52,14 @@ public class LogTest {
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, kidoInitCallback(signal));
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-            _storage = kidozen.Storage(KZ_STORAGE_SERVICEID);
         }
         catch (Exception e)
         {
             fail(e.getMessage());
         }
     }
-/*
-    //@Test
+
+    @Test
     public void ShouldTruncateLog() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
 
@@ -158,7 +154,7 @@ public class LogTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
-*/
+
     @Test
     public void ShouldLogJSONObjectWithMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -180,6 +176,23 @@ public class LogTest {
             @Override
             public void onFinish(ServiceEvent e) {
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+
+    @Test
+    public void QueryShouldReturnInvalidQuery() throws Exception
+    {
+        final CountDownLatch lcd = new CountDownLatch(1);
+
+        kidozen.QueryLog("{fail}",new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertThat(e.StatusCode, equalTo( HttpStatus.SC_BAD_REQUEST));
+                assertTrue(e.Body.indexOf("Invalid query. It must be compliant to elasticsearch")>-1);
                 lcd.countDown();
             }
         });

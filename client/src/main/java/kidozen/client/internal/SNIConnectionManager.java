@@ -245,7 +245,4 @@ public class SNIConnectionManager
         return retVal;
     }
 
-    protected String appendJsonAsQueryString(JSONObject data) throws UnsupportedEncodingException {
-        return "?json=" + URLEncoder.encode(data.toString(), "utf-8");
-    }
 }

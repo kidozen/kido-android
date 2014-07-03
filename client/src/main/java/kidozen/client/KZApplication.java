@@ -318,6 +318,14 @@ public class KZApplication  {
         mApplicationLog.Write(message, data, level, callback);
     }
 
+    public void QueryLog(String query, ServiceEventListener callback) throws Exception  {
+        if (query==null) {
+            throw new Exception("query paramter must not be null");
+        }
+        checkApplicationLog();
+        mApplicationLog.Query(query,  callback);
+    }
+
     public void WriteLog(String title, ArrayList message, LogLevel level, ServiceEventListener callback) throws Exception  {
         if (level==null) {
             throw new Exception("Level must not be null");
