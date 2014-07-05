@@ -526,7 +526,6 @@ public class KZApplication  {
             JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
             IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new ServiceEventListener()   {
                 @Override
