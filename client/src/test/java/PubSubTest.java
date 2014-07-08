@@ -37,7 +37,7 @@ import static org.junit.Assert.fail;
 
 public class PubSubTest {
 
-    public static final int TEST_TIMEOUT_IN_MINUTES = 3;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 5;
     public static final String DATA_VALUE_KEY = "value";
     public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests";
     KZApplication kidozen = null;

@@ -76,7 +76,7 @@ public class EApiTest {
     @Test
     public void InvokeMethodShouldReturnException() throws Exception{
         final CountDownLatch lcd = new CountDownLatch(1);
-        Service service = kidozen.LOBService(AppSettings.KZ_SERVICE_ID);
+        Service service = kidozen.LOBService("nil");
         service.InvokeMethod(KZ_SERVICE_INVALID_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
