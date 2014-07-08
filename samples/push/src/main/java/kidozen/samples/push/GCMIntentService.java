@@ -10,8 +10,8 @@ import android.util.Log;
  * http://androidexample.com/Android_Push_Notifications_using_Google_Cloud_Messaging_GCM/index.php?view=article_discription&aid=119&aaid=139
  *
  * Crear un nuevo proyecto aca: https://console.developers.google.com
- * 
- *
+ * http://developer.android.com/google/gcm/gs.html
+ * http://developer.android.com/google/gcm/client.html
  *
  */
 public class GCMIntentService extends GCMBaseIntentService {

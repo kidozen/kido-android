@@ -11,12 +11,16 @@ import kidozen.client.KZApplication;
  */
 public class KidoZenHelper {
     private KZApplication kido = null;
-    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
-    private String application       = "passiveauthpluscrash";
-    private String appkey            = "fbOqR5UVjn6Y+bkp2Z17k0R7TrqHtmeuP758YOE0M/k=";
-    private String user              = "loadtests@kidozen.com";
+    private String tenantMarketPlace = "https://tests.qa.kidozen.com";
+    private String application       = "tasks";
+    private String appkey            = "GZJQetc+VH9JLWoHnLEwlk7tw+XPSniMUSuIzK9kDxE=";
+    private String user              = "tests@kidozen.com";
     private String passw             = "pass";
     private String provider          = "Kidozen";
+
+    private String projectid          = "33779981368";
+
+
 
     private Boolean isInitialized    = false;
 
