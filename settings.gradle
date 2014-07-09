@@ -1,1 +1,1 @@
-include  ':client', ':samples:social', ':samples:crash', ':samples:push'
+include  ':client', ':samples:social', ':samples:crash', ':samples:push', ':client.push'

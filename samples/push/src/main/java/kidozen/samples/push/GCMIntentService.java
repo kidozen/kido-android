@@ -2,6 +2,7 @@ package kidozen.samples.push;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 /**
@@ -13,7 +14,7 @@ import android.util.Log;
  * http://developer.android.com/google/gcm/gs.html
  * http://developer.android.com/google/gcm/client.html
  *
- */
+
 public class GCMIntentService extends GCMBaseIntentService {
 
     public GCMIntentService() {
@@ -59,3 +60,4 @@ public class GCMIntentService extends GCMBaseIntentService {
     }
 
 }
+ */
