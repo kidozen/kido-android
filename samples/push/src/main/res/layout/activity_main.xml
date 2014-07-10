@@ -9,8 +9,47 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:text="@string/hello_world"
+        android:text="Hello KidoZen!!"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:id="@+id/textView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign In"
+        android:id="@+id/buttonSignIn"
+        android:enabled="true"
+        android:layout_alignTop="@+id/textView"
+        android:layout_alignRight="@+id/linearLayout" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/buttonSignIn"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="38dp"
+        android:id="@+id/linearLayout">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Subscribe"
+            android:id="@+id/buttonSubscribe"
+            android:layout_alignBottom="@+id/buttonSubscribe"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:enabled="false" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Push Msg"
+            android:id="@+id/buttonSubscribe"
+            android:layout_alignBottom="@+id/buttonPushMsg"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:enabled="false" />
+    </LinearLayout>
 
 </RelativeLayout>

@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -18,12 +21,36 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import java.io.IOException;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements  IPushEvents {
+    private KidoZenHelper helper = new KidoZenHelper(this);
+    MainActivity mSelf = this;
+    TextView textView;
+    Button signInBtn , subscribeBtn, pushBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        helper.setPushEvents(mSelf);
+        signInBtn = (Button) findViewById(R.id.buttonSignIn);
+        signInBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                helper.SignIn();
+            }
+        });
+
+        subscribeBtn = (Button) findViewById(R.id.buttonSubscribe);
+        subscribeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                helper.Register();
+            }
+        });
+
+
+        textView = (TextView) findViewById(R.id.textView);
 
     }
 
@@ -44,5 +71,21 @@ public class MainActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // IPushEvents
+    @Override
+    public void ReturnUserName(String username) {
+        textView.setText( "Hello: " + username );
+        subscribeBtn.setEnabled(true);
+    }
+
+    @Override
+    public void ReturnRegistrationMessage(String message) {
+        textView.setText( "Return message: " +  message );
+    }
+    @Override
+    public void ReturnPushMessage(String message) {
+        textView.setText( "Return message: " +  message );
     }
 }

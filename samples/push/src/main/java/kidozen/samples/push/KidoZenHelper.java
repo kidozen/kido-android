@@ -1,6 +1,9 @@
 package kidozen.samples.push;
 
+import android.app.Activity;
 import android.content.Context;
+
+import com.kidozen.client.push.GCM;
 
 import org.apache.http.HttpStatus;
 
@@ -19,14 +22,14 @@ public class KidoZenHelper {
     private String provider          = "Kidozen";
 
     private String projectid          = "33779981368";
-
-
-
     private Boolean isInitialized    = false;
 
-    //private IAuthenticationEvents authEvents;
+    private Activity mActivity;
+    private IPushEvents pushEvents;
+    private GCM mKidoGcm;
 
-    public KidoZenHelper() {
+    public KidoZenHelper(Activity activity) {
+        mActivity = activity;
         kido = new KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
@@ -39,21 +42,29 @@ public class KidoZenHelper {
         kido.SignOut();
     }
 
-    public void SignIn(Context context) {
+    public void SignIn() {
         kido.Authenticate(provider,user,passw, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {
-                    //if (authEvents!=null && isInitialized) {
-                    //    authEvents.ReturnUserName(kido.GetKidoZenUser().Claims.get("name"));
-                    //}
+                    if (pushEvents!=null && isInitialized) {
+                        pushEvents.ReturnUserName(kido.GetKidoZenUser().Claims.get("name"));
+                    }
                 }
             }
         });
     }
 
-    //public void setAuthEvents(IAuthenticationEvents authEvents) {
-    //    this.authEvents = authEvents;
-    //}
+    public void Register() {
+        mKidoGcm = new GCM(mActivity,kido,projectid);
+    }
+
+    public void Push() {
+
+    }
+
+    public void setPushEvents(IPushEvents authEvents) {
+        this.pushEvents = authEvents;
+    }
 
 }
