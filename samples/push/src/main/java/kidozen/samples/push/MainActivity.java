@@ -25,7 +25,7 @@ public class MainActivity extends Activity implements  IPushEvents {
     private KidoZenHelper helper = new KidoZenHelper(this);
     MainActivity mSelf = this;
     TextView textView;
-    Button signInBtn , subscribeBtn, pushBtn;
+    Button signInBtn , subscribeBtn, pushBtn, initBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +41,27 @@ public class MainActivity extends Activity implements  IPushEvents {
             }
         });
 
+        initBtn = (Button) findViewById(R.id.buttonInit);
+        initBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                helper.Initialize();
+            }
+        });
+
         subscribeBtn = (Button) findViewById(R.id.buttonSubscribe);
         subscribeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.Register();
+                helper.Subscribe();
+            }
+        });
+
+        pushBtn = (Button) findViewById(R.id.buttonPushMsg);
+        pushBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                helper.Push();
             }
         });
 
@@ -77,12 +93,15 @@ public class MainActivity extends Activity implements  IPushEvents {
     @Override
     public void ReturnUserName(String username) {
         textView.setText( "Hello: " + username );
+        initBtn.setEnabled(true);
         subscribeBtn.setEnabled(true);
+        pushBtn.setEnabled(true);
     }
 
     @Override
     public void ReturnRegistrationMessage(String message) {
         textView.setText( "Return message: " +  message );
+        pushBtn.setEnabled(true);
     }
     @Override
     public void ReturnPushMessage(String message) {

@@ -2,6 +2,7 @@ package kidozen.client;
 
 import org.json.JSONObject;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
@@ -110,8 +111,9 @@ public class Notification extends KZService  {
 	 * 
 	 * @param callback The callback with the result of the service call
 	 */
-	public void  GetSubscriptions(final ServiceEventListener callback) 
-	{
+	public void  GetSubscriptions(String deviceId, final ServiceEventListener callback) throws InvalidParameterException {
+        if (deviceId.isEmpty() || deviceId == null) throw new InvalidParameterException("Invalid deviceId");
+        _deviceId = deviceId;
         CreateAuthHeaderValue(new KZServiceEvent<String>() {
             @Override
             public void Fire(String token) {

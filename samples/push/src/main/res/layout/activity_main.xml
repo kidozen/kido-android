@@ -35,20 +35,22 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Initialize "
+            android:id="@+id/buttonInit"
+            android:enabled="false" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Subscribe"
             android:id="@+id/buttonSubscribe"
-            android:layout_alignBottom="@+id/buttonSubscribe"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
             android:enabled="false" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Push Msg"
-            android:id="@+id/buttonSubscribe"
-            android:layout_alignBottom="@+id/buttonPushMsg"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
+            android:id="@+id/buttonPushMsg"
             android:enabled="false" />
     </LinearLayout>
 

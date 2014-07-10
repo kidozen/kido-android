@@ -6,15 +6,23 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import org.apache.http.HttpStatus;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import kidozen.client.KZApplication;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
 
 /**
  * Created by christian on 7/8/14.
@@ -25,71 +33,137 @@ public class GCM {
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
-    String mRegistrationId;
 
+    private String mRegistrationId;
     private GoogleCloudMessaging mGcm;
     private KZApplication mKido;
     private Context mContext;
     private Activity mActivity;
-    String mSenderId;
+    private String mSenderId;
+    private String mAndroidId;
+
+    private IGcmEvents mGCMEvents;
+    private Boolean mInitializationSuccess = false;
+    private Boolean mLastSubscriptionSucess = false;
+    private Boolean mLastPushSucess = false;
 
 
+    private JSONArray mDeviceSubscriptions = new JSONArray();
+
+    //Constructors do Registration
     public GCM(Activity activity, KZApplication kidoApp, String SenderId) {
         mActivity = activity;
         mContext = activity.getApplicationContext();
         mKido = kidoApp;
         mSenderId = SenderId;
         mSenderId = "33779981368";
+        mAndroidId =  Settings.Secure.getString(mContext.getContentResolver(),Settings.Secure.ANDROID_ID);
+    }
 
+    public void Initialize() {
+        getKidoSubscriptions();
         if (checkPlayServices()) {
             mGcm = GoogleCloudMessaging.getInstance(mContext);
             mRegistrationId = getRegistrationId(mContext);
             if (mRegistrationId.isEmpty()) {
                 registerInBackground();
             }
+            else {
+                if (mGCMEvents!=null) mGCMEvents.InitializationComplete(true,"RegistrationId obtained from SharedPreferences",mRegistrationId,mAndroidId);
+            }
         }
     }
 
-    private void sendRegistrationIdToBackend() {
-        //mKido.Notification().Subscribe();
+    /*
+    * Wraps KidoZen Subscribe method
+    * */
+    public void SubscribeToChannel(String channel) {
+        try {
+            if (isDeviceRegisterInChannel(channel)) {
+                if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(true, "Device already registered in channel");
+            }
+            else mKido.Notification().Subscribe(mAndroidId,channel,mRegistrationId,new SubscribeToChannelEventListener());
+        }
+        catch (Exception ex) {
+            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(false,ex.getMessage());
+        }
     }
+
+    public void PushMessage(String channel, JSONObject data) {
+        try {
+            mKido.Notification().Push(channel,data,new PushMessageEventListener());
+        }
+        catch (Exception ex) {
+            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(false,ex.getMessage());
+        }
+    }
+
+    private boolean isDeviceRegisterInChannel(String channel) {
+        Boolean returnValue = false;
+        for (int i = 0; i < mDeviceSubscriptions.length(); ++i) {
+            JSONObject object = null;
+
+            try {
+                object = mDeviceSubscriptions.getJSONObject(i);
+                if (object.getString("channelName").equals(channel) && object.getString("applicationName").equals(mKido.getApplicationName())) {
+                    returnValue = true;
+                    break;
+                };
+            }
+            catch (JSONException e) {
+                break;
+            }
+        }
+        return returnValue;
+    }
+
+    public void getKidoSubscriptions() {
+        try {
+            mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    Boolean success = (e.StatusCode == HttpStatus.SC_OK);
+                    if (success) mDeviceSubscriptions = (JSONArray) e.Response;
+                }
+            });
+        }
+        catch (Exception ex) {
+            String message = "Error :" + ex.getMessage();
+        }
+    }
+    /*
+        void InitializationComplete(Boolean success, String message, String registrationId, String deviceId);
+        void SubscriptionComplete(Boolean success, String message);
+        void SendMessageComplete(Boolean success, String message);
+        void RemoveSubscriptionComplete(Boolean success, String message);
+    */
 
     private void registerInBackground() {
         new AsyncTask<Void,Void,String>() {
+            Boolean mSuccess = true;
+            String mRegisterMessage = "";
             @Override
             protected String doInBackground(Void... params) {
-                String msg = "";
                 try {
                     if (mGcm == null) {
                         mGcm = GoogleCloudMessaging.getInstance(mContext);
                     }
                     mRegistrationId = mGcm.register(mSenderId);
-                    msg = "Device registered, registration ID=" + mRegistrationId;
-
-                    // You should send the registration ID to your server over HTTP,
-                    // so it can use GCM/HTTP or CCS to send messages to your app.
-                    // The request to your server should be authenticated if your app
-                    // is using accounts.
-                    sendRegistrationIdToBackend();
-
-                    // For this demo: we don't need to send it because the device
-                    // will send upstream messages to a server that echo back the
-                    // message using the 'from' address in the message.
-
+                    mRegisterMessage = "Device registered, registration ID=" + mRegistrationId;
                     // Persist the regID - no need to register again.
                     storeRegistrationId(mContext, mRegistrationId);
                 } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-                    // If there is an error, don't just keep trying to register.
-                    // Require the user to click a button again, or perform
-                    // exponential back-off.
+                    mRegisterMessage = "Error :" + ex.getMessage();
+                    mSuccess = false;
                 }
-                return msg;
+                return mRegisterMessage;
             }
 
             @Override
             protected void onPostExecute(String msg) {
-                Log.i(TAG, "msg :" + msg);
+                Log.i(TAG, "mRegisterMessage :" + msg);
+                mInitializationSuccess = mSuccess;
+                if (mGCMEvents!=null) mGCMEvents.InitializationComplete(mSuccess,msg,mRegistrationId,mAndroidId);
             }
         }.execute(null, null, null);
 
@@ -155,4 +229,36 @@ public class GCM {
         return true;
     }
 
+    public void setGCMEvents(IGcmEvents mGCMEvents) {
+        this.mGCMEvents = mGCMEvents;
+    }
+
+    /*
+    * */
+    private class SubscribeToChannelEventListener implements ServiceEventListener {
+        Boolean mSuccess = false;
+        String mMessage = "";
+
+        @Override
+        public void onFinish(ServiceEvent e) {
+            mSuccess = (e.StatusCode == HttpStatus.SC_CREATED);
+            mLastSubscriptionSucess = mSuccess;
+            mMessage = e.Body;
+            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(mSuccess, mMessage);
+        }
+    }
+    /*
+    * */
+    private class PushMessageEventListener implements ServiceEventListener {
+        Boolean mSuccess = false;
+        String mMessage = "";
+
+        @Override
+        public void onFinish(ServiceEvent e) {
+            mSuccess = (e.StatusCode == HttpStatus.SC_NO_CONTENT);
+            mLastPushSucess = mSuccess;
+            mMessage = e.Body;
+            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(mSuccess, mMessage);
+        }
+    }
 }

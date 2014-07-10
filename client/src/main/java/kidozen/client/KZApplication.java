@@ -124,7 +124,7 @@ public class KZApplication  {
         if (!mTenantMarketPlace.endsWith("/")) mTenantMarketPlace = mTenantMarketPlace + "/";
 
         try {
-            String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + mApplicationName;
+            String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + getApplicationName();
             mApplicationConfiguration = new KidoAppSettings();
 
             // chains the getSettings callback with the keyAuth callback
@@ -169,7 +169,7 @@ public class KZApplication  {
 	public Notification Notification () throws Exception
 	{
 		Notification notification= new Notification( mApplicationConfiguration.GetSettingAsString("notification"),
-                mApplicationName,
+                getApplicationName(),
                 mProvider,
                 mUsername,
                 mPassword,
@@ -585,10 +585,14 @@ public class KZApplication  {
         return service;
     }
 
+    public String getApplicationName() {
+        return mApplicationName;
+    }
+
     private class InitializationWithKeyCallback implements ServiceEventListener {
-        ServiceEventListener mServiceEventListennerCallback;
+        ServiceEventListener mServiceEventListenerCallback;
         public InitializationWithKeyCallback(ServiceEventListener cb) {
-            mServiceEventListennerCallback = cb;
+            mServiceEventListenerCallback = cb;
         }
         @Override
         public void onFinish(ServiceEvent e) {
@@ -605,7 +609,7 @@ public class KZApplication  {
                             mIsAuthenticatedWithAppKey = true;
                             mApplicationIdentity = (KidoZenUser) e.Response;
                         }
-                        if (mServiceEventListennerCallback!=null) mServiceEventListennerCallback.onFinish(e);
+                        if (mServiceEventListenerCallback !=null) mServiceEventListenerCallback.onFinish(e);
                     }
                 });
             } catch (JSONException e1) {
