@@ -1,17 +1,89 @@
 package kidozen.samples.crash;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import kidozen.client.KZApplication;
 
 
 public class MainActivity extends Activity {
+    MainActivity mSelf;
+    KZApplication kido;
+    TextView textviewMessages;
+    Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
+    private String tenantMarketPlace= "https://loadtests.qa.kidozen.com";
+    private String application = "passiveauthpluscrash";
+    private String appkey = "fbOqR5UVjn6Y+bkp2Z17k0R7TrqHtmeuP758YOE0M/k=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mSelf = this;
+
+        initbutton = (Button) findViewById(R.id.buttonInit);
+        textviewMessages= (TextView) findViewById(R.id.textViewMessages);
+        initbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try
+                {
+                    kido = new kidozen.client.KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
+                        @Override
+                        public void onFinish(kidozen.client.ServiceEvent e) {
+                            crashbutton.setEnabled(true);
+                            crashnullref.setEnabled(true);
+                            crashinvalidactivity.setEnabled(true);
+                            textviewMessages.setText( String.valueOf(e.StatusCode));
+                            kido.EnableCrashReporter(mSelf.getApplication());
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    textviewMessages.setText(e.getMessage());
+                }
+            }
+        });
+
+        crashinvalidactivity = (Button) findViewById(R.id.buttonactivitynotfound);
+        crashinvalidactivity.setEnabled(false);
+        crashinvalidactivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO NullRef
+                Intent i = new Intent(getApplication(), DummyActivity.class);
+                startActivityForResult(i, 1);
+            }
+        });
+
+        crashnullref = (Button) findViewById(R.id.buttonNullref);
+        crashnullref.setEnabled(false);
+        crashnullref.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String value = null;
+                Integer crash = value.indexOf("boom");
+            }
+        });
+
+        crashbutton = (Button) findViewById(R.id.buttonOutOfIndex);
+        crashbutton.setEnabled(false);
+        crashbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Integer[] arrayOfInts = {0,1};
+                Integer crash = arrayOfInts[3];
+            }
+        });
+
+
     }
 
 
