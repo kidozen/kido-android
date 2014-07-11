@@ -15,11 +15,8 @@ import kidozen.client.KZApplication;
 public class MainActivity extends Activity {
     MainActivity mSelf;
     KZApplication kido;
-    TextView textviewMessages;
+    TextView textviewMessages, textviewUrl, textviewApp, textviewKey;
     Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
-    private String tenantMarketPlace= "https://loadtests.qa.kidozen.com";
-    private String application = "passiveauthpluscrash";
-    private String appkey = "fbOqR5UVjn6Y+bkp2Z17k0R7TrqHtmeuP758YOE0M/k=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +24,22 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mSelf = this;
 
-        initbutton = (Button) findViewById(R.id.buttonInit);
         textviewMessages= (TextView) findViewById(R.id.textViewMessages);
+        textviewUrl= (TextView) findViewById(R.id.textViewTenantMkp);
+        textviewApp= (TextView) findViewById(R.id.textViewAppName);
+        textviewKey= (TextView) findViewById(R.id.textViewKey);
+
+
+        initbutton = (Button) findViewById(R.id.buttonInit);
         initbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try
                 {
+                    String tenantMarketPlace = textviewUrl.getText().toString();
+                    String application = textviewApp.getText().toString();
+                    String appkey = textviewKey.getText().toString();
+
                     kido = new kidozen.client.KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
                         @Override
                         public void onFinish(kidozen.client.ServiceEvent e) {
@@ -85,7 +91,6 @@ public class MainActivity extends Activity {
 
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
