@@ -1,19 +1,94 @@
 package kidozen.samples.crash;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import kidozen.client.KZApplication;
 
 
 public class MainActivity extends Activity {
+    MainActivity mSelf;
+    KZApplication kido;
+    TextView textviewMessages, textviewUrl, textviewApp, textviewKey;
+    Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
+
+    String tenantMarketPlace = "";
+    String application = "";
+    String appkey = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
+        mSelf = this;
 
+        textviewMessages= (TextView) findViewById(R.id.textViewMessages);
+
+
+        initbutton = (Button) findViewById(R.id.buttonInit);
+        initbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try
+                {
+                    kido = new kidozen.client.KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
+                        @Override
+                        public void onFinish(kidozen.client.ServiceEvent e) {
+                            crashbutton.setEnabled(true);
+                            crashnullref.setEnabled(true);
+                            crashinvalidactivity.setEnabled(true);
+                            textviewMessages.setText( String.valueOf(e.StatusCode));
+                            kido.EnableCrashReporter(mSelf.getApplication());
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    textviewMessages.setText(e.getMessage());
+                }
+            }
+        });
+
+        crashinvalidactivity = (Button) findViewById(R.id.buttonactivitynotfound);
+        crashinvalidactivity.setEnabled(false);
+        crashinvalidactivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO NullRef
+                Intent i = new Intent(getApplication(), DummyActivity.class);
+                startActivityForResult(i, 1);
+            }
+        });
+
+        crashnullref = (Button) findViewById(R.id.buttonNullref);
+        crashnullref.setEnabled(false);
+        crashnullref.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String value = null;
+                Integer crash = value.indexOf("boom");
+            }
+        });
+
+        crashbutton = (Button) findViewById(R.id.buttonOutOfIndex);
+        crashbutton.setEnabled(false);
+        crashbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Integer[] arrayOfInts = {0,1};
+                Integer crash = arrayOfInts[3];
+            }
+        });
+
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

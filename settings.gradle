@@ -1,1 +1,4 @@
-include  ':client', ':samples:social', ':samples:crash', ':samples:push', ':client.push'
+include ':client', ':client.push', ':crash', ':push', ':social'
+project(':crash').projectDir = new File('samples/crash')
+project(':push').projectDir = new File('samples/push')
+project(':social').projectDir = new File('samples/social')
