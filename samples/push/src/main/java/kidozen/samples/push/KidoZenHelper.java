@@ -30,7 +30,7 @@ public class KidoZenHelper implements IGcmEvents {
     private Boolean isInitialized    = false;
 
     private Activity mActivity;
-    private IPushEvents pushEvents;
+    private IGcmEvents pushEvents;
     private GCM mKidoGcm;
 
     public KidoZenHelper(Activity activity) {
@@ -55,7 +55,7 @@ public class KidoZenHelper implements IGcmEvents {
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {
                     if (pushEvents!=null && isInitialized) {
-                        pushEvents.ReturnUserName(kido.GetKidoZenUser().Claims.get("name"));
+                        pushEvents.InitializationComplete(true, kido.GetKidoZenUser().Claims.get("name"),"","");
                     }
                 }
             }
@@ -67,12 +67,17 @@ public class KidoZenHelper implements IGcmEvents {
     }
 
     public void Subscribe() {
-        mKidoGcm.SubscribeToChannel("sports");
+        mKidoGcm.SubscribeToChannel("news");
     }
 
     public void Push() {
         try {
-            JSONObject data = new JSONObject().put("thename","thevalue");
+            JSONObject data = new JSONObject()
+                    .put("type","toast")
+                    .put("text", "hello")
+                    .put("title" , "my notification")
+                    .put("image", "default.png")
+                    .put("badge","1");
             mKidoGcm.PushMessage("sports",data);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -80,7 +85,7 @@ public class KidoZenHelper implements IGcmEvents {
     }
 
 
-    public void setPushEvents(IPushEvents authEvents) {
+    public void setPushEvents(IGcmEvents authEvents) {
         this.pushEvents = authEvents;
     }
 

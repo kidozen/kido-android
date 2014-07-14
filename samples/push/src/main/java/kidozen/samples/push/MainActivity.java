@@ -17,11 +17,12 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.kidozen.client.push.IGcmEvents;
 
 import java.io.IOException;
 
 
-public class MainActivity extends Activity implements  IPushEvents {
+public class MainActivity extends Activity implements IGcmEvents {
     private KidoZenHelper helper = new KidoZenHelper(this);
     MainActivity mSelf = this;
     TextView textView;
@@ -89,22 +90,27 @@ public class MainActivity extends Activity implements  IPushEvents {
         return super.onOptionsItemSelected(item);
     }
 
-    // IPushEvents
     @Override
-    public void ReturnUserName(String username) {
-        textView.setText( "Hello: " + username );
+    public void InitializationComplete(Boolean success, String message, String registrationId, String deviceId) {
+        textView.setText( "Hello: " + message );
         initBtn.setEnabled(true);
         subscribeBtn.setEnabled(true);
         pushBtn.setEnabled(true);
     }
 
     @Override
-    public void ReturnRegistrationMessage(String message) {
+    public void SubscriptionComplete(Boolean success, String message) {
         textView.setText( "Return message: " +  message );
         pushBtn.setEnabled(true);
     }
+
     @Override
-    public void ReturnPushMessage(String message) {
+    public void SendMessageComplete(Boolean success, String message) {
+        textView.setText( "Return message: " +  message );
+    }
+
+    @Override
+    public void RemoveSubscriptionComplete(Boolean success, String message) {
         textView.setText( "Return message: " +  message );
     }
 }

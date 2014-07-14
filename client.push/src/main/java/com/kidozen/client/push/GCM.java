@@ -94,7 +94,7 @@ public class GCM {
             mKido.Notification().Push(channel,data,new PushMessageEventListener());
         }
         catch (Exception ex) {
-            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(false,ex.getMessage());
+            if (mGCMEvents!=null) mGCMEvents.SendMessageComplete(false,ex.getMessage());
         }
     }
 
@@ -124,11 +124,13 @@ public class GCM {
                 public void onFinish(ServiceEvent e) {
                     Boolean success = (e.StatusCode == HttpStatus.SC_OK);
                     if (success) mDeviceSubscriptions = (JSONArray) e.Response;
+                    if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(true,mDeviceSubscriptions.toString());
                 }
             });
         }
         catch (Exception ex) {
             String message = "Error :" + ex.getMessage();
+            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(false,message);
         }
     }
     /*
