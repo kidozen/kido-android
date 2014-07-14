@@ -17,11 +17,9 @@ public class MainActivity extends Activity {
     KZApplication kido;
     TextView textviewMessages, textviewUrl, textviewApp, textviewKey;
     Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
-
     String tenantMarketPlace = "";
     String application = "";
     String appkey = "";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +28,6 @@ public class MainActivity extends Activity {
         mSelf = this;
 
         textviewMessages= (TextView) findViewById(R.id.textViewMessages);
-
 
         initbutton = (Button) findViewById(R.id.buttonInit);
         initbutton.setOnClickListener(new View.OnClickListener() {
