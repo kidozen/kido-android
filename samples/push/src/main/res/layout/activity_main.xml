@@ -39,19 +39,48 @@
             android:id="@+id/buttonInit"
             android:enabled="false" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Subscribe"
-            android:id="@+id/buttonSubscribe"
-            android:enabled="false" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Channel"
+                android:id="@+id/textView2" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/editTextChannel"
+                android:text="news"
+                />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subscribe"
+                android:id="@+id/buttonSubscribe"
+                android:enabled="false" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Push Msg"
+                android:id="@+id/buttonPushMsg"
+                android:enabled="false" />
+            </LinearLayout>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Push Msg"
-            android:id="@+id/buttonPushMsg"
+            android:text="UnSubscribe"
+            android:id="@+id/buttonUnSubscribe"
             android:enabled="false" />
+
+
     </LinearLayout>
 
 </RelativeLayout>

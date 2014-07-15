@@ -1,32 +1,21 @@
 package kidozen.samples.push;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.kidozen.client.push.IGcmEvents;
 
-import java.io.IOException;
-
-
-public class MainActivity extends Activity implements IGcmEvents {
+public class MainActivity extends Activity implements IPushEvents {
     private KidoZenHelper helper = new KidoZenHelper(this);
     MainActivity mSelf = this;
     TextView textView;
-    Button signInBtn , subscribeBtn, pushBtn, initBtn;
+    EditText channelName;
+    Button signInBtn , subscribeBtn, unSubscribeBtn, pushBtn, initBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +23,11 @@ public class MainActivity extends Activity implements IGcmEvents {
         setContentView(R.layout.activity_main);
 
         helper.setPushEvents(mSelf);
+
+        channelName = (EditText) findViewById(R.id.editTextChannel);
+
+        textView = (TextView) findViewById(R.id.textView);
+
         signInBtn = (Button) findViewById(R.id.buttonSignIn);
         signInBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +48,15 @@ public class MainActivity extends Activity implements IGcmEvents {
         subscribeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.Subscribe();
+                helper.Subscribe(channelName.getText().toString());
+            }
+        });
+
+        unSubscribeBtn = (Button) findViewById(R.id.buttonUnSubscribe);
+        unSubscribeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                helper.UnSubscribe(channelName.getText().toString());
             }
         });
 
@@ -65,10 +67,6 @@ public class MainActivity extends Activity implements IGcmEvents {
                 helper.Push();
             }
         });
-
-
-        textView = (TextView) findViewById(R.id.textView);
-
     }
 
     @Override
@@ -91,26 +89,27 @@ public class MainActivity extends Activity implements IGcmEvents {
     }
 
     @Override
-    public void InitializationComplete(Boolean success, String message, String registrationId, String deviceId) {
+    public void onInitializationDone(String message) {
         textView.setText( "Hello: " + message );
         initBtn.setEnabled(true);
         subscribeBtn.setEnabled(true);
-        pushBtn.setEnabled(true);
+        //pushBtn.setEnabled(true);
+        unSubscribeBtn.setEnabled(true);
     }
 
     @Override
-    public void SubscriptionComplete(Boolean success, String message) {
+    public void onSubscriptionDone(String message) {
         textView.setText( "Return message: " +  message );
         pushBtn.setEnabled(true);
     }
 
     @Override
-    public void SendMessageComplete(Boolean success, String message) {
+    public void onPushDone(String message) {
         textView.setText( "Return message: " +  message );
     }
 
     @Override
-    public void RemoveSubscriptionComplete(Boolean success, String message) {
+    public void onRemoveSubscriptionDone(String message) {
         textView.setText( "Return message: " +  message );
     }
 }

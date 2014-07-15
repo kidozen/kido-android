@@ -199,18 +199,24 @@ public class KZService {
                     /*System.out.println("***** =>> body:" + body);
                     System.out.println("***** =>> status:" + response.get("statusCode"));
                     System.out.println("***** =>> content:" + response.get("contentType"));*/
-                    Object json = new JSONTokener(body).nextValue();
-                    if (json instanceof JSONObject) {
-                        JSONObject theObject = new JSONObject(body);
-                        mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
+
+                    if (body=="") {
+                        mFinalServiceEvent = new ServiceEvent(this, statusCode, body, body);
                     }
-                    else
-                        if (json instanceof JSONArray) {
-                            JSONArray theObject = new JSONArray(body);
+                    else {
+                        Object json = new JSONTokener(body).nextValue();
+                        if (json instanceof JSONObject) {
+                            JSONObject theObject = new JSONObject(body);
                             mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
                         }
-                        else {
-                            mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
+                        else
+                            if (json instanceof JSONArray) {
+                                JSONArray theObject = new JSONArray(body);
+                                mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
+                            }
+                            else {
+                                mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
+                            }
                         }
                 }
             }

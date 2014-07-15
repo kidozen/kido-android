@@ -30,7 +30,6 @@ import kidozen.client.ServiceEventListener;
 public class GCM {
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private String TAG = this.getClass().getSimpleName();
-    public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
 
@@ -43,12 +42,11 @@ public class GCM {
     private String mAndroidId;
 
     private IGcmEvents mGCMEvents;
-    private Boolean mInitializationSuccess = false;
-    private Boolean mLastSubscriptionSucess = false;
-    private Boolean mLastPushSucess = false;
-
-
     private JSONArray mDeviceSubscriptions = new JSONArray();
+
+    private boolean mInitializationSuccess = false;
+    private boolean mLastSubscriptionSucess = false;
+    private boolean mLastPushSucess = false;
 
     //Constructors do Registration
     public GCM(Activity activity, KZApplication kidoApp, String SenderId) {
@@ -56,57 +54,105 @@ public class GCM {
         mContext = activity.getApplicationContext();
         mKido = kidoApp;
         mSenderId = SenderId;
-        mSenderId = "33779981368";
         mAndroidId =  Settings.Secure.getString(mContext.getContentResolver(),Settings.Secure.ANDROID_ID);
     }
 
     public void Initialize() {
-        getKidoSubscriptions();
-        if (checkPlayServices()) {
-            mGcm = GoogleCloudMessaging.getInstance(mContext);
-            mRegistrationId = getRegistrationId(mContext);
-            if (mRegistrationId.isEmpty()) {
-                registerInBackground();
-            }
-            else {
-                if (mGCMEvents!=null) mGCMEvents.InitializationComplete(true,"RegistrationId obtained from SharedPreferences",mRegistrationId,mAndroidId);
-            }
+        try {
+            mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    Boolean success = (e.StatusCode == HttpStatus.SC_OK);
+                    if (success) mDeviceSubscriptions = (JSONArray) e.Response;
+
+                    if (checkPlayServices()) {
+                        mGcm = GoogleCloudMessaging.getInstance(mContext);
+                        mRegistrationId = getRegistrationId(mContext);
+                        if (mRegistrationId.isEmpty()) {
+                            registerInBackground();
+                        }
+                        else {
+                            mInitializationSuccess = true;
+                            if (mGCMEvents!=null) mGCMEvents.onInitializationComplete(true, "RegistrationId obtained from SharedPreferences", mRegistrationId, mAndroidId);
+                        }
+                    }
+                }
+            });
         }
+        catch (Exception ex) {
+            String message = "Error :" + ex.getMessage();
+            if (mGCMEvents!=null) mGCMEvents.onInitializationComplete(false, message, mRegistrationId, mAndroidId);
+        }
+
     }
 
-    /*
-    * Wraps KidoZen Subscribe method
-    * */
     public void SubscribeToChannel(String channel) {
+        if (!mInitializationSuccess) throw new IllegalStateException("You must invoke Initialize method before call this method");
         try {
             if (isDeviceRegisterInChannel(channel)) {
-                if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(true, "Device already registered in channel");
+                if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(true, "Device already registered in channel");
             }
             else mKido.Notification().Subscribe(mAndroidId,channel,mRegistrationId,new SubscribeToChannelEventListener());
         }
         catch (Exception ex) {
-            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(false,ex.getMessage());
+            if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(false, ex.getMessage());
+        }
+    }
+
+    public void UnSubscribeFromChannel(String channel) {
+        if (!mInitializationSuccess) throw new IllegalStateException("You must invoke Initialize method before call this method");
+
+        try {
+            if (isDeviceRegisterInChannel(channel)) {
+                mKido.Notification().Unsubscribe(channel, mRegistrationId, new UnSubscribeToChannelEventListener());
+            }
+        }
+        catch (Exception ex) {
+            if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(false, ex.getMessage());
         }
     }
 
     public void PushMessage(String channel, JSONObject data) {
+        if (!mInitializationSuccess) throw new IllegalStateException("You must invoke Initialize method before call this method");
+
         try {
             mKido.Notification().Push(channel,data,new PushMessageEventListener());
         }
         catch (Exception ex) {
-            if (mGCMEvents!=null) mGCMEvents.SendMessageComplete(false,ex.getMessage());
+            if (mGCMEvents!=null) mGCMEvents.onPushMessageComplete(false, ex.getMessage());
         }
     }
 
+    private void GetSubscriptions() {
+        try {
+            mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    Boolean success = (e.StatusCode == HttpStatus.SC_OK);
+                    if (success) mDeviceSubscriptions = (JSONArray) e.Response;
+                    if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(true, mDeviceSubscriptions.toString());
+                }
+            });
+        }
+        catch (Exception ex) {
+            String message = "Error :" + ex.getMessage();
+            if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(false, message);
+        }
+    }
+
+
     private boolean isDeviceRegisterInChannel(String channel) {
-        Boolean returnValue = false;
+        Boolean isRegister = false;
+
         for (int i = 0; i < mDeviceSubscriptions.length(); ++i) {
             JSONObject object = null;
 
             try {
                 object = mDeviceSubscriptions.getJSONObject(i);
-                if (object.getString("channelName").equals(channel) && object.getString("applicationName").equals(mKido.getApplicationName())) {
-                    returnValue = true;
+                if (object.getString("channelName").equals(channel)
+                        && object.getString("applicationName").equals(mKido.getApplicationName())
+                        && object.getString("subscriptionId").equals(mRegistrationId)) {
+                    isRegister = true;
                     break;
                 };
             }
@@ -114,31 +160,8 @@ public class GCM {
                 break;
             }
         }
-        return returnValue;
+        return isRegister;
     }
-
-    public void getKidoSubscriptions() {
-        try {
-            mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    Boolean success = (e.StatusCode == HttpStatus.SC_OK);
-                    if (success) mDeviceSubscriptions = (JSONArray) e.Response;
-                    if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(true,mDeviceSubscriptions.toString());
-                }
-            });
-        }
-        catch (Exception ex) {
-            String message = "Error :" + ex.getMessage();
-            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(false,message);
-        }
-    }
-    /*
-        void InitializationComplete(Boolean success, String message, String registrationId, String deviceId);
-        void SubscriptionComplete(Boolean success, String message);
-        void SendMessageComplete(Boolean success, String message);
-        void RemoveSubscriptionComplete(Boolean success, String message);
-    */
 
     private void registerInBackground() {
         new AsyncTask<Void,Void,String>() {
@@ -165,7 +188,7 @@ public class GCM {
             protected void onPostExecute(String msg) {
                 Log.i(TAG, "mRegisterMessage :" + msg);
                 mInitializationSuccess = mSuccess;
-                if (mGCMEvents!=null) mGCMEvents.InitializationComplete(mSuccess,msg,mRegistrationId,mAndroidId);
+                if (mGCMEvents!=null) mGCMEvents.onInitializationComplete(mSuccess, msg, mRegistrationId, mAndroidId);
             }
         }.execute(null, null, null);
 
@@ -214,6 +237,8 @@ public class GCM {
         editor.putString(PROPERTY_REG_ID, regId);
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
         editor.commit();
+
+        mInitializationSuccess = true;
     }
 
 
@@ -246,7 +271,7 @@ public class GCM {
             mSuccess = (e.StatusCode == HttpStatus.SC_CREATED);
             mLastSubscriptionSucess = mSuccess;
             mMessage = e.Body;
-            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(mSuccess, mMessage);
+            if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(mSuccess, mMessage);
         }
     }
     /*
@@ -260,7 +285,23 @@ public class GCM {
             mSuccess = (e.StatusCode == HttpStatus.SC_NO_CONTENT);
             mLastPushSucess = mSuccess;
             mMessage = e.Body;
-            if (mGCMEvents!=null) mGCMEvents.SubscriptionComplete(mSuccess, mMessage);
+            if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(mSuccess, mMessage);
         }
     }
+    /*
+* */
+    private class UnSubscribeToChannelEventListener implements ServiceEventListener {
+        Boolean mSuccess = false;
+        String mMessage = "";
+
+        @Override
+        public void onFinish(ServiceEvent e) {
+            mSuccess = (e.StatusCode == HttpStatus.SC_NO_CONTENT);
+
+            mLastSubscriptionSucess = mSuccess;
+            mMessage = e.Body;
+            if (mGCMEvents!=null) mGCMEvents.onRemoveSubscriptionComplete(mSuccess, mMessage);
+        }
+    }
+
 }

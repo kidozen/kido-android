@@ -1,9 +1,11 @@
 package kidozen.samples.push;
 
 import android.app.Activity;
-import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.kidozen.client.push.GCM;
 import com.kidozen.client.push.IGcmEvents;
 
@@ -30,7 +32,7 @@ public class KidoZenHelper implements IGcmEvents {
     private Boolean isInitialized    = false;
 
     private Activity mActivity;
-    private IGcmEvents pushEvents;
+    private IPushEvents mPushEvents;
     private GCM mKidoGcm;
 
     public KidoZenHelper(Activity activity) {
@@ -54,8 +56,8 @@ public class KidoZenHelper implements IGcmEvents {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {
-                    if (pushEvents!=null && isInitialized) {
-                        pushEvents.InitializationComplete(true, kido.GetKidoZenUser().Claims.get("name"),"","");
+                    if (mPushEvents !=null && isInitialized) {
+                        mPushEvents.onInitializationDone(kido.GetKidoZenUser().Claims.get("name"));
                     }
                 }
             }
@@ -66,8 +68,12 @@ public class KidoZenHelper implements IGcmEvents {
         mKidoGcm.Initialize();
     }
 
-    public void Subscribe() {
-        mKidoGcm.SubscribeToChannel("news");
+    public void Subscribe(String channel) {
+        mKidoGcm.SubscribeToChannel(channel);
+    }
+
+    public void UnSubscribe(String channel) {
+        mKidoGcm.UnSubscribeFromChannel(channel);
     }
 
     public void Push() {
@@ -85,27 +91,27 @@ public class KidoZenHelper implements IGcmEvents {
     }
 
 
-    public void setPushEvents(IGcmEvents authEvents) {
-        this.pushEvents = authEvents;
+    public void setPushEvents(IPushEvents authEvents) {
+        this.mPushEvents = authEvents;
     }
 
     @Override
-    public void InitializationComplete(Boolean success, String message, String registrationId, String deviceId) {
-        Log.d(TAG,message);
+    public void onInitializationComplete(Boolean success, String message, String registrationId, String deviceId) {
+        if (mPushEvents!=null) mPushEvents.onInitializationDone(message);
     }
 
     @Override
-    public void SubscriptionComplete(Boolean success, String message) {
-        Log.d(TAG,message);
+    public void onSubscriptionComplete(Boolean success, String message) {
+        if (mPushEvents!=null) mPushEvents.onSubscriptionDone(message);
     }
 
     @Override
-    public void SendMessageComplete(Boolean success, String message) {
-        Log.d(TAG,message);
+    public void onPushMessageComplete(Boolean success, String message) {
+        if (mPushEvents!=null) mPushEvents.onPushDone(message);
     }
 
     @Override
-    public void RemoveSubscriptionComplete(Boolean success, String message) {
-        Log.d(TAG,message);
+    public void onRemoveSubscriptionComplete(Boolean success, String message) {
+        if (mPushEvents!=null) mPushEvents.onRemoveSubscriptionDone(message);
     }
 }
