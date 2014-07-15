@@ -19,6 +19,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
@@ -28,8 +30,9 @@ import kidozen.client.ServiceEventListener;
  * Created by christian on 7/8/14.
  */
 public class GCM {
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private String TAG = this.getClass().getSimpleName();
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final long PULL_SUBSCRIPTION_TIMEOUT = 5;
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
 
@@ -123,7 +126,7 @@ public class GCM {
         }
     }
 
-    private void GetSubscriptions() {
+    public void GetSubscriptions() {
         try {
             mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
                 @Override
@@ -143,6 +146,7 @@ public class GCM {
 
     private boolean isDeviceRegisterInChannel(String channel) {
         Boolean isRegister = false;
+        getSubscriptionsSync();
 
         for (int i = 0; i < mDeviceSubscriptions.length(); ++i) {
             JSONObject object = null;
@@ -161,6 +165,20 @@ public class GCM {
             }
         }
         return isRegister;
+    }
+
+    private void getSubscriptionsSync()  {
+        try {
+            CountDownLatch cdl = new CountDownLatch(1);
+            mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    Boolean success = (e.StatusCode == HttpStatus.SC_OK);
+                    if (success) mDeviceSubscriptions = (JSONArray) e.Response;
+                }
+            });
+            cdl.await(PULL_SUBSCRIPTION_TIMEOUT, TimeUnit.SECONDS);        }
+        catch (Exception ignore) {}
     }
 
     private void registerInBackground() {

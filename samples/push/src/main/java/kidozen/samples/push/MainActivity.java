@@ -2,6 +2,7 @@ package kidozen.samples.push;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,7 @@ public class MainActivity extends Activity implements IPushEvents {
     TextView textView;
     EditText channelName;
     Button signInBtn , subscribeBtn, unSubscribeBtn, pushBtn, initBtn;
+    private String TAG = this.getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +50,12 @@ public class MainActivity extends Activity implements IPushEvents {
         subscribeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.Subscribe(channelName.getText().toString());
+                try {
+                    helper.Subscribe(channelName.getText().toString());
+                }
+                catch (IllegalStateException e) {
+                    Log.e(TAG,e.getMessage());
+                }
             }
         });
 
@@ -56,7 +63,12 @@ public class MainActivity extends Activity implements IPushEvents {
         unSubscribeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.UnSubscribe(channelName.getText().toString());
+                try {
+                    helper.UnSubscribe(channelName.getText().toString());
+                }
+                catch (IllegalStateException e) {
+                    Log.e(TAG,e.getMessage());
+                }
             }
         });
 
@@ -64,7 +76,12 @@ public class MainActivity extends Activity implements IPushEvents {
         pushBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.Push();
+                try {
+                    helper.Push(channelName.getText().toString());
+                }
+                catch (IllegalStateException e) {
+                    Log.e(TAG,e.getMessage());
+                }
             }
         });
     }
@@ -93,7 +110,7 @@ public class MainActivity extends Activity implements IPushEvents {
         textView.setText( "Hello: " + message );
         initBtn.setEnabled(true);
         subscribeBtn.setEnabled(true);
-        //pushBtn.setEnabled(true);
+        pushBtn.setEnabled(true);
         unSubscribeBtn.setEnabled(true);
     }
 

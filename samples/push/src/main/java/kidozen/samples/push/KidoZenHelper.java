@@ -76,15 +76,14 @@ public class KidoZenHelper implements IGcmEvents {
         mKidoGcm.UnSubscribeFromChannel(channel);
     }
 
-    public void Push() {
+    public void Push(String channel) {
         try {
             JSONObject data = new JSONObject()
                     .put("type","toast")
                     .put("text", "hello")
                     .put("title" , "my notification")
-                    .put("image", "default.png")
                     .put("badge","1");
-            mKidoGcm.PushMessage("sports",data);
+            mKidoGcm.PushMessage(channel,data);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -97,21 +96,21 @@ public class KidoZenHelper implements IGcmEvents {
 
     @Override
     public void onInitializationComplete(Boolean success, String message, String registrationId, String deviceId) {
-        if (mPushEvents!=null) mPushEvents.onInitializationDone(message);
+        if (mPushEvents!=null) mPushEvents.onInitializationDone("onInitializationComplete. Success: " + String.valueOf(success) );
     }
 
     @Override
     public void onSubscriptionComplete(Boolean success, String message) {
-        if (mPushEvents!=null) mPushEvents.onSubscriptionDone(message);
+        if (mPushEvents!=null) mPushEvents.onSubscriptionDone("onSubscriptionComplete. Success: " + String.valueOf(success) );
     }
 
     @Override
     public void onPushMessageComplete(Boolean success, String message) {
-        if (mPushEvents!=null) mPushEvents.onPushDone(message);
+        if (mPushEvents!=null) mPushEvents.onPushDone("onPushMessageComplete. Success: " + String.valueOf(success) );
     }
 
     @Override
     public void onRemoveSubscriptionComplete(Boolean success, String message) {
-        if (mPushEvents!=null) mPushEvents.onRemoveSubscriptionDone(message);
+        if (mPushEvents!=null) mPushEvents.onRemoveSubscriptionDone("onRemoveSubscriptionComplete. Success: " + String.valueOf(success) );
     }
 }

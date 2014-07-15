@@ -217,11 +217,11 @@ public class SNIConnectionManager
         Hashtable<String, String> retVal = new Hashtable<String, String>();
 
         int responseCode = con.getResponseCode();
-        System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
+        //System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
         String responsebody = con.getResponseMessage();
-        System.out.println("*********-> Response Body:" + responsebody);
+        //System.out.println("*********-> Response Body:" + responsebody);
         String contentType =  con.getHeaderField("content-type");
-        System.out.println("*********-> Response contentType:" + contentType);
+        //System.out.println("*********-> Response contentType:" + contentType);
 
         retVal.put("statusCode", String.valueOf(responseCode));
         retVal.put("responseMessage", responsebody);
@@ -245,7 +245,7 @@ public class SNIConnectionManager
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
 
-        System.out.println("*********->" + _urlAsString);
+        //System.out.println("*********->" + _urlAsString);
 
 
 
