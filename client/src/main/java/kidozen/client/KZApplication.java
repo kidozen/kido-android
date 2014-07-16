@@ -22,7 +22,7 @@ import kidozen.client.internal.KidoAppSettings;
 
 /**
  * @author kidozen
- * @version 2.0.0, April 2014
+ * @version 1.2.0, July 2014
  * 
  * Main KidoZen application object
  *
