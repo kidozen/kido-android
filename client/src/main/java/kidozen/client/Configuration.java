@@ -16,10 +16,22 @@ import kidozen.client.internal.Constants;
  *
  */
 public class Configuration  extends KZService {
+
+    /**
+     * You should not create a new instances of this constructor. Instead use the Configuration() method of the KZApplication object.
+
+     * @param configuration
+     * @param name
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
 	public Configuration(String configuration, String name,  String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(configuration,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
-
 
 	/**
 	 * Save the value of the configuration

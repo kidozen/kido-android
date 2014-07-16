@@ -21,11 +21,12 @@ import kidozen.client.KZApplication;
 public class KidoZenHelper implements IGcmEvents {
     private final String TAG = this.getClass().getSimpleName();
     private KZApplication kido = null;
-    private String tenantMarketPlace = "https://tests.qa.kidozen.com";
-    private String application       = "tasks";
-    private String appkey            = "GZJQetc+VH9JLWoHnLEwlk7tw+XPSniMUSuIzK9kDxE=";
-    private String user              = "tests@kidozen.com";
-    private String passw             = "pass";
+
+    private String tenantMarketPlace = "http://contoso.kidocloud.com";
+    private String application = "myApplication";
+    private String appkey = "get this value from your marketplace";
+    private String user              = "myaccount@kidozen.com";
+    private String passw             = "secret";
     private String provider          = "Kidozen";
 
     private String projectid          = "33779981368";

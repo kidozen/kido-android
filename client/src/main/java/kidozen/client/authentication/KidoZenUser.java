@@ -19,9 +19,19 @@ public class KidoZenUser {
      * The Hash key that we can use to find it in the IdentityManager token's cache
      */
     public String HashKey;
+    /**
+     * The user authentication token
+     */
     public String Token;
+    /**
+     * The user refresh token
+     */
     public String RefreshToken;
 
+    /**
+     *
+     * @return The hash that identifies unambiguously each user
+     */
     public String getUserHash() {
         return Claims.get("http://schemas.kidozen.com/userid").toString();
     }

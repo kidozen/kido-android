@@ -22,7 +22,7 @@ import kidozen.client.internal.KidoAppSettings;
 
 /**
  * @author kidozen
- * @version 1.2.0, April 2014
+ * @version 2.0.0, April 2014
  * 
  * Main KidoZen application object
  *
@@ -52,6 +52,12 @@ public class KZApplication  {
 
     private KidoAppSettings mApplicationConfiguration;
 
+    /**
+     * Enables crash reporter feature in the current application
+     *
+     * @param application The Android Application instance
+     * @throws IllegalStateException
+     */
     public void EnableCrashReporter (Application application) throws IllegalStateException {
         if (mApplicationKey == Constants.UNSET_APPLICATION_KEY) {
             throw new IllegalStateException("Crash report feature can only be enabled using an application key.");
@@ -65,12 +71,15 @@ public class KZApplication  {
         }
     }
 
+    /**
+     * Add breadcrumbs. A breadcrumb is a developer-defined text string that allows developers to capture app run-time information
+     *
+     * @param value The breadcrumb value
+     */
     public void AddBreadCrumb(String value) {
         mCrashReporter.AddBreadCrumb(value);
     }
 
-
-    //
     /**
 	 * Returns the current KidoZen identity
 	 * 
@@ -79,6 +88,7 @@ public class KZApplication  {
 	public KidoZenUser GetKidoZenUser() {
 		return mUserIdentity;
 	}
+
 	private KZApplication() {}
 	/**
 	 * Allows to change the current KidoZen user identity
@@ -94,11 +104,11 @@ public class KZApplication  {
      *
      * @param tenantMarketPlace The url of the KidoZen marketplace
      * @param application The application name
-     * @param applicationKey The application key for anonymous logging
+     * @param applicationKey The application key , you can get it from the marketplace
      * @param callback The ServiceEventListener callback with the operation results
-     * @throws Exception The latest exception is there was any
+     * @throws IllegalStateException
      */
-    public KZApplication(String tenantMarketPlace, String application, String applicationKey, ServiceEventListener callback) throws Exception{
+    public KZApplication(String tenantMarketPlace, String application, String applicationKey, ServiceEventListener callback) throws IllegalStateException {
         this(tenantMarketPlace,application, applicationKey, false, callback);
     }
 
@@ -108,9 +118,9 @@ public class KZApplication  {
      * @param tenantMarketPlace The url of the KidoZen marketplace
      * @param application The application name
      * @param strictSSL Set this value to false to bypass the SSL validation, use it only for development purposes. Otherwise you need to install the KidoZen Certificates in your device
-     * @param secretKeyName Secret Key's name to use
+     * @param applicationKey The application key , you can get it from the marketplace
      * @param callback The ServiceEventListener callback with the operation results
-     * @throws Exception The latest exception is there was any
+     * @throws IllegalStateException
      */
     public KZApplication(String tenantMarketPlace, String application, String applicationKey, Boolean strictSSL, final ServiceEventListener callback) throws IllegalStateException {
         this.StrictSSL = !strictSSL;
@@ -140,7 +150,12 @@ public class KZApplication  {
         }
     }
 
-
+    /**
+     * Creates a new PubSub channel
+	 *
+	 * @return A new PubSub object instance
+	 * @throws Exception
+    * */
 	public PubSubChannel PubSubChannel(String name) throws Exception{
 		checkMethodParameters(name);
 		PubSubChannel channel = new PubSubChannel(
@@ -161,9 +176,9 @@ public class KZApplication  {
 	}
 
 	/**
-	 * Push notification service main entry point
+	 * Creates a new Push notification service
 	 * 
-	 * @return The Push notification object that allows to interact with the Google Cloud Messaging Services (GCM)
+	 * @return A new object instance that allows to interact with the Google Cloud Messaging Services (GCM)
 	 * @throws Exception
 	 */
 	public Notification Notification () throws Exception
@@ -186,7 +201,7 @@ public class KZApplication  {
 	 * Creates a new Configuration object
 	 * 
 	 * @param name The name that references the Configuration instance
-	 * @return a new Configuration object
+	 * @return A new Configuration object instance
 	 * @throws Exception
 	 */
 	public Configuration Configuration(String name) throws Exception{
@@ -209,7 +224,7 @@ public class KZApplication  {
 	 * Creates a new Queue object
 	 * 
 	 * @param name The name that references the Queue instance
-	 * @return a new Queue object
+	 * @return a new Queue object instance
 	 * @throws Exception
 	 */
 	public Queue Queue (String name) throws Exception
@@ -232,7 +247,7 @@ public class KZApplication  {
 	 * Creates a new Storage object
 	 * 
 	 * @param name The name that references the Storage instance
-	 * @return a new Storage object
+	 * @return a new Storage object instance
 	 * @throws Exception
 	 */
 	public Storage Storage(String name) throws Exception {
@@ -253,7 +268,7 @@ public class KZApplication  {
 	 * Creates a new SMSSender object
 	 * 
 	 * @param number The phone number to send messages.
-	 * @return a new SMSSender object
+	 * @return a new SMSSender object instance
 	 * @throws Exception
 	 */
 	public SMSSender SMSSender(String number) throws Exception{
@@ -299,7 +314,15 @@ public class KZApplication  {
 		mMailSender.Send(mail, callback) ;
 	}
 
-
+    /**
+     * Writes an string entry in the Logging service
+     *
+     * @param message the message to write
+     * @param data the raw data to write
+     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param callback The callback with the result of the service call
+     * @throws Exception
+     */
 	public void WriteLog(String message, String data, LogLevel level, ServiceEventListener callback) throws Exception  {
 		if (level==null) {
 			throw new Exception("Level must not be null");
@@ -308,6 +331,15 @@ public class KZApplication  {
 		mApplicationLog.Write(message, data, level, callback);
 	}
 
+    /**
+     * Writes an integer entry in the Logging service
+     *
+     * @param message the message to write
+     * @param data the raw data to write
+     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param callback The callback with the result of the service call
+     * @throws Exception
+     */
     public void WriteLog(String message, Integer data, LogLevel level, ServiceEventListener callback) throws Exception  {
         if (level==null) {
             throw new Exception("Level must not be null");
@@ -316,6 +348,12 @@ public class KZApplication  {
         mApplicationLog.Write(message, data, level, callback);
     }
 
+    /**
+     * Executes a Query against the Logging service
+     * @param query
+     * @param callback
+     * @throws Exception
+     */
     public void QueryLog(String query, ServiceEventListener callback) throws Exception  {
         if (query==null) {
             throw new Exception("query paramter must not be null");
@@ -324,22 +362,49 @@ public class KZApplication  {
         mApplicationLog.Query(query, callback);
     }
 
-    public void WriteLog(String title, ArrayList message, LogLevel level, ServiceEventListener callback) throws Exception  {
+    /**
+     * Writes an ArrayList entry in the Logging service
+     *
+     * @param message the message to write
+     * @param data the raw data to write
+     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param callback The callback with the result of the service call
+     * @throws Exception
+     */
+    public void WriteLog(String message, ArrayList data, LogLevel level, ServiceEventListener callback) throws Exception  {
         if (level==null) {
             throw new Exception("Level must not be null");
         }
         checkApplicationLog();
-        mApplicationLog.Write(title, message, level, callback);
+        mApplicationLog.Write(message, data, level, callback);
     }
 
-    public void WriteLog(String message, JSONObject jsonObject, LogLevel level, ServiceEventListener callback) throws Exception {
+    /**
+     * Writes an string entry in the Logging service
+     *
+     * @param message the message to write
+     * @param data the raw data to write
+     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param callback The callback with the result of the service call
+     * @throws Exception
+     */
+    public void WriteLog(String message, JSONObject data, LogLevel level, ServiceEventListener callback) throws Exception {
         if (level==null) {
             throw new Exception("Level must not be null");
         }
         checkApplicationLog();
-        mApplicationLog.Write(message, jsonObject, level, callback);
+        mApplicationLog.Write(message, data, level, callback);
     }
 
+    /**
+     * Writes an Map entry in the Logging service
+     *
+     * @param message the message to write
+     * @param data the raw data to write
+     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param callback The callback with the result of the service call
+     * @throws Exception
+     */
     public void WriteLog(String message, Map data, LogLevel level, ServiceEventListener callback) throws Exception {
         if (level==null) {
             throw new Exception("Level must not be null");
@@ -385,7 +450,7 @@ public class KZApplication  {
 	}
 
 	/**
-	 * Returns all the messages from the KZApplication log
+	 * Returns all the messages from the Application log
 	 * 
 	 * @param callback The callback with the result of the service call
 	 */
@@ -411,10 +476,11 @@ public class KZApplication  {
         });
 		return mAllApplicationLogEvents;
 	}
+
     /**
-     * Creates a new Storage object
+     * Creates a new File Storage object
      *
-     * @return a new Storage object
+     * @return a new File Storage object instance
      * @throws Exception
      */
     public Files FileStorage() throws Exception{
@@ -511,6 +577,12 @@ public class KZApplication  {
 
 	}
 
+    /**
+     * Enables passive Authentication
+     *
+     * @param context Android context instance
+     * @param callback The callback with the result of the service call
+     */
     public void Authenticate(Context context, final ServiceEventListener callback) {
         String mUserUniqueIdentifier = "";
         if (mUserIdentity!=null)
@@ -545,7 +617,7 @@ public class KZApplication  {
      * Creates a new LOBService object
      *
      * @param name The name that references the LOBService instance
-     * @return a new LOBService object
+     * @return a new LOBService object instance
      * @throws Exception
      */
     public Service LOBService(String name) throws Exception {
@@ -567,7 +639,7 @@ public class KZApplication  {
      * Creates a new DataSource object
      *
      * @param name The name that references the DataSource instance
-     * @return a new DataSource object
+     * @return a new DataSource object instance
      * @throws Exception
      */
     public DataSource DataSource(String name) throws Exception {
@@ -585,6 +657,10 @@ public class KZApplication  {
         return service;
     }
 
+    /**
+     * Returns the current application name
+     * @return
+     */
     public String getApplicationName() {
         return mApplicationName;
     }

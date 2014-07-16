@@ -19,6 +19,18 @@ public class Notification extends KZService  {
 	private String _deviceId;
 	private String _channel;
 
+    /**
+     * You should not create a new instances of this constructor. Instead use the Notification() method of the KZApplication object.
+     *
+     * @param endpoint
+     * @param name
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
 	public Notification(String endpoint, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(endpoint, name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }
@@ -58,7 +70,7 @@ public class Notification extends KZService  {
     }
 
 	/**
-	 * Unsubscribes from the channel
+	 * Ends the subscription to the channel
 	 *  
 	 * @param channel The name of the channel to push and receive messages
 	 * @param subscriptionId The Google Cloud Message subscription ID associated with your application. For more information check Google Cloud Messaging (GCM)
@@ -107,7 +119,7 @@ public class Notification extends KZService  {
     }
 
 	/**
-	 * Retrieves all the subscriptions for the current device and subscription
+	 * Retrieves all the subscriptions for the current device
 	 * 
 	 * @param callback The callback with the result of the service call
 	 */

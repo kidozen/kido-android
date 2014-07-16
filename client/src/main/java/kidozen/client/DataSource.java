@@ -18,6 +18,18 @@ public class DataSource extends KZService {
     private DataSource mSelf = this;
     private String TAG="DataSource";
 
+    /**
+     * You should not create a new instances of this constructor. Instead use the DataSource() method of the KZApplication object.
+     *
+     * @param ds
+     * @param name
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
     public DataSource(String ds, String name, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(ds,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }

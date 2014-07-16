@@ -17,9 +17,10 @@ public class MainActivity extends Activity {
     KZApplication kido;
     TextView textviewMessages, textviewUrl, textviewApp, textviewKey;
     Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
-    String tenantMarketPlace = "";
-    String application = "";
-    String appkey = "";
+
+    String tenantMarketPlace = "http://contoso.kidocloud.com";
+    String application = "myApplication";
+    String appkey = "get this value from your marketplace";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

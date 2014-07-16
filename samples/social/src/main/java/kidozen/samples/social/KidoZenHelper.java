@@ -11,9 +11,11 @@ import kidozen.client.KZApplication;
  */
 public class KidoZenHelper {
     private KZApplication kido = null;
-    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
-    private String application       = "passiveauthpluscrash";
-    private String appkey            = "fbOqR5UVjn6Y+bkp2Z17k0R7TrqHtmeuP758YOE0M/k=";
+
+    private String tenantMarketPlace = "http://contoso.kidocloud.com";
+    private String application       = "myApplication";
+    private String appkey            = "get this value from your marketplace";
+
     private Boolean isInitialized    = false;
 
     private IAuthenticationEvents authEvents;

@@ -30,12 +30,31 @@ public class PubSubChannel extends KZService {
     private ServiceEventListener _messagesCallback;
     private ServiceEventListener _apiCallback;
 
+    /**
+     * Constructor
+     * You should not create a new instances of this constructor. Instead use the PubSubChannel() method of the KZApplication object.
+     * @param ep
+     * @param wsEndpoint
+     * @param name
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
     public PubSubChannel(String ep, String wsEndpoint, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(ep,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
         _wsEndpoint = wsEndpoint;
     }
 
-
+    /**
+     * Publish a new message in the current channel
+     *
+     * @param message the message to push
+     * @param isPrivate mark the message as private
+     * @param callback The ServiceEventListener callback with the operation results
+     */
     public void Publish(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
     {
         CreateAuthHeaderValue(new KZServiceEvent<String>() {
@@ -54,12 +73,21 @@ public class PubSubChannel extends KZService {
         });
     }
 
+    /**
+     * Subscribes the specified callback in the current channel
+     *
+     * @param callback
+     * @throws URISyntaxException
+     */
     public void Subscribe(final ServiceEventListener callback) throws URISyntaxException {
         _wsClient = new WSClient(new URI(_wsEndpoint), mName);
         _wsClient.connect();
         _apiCallback = callback;
     }
 
+    /**
+     * Ends the current subscription to the channel
+     */
     public void Unsubscribe() {
         try
         {
@@ -69,6 +97,7 @@ public class PubSubChannel extends KZService {
             e.printStackTrace();
         }
     }
+
 
     public void GetMessages(ServiceEventListener callback) {
         _messagesCallback = callback;

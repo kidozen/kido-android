@@ -16,6 +16,18 @@ import kidozen.client.internal.Constants;
  */
 public class Service extends KZService {
 
+    /**
+     * You should not create a new instances of this constructor. Instead use the LOBService() method of the KZApplication object.
+     *
+     * @param service
+     * @param name
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
     public Service(String service, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(service,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }

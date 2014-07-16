@@ -21,6 +21,18 @@ import kidozen.client.internal.Constants;
 public class Storage extends KZService {
     private static final String LOGCAT_KEY = "Storage";
 
+    /**
+     * You should not create a new instances of this constructor. Instead use the Storage() method of the KZApplication object.
+     *
+     * @param storage
+     * @param name
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
     public Storage(String storage, String name, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(storage, name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }

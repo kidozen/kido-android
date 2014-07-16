@@ -15,6 +15,19 @@ import kidozen.client.internal.Constants;
  */
 public class Queue  extends KZService {
 	private static final String TAG = "Queue";
+
+    /**
+     * You should not create a new instances of this constructor. Instead use the Queue() method of the KZApplication object.
+     *
+     * @param queue
+     * @param name
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
 	public Queue(String queue, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(queue,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
     }

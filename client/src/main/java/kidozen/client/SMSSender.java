@@ -16,6 +16,18 @@ public class SMSSender extends KZService {
 	private static final String TAG = "SMSSender";
 	String _number;
 
+    /**
+     * You should not create a new instances of this constructor. Instead use the SMSSender() method of the KZApplication object.
+     *
+     * @param endpoint
+     * @param number
+     * @param provider
+     * @param username
+     * @param pass
+     * @param clientId
+     * @param userIdentity
+     * @param applicationIdentity
+     */
 	public SMSSender(String endpoint, String number, String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(endpoint, number, provider, username, pass, clientId, userIdentity, applicationIdentity);
 		mEndpoint=endpoint;
