@@ -25,13 +25,16 @@ The SDK now is packaged as a Gradle project, you can either include the full cod
 
 ## Building the SDK as .jar file
 You can also create the jar file using gradle by typing the following in your terminal:
-
 		gradle -b jarBuild.gradle jar
 
-This will generate two files in the 'builds/libs' folder
+This will generate the file kido-android-1.2.0.jar in the ‘builds/libs’ folder
+		gradle -b jarBuild.gradle sourcesJar
 
-- kido-android-2.0.0.jar: the SDK jar file
-- kido-android-2.0.0-sources.jar: the SDK jar sources file (this is useful in case you want to debug the SDK code)
+This will generate the file kido-android-1.2.0-sources.jar in the ‘builds/libs’ folder with the SDK jar sources file (this is useful in case you want to debug the SDK code)
+		gradle -b jarBuild.gradle javadocJar
+
+This will generate the file kido-android-1.2.0-javadoc.jar in the ‘builds/libs’ folder with the SDK jar JavaDoc files
+
 
 ## Execute integration tests
 The integration tests code can help you to understand how to use some features of the SDK. To run the tests you should :
