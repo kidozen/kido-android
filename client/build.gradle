@@ -20,8 +20,6 @@ allprojects {
     }
 }
 
-
-
 apply plugin: 'android-library'
 apply plugin: 'android-test' //previously >> apply plugin: 'robolectric'
 
@@ -31,9 +29,8 @@ android {
     defaultConfig {
         applicationId 'com.kidozen.client'
         minSdkVersion 15
-        targetSdkVersion 19
         versionCode 1
-        versionName '1.0'
+        versionName '1.2'
     }
     buildTypes {
         release {
@@ -48,6 +45,30 @@ android {
     }
 }
 
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
+        return; // Skip debug builds.
+    }
+    def task = project.tasks.create "jar${name.capitalize()}", Jar
+    task.dependsOn variant.javaCompile
+    task.from variant.javaCompile.destinationDir
+    artifacts.add('archives', task);
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+}
+
+task androidJavadocsJar(type: Jar) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

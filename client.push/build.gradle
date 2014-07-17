@@ -7,7 +7,6 @@ android {
     defaultConfig {
         applicationId "com.kidozen.client.push"
         minSdkVersion 15
-        targetSdkVersion 15
         versionCode 1
         versionName "1.0"
     }
@@ -18,6 +17,32 @@ android {
         }
     }
 }
+
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
+        return; // Skip debug builds.
+    }
+    def task = project.tasks.create "jar${name.capitalize()}", Jar
+    task.dependsOn variant.javaCompile
+    task.from variant.javaCompile.destinationDir
+    artifacts.add('archives', task);
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+}
+
+task androidJavadocsJar(type: Jar) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
 
 dependencies {
     compile 'com.google.android.gms:play-services:5.0.+'

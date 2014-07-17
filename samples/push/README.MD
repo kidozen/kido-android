@@ -1,3 +1,4 @@
+
 # Kidozen SDK Push notifications Sample
 This folder contains code sample about how to use Push notification features.
 
@@ -31,4 +32,3 @@ Navigate to folder 'src/main/java' and edit the file 'KidoZenHelper.java'. Updat
 
 
 For more information please refer to the [KidoZen documentation](http://docs.kidozen.com/)
-

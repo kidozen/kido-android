@@ -1,4 +1,5 @@
 include ':client', ':client.push', ':crash', ':push', ':social'
+project(':client.push').projectDir = new File('client.push')
 project(':crash').projectDir = new File('samples/crash')
 project(':push').projectDir = new File('samples/push')
 project(':social').projectDir = new File('samples/social')

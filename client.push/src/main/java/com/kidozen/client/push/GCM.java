@@ -51,7 +51,13 @@ public class GCM {
     private boolean mLastSubscriptionSucess = false;
     private boolean mLastPushSucess = false;
 
-    //Constructors do Registration
+    /**
+     * Constructor
+     *
+     * @param activity the associated activity
+     * @param kidoApp an initialized instance of KidoZen Application
+     * @param SenderId the GCM project identifier
+     */
     public GCM(Activity activity, KZApplication kidoApp, String SenderId) {
         mActivity = activity;
         mContext = activity.getApplicationContext();
@@ -60,6 +66,16 @@ public class GCM {
         mAndroidId =  Settings.Secure.getString(mContext.getContentResolver(),Settings.Secure.ANDROID_ID);
     }
 
+    /**
+     * Initializes and checks the registration process.
+     * This include:
+     *  - checking Google Play Services availability
+     *  - getting a valid registration ID from GCM
+     *  - retrieve or store it in Shared Preferences
+     *  - register with KidoZen services
+     *
+     *  Fires the onInitializationComplete method
+     */
     public void Initialize() {
         try {
             mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
@@ -89,6 +105,12 @@ public class GCM {
 
     }
 
+    /**
+     * Subscribe the device to the specified KidoZen channel
+     * @param channel
+     *
+     *  Fires the onSubscriptionComplete method
+     */
     public void SubscribeToChannel(String channel) {
         if (!mInitializationSuccess) throw new IllegalStateException("You must invoke Initialize method before call this method");
         try {
@@ -102,7 +124,13 @@ public class GCM {
         }
     }
 
-    public void UnSubscribeFromChannel(String channel) {
+    /**
+     * Removes subscription from KidoZen channel
+     * @param channel
+     *
+     *  Fires the onRemoveSubscriptionComplete method
+     */
+    public void RemoveSubscription(String channel) {
         if (!mInitializationSuccess) throw new IllegalStateException("You must invoke Initialize method before call this method");
 
         try {
@@ -115,6 +143,13 @@ public class GCM {
         }
     }
 
+    /**
+     * Sends a message in the channel specified
+     * @param channel
+     * @param data
+     *
+     * Fires the onPushMessageComplete method
+     */
     public void PushMessage(String channel, JSONObject data) {
         if (!mInitializationSuccess) throw new IllegalStateException("You must invoke Initialize method before call this method");
 
@@ -126,6 +161,11 @@ public class GCM {
         }
     }
 
+    /**
+     * Returns all the channels that the device has subscribed
+     *
+     * Fires the onGetSubscriptionsComplete method
+     */
     public void GetSubscriptions() {
         try {
             mKido.Notification().GetSubscriptions(mAndroidId, new ServiceEventListener() {
@@ -133,14 +173,23 @@ public class GCM {
                 public void onFinish(ServiceEvent e) {
                     Boolean success = (e.StatusCode == HttpStatus.SC_OK);
                     if (success) mDeviceSubscriptions = (JSONArray) e.Response;
-                    if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(true, mDeviceSubscriptions.toString());
+                    if (mGCMEvents != null)
+                        mGCMEvents.onGetSubscriptionsComplete(true, mDeviceSubscriptions.toString());
                 }
             });
         }
         catch (Exception ex) {
             String message = "Error :" + ex.getMessage();
-            if (mGCMEvents!=null) mGCMEvents.onSubscriptionComplete(false, message);
+            if (mGCMEvents!=null) mGCMEvents.onGetSubscriptionsComplete(false, message);
         }
+    }
+
+    /**
+     * Setup the class that implements the IGcmEvents
+     * @param mGCMEvents
+     */
+    public void setGCMEvents(IGcmEvents mGCMEvents) {
+        this.mGCMEvents = mGCMEvents;
     }
 
 
@@ -212,7 +261,6 @@ public class GCM {
 
     }
 
-
     private String getRegistrationId(Context context) {
         final SharedPreferences prefs = getGCMPreferences(context);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
@@ -231,6 +279,7 @@ public class GCM {
         }
         return registrationId;
     }
+
     private static int getAppVersion(Context context) {
         try {
             PackageInfo packageInfo = context.getPackageManager()
@@ -241,6 +290,7 @@ public class GCM {
             throw new RuntimeException("Could not get package name: " + e);
         }
     }
+
     private SharedPreferences getGCMPreferences(Context context) {
         // This sample app persists the registration ID in shared preferences, but
         // how you store the regID in your app is up to you.
@@ -259,7 +309,6 @@ public class GCM {
         mInitializationSuccess = true;
     }
 
-
     private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mContext);
         if (resultCode != ConnectionResult.SUCCESS) {
@@ -272,10 +321,6 @@ public class GCM {
             return false;
         }
         return true;
-    }
-
-    public void setGCMEvents(IGcmEvents mGCMEvents) {
-        this.mGCMEvents = mGCMEvents;
     }
 
     /*
@@ -307,7 +352,7 @@ public class GCM {
         }
     }
     /*
-* */
+    * */
     private class UnSubscribeToChannelEventListener implements ServiceEventListener {
         Boolean mSuccess = false;
         String mMessage = "";

@@ -1,11 +1,8 @@
 package kidozen.samples.push;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.kidozen.client.push.GCM;
 import com.kidozen.client.push.IGcmEvents;
 
@@ -74,7 +71,7 @@ public class KidoZenHelper implements IGcmEvents {
     }
 
     public void UnSubscribe(String channel) {
-        mKidoGcm.UnSubscribeFromChannel(channel);
+        mKidoGcm.RemoveSubscription(channel);
     }
 
     public void Push(String channel) {
@@ -113,5 +110,10 @@ public class KidoZenHelper implements IGcmEvents {
     @Override
     public void onRemoveSubscriptionComplete(Boolean success, String message) {
         if (mPushEvents!=null) mPushEvents.onRemoveSubscriptionDone("onRemoveSubscriptionComplete. Success: " + String.valueOf(success) );
+    }
+
+    @Override
+    public void onGetSubscriptionsComplete(boolean success, String message) {
+        Log.d(TAG,message);
     }
 }
