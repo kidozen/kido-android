@@ -4,12 +4,9 @@ buildscript {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     }
     dependencies {
-        //Prior to AS 0.5.9: classpath 'com.android.tools.build:gradle:0.9.+'
-        classpath 'com.android.tools.build:gradle:0.10.1'
+        classpath 'com.android.tools.build:gradle:0.12.+'
 
-        //Prior to AS 0.5.9: classpath 'org.robolectric.gradle:gradle-android-test-plugin:0.9.+'
-        classpath 'org.robolectric.gradle:gradle-android-test-plugin:0.10.0'
-        //previous plugin >> classpath 'com.novoda.gradle:robolectric-plugin:0.0.1-SNAPSHOT'
+        classpath 'org.robolectric:robolectric-gradle-plugin:0.11.+'
     }
 }
 
@@ -20,8 +17,8 @@ allprojects {
     }
 }
 
-apply plugin: 'android-library'
-apply plugin: 'android-test' //previously >> apply plugin: 'robolectric'
+apply plugin: 'com.android.library'
+apply plugin: 'robolectric'
 
 android {
     compileSdkVersion 19
@@ -79,7 +76,7 @@ dependencies {
 }
 
 //only include files that are suffixed with Test.class and set the max heap size
-androidTest {
+robolectric {
     include '**/**Test.class'
     maxHeapSize = "2048m"
 }

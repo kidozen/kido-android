@@ -14,10 +14,11 @@ public class AppSettings {
     public static  String KZ_EMAIL_ATTACH;
 
     static {
-        KZ_KEY =                "u8ywJ8LVwgCWAyYq9FEfxuX/8dYvR/NKymyReq9JEIg=";
-        KZ_TENANT =             "https://loadtests.qa.kidozen.com";
-        KZ_APP =                "integrationtests";
-        KZ_USER =               "loadtests@kidozen.com";
+        KZ_KEY =                "GZJQetc+VH9JLWoHnLEwlk7tw+XPSniMUSuIzK9kDxE=";
+        KZ_TENANT =             "https://tests.qa.kidozen.com";
+        KZ_APP =                "tasks";
+        KZ_USER =               "tests@kidozen.com";
+        KZ_PASS =               "pass";
 
 
         KZ_PASS =               "pass";
