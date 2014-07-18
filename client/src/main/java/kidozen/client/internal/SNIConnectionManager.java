@@ -138,7 +138,7 @@ public class SNIConnectionManager
     public Hashtable<String, String> ExecuteHttp(KZHttpMethod method) throws Exception
     {
         HttpURLConnection con = CreateConnectionThatHandlesRedirects(method);
-        System.out.println("ExecuteHttp");
+        //System.out.println("ExecuteHttp");
         if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && _bodyAsString!=null) {
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
@@ -217,11 +217,11 @@ public class SNIConnectionManager
         Hashtable<String, String> retVal = new Hashtable<String, String>();
 
         int responseCode = con.getResponseCode();
-        System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
+        //System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
         String responsebody = con.getResponseMessage();
-        System.out.println("*********-> Response Body:" + responsebody);
+        //System.out.println("*********-> Response Body:" + responsebody);
         String contentType =  con.getHeaderField("content-type");
-        System.out.println("*********-> Response contentType:" + contentType);
+        //System.out.println("*********-> Response contentType:" + contentType);
 
         retVal.put("statusCode", String.valueOf(responseCode));
         retVal.put("responseMessage", responsebody);
@@ -235,8 +235,8 @@ public class SNIConnectionManager
             String key = entry.getKey();
             List<String> value = entry.getValue();
 
-            System.out.println("** HEADER KEY *******->" + key);
-            System.out.println("** HEADER VALUE *****->" + value.toString());
+            //System.out.println("** HEADER KEY *******->" + key);
+            //System.out.println("** HEADER VALUE *****->" + value.toString());
         }
 
 
@@ -245,9 +245,7 @@ public class SNIConnectionManager
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
 
-        System.out.println("*********->" + _urlAsString);
-
-
+        //System.out.println("*********->" + _urlAsString);
 
         return retVal;
     }

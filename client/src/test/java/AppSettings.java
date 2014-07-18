@@ -14,18 +14,16 @@ public class AppSettings {
     public static  String KZ_EMAIL_ATTACH;
 
     static {
-        KZ_TENANT =             "https://loadtests.qa.kidozen.com";
-        KZ_APP =                "tasks";
-        KZ_KEY =                "2hsLMwFTk/wkbqrobU5IciP5z4LmPmPcnFYFj+UHa1w=";
-        KZ_USER =               "loadtests@kidozen.com";
-        KZ_PASS =               "pass";
+        KZ_TENANT =             "https://tenant.kidocloud.com";
+        KZ_APP =                "app";
+        KZ_KEY =                "key";
+        KZ_USER =               "user@kidozen.com";
+        KZ_PASS =               "supersecret";
 
-
-        KZ_PASS =               "pass";
         KZ_SERVICE_ID =         "weather";
         KZ_EMAIL_FROM =         "contoso@kidozen.com.com";
-        KZ_EMAIL_TO =           "chris@kidozen.com";
-        KZ_EMAIL_ATTACH =       "/Users/christian/attach.txt";
+        KZ_EMAIL_TO =           "you@kidozen.com";
+        KZ_EMAIL_ATTACH =       "/Users/you/attach.txt";
         KZ_PROVIDER=            "Kidozen";
     }
 }
