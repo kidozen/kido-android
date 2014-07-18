@@ -184,11 +184,11 @@ public class KZService {
                     createCallbackResponseForStream(statusCode, response);
                 }
                 else {
-                   /* System.out.println("***** =>> url:" + url);
+                    System.out.println("***** =>> url:" + url);
                     System.out.println("***** =>> mStringMessage:" + mStringMessage);
                     System.out.println("***** =>> requestProperties:" + requestProperties.toString());
                     System.out.println("***** =>> mQueryStringParameters:" + mQueryStringParameters);
-                    System.out.println("***** =>> mBypassSSLValidation:" + mBypassSSLValidation);*/
+                    System.out.println("***** =>> mBypassSSLValidation:" + mBypassSSLValidation);
 
                     mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, mQueryStringParameters, mBypassSSLValidation);
                     Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
@@ -196,9 +196,9 @@ public class KZService {
                     statusCode = Integer.parseInt(response.get("statusCode"));
                     createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-                    /*System.out.println("***** =>> body:" + body);
+                    System.out.println("***** =>> body:" + body);
                     System.out.println("***** =>> status:" + response.get("statusCode"));
-                    System.out.println("***** =>> content:" + response.get("contentType"));*/
+                    System.out.println("***** =>> content:" + response.get("contentType"));
 
                     if (body=="") {
                         mFinalServiceEvent = new ServiceEvent(this, statusCode, body, body);

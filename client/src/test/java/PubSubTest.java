@@ -37,9 +37,9 @@ import static org.junit.Assert.fail;
 
 public class PubSubTest {
 
-    public static final int TEST_TIMEOUT_IN_MINUTES = 5;
+    public static final int TEST_TIMEOUT_IN_MINUTES = 2;
     public static final String DATA_VALUE_KEY = "value";
-    public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests";
+    public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests2";
     KZApplication kidozen = null;
 
     @Before
@@ -66,29 +66,22 @@ public class PubSubTest {
         q.Subscribe(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                System.out.println("Subscribe:" +  e.Body);
                 lcd.countDown();
             }
         });
-        Thread.sleep(12000); // gives some time to channels
+        Thread.sleep(TEST_TIMEOUT_IN_MINUTES * 1000 * 60); // gives some time to channels
         q.Publish(data,true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                System.out.println("Publish:" +  e.Body);
+
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
             }
         });
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
-    }
-
-    private ServiceEventListener sendCallback(final CountDownLatch signal) {
-        return  new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
-                signal.countDown();
-            }
-        };
     }
 
     private ServiceEventListener kidoInitCallback(final CountDownLatch signal) {
