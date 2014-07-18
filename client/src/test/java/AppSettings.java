@@ -14,10 +14,10 @@ public class AppSettings {
     public static  String KZ_EMAIL_ATTACH;
 
     static {
-        KZ_KEY =                "GZJQetc+VH9JLWoHnLEwlk7tw+XPSniMUSuIzK9kDxE=";
-        KZ_TENANT =             "https://tests.qa.kidozen.com";
+        KZ_TENANT =             "https://loadtests.qa.kidozen.com";
         KZ_APP =                "tasks";
-        KZ_USER =               "tests@kidozen.com";
+        KZ_KEY =                "2hsLMwFTk/wkbqrobU5IciP5z4LmPmPcnFYFj+UHa1w=";
+        KZ_USER =               "loadtests@kidozen.com";
         KZ_PASS =               "pass";
 
 
@@ -28,47 +28,4 @@ public class AppSettings {
         KZ_EMAIL_ATTACH =       "/Users/christian/attach.txt";
         KZ_PROVIDER=            "Kidozen";
     }
-
-
 }
-/*
-        KZ_KEY =                "/EsPC9PO7xulrodWhvq0ZzCtTFM2gI/2BldHZRpqrEA=";
-        KZ_TENANT =             "https://loadtests.qa.kidozen.com";
-        KZ_APP =                "crash";
-        KZ_USER =               "loadtests@kidozen.com";
-
-        KZ_KEY =                "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY=";//"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
-        KZ_TENANT =             "https://contoso.local.kidozen.com";
-        KZ_APP =                "androide";
-        KZ_USER =               "contoso@kidozen.com";
-
-
-
-        //tests.qa
-        KZ_KEY =                "z4WC8pUm+mWfZaGQhJ7G3Q2YcEhcvHecYuzBAchk3OQ=";
-        KZ_TENANT =             "https://tests.qa.kidozen.com";
-        KZ_APP =                "androidtests";
-        KZ_USER =               "tests@kidozen.com";
-
-
-        //contoso.local
-        KZ_KEY =                "NvKVlORzDZCzgkoRwzT8FOm4tlN4O2T8EwLN4mVYojY=";//"o0vV8ZGZf6ZPrsWan3OrnZvJHuoCJym/o8W0t9pAwNI=";
-        KZ_TENANT =             "https://contoso.local.kidozen.com";
-        KZ_APP =                "androide";
-        KZ_USER =               "contoso@kidozen.com";
-
-        //tests.qa
-        KZ_KEY =                "GZJQetc+VH9JLWoHnLEwlk7tw+XPSniMUSuIzK9kDxE=";
-        KZ_TENANT =             "https://tests.qa.kidozen.com";
-        KZ_APP =                "tasks";
-        KZ_USER =               "tests@kidozen.com";
-        KZ_PASS =               "pass";
-
-        //att
-        KZ_KEY =                "LJHHZdGaFzssi34IGS+wDygiqAPJyansNPLKAUljVmQ=";
-        KZ_TENANT =             "https://";
-        KZ_APP =                "contacts";
-        KZ_USER =               "att@kidozen.com";
-        KZ_PASS =               "pass";
-
-* */
