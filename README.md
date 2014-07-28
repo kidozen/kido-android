@@ -10,13 +10,12 @@ The KidoZen SDK for Android includes:
 To get Your Credentials Register at [KidoZen]("http://kidozen.com/")
 
 ## Requirements
-- API Level 15 or higher. For more information on the Android SDK, [see]("http://developer.android.com/index.html">http://developer.android.com/index.html)
+- API Level 17 or higher. For more information on the Android SDK, [see]("http://developer.android.com/index.html">http://developer.android.com/index.html)
 - To run the code examples, you also need the Android Studio 0.8.1 or above
 
 ## How to Include the KidoZen SDK for Android in an Existing Application
 The SDK now is packaged as a Gradle project, you can either include the full code or inculde a jar file
-
-## Adding client library sources in Android Studio
+## Adding client library in Android Studio
 
 - Create a new Android Project
 - Create a new 'library' folder in your project and copy the SDK folder inside it
@@ -24,28 +23,15 @@ The SDK now is packaged as a Gradle project, you can either include the full cod
 - Select your application module settings and add the client depency
 - Rebuild your project to update all dependencies
 
-## Building the SDK as .aar files
-Use gradle to build the .aar file, run the following command in the terminal
-
-    ./gradlew build
-    
-To build without executing the unit tests. Add the " -x test "
-
-    ./gradlew build -x test 
-    
-Pick the files from the 'builds/outputs/aar' folders
-
 ## Building the SDK as .jar file
-You can also create the .jar files using gradle by typing the following in your terminal:
+You can also create the jar file using gradle by typing the following in your terminal:
 
-	./gradlew jarRelease androidJavadocsJar androidSourcesJar
+		gradle -b jarBuild.gradle jar
 
-This will generate the following files in ‘builds/libs’ folder :
+This will generate two files in the 'builds/libs' folder
 
-- client.jar : the SDK as .jar file
-- client-javadoc.jar : javadocs
-- client-sources.jar: sources
-    
+- kido-android-2.0.0.jar: the SDK jar file
+- kido-android-2.0.0-sources.jar: the SDK jar sources file (this is useful in case you want to debug the SDK code)
 
 ## Execute integration tests
 The integration tests code can help you to understand how to use some features of the SDK. To run the tests you should :
