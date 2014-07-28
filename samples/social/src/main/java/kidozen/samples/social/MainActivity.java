@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import kidozen.client.InitializationException;
+
 
 public class MainActivity extends Activity implements IAuthenticationEvents {
     private KidoZenHelper helper = new KidoZenHelper();
@@ -26,7 +28,11 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.SignIn(mSelf);
+                try {
+                    helper.SignIn(mSelf);
+                } catch (InitializationException e) {
+                    e.printStackTrace();
+                }
             }
         });
 

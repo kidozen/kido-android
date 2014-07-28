@@ -10,6 +10,7 @@ import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
 
 /**
@@ -35,19 +36,24 @@ public class KidoZenHelper implements IGcmEvents {
 
     public KidoZenHelper(Activity activity) {
         mActivity = activity;
-        kido = new KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
-            @Override
-            public void onFinish(kidozen.client.ServiceEvent e) {
-                isInitialized = (e.StatusCode == HttpStatus.SC_OK);
-            }
-        });
+        kido = new KZApplication(tenantMarketPlace, application, appkey, false);
+        try {
+            kido.Initialize(new kidozen.client.ServiceEventListener() {
+                @Override
+                public void onFinish(kidozen.client.ServiceEvent e) {
+                    isInitialized = (e.StatusCode == HttpStatus.SC_OK);
+                }
+            });
+        } catch (InitializationException e) {
+            e.printStackTrace();
+        }
     }
 
     public void SignOut() {
         kido.SignOut();
     }
 
-    public void SignIn() {
+    public void SignIn() throws InitializationException {
         mKidoGcm = new GCM(mActivity,kido,projectid);
         mKidoGcm.setGCMEvents(this);
         kido.Authenticate(provider,user,passw, new kidozen.client.ServiceEventListener() {

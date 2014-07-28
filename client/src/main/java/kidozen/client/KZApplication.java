@@ -13,6 +13,7 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
@@ -27,7 +28,7 @@ import kidozen.client.internal.KidoAppSettings;
  * Main KidoZen application object
  *
  */
-public class KZApplication  {
+public class KZApplication {
     public Boolean UserIsAuthenticated = false;
     public Boolean StrictSSL = true;
 
@@ -42,6 +43,7 @@ public class KZApplication  {
     private String mPassiveClientId;
     private String mReportingUrl;
     private Boolean mIsAuthenticatedWithAppKey = false;
+    private Boolean mIsInitialized = false;
 
     private KidoZenUser mUserIdentity;
     private KidoZenUser mApplicationIdentity;
@@ -58,16 +60,15 @@ public class KZApplication  {
      * @param application The Android Application instance
      * @throws IllegalStateException
      */
-    public void EnableCrashReporter (Application application) throws IllegalStateException {
+    public void EnableCrashReporter(Application application) throws IllegalStateException {
         if (mApplicationKey == Constants.UNSET_APPLICATION_KEY) {
             throw new IllegalStateException("Crash report feature can only be enabled using an application key.");
-        }
-        else {
+        } else {
             // EnableCrashReporter is called only when the ctor has the app key,
             // in this case the application has already initialized and has a valid Application token ( see ctor code )
             // so, we can send the mApplicationIdentity with the
-            Log.d("Crash", String.format("Sending crash to application: %s", mReportingUrl) );
-            mCrashReporter = new CrashReporter(application,mReportingUrl, mApplicationKey);
+            Log.d("Crash", String.format("Sending crash to application: %s", mReportingUrl));
+            mCrashReporter = new CrashReporter(application, mReportingUrl, mApplicationKey);
         }
     }
 
@@ -81,84 +82,76 @@ public class KZApplication  {
     }
 
     /**
-	 * Returns the current KidoZen identity
-	 * 
-	 * @return The current KidoZen User
-	 */
-	public KidoZenUser GetKidoZenUser() {
-		return mUserIdentity;
-	}
+     * Returns the current KidoZen identity
+     *
+     * @return The current KidoZen User
+     */
+    public KidoZenUser GetKidoZenUser() {
+        return mUserIdentity;
+    }
 
-	private KZApplication() {}
-	/**
-	 * Allows to change the current KidoZen user identity
-	 * 
-	 * @param user the new identity
-	 */
-	public void SetKidoZenUser(KidoZenUser user) {
-		this.mUserIdentity = user;
-	}
+    private KZApplication() {
+    }
 
     /**
-     * Constructor
+     * Allows to change the current KidoZen user identity
      *
-     * @param tenantMarketPlace The url of the KidoZen marketplace
-     * @param application The application name
-     * @param applicationKey The application key , you can get it from the marketplace
-     * @param callback The ServiceEventListener callback with the operation results
-     * @throws IllegalStateException
+     * @param user the new identity
      */
-    public KZApplication(String tenantMarketPlace, String application, String applicationKey, ServiceEventListener callback) throws IllegalStateException {
-        this(tenantMarketPlace,application, applicationKey, false, callback);
+    public void SetKidoZenUser(KidoZenUser user) {
+        this.mUserIdentity = user;
     }
 
     /**
      * Constructor
      *
      * @param tenantMarketPlace The url of the KidoZen marketplace
-     * @param application The application name
-     * @param strictSSL Set this value to false to bypass the SSL validation, use it only for development purposes. Otherwise you need to install the KidoZen Certificates in your device
-     * @param applicationKey The application key , you can get it from the marketplace
-     * @param callback The ServiceEventListener callback with the operation results
+     * @param application       The application name
+     * @param applicationKey    The application key , you can get it from the marketplace
+     * @param callback          The ServiceEventListener callback with the operation results
      * @throws IllegalStateException
      */
-    public KZApplication(String tenantMarketPlace, String application, String applicationKey, Boolean strictSSL, final ServiceEventListener callback) throws IllegalStateException {
+    public KZApplication(String tenantMarketPlace, String application, String applicationKey) throws IllegalStateException {
+        this(tenantMarketPlace, application, applicationKey, false);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param tenantMarketPlace The url of the KidoZen marketplace
+     * @param application       The application name
+     * @param strictSSL         Set this value to false to bypass the SSL validation, use it only for development purposes. Otherwise you need to install the KidoZen Certificates in your device
+     * @param applicationKey    The application key , you can get it from the marketplace
+     * @param callback          The ServiceEventListener callback with the operation results
+     * @throws IllegalStateException
+     */
+    public KZApplication(String tenantMarketPlace, String application, String applicationKey, Boolean strictSSL) throws IllegalStateException {
         this.StrictSSL = !strictSSL;
         this.mApplicationKey = applicationKey;
         mTenantMarketPlace = tenantMarketPlace;
         mApplicationName = application;
-        if (applicationKey.equals( Constants.UNSET_APPLICATION_KEY) ) {
-            throw  new IllegalArgumentException("Application key is required.");
+        if (applicationKey.equals(Constants.UNSET_APPLICATION_KEY)) {
+            throw new IllegalArgumentException("Application key is required.");
         }
 
         if (!mTenantMarketPlace.endsWith("/")) mTenantMarketPlace = mTenantMarketPlace + "/";
 
         try {
-            String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + getApplicationName();
             mApplicationConfiguration = new KidoAppSettings();
-
-            // chains the getSettings callback with the keyAuth callback
-            mApplicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
-
-            mApplicationConfiguration.execute(url).get();
-            mReportingUrl = mApplicationConfiguration.GetSettingAsString("url");
-            mPassiveClientId = mApplicationConfiguration.GetSettingAsString("name");
-        }
-        catch (Exception e)
-        {
-            throw  new IllegalStateException("Initialization failure",e);
+        } catch (Exception e) {
+            throw new IllegalStateException("Initialization failure", e);
         }
     }
 
     /**
      * Creates a new PubSub channel
-	 *
-	 * @return A new PubSub object instance
-	 * @throws Exception
-    * */
-	public PubSubChannel PubSubChannel(String name) throws Exception{
-		checkMethodParameters(name);
-		PubSubChannel channel = new PubSubChannel(
+     *
+     * @return A new PubSub object instance
+     * @throws Exception
+     */
+    public PubSubChannel PubSubChannel(String name) throws Exception {
+        checkMethodParameters(name);
+        PubSubChannel channel = new PubSubChannel(
                 mApplicationConfiguration.GetSettingAsString("pubsub"),
                 mApplicationConfiguration.GetSettingAsString("ws"),
                 name,
@@ -173,17 +166,16 @@ public class KZApplication  {
         channel.setStrictSSL(!StrictSSL);
 
         return channel;
-	}
+    }
 
-	/**
-	 * Creates a new Push notification service
-	 * 
-	 * @return A new object instance that allows to interact with the Google Cloud Messaging Services (GCM)
-	 * @throws Exception
-	 */
-	public Notification Notification () throws Exception
-	{
-		Notification notification= new Notification( mApplicationConfiguration.GetSettingAsString("notification"),
+    /**
+     * Creates a new Push notification service
+     *
+     * @return A new object instance that allows to interact with the Google Cloud Messaging Services (GCM)
+     * @throws Exception
+     */
+    public Notification Notification() throws Exception {
+        Notification notification = new Notification(mApplicationConfiguration.GetSettingAsString("notification"),
                 getApplicationName(),
                 mProvider,
                 mUsername,
@@ -193,20 +185,20 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         notification.mUserIdentity = this.mUserIdentity;
-		notification.setStrictSSL(!StrictSSL);
-		return notification;
-	}
+        notification.setStrictSSL(!StrictSSL);
+        return notification;
+    }
 
-	/**
-	 * Creates a new Configuration object
-	 * 
-	 * @param name The name that references the Configuration instance
-	 * @return A new Configuration object instance
-	 * @throws Exception
-	 */
-	public Configuration Configuration(String name) throws Exception{
-		checkMethodParameters(name);
-		Configuration configuration =new  Configuration(mApplicationConfiguration.GetSettingAsString("configuration"),
+    /**
+     * Creates a new Configuration object
+     *
+     * @param name The name that references the Configuration instance
+     * @return A new Configuration object instance
+     * @throws Exception
+     */
+    public Configuration Configuration(String name) throws Exception {
+        checkMethodParameters(name);
+        Configuration configuration = new Configuration(mApplicationConfiguration.GetSettingAsString("configuration"),
                 name,
                 mProvider,
                 mUsername,
@@ -216,21 +208,20 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         configuration.mUserIdentity = this.mUserIdentity;
-		configuration.setStrictSSL(!StrictSSL);
-		return configuration;
-	}
+        configuration.setStrictSSL(!StrictSSL);
+        return configuration;
+    }
 
-	/**
-	 * Creates a new Queue object
-	 * 
-	 * @param name The name that references the Queue instance
-	 * @return a new Queue object instance
-	 * @throws Exception
-	 */
-	public Queue Queue (String name) throws Exception
-	{
-		checkMethodParameters(name);
-		Queue queue= new Queue(mApplicationConfiguration.GetSettingAsString("queue"),
+    /**
+     * Creates a new Queue object
+     *
+     * @param name The name that references the Queue instance
+     * @return a new Queue object instance
+     * @throws Exception
+     */
+    public Queue Queue(String name) throws Exception {
+        checkMethodParameters(name);
+        Queue queue = new Queue(mApplicationConfiguration.GetSettingAsString("queue"),
                 name,
                 mProvider,
                 mUsername,
@@ -238,21 +229,21 @@ public class KZApplication  {
                 mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
-		queue.mUserIdentity = this.mUserIdentity;
-		queue.setStrictSSL(!StrictSSL);
-		return queue;
-	}
+        queue.mUserIdentity = this.mUserIdentity;
+        queue.setStrictSSL(!StrictSSL);
+        return queue;
+    }
 
-	/**
-	 * Creates a new Storage object
-	 * 
-	 * @param name The name that references the Storage instance
-	 * @return a new Storage object instance
-	 * @throws Exception
-	 */
-	public Storage Storage(String name) throws Exception {
-		checkMethodParameters(name);
-		Storage storage = new Storage(mApplicationConfiguration.GetSettingAsString("storage"),
+    /**
+     * Creates a new Storage object
+     *
+     * @param name The name that references the Storage instance
+     * @return a new Storage object instance
+     * @throws Exception
+     */
+    public Storage Storage(String name) throws Exception {
+        checkMethodParameters(name);
+        Storage storage = new Storage(mApplicationConfiguration.GetSettingAsString("storage"),
                 name,
                 mProvider,
                 mUsername,
@@ -260,20 +251,20 @@ public class KZApplication  {
                 mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
-		storage.setStrictSSL(StrictSSL);
-		return storage;
-	}
+        storage.setStrictSSL(StrictSSL);
+        return storage;
+    }
 
-	/**
-	 * Creates a new SMSSender object
-	 * 
-	 * @param number The phone number to send messages.
-	 * @return a new SMSSender object instance
-	 * @throws Exception
-	 */
-	public SMSSender SMSSender(String number) throws Exception{
-		checkMethodParameters(number);
-		SMSSender sender = new SMSSender(mApplicationConfiguration.GetSettingAsString("sms"),
+    /**
+     * Creates a new SMSSender object
+     *
+     * @param number The phone number to send messages.
+     * @return a new SMSSender object instance
+     * @throws Exception
+     */
+    public SMSSender SMSSender(String number) throws Exception {
+        checkMethodParameters(number);
+        SMSSender sender = new SMSSender(mApplicationConfiguration.GetSettingAsString("sms"),
                 number,
                 mProvider,
                 mUsername,
@@ -283,23 +274,22 @@ public class KZApplication  {
                 mApplicationIdentity);
 
         sender.mUserIdentity = this.mUserIdentity;
-		sender.setStrictSSL(!StrictSSL);
-		return sender;
-	}
+        sender.setStrictSSL(!StrictSSL);
+        return sender;
+    }
 
-	/**
-	 * Sends an EMail
-	 * 
-	 * @param mail The mail object with the information needed to send an email
-	 * @param callback The callback with the result of the service call
-	 * @throws Exception
-	 */
-	public void SendEmail(Mail mail, ServiceEventListener callback) throws Exception {
-		if (mail==null) {
-			throw new Exception("Mail message must not be null");
-		}
-        if (mMailSender ==null)
-        {
+    /**
+     * Sends an EMail
+     *
+     * @param mail     The mail object with the information needed to send an email
+     * @param callback The callback with the result of the service call
+     * @throws Exception
+     */
+    public void SendEmail(Mail mail, ServiceEventListener callback) throws Exception {
+        if (mail == null) {
+            throw new Exception("Mail message must not be null");
+        }
+        if (mMailSender == null) {
             mMailSender = new MailSender(mApplicationConfiguration.GetSettingAsString("email"),
                     mProvider,
                     mUsername,
@@ -311,37 +301,37 @@ public class KZApplication  {
             mMailSender.setStrictSSL(!StrictSSL);
         }
 
-		mMailSender.Send(mail, callback) ;
-	}
+        mMailSender.Send(mail, callback);
+    }
 
     /**
      * Writes an string entry in the Logging service
      *
-     * @param message the message to write
-     * @param data the raw data to write
-     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param message  the message to write
+     * @param data     the raw data to write
+     * @param level    LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
      * @param callback The callback with the result of the service call
      * @throws Exception
      */
-	public void WriteLog(String message, String data, LogLevel level, ServiceEventListener callback) throws Exception  {
-		if (level==null) {
-			throw new Exception("Level must not be null");
-		}
+    public void WriteLog(String message, String data, LogLevel level, ServiceEventListener callback) throws Exception {
+        if (level == null) {
+            throw new Exception("Level must not be null");
+        }
         checkApplicationLog();
-		mApplicationLog.Write(message, data, level, callback);
-	}
+        mApplicationLog.Write(message, data, level, callback);
+    }
 
     /**
      * Writes an integer entry in the Logging service
      *
-     * @param message the message to write
-     * @param data the raw data to write
-     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param message  the message to write
+     * @param data     the raw data to write
+     * @param level    LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
      * @param callback The callback with the result of the service call
      * @throws Exception
      */
-    public void WriteLog(String message, Integer data, LogLevel level, ServiceEventListener callback) throws Exception  {
-        if (level==null) {
+    public void WriteLog(String message, Integer data, LogLevel level, ServiceEventListener callback) throws Exception {
+        if (level == null) {
             throw new Exception("Level must not be null");
         }
         checkApplicationLog();
@@ -350,12 +340,13 @@ public class KZApplication  {
 
     /**
      * Executes a Query against the Logging service
+     *
      * @param query
      * @param callback
      * @throws Exception
      */
-    public void QueryLog(String query, ServiceEventListener callback) throws Exception  {
-        if (query==null) {
+    public void QueryLog(String query, ServiceEventListener callback) throws Exception {
+        if (query == null) {
             throw new Exception("query paramter must not be null");
         }
         checkApplicationLog();
@@ -365,14 +356,14 @@ public class KZApplication  {
     /**
      * Writes an ArrayList entry in the Logging service
      *
-     * @param message the message to write
-     * @param data the raw data to write
-     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param message  the message to write
+     * @param data     the raw data to write
+     * @param level    LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
      * @param callback The callback with the result of the service call
      * @throws Exception
      */
-    public void WriteLog(String message, ArrayList data, LogLevel level, ServiceEventListener callback) throws Exception  {
-        if (level==null) {
+    public void WriteLog(String message, ArrayList data, LogLevel level, ServiceEventListener callback) throws Exception {
+        if (level == null) {
             throw new Exception("Level must not be null");
         }
         checkApplicationLog();
@@ -382,14 +373,14 @@ public class KZApplication  {
     /**
      * Writes an string entry in the Logging service
      *
-     * @param message the message to write
-     * @param data the raw data to write
-     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param message  the message to write
+     * @param data     the raw data to write
+     * @param level    LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
      * @param callback The callback with the result of the service call
      * @throws Exception
      */
     public void WriteLog(String message, JSONObject data, LogLevel level, ServiceEventListener callback) throws Exception {
-        if (level==null) {
+        if (level == null) {
             throw new Exception("Level must not be null");
         }
         checkApplicationLog();
@@ -399,25 +390,22 @@ public class KZApplication  {
     /**
      * Writes an Map entry in the Logging service
      *
-     * @param message the message to write
-     * @param data the raw data to write
-     * @param level LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
+     * @param message  the message to write
+     * @param data     the raw data to write
+     * @param level    LogLevelVerbose, LogLevelInfo, LogLevelWarning, LogLevelError, LogLevelCritical
      * @param callback The callback with the result of the service call
      * @throws Exception
      */
     public void WriteLog(String message, Map data, LogLevel level, ServiceEventListener callback) throws Exception {
-        if (level==null) {
+        if (level == null) {
             throw new Exception("Level must not be null");
         }
         checkApplicationLog();
         mApplicationLog.Write(message, data, level, callback);
     }
 
-
-
     private void checkApplicationLog() throws Exception {
-        if (mApplicationLog ==null)
-        {
+        if (mApplicationLog == null) {
             mApplicationLog = new Logging(
                     mApplicationConfiguration.GetSettingAsString("logging-v3"),
                     mProvider,
@@ -432,50 +420,50 @@ public class KZApplication  {
     }
 
     /**
-	 * Clears the KZApplication log
-	 */
-	public void ClearLog() throws Exception  {
+     * Clears the KZApplication log
+     */
+    public void ClearLog() throws Exception {
         checkApplicationLog();
         mApplicationLog.Clear(null);
-	}
+    }
 
-	/**
-	 * Clears the KZApplication log
-	 * 
-	 * @param callback The callback with the result of the service call
-	 */
-	public void ClearLog(ServiceEventListener callback)  throws Exception {
+    /**
+     * Clears the KZApplication log
+     *
+     * @param callback The callback with the result of the service call
+     */
+    public void ClearLog(ServiceEventListener callback) throws Exception {
         checkApplicationLog();
         mApplicationLog.Clear(callback);
-	}
+    }
 
-	/**
-	 * Returns all the messages from the Application log
-	 * 
-	 * @param callback The callback with the result of the service call
-	 */
-	public void AllLogMessages(ServiceEventListener callback) throws Exception {
+    /**
+     * Returns all the messages from the Application log
+     *
+     * @param callback The callback with the result of the service call
+     */
+    public void AllLogMessages(ServiceEventListener callback) throws Exception {
         checkApplicationLog();
         HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put(AUTHORIZATION_HEADER, this.mUserIdentity.Token);
-		mApplicationLog.All(callback);
-	}
+        headers.put(AUTHORIZATION_HEADER, this.mUserIdentity.Token);
+        mApplicationLog.All(callback);
+    }
 
-	/**
-	 * Returns all the messages from the KZApplication log
-	 * 
-	 * @return a JSONArray with all the log entries
-	 * @throws Exception
-	 */
-	public JSONArray AllLogMessages() throws Exception {
+    /**
+     * Returns all the messages from the KZApplication log
+     *
+     * @return a JSONArray with all the log entries
+     * @throws Exception
+     */
+    public JSONArray AllLogMessages() throws Exception {
         checkApplicationLog();
         mApplicationLog.All(new ServiceEventListener() {
             public void onFinish(ServiceEvent e) {
                 mAllApplicationLogEvents = (JSONArray) e.Response;
             }
         });
-		return mAllApplicationLogEvents;
-	}
+        return mAllApplicationLogEvents;
+    }
 
     /**
      * Creates a new File Storage object
@@ -483,7 +471,7 @@ public class KZApplication  {
      * @return a new File Storage object instance
      * @throws Exception
      */
-    public Files FileStorage() throws Exception{
+    public Files FileStorage() throws Exception {
         Files files = new Files(mApplicationConfiguration.GetSettingAsString("files"),
                 mProvider,
                 mUsername,
@@ -496,57 +484,39 @@ public class KZApplication  {
         return files;
     }
 
-	private void checkMethodParameters(String name) throws InvalidParameterException {
-		if (name.isEmpty() || name == null) {
-			throw new InvalidParameterException("name cannot be null or empty");
-		}
-	}
+    private void checkMethodParameters(String name) throws InvalidParameterException {
+        if (name.isEmpty() || name == null) {
+            throw new InvalidParameterException("name cannot be null or empty");
+        }
+    }
 
-	//Authentication
-	
-	/**
-	 * Sign outs the current user
-	 */
-	public void SignOut()
-	{
-        if (mUserIdentity !=null) {
+    //Authentication
+
+    /**
+     * Sign outs the current user
+     */
+    public void SignOut() {
+        if (mUserIdentity != null) {
             IdentityManager.getInstance().SignOut(mUserIdentity.HashKey);
         }
-        if (mApplicationIdentity !=null) {
+        if (mApplicationIdentity != null) {
             IdentityManager.getInstance().SignOut(mApplicationIdentity.HashKey);
         }
         UserIsAuthenticated = false;
-	}
+    }
 
-	
-	/**
-	 * Authenticates a user using the specified provider
-	 * 
-	 * @param providerKey The key that identifies the provider
-	 * @param username The user account
-	 * @param password The password for the user
-	 * @throws Exception
-	 */
-	public void Authenticate(final String providerKey,final String username, final String password) throws JSONException {
-		this.Authenticate(providerKey, username, password, null);
-	}
 
-	/**
-	 * Authenticates a user using the specified provider
-	 * 
-	 * @param providerKey The key that identifies the provider
-	 * @param username The user account
-	 * @param password The password for the user
-	 * @param callback The callback with the result of the service call
-	 * @throws Exception
-	 */
-	public void Authenticate(final String providerKey,final String username, final String password,final ServiceEventListener callback) {
-        if (!mApplicationConfiguration.IsInitialized) {
-            if (callback!=null) {
-                callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"The application is not initialized", null));
-            }
-            return;
-        }
+    /**
+     * Authenticates a user using the specified provider
+     *
+     * @param providerKey The key that identifies the provider
+     * @param username    The user account
+     * @param password    The password for the user
+     * @param callback    The callback with the result of the service call
+     * @throws InitializationException
+     */
+    public void Authenticate(final String providerKey, final String username, final String password, final ServiceEventListener callback)  throws InitializationException {
+        this.Initialize(callback);
         try {
             JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
@@ -569,31 +539,49 @@ public class KZApplication  {
                     if (callback != null) callback.onFinish(e);
                 }
             });
+        } catch (Exception e) {
+            callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
         }
-        catch(Exception e)
-        {
-            callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
-        }
+    }
 
-	}
+    /**
+     *
+     * @param callback
+     * @throws InitializationException
+     */
+    public void Initialize(final ServiceEventListener callback) throws InitializationException {
+        String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + getApplicationName();
+        try {
+            if (!mApplicationConfiguration.IsInitialized) {
+                // chains the getSettings callback with the keyAuth callback
+                mApplicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
+                mApplicationConfiguration.execute(url).get();
+                mReportingUrl = mApplicationConfiguration.GetSettingAsString("url");
+                mPassiveClientId = mApplicationConfiguration.GetSettingAsString("name");
+            }
+        } catch (InterruptedException e) {
+            throw new InitializationException("Could not get application configuration",e);
+        } catch (ExecutionException e) {
+            throw new InitializationException("Could not get application configuration",e);
+        } catch (JSONException e) {
+            throw new InitializationException("Could not get a required application configuration setting",e);
+        }
+    }
+
 
     /**
      * Enables passive Authentication
      *
      * @param context Android context instance
      * @param callback The callback with the result of the service call
+     * @throws InitializationException
      */
-    public void Authenticate(Context context, final ServiceEventListener callback) {
+    public void Authenticate(Context context, final ServiceEventListener callback) throws InitializationException {
         String mUserUniqueIdentifier = "";
         if (mUserIdentity!=null)
             mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
 
-        if (!mApplicationConfiguration.IsInitialized) {
-            if (callback!=null) {
-                callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,"The application is not initialized", null));
-            }
-            return;
-        }
+        this.Initialize(callback);
         try {
             JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
@@ -609,7 +597,8 @@ public class KZApplication  {
         }
         catch(Exception e)
         {
-            callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
+            if (callback!=null)
+                callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
         }
     }
 
