@@ -1,4 +1,4 @@
-# Kidozen SDK for Android Devices
+# Kidozen SDK for Android Devices v 1.2
 The KidoZen SDK for Android provides libraries for developers to build connected mobile applications using KidoZen. This guide walks through the steps for setting up the SDK and running the code samples.
 
 ## About the SDK
@@ -10,7 +10,7 @@ The KidoZen SDK for Android includes:
 To get Your Credentials Register at [KidoZen]("http://kidozen.com/")
 
 ## Requirements
-- API Level 17 or higher. For more information on the Android SDK, [see]("http://developer.android.com/index.html">http://developer.android.com/index.html)
+- API Level 15 or higher. For more information on the Android SDK, [see]("http://developer.android.com/index.html">http://developer.android.com/index.html)
 - To run the code examples, you also need the Android Studio 0.8.1 or above
 
 ## How to Include the KidoZen SDK for Android in an Existing Application
