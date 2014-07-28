@@ -82,6 +82,7 @@ You wil find samples about Social Authentication, Push notifications and other s
 - The 'ByPassSSL' parameter changed his name and default value. Now its called 'StrictSSL' and its default value is TRUE instead of FALSE
 - The 'OnSessionExpirationRunnable' method has been remove from the KZApplication object. You can create your own expiration handler using GetExpirationInMiliseconds() method of the KidoZen user instance
 
+
 #License
 
 Copyright (c) 2013 KidoZen, inc.
