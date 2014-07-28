@@ -26,7 +26,7 @@ public class KidoZenHelper implements IGcmEvents {
     private String passw             = "secret";
     private String provider          = "Kidozen";
 
-    private String projectid          = "33779981368";
+    private String projectid          = "****";
     private Boolean isInitialized    = false;
 
     private Activity mActivity;

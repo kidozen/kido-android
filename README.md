@@ -24,14 +24,15 @@ The SDK now is packaged as a Gradle project, you can either include the full cod
 - Rebuild your project to update all dependencies
 
 ## Building the SDK as .jar file
-You can also create the jar file using gradle by typing the following in your terminal:
+You can also create the jars file using gradle by typing the following in your terminal:
 
-		gradle -b jarBuild.gradle jar
+		./gradlew jarRelease androidJavadocsJar androidSourcesJar
 
 This will generate two files in the 'builds/libs' folder
 
-- kido-android-2.0.0.jar: the SDK jar file
-- kido-android-2.0.0-sources.jar: the SDK jar sources file (this is useful in case you want to debug the SDK code)
+- client.jar : the SDK as .jar file
+- client-javadoc.jar : javadocs
+- client-sources.jar: sources
 
 ## Execute integration tests
 The integration tests code can help you to understand how to use some features of the SDK. To run the tests you should :
