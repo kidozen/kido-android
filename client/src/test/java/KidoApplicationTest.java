@@ -11,6 +11,7 @@ import org.robolectric.annotation.Config;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
@@ -43,7 +44,8 @@ public class KidoApplicationTest {
     @Test
     public void ShouldGetApplicationConfiguration() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP,  AppSettings.KZ_KEY, false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP,  AppSettings.KZ_KEY, false);
+        kidozen.Initialize( new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
@@ -53,23 +55,22 @@ public class KidoApplicationTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = InitializationException.class)
     public void ShouldReturnInvalidApplicationName() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppSettings.KZ_TENANT, INVALIDAPP, AppSettings.KZ_KEY,  false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, INVALIDAPP, AppSettings.KZ_KEY,  false);
+        kidozen.Initialize(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 lcd.countDown();
-                //assertThat(e.StatusCode, equalTo(HttpStatus.SC_NOT_FOUND));
             }
         });
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
-    @Test(expected = IllegalStateException.class)
     public void ShouldReturnApplicationIsNotInitialized() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppSettings.KZ_TENANT, INVALIDAPP, AppSettings.KZ_KEY, false, null);
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, INVALIDAPP, AppSettings.KZ_KEY, false);
         kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
