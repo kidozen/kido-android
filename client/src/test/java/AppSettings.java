@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class AppSettings {
     public static  String KZ_KEY ;
     public static  String KZ_TENANT;
@@ -25,5 +27,18 @@ public class AppSettings {
         KZ_EMAIL_TO =           "you@kidozen.com";
         KZ_EMAIL_ATTACH =       "/Users/christian/attach.txt";
         KZ_PROVIDER=            "Kidozen";
+    }
+
+    static String CreateRandomValue()
+    {
+        Random rng= new Random();
+        String characters ="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        char[] text = new char[128];
+        for (int i = 0; i < 10; i++)
+        {
+            text[i] = characters.charAt(rng.nextInt(characters.length()));
+        }
+        return new String(text);
+
     }
 }

@@ -1,7 +1,6 @@
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -16,9 +15,7 @@ import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 
 /**
@@ -68,16 +65,5 @@ public class KidoApplicationTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
-    public void ShouldReturnApplicationIsNotInitialized() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppSettings.KZ_TENANT, INVALIDAPP, AppSettings.KZ_KEY, false);
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-            lcd.countDown();
-            //assertThat(e.StatusCode, equalTo(HttpStatus.SC_CONFLICT));
-            }
-        });
-        lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
-    }
+
 }

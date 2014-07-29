@@ -553,18 +553,24 @@ public class KZApplication {
         String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + getApplicationName();
         try {
             if (!mApplicationConfiguration.IsInitialized) {
+                if (!mApplicationConfiguration.IsValid) throw new InitializationException("Invalid application settings. Please check the application name.");
                 // chains the getSettings callback with the keyAuth callback
                 mApplicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
                 mApplicationConfiguration.execute(url).get();
                 mReportingUrl = mApplicationConfiguration.GetSettingAsString("url");
                 mPassiveClientId = mApplicationConfiguration.GetSettingAsString("name");
             }
+        }
+        catch (InitializationException ie) {
+            throw ie;
         } catch (InterruptedException e) {
             throw new InitializationException("Could not get application configuration",e);
         } catch (ExecutionException e) {
             throw new InitializationException("Could not get application configuration",e);
         } catch (JSONException e) {
             throw new InitializationException("Could not get a required application configuration setting",e);
+        } catch (Exception e) {
+            throw new InitializationException(e.getMessage(),e);
         }
     }
 

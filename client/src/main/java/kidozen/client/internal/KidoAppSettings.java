@@ -12,7 +12,6 @@ import java.util.Hashtable;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
-import kidozen.client.authentication.IdentityManager;
 
 /**
 * Created by christian on 4/30/14.
@@ -26,6 +25,7 @@ public class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
     private String _response;
     private Exception _exception;
     public boolean IsInitialized = false;
+    public boolean IsValid = true;
 
     public void Setup(ServiceEventListener cb, boolean strictSSL){
         _strictSSL = strictSSL;
@@ -42,6 +42,7 @@ public class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
             if (_statusCode>= HttpStatus.SC_BAD_REQUEST) throw  new Exception(_response);
             JSONArray cfg = new JSONArray(_response);
             _settings = cfg.getJSONObject(0);
+            this.IsValid = (_settings!=null);
         }
         catch (JSONException e)
         {
@@ -54,7 +55,6 @@ public class KidoAppSettings extends AsyncTask<String, Void, JSONObject> {
         finally {
             return  _settings;
         }
-
     }
 
     @Override
