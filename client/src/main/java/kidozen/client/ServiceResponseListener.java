@@ -1,5 +1,7 @@
 package kidozen.client;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -8,33 +10,23 @@ import org.json.JSONObject;
  */
 public class ServiceResponseListener extends ServiceResponseHandler {
 
-    public void onSuccess(int statusCode,  String response) {
+    private  final String TAG = this.getClass().getSimpleName();
+    @Override
+    public void OnSuccess(int statusCode,  String response) {
+        // TODO: add default implementation
+        Log.d(TAG, "OnSuccess");
+    }
+    @Override
+    public void OnSuccess(int statusCode,  JSONObject response) {
         // TODO: add default implementation
     }
-
-    public void onSuccess(int statusCode,  JSONObject response) {
-        // TODO: add default implementation
-    }
-
-    public void onSuccess(int statusCode,  JSONArray response) {
+    @Override
+    public void OnSuccess(int statusCode,  JSONArray response) {
         // TODO: add default implementation
     }
 
     @Override
-    public void OnSuccess(int statusCode, Object response) {
-        if (response instanceof JSONObject) {
-            onSuccess(statusCode, (JSONObject) response);
-        }
-        else if (response instanceof JSONArray) {
-            onSuccess(statusCode, (JSONArray) response);
-        }
-        else {
-            onSuccess(statusCode, response.toString());
-        }
-    }
-
-    @Override
-    public void OnError(int statusCode, Object errorResponse, Throwable e) {
+    public void OnError(int statusCode, String response) {
 
     }
 }

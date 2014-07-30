@@ -1,8 +1,11 @@
 package kidozen.client.internal;
 
+import android.os.Looper;
 import android.util.Log;
 
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -20,6 +23,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
+
+import kidozen.client.IServiceResponseHandler;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceResponseHandler;
+import kidozen.client.ServiceResponseListener;
 
 public class Utilities {
 
@@ -143,7 +151,32 @@ public class Utilities {
         return retVal;
     }
 
-    public static String AppendJsonAsQueryString(JSONObject data) throws UnsupportedEncodingException {
-        return "?json=" + URLEncoder.encode(data.toString(), "utf-8");
+    public static void DispatchServiceResponseListener(final ServiceEvent e,final ServiceResponseHandler callback) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                if (e.StatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
+                    callback.OnError(e.StatusCode, e.Body);
+                }
+                else {
+                    if (e.Response instanceof JSONObject) {
+                        JSONObject o = (JSONObject) e.Response;
+                        callback.OnSuccess(e.StatusCode,o);
+
+                    } else if (e.Response instanceof JSONArray) {
+                        JSONArray o = (JSONArray) e.Response;
+                        callback.OnSuccess(e.StatusCode,o);
+                    } else
+                        callback.OnSuccess(e.StatusCode,e.Body);
+                }
+
+            }
+        };
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            new Thread(r).start();
+        } else {
+            r.run();
+        }
     }
+
 }

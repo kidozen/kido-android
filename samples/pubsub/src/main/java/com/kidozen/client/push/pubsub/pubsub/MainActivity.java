@@ -18,6 +18,7 @@ import kidozen.client.KZApplication;
 import kidozen.client.PubSubChannel;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.ServiceResponseListener;
 
 
 public class MainActivity extends Activity {
@@ -88,10 +89,10 @@ public class MainActivity extends Activity {
     }
 
     private class KidoZenHelper {
-        private final String key = "XhIBjFxY23T3c9u7ZCPWbP67ec802eXgbyWCag/7Fw4=";//"1iezHjBY61cLXaDKSlLXszzCStZvYqiU7axVrNIGTrU=";
-        private final String app = "tasks";//"integration-tests";
-        private final String tenant = "https://contoso.local.kidozen.com";//"https://loadtests.qa.kidozen.com";
-        private final String user = "contosos@kidozen.com";
+        private final String key = "1iezHjBY61cLXaDKSlLXszzCStZvYqiU7axVrNIGTrU=";
+        private final String app = "integration-tests";
+        private final String tenant = "https://loadtests.qa.kidozen.com";
+        private final String user = "loadtest@kidozen.com";
         private final String pass = "pass";
 
         KZApplication mKidoApp;
@@ -111,13 +112,10 @@ public class MainActivity extends Activity {
         }
 
         public void Authenticate() throws Exception{
-            mKidoApp.Authenticate("Kidozen",user,pass, new ServiceEventListener() {
+            mKidoApp.Authenticate("Kidozen",user,pass, new ServiceResponseListener() {
                 @Override
-                public void onFinish(ServiceEvent e) {
-                    mTextView.setEnabled(e.StatusCode== HttpStatus.SC_OK);
-                    mEditText.setEnabled(e.StatusCode== HttpStatus.SC_OK);
-                    mButtonPush.setEnabled(e.StatusCode== HttpStatus.SC_OK);
-                    mButtonSubscribe.setEnabled(e.StatusCode== HttpStatus.SC_OK);
+                public void OnSuccess(int statusCode, String response) {
+                    Log.d(TAG,"ole");
                 }
             });
         }

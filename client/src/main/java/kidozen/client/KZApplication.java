@@ -20,6 +20,7 @@ import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.KidoAppSettings;
+import kidozen.client.internal.Utilities;
 
 //http://stackoverflow.com/questions/18590276/partial-implementation-of-an-interface
 
@@ -535,8 +536,6 @@ public class KZApplication {
         return service;
     }
 
-
-
     //Authentication
 
     /**
@@ -569,8 +568,6 @@ public class KZApplication {
         }
     }
 
-
-
     /**
      * Sign outs the current user
      */
@@ -584,7 +581,6 @@ public class KZApplication {
         UserIsAuthenticated = false;
     }
 
-
     /**
      * Authenticates a user using the specified provider
      *
@@ -595,40 +591,49 @@ public class KZApplication {
      * @throws InitializationException
      */
     public void Authenticate(final String providerKey, final String username, final String password, final ServiceEventListener callback)  throws InitializationException {
-        this.Initialize(callback);
-        try {
-            JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
-            authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
-            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+        if (!mApplicationConfiguration.IsInitialized)
+            this.Initialize(callback);
+        else
+            try {
+                JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
+                authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
 
-            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(providerKey, username, password, new ServiceEventListener() {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
-                        mProvider = providerKey;
-                        mUsername = username;
-                        mPassword = password;
-                        UserIsAuthenticated = true;
-                        SetKidoZenUser((KidoZenUser) e.Response);
-                        if (mUserIdentity.HasExpired()) {
-                            Log.w(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the KidoZen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
+                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+                IdentityManager.getInstance().Authenticate(providerKey, username, password, new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
+                            mProvider = providerKey;
+                            mUsername = username;
+                            mPassword = password;
+                            UserIsAuthenticated = true;
+                            SetKidoZenUser((KidoZenUser) e.Response);
+                            if (mUserIdentity.HasExpired()) {
+                                Log.w(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the KidoZen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
+                            }
                         }
+                        if (callback != null) callback.onFinish(e);
                     }
-                    if (callback != null) callback.onFinish(e);
-                }
-            });
-        } catch (Exception e) {
-            callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
-        }
+                });
+            } catch (Exception e) {
+                callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
+            }
     }
 
-    public void Authenticate(final String providerKey, final String username, final String password, final ServiceResponseListener callback) throws InitializationException {
+    /**
+     *
+     * @param providerKey
+     * @param username
+     * @param password
+     * @param callback
+     * @throws InitializationException
+     */
+    public void Authenticate(final String providerKey, final String username, final String password, final ServiceResponseHandler callback) throws InitializationException {
         this.Authenticate(providerKey,username, password, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                //callback.onSuccess();
-                //TODO:invoke here
+                Utilities.DispatchServiceResponseListener(e,callback);
             }
         });
     }
@@ -645,25 +650,42 @@ public class KZApplication {
         if (mUserIdentity!=null)
             mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
 
-        this.Initialize(callback);
-        try {
-            JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
-            authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
-            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new ServiceEventListener()   {
-                @Override
-                public void onFinish(ServiceEvent e) {
-                    SetKidoZenUser((KidoZenUser) e.Response);
-                    if (callback != null) callback.onFinish(e);
-                }
-            });
-        }
-        catch(Exception e)
-        {
-            if (callback!=null)
-                callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
-        }
+        if (!mApplicationConfiguration.IsInitialized)
+            this.Initialize(callback);
+        else
+            try {
+                JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
+                authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+                IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new ServiceEventListener()   {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        SetKidoZenUser((KidoZenUser) e.Response);
+                        if (callback != null) callback.onFinish(e);
+                    }
+                });
+            }
+            catch(Exception e)
+            {
+                if (callback!=null)
+                    callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
+            }
+    }
+
+    /**
+     *
+     * @param context
+     * @param callback
+     * @throws InitializationException
+     */
+    public void Authenticate(Context context, final ServiceResponseHandler callback) throws InitializationException{
+        this.Authenticate(context, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                Utilities.DispatchServiceResponseListener(e,callback);
+            }
+        });
     }
 
     /**
