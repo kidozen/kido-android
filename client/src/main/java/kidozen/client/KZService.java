@@ -19,6 +19,18 @@ import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.authentication.KidoZenUserIdentityType;
 import kidozen.client.internal.SNIConnectionManager;
 
+/**
+ * Base class for the following services:
+ * - Storage
+ * - Queue
+ * - PubSub
+ * - Log
+ * - Configuration
+ * - Files
+ * - Mail
+ * - DataSource
+ * - Service
+ */
 public class KZService {
     private Boolean mstrictSSL = true;
     private boolean ProcessAsStream = false;
@@ -31,6 +43,8 @@ public class KZService {
     String mActiveProvider;
     String mActiveUsername;
     String mActivePassword;
+
+    private ServiceResponseHandler mServiceResponseHandler = null;
 
     public KZService() {
 
@@ -112,6 +126,10 @@ public class KZService {
 
     public void setProcessAsStream(boolean processAsStream) {
         ProcessAsStream = processAsStream;
+    }
+
+    public void setServiceResponseHandler(ServiceResponseHandler mServiceResponseHandler) {
+        this.mServiceResponseHandler = mServiceResponseHandler;
     }
 
     public class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
@@ -245,7 +263,7 @@ public class KZService {
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            if (mServiceEventCallback !=null) {
+            if (mServiceEventCallback !=null ) {
                 mServiceEventCallback.onFinish(result);
             }
         }
