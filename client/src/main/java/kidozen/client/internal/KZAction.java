@@ -1,4 +1,4 @@
-package kidozen.client;
+package kidozen.client.internal;
 
 
 public interface KZAction<T> {

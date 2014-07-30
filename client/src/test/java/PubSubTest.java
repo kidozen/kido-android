@@ -37,7 +37,7 @@ public class PubSubTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 2;
     public static final String DATA_VALUE_KEY = "value";
-    public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests2";
+    public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests3";
     KZApplication kidozen = null;
 
     @Before
@@ -57,28 +57,43 @@ public class PubSubTest {
 
     @Test
     public void ShouldSubscribeAndReceiveMessage() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
         final PubSubChannel q = kidozen.PubSubChannel(PUBSUB_INTEGRATION_TESTS);
 
+        //Subscribes to channel
+        final CountDownLatch lcdSubscribe = new CountDownLatch(1);
         q.Subscribe(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 System.out.println("Subscribe:" +  e.Body);
-                lcd.countDown();
+                lcdSubscribe.countDown();
             }
         });
-        Thread.sleep(TEST_TIMEOUT_IN_MINUTES * 1000 * 60); // gives some time to channels
+
+        //Set ups listener
+        final CountDownLatch lcdGetMessage = new CountDownLatch(1);
+        q.GetMessages(new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                System.out.println("The message!? :" +  e.Body);
+                lcdGetMessage.countDown();
+            }
+        });
+
+        //Push a message in channel
+        final CountDownLatch lcdPublish = new CountDownLatch(1);
         q.Publish(data,true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 System.out.println("Publish:" +  e.Body);
-
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
             }
         });
+        assertTrue(lcdPublish.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        //Listenner await
+        //assertTrue(lcdGetMessage.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        assertTrue(lcdSubscribe.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
     }
 

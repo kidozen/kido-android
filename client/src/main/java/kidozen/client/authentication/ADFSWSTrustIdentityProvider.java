@@ -3,7 +3,7 @@ package kidozen.client.authentication;
 import java.net.URI;
 import java.util.Hashtable;
 
-import kidozen.client.KZAction;
+import kidozen.client.internal.KZAction;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.internal.Utilities;
