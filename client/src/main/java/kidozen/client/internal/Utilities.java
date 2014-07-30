@@ -169,7 +169,6 @@ public class Utilities {
                     } else
                         callback.OnSuccess(e.StatusCode,e.Body);
                 }
-
             }
         };
         if (Looper.myLooper() == Looper.getMainLooper()) {

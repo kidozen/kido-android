@@ -19,6 +19,7 @@ import kidozen.client.PubSubChannel;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.ServiceResponseListener;
+import kidozen.client.Storage;
 
 
 public class MainActivity extends Activity {
@@ -26,6 +27,7 @@ public class MainActivity extends Activity {
     private TextView mTextView;
     private EditText mEditText;
     private KidoZenHelper mHelper ;
+    private Storage mStorage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,15 +39,18 @@ public class MainActivity extends Activity {
         mEditText = (EditText) findViewById(R.id.editText);
         mEditText.setEnabled(false);
         mButtonPush = (Button) findViewById(R.id.buttonPublish);
-        mButtonPush.setEnabled(false);
+        //mButtonPush.setEnabled(false);
         mButtonPush.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("TAG","abc");
+                /*
                 try {
                     mHelper.Publish();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                */
             }
         });
         mButtonSubscribe= (Button) findViewById(R.id.buttonSubscribe);
@@ -92,7 +97,7 @@ public class MainActivity extends Activity {
         private final String key = "1iezHjBY61cLXaDKSlLXszzCStZvYqiU7axVrNIGTrU=";
         private final String app = "integration-tests";
         private final String tenant = "https://loadtests.qa.kidozen.com";
-        private final String user = "loadtest@kidozen.com";
+        private final String user = "loadtests@kidozen.com";
         private final String pass = "pass";
 
         KZApplication mKidoApp;
@@ -115,9 +120,21 @@ public class MainActivity extends Activity {
             mKidoApp.Authenticate("Kidozen",user,pass, new ServiceResponseListener() {
                 @Override
                 public void OnSuccess(int statusCode, String response) {
-                    Log.d(TAG,"ole");
+                    try {
+                        mStorage =mKidoApp.Storage("tasks");
+                        mStorage.All(new ServiceEventListener() {
+                            @Override
+                            public void onFinish(ServiceEvent e) {
+                                Log.d("", e.Body);
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                 }
             });
+
         }
 
         public void Subscribe() throws Exception {

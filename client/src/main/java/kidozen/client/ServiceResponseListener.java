@@ -11,6 +11,12 @@ import org.json.JSONObject;
 public class ServiceResponseListener extends ServiceResponseHandler {
 
     private  final String TAG = this.getClass().getSimpleName();
+
+    @Override
+    public void OnStart() {
+
+    }
+
     @Override
     public void OnSuccess(int statusCode,  String response) {
         // TODO: add default implementation

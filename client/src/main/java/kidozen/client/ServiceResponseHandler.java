@@ -9,6 +9,7 @@ import org.json.JSONObject;
  * Created by christian on 7/29/14.
  */
 public abstract class ServiceResponseHandler {
+    public abstract void OnStart();
 
     public abstract void OnSuccess(int statusCode,  String response);
 

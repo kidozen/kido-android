@@ -546,14 +546,12 @@ public class KZApplication {
     public void Initialize(final ServiceEventListener callback) throws InitializationException {
         String url = mTenantMarketPlace + Constants.PUBLICAPI_PATH + getApplicationName();
         try {
-            if (!mApplicationConfiguration.IsInitialized) {
-                if (!mApplicationConfiguration.IsValid) throw new InitializationException("Invalid application settings. Please check the application name.");
-                // chains the getSettings callback with the keyAuth callback
-                mApplicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
-                mApplicationConfiguration.execute(url).get();
-                mReportingUrl = mApplicationConfiguration.GetSettingAsString("url");
-                mPassiveClientId = mApplicationConfiguration.GetSettingAsString("name");
-            }
+            if (!mApplicationConfiguration.IsValid) throw new InitializationException("Invalid application settings. Please check the application name.");
+            // chains the getSettings callback with the keyAuth callback
+            mApplicationConfiguration.Setup(new InitializationWithKeyCallback(callback), this.StrictSSL);
+            mApplicationConfiguration.execute(url).get();
+            mReportingUrl = mApplicationConfiguration.GetSettingAsString("url");
+            mPassiveClientId = mApplicationConfiguration.GetSettingAsString("name");
         }
         catch (InitializationException ie) {
             throw ie;
@@ -592,33 +590,42 @@ public class KZApplication {
      */
     public void Authenticate(final String providerKey, final String username, final String password, final ServiceEventListener callback)  throws InitializationException {
         if (!mApplicationConfiguration.IsInitialized)
-            this.Initialize(callback);
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    InvokeActiveAuthentication(providerKey, username, password, callback);
+                }
+            });
         else
-            try {
-                JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
-                authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
-                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+            InvokeActiveAuthentication(providerKey, username, password, callback);
+    }
 
-                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-                IdentityManager.getInstance().Authenticate(providerKey, username, password, new ServiceEventListener() {
-                    @Override
-                    public void onFinish(ServiceEvent e) {
-                        if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
-                            mProvider = providerKey;
-                            mUsername = username;
-                            mPassword = password;
-                            UserIsAuthenticated = true;
-                            SetKidoZenUser((KidoZenUser) e.Response);
-                            if (mUserIdentity.HasExpired()) {
-                                Log.w(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the KidoZen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
-                            }
+    private void InvokeActiveAuthentication(final String providerKey, final String username, final String password, final ServiceEventListener callback) {
+        try {
+            JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
+            authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+            IdentityManager.getInstance().Authenticate(providerKey, username, password, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
+                        mProvider = providerKey;
+                        mUsername = username;
+                        mPassword = password;
+                        UserIsAuthenticated = true;
+                        SetKidoZenUser((KidoZenUser) e.Response);
+                        if (mUserIdentity.HasExpired()) {
+                            Log.w(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the KidoZen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
                         }
-                        if (callback != null) callback.onFinish(e);
                     }
-                });
-            } catch (Exception e) {
-                callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
-            }
+                    if (callback != null) callback.onFinish(e);
+                }
+            });
+        } catch (Exception e) {
+            callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
+        }
     }
 
     /**
@@ -651,26 +658,34 @@ public class KZApplication {
             mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
 
         if (!mApplicationConfiguration.IsInitialized)
-            this.Initialize(callback);
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    InvokePassiveAuthentication(context, callback, mUserUniqueIdentifier);
+                }
+            });
         else
-            try {
-                JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
-                authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
-                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-                IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-                IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new ServiceEventListener()   {
-                    @Override
-                    public void onFinish(ServiceEvent e) {
-                        SetKidoZenUser((KidoZenUser) e.Response);
-                        if (callback != null) callback.onFinish(e);
-                    }
-                });
-            }
-            catch(Exception e)
-            {
-                if (callback!=null)
-                    callback.onFinish(new ServiceEvent(this,HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
-            }
+            InvokePassiveAuthentication(context, callback, mUserUniqueIdentifier);
+    }
+
+    private void InvokePassiveAuthentication(Context context, final ServiceEventListener callback, String mUserUniqueIdentifier) {
+        try {
+            JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
+            authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+            IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new ServiceEventListener()   {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    SetKidoZenUser((KidoZenUser) e.Response);
+                    if (callback != null) callback.onFinish(e);
+                }
+            });
+        }
+        catch(Exception e)
+        {
+            if (callback!=null)
+                callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
+        }
     }
 
     /**
