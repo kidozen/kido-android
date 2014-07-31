@@ -14,25 +14,24 @@ public class ServiceResponseListener extends ServiceResponseHandler {
 
     @Override
     public void OnStart() {
-
+        Log.d(TAG, "OnStart");
     }
 
     @Override
     public void OnSuccess(int statusCode,  String response) {
-        // TODO: add default implementation
-        Log.d(TAG, "OnSuccess");
+        Log.d(TAG, String.format("OnSuccess (String); StatusCode : %s", statusCode));
     }
     @Override
     public void OnSuccess(int statusCode,  JSONObject response) {
-        // TODO: add default implementation
+        Log.d(TAG, String.format("OnSuccess (JSONObject) ; StatusCode : %s", statusCode));
     }
     @Override
     public void OnSuccess(int statusCode,  JSONArray response) {
-        // TODO: add default implementation
+        Log.d(TAG, String.format("OnSuccess (JSONArray) ; StatusCode : %s", statusCode));
     }
 
     @Override
     public void OnError(int statusCode, String response) {
-
+        Log.d(TAG, String.format("OnError ; StatusCode : %s", statusCode));
     }
 }

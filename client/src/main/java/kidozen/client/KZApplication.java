@@ -652,20 +652,23 @@ public class KZApplication {
      * @param callback The callback with the result of the service call
      * @throws InitializationException
      */
-    public void Authenticate(Context context, final ServiceEventListener callback) throws InitializationException {
-        String mUserUniqueIdentifier = "";
-        if (mUserIdentity!=null)
-            mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
-
+    public void Authenticate(final Context context, final ServiceEventListener callback) throws InitializationException {
         if (!mApplicationConfiguration.IsInitialized)
             this.Initialize(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    InvokePassiveAuthentication(context, callback, mUserUniqueIdentifier);
+                    InvokePassiveAuthentication(context, callback, getUserUniqueIdentifier());
                 }
             });
         else
-            InvokePassiveAuthentication(context, callback, mUserUniqueIdentifier);
+            InvokePassiveAuthentication(context, callback, getUserUniqueIdentifier());
+    }
+
+    private String getUserUniqueIdentifier() {
+        String mUserUniqueIdentifier = "";
+        if (mUserIdentity!=null)
+            mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
+        return mUserUniqueIdentifier;
     }
 
     private void InvokePassiveAuthentication(Context context, final ServiceEventListener callback, String mUserUniqueIdentifier) {

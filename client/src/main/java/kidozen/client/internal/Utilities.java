@@ -24,10 +24,8 @@ import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
-import kidozen.client.IServiceResponseHandler;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceResponseHandler;
-import kidozen.client.ServiceResponseListener;
 
 public class Utilities {
 
@@ -171,6 +169,20 @@ public class Utilities {
                 }
             }
         };
+        dispatchOnThread(r);
+    }
+
+    public static void DispatchServiceStartListener(final ServiceResponseHandler callback) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                callback.OnStart();
+            }
+        };
+        dispatchOnThread(r);
+    }
+
+    private static void dispatchOnThread(Runnable r) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(r).start();
         } else {

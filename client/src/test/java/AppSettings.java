@@ -21,13 +21,13 @@ public class AppSettings {
         KZ_KEY =                "1iezHjBY61cLXaDKSlLXszzCStZvYqiU7axVrNIGTrU=";
         KZ_USER =               "loadtests@kidozen.com";
         KZ_PASS =               "pass";
+
+        KZ_EMAIL_ATTACH =       "/Users/christian/attach.txt";
+        KZ_PROVIDER=            "Kidozen";
 /*
         KZ_SERVICE_ID =         "weather";
         KZ_EMAIL_FROM =         "contoso@kidozen.com.com";
         KZ_EMAIL_TO =           "you@kidozen.com";
-        */
-        KZ_EMAIL_ATTACH =       "/Users/christian/attach.txt";
-        KZ_PROVIDER=            "Kidozen";
 
 
         KZ_KEY =     "XhIBjFxY23T3c9u7ZCPWbP67ec802eXgbyWCag/7Fw4=";
@@ -35,6 +35,7 @@ public class AppSettings {
         KZ_TENANT =  "https://contoso.local.kidozen.com";
         KZ_USER =    "contosos@kidozen.com";
         KZ_PASS =  "pass";
+        */
 
 
     }

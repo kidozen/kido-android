@@ -17,7 +17,9 @@ import java.util.Map;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.authentication.KidoZenUserIdentityType;
+import kidozen.client.internal.Constants;
 import kidozen.client.internal.SNIConnectionManager;
+import kidozen.client.internal.Utilities;
 
 /**
  * Base class for the following services:
@@ -32,7 +34,7 @@ import kidozen.client.internal.SNIConnectionManager;
  * - Service
  */
 public class KZService {
-    private Boolean mstrictSSL = true;
+    private Boolean mStrictSSL = true;
     private boolean ProcessAsStream = false;
     protected String mName;
     protected String mEndpoint;
@@ -43,6 +45,8 @@ public class KZService {
     String mActiveProvider;
     String mActiveUsername;
     String mActivePassword;
+
+    Hashtable<String, String> mRequestHeaders = new Hashtable<String, String>();
 
     private ServiceResponseHandler mServiceResponseHandler = null;
 
@@ -113,11 +117,11 @@ public class KZService {
     }
 
     public Boolean getStrictSSL() {
-        return mstrictSSL;
+        return mStrictSSL;
     }
 
     public void setStrictSSL(Boolean strictSSL) {
-        mstrictSSL = strictSSL;
+        mStrictSSL = strictSSL;
     }
 
     public boolean isProcessAsStream() {
@@ -126,10 +130,6 @@ public class KZService {
 
     public void setProcessAsStream(boolean processAsStream) {
         ProcessAsStream = processAsStream;
-    }
-
-    public void setServiceResponseHandler(ServiceResponseHandler mServiceResponseHandler) {
-        this.mServiceResponseHandler = mServiceResponseHandler;
     }
 
     public class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
@@ -148,12 +148,22 @@ public class KZService {
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
         {
-            mHeaders = headers;
             mHttpMethod = method;
             mServiceEventCallback = callback;
             mBypassSSLValidation = bypassSSLValidation;
             if (params!=null) {
                 mQueryStringParameters = params;
+            }
+            if (headers==null) {
+                mRequestHeaders = new Hashtable<String, String>();
+            }
+            else {
+                Iterator<Map.Entry<String, String>> it = headers.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<String, String> pairs = it.next();
+                    mRequestHeaders.put(pairs.getKey(), pairs.getValue());
+                    it.remove();
+                }
             }
         }
 
@@ -162,7 +172,6 @@ public class KZService {
             this(method, params, headers,  callback, bypassSSLValidation);
             mStringMessage = message;
         }
-
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, JSONObject message, ServiceEventListener callback, Boolean bypassSSLValidation)
         {
@@ -175,9 +184,21 @@ public class KZService {
             mStreamMessage = message;
         }
 
+        public void setServiceResponseHandler(ServiceResponseHandler serviceResponseHandler) {
+            mServiceResponseHandler = serviceResponseHandler;
+        }
+
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            CreateAuthHeaderValue(new KZServiceEvent<String>() {
+                @Override
+                public void Fire(String token) {
+                    mRequestHeaders.put(Constants.AUTHORIZATION_HEADER, token);
+                }
+            });
+
         }
 
         @Override
@@ -185,38 +206,34 @@ public class KZService {
             int statusCode = HttpStatus.SC_BAD_REQUEST;
             try
             {
-                Hashtable<String, String> requestProperties = new Hashtable<String, String>();
-                Iterator<Map.Entry<String, String>> it = mHeaders.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry<String, String> pairs = it.next();
-                    requestProperties.put(pairs.getKey(), pairs.getValue());
-                    it.remove();
-                }
                 String  url = params[0];
                 //System.out.println("***** =>> method:" + mHttpMethod);
                 //System.out.println("***** =>> isStream:" + ProcessAsStream);
 
                 if (isProcessAsStream()) {
-                    mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, mQueryStringParameters, mBypassSSLValidation);
+                    mSniManager = new SNIConnectionManager(url, mStreamMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
                     OutputStream response = mSniManager.ExecuteHttpAsStream(mHttpMethod);
                     createCallbackResponseForStream(statusCode, response);
                 }
                 else {
                     //System.out.println("***** =>> url:" + url);
                     //System.out.println("***** =>> mStringMessage:" + mStringMessage);
-                    //System.out.println("***** =>> requestProperties:" + requestProperties.toString());
+                    //System.out.println("***** =>> mRequestHeaders:" + mRequestHeaders.toString());
                     //System.out.println("***** =>> mQueryStringParameters:" + mQueryStringParameters);
                     //System.out.println("***** =>> mBypassSSLValidation:" + mBypassSSLValidation);
 
-                    mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, mQueryStringParameters, mBypassSSLValidation);
+                    mSniManager = new SNIConnectionManager(url, mStringMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
+                    if (mServiceResponseHandler!=null) {
+                        Utilities.DispatchServiceStartListener(mServiceResponseHandler);
+                    }
                     Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
                     createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-                    //System.out.println("***** =>> body:" + body);
-                    //System.out.println("***** =>> status:" + response.get("statusCode"));
-                    //System.out.println("***** =>> content:" + response.get("contentType"));
+                    System.out.println("***** =>> body:" + body);
+                    System.out.println("***** =>> status:" + response.get("statusCode"));
+                    System.out.println("***** =>> content:" + response.get("contentType"));
 
                     if (body=="") {
                         mFinalServiceEvent = new ServiceEvent(this, statusCode, body, body);
@@ -263,10 +280,31 @@ public class KZService {
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            if (mServiceEventCallback !=null ) {
+            if (mServiceEventCallback != null ) {
                 mServiceEventCallback.onFinish(result);
+            } else if (mServiceResponseHandler!=null) {
+                //Don't need to dispatch in another thread , the AsyncTask run on its own
+                dispatchServiceResponseListener(result, mServiceResponseHandler);
             }
         }
+
+        private void dispatchServiceResponseListener(final ServiceEvent e,final ServiceResponseHandler callback) {
+            if (e.StatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
+                callback.OnError(e.StatusCode, e.Body);
+            }
+            else {
+                if (e.Response instanceof JSONObject) {
+                    JSONObject o = (JSONObject) e.Response;
+                    callback.OnSuccess(e.StatusCode,o);
+
+                } else if (e.Response instanceof JSONArray) {
+                    JSONArray o = (JSONArray) e.Response;
+                    callback.OnSuccess(e.StatusCode,o);
+                } else
+                    callback.OnSuccess(e.StatusCode,e.Body);
+            }
+        }
+
     }
 
 
