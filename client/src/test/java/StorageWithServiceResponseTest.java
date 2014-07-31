@@ -63,28 +63,38 @@ public class StorageWithServiceResponseTest {
             fail();
         }
     }
-    @Test
+    @Ignore
     public void ShouldCreateMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(2);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
 
         Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
-        storage.Create(data, defaultCreateSRListener(lcd));
+        storage.Create(data, defaultCreateListenerAsJObject(lcd));
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
-    @Test
+    @Ignore
     public void ShouldCreatePrivateMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(2);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
 
         Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
-        storage.Create(data,true, defaultCreateSRListener(lcd));
+        storage.Create(data,true, defaultCreateListenerAsJObject(lcd));
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+    }
+    @Ignore
+    public void ShouldCreatePublicMessage() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(2);
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+        storage.Create(data, false, defaultCreateListenerAsJObject(lcd));
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 
-    private ServiceResponseHandler defaultCreateSRListener(final CountDownLatch lcd) {
+    private ServiceResponseHandler defaultCreateListenerAsJObject(final CountDownLatch lcd) {
         return new ServiceResponseHandler() {
             @Override
             public void OnStart() {
@@ -118,31 +128,74 @@ public class StorageWithServiceResponseTest {
         };
     }
 
-    @Test
-    public void ShouldCreatePublicMessage() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(2);
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
+    private ServiceResponseHandler defaultCreateListenerAsJArray(final CountDownLatch lcd) {
+        return new ServiceResponseHandler() {
+            @Override
+            public void OnStart() {
+                System.out.println("OnStart");
+                lcd.countDown();
+            }
 
-        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
-        storage.Create(data, false, defaultCreateSRListener(lcd));
+            @Override
+            public void OnSuccess(int statusCode, String response) {
+                System.out.println("OnSuccess String");
+                fail();
+            }
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+            @Override
+            public void OnSuccess(int statusCode, JSONObject response) {
+                System.out.println("OnSuccess JSONObject");
+                fail();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, JSONArray response) {
+                System.out.println("OnSuccess JSONArray");
+                lcd.countDown();
+            }
+
+            @Override
+            public void OnError(int statusCode, String response) {
+                System.out.println("OnError");
+                fail();
+            }
+        };
     }
 
     @Ignore
     public void ShouldDeleteMessage() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
+        final CountDownLatch lcd = new CountDownLatch(2);
         final String expected = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected);
         StorageEventListener cb = createObjectForStorage(data);
 
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
         JSONObject obj =(JSONObject) cb.Event.Response;
-        _storage.Delete(obj.getString("_id"), new ServiceEventListener() {
+        _storage.Delete(obj.getString("_id"),new ServiceResponseHandler() {
             @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
+            public void OnStart() {
                 lcd.countDown();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, String response) {
+                assertThat(statusCode, equalTo( HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, JSONObject response) {
+                fail();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, JSONArray response) {
+                fail();
+            }
+
+            @Override
+            public void OnError(int statusCode, String response) {
+                fail();
             }
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
@@ -150,7 +203,7 @@ public class StorageWithServiceResponseTest {
     }
     @Ignore
     public void ShouldGetMessage() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
+        final CountDownLatch lcd = new CountDownLatch(2);
         final String expected = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected);
         StorageEventListener cb = createObjectForStorage(data);
@@ -159,44 +212,69 @@ public class StorageWithServiceResponseTest {
         JSONObject obj =(JSONObject) cb.Event.Response;
         String id = obj.getString("_id");
 
-        _storage.Get(id, new ServiceEventListener() {
+        _storage.Get(id, new ServiceResponseHandler() {
             @Override
-            public void onFinish(ServiceEvent e) {
-                try {
-                    String value = ((JSONObject) e.Response).getString(DATA_VALUE_KEY);
-                    assertEquals(expected, value);
-                    lcd.countDown();
-                } catch (JSONException e1) {
-                    fail();
-                }
+            public void OnStart() {
+                lcd.countDown();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, String response) {
+                fail();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, JSONObject response) {
+                assertEquals(statusCode,equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, JSONArray response) {
+                fail();
+            }
+
+            @Override
+            public void OnError(int statusCode, String response) {
+                fail();
             }
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
-    @Ignore
+    @Test
     public void ShouldDropCollection() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(2);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
 
         Storage toDrop = kidozen.Storage("toDrop");
-        toDrop.Create(data, new ServiceEventListener() {
+        toDrop.Create(data,defaultCreateListenerAsJObject(lcd));
+        //Assert
+        toDrop.Drop(new ServiceResponseHandler() {
             @Override
-            public void onFinish(ServiceEvent e) {
-                assertEquals(e.StatusCode, HttpStatus.SC_CREATED);
+            public void OnStart() {
                 lcd.countDown();
             }
-        });
-        //Assert
-        toDrop.Drop(new ServiceEventListener() {
+
             @Override
-            public void onFinish(ServiceEvent e) {
-                try {
-                    assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                    lcd.countDown();
-                } catch (Exception e1) {
-                    fail();
-                }
+            public void OnSuccess(int statusCode, String response) {
+                assertThat(statusCode,equalTo(HttpStatus.SC_OK));
+                lcd.countDown();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, JSONObject response) {
+                fail();
+            }
+
+            @Override
+            public void OnSuccess(int statusCode, JSONArray response) {
+                fail();
+            }
+
+            @Override
+            public void OnError(int statusCode, String response) {
+                fail();
             }
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
@@ -204,29 +282,18 @@ public class StorageWithServiceResponseTest {
     @Ignore
     public void ShouldGetAllObjects() throws Exception
     {
-        final CountDownLatch lcd = new CountDownLatch(1);
+        final CountDownLatch lcd = new CountDownLatch(2);
         final String expected = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected);
         StorageEventListener cb = createObjectForStorage(data);
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
 
-        //Assert
-        _storage.All(new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                try {
-                    assertTrue(((JSONArray)e.Response).length()>0);
-                    lcd.countDown();
-                } catch (Exception e1) {
-                    fail();
-                }
-            }
-        });
+        _storage.All(defaultCreateListenerAsJArray(lcd));
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
     @Ignore
     public void ShouldUpdateObject() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
+        final CountDownLatch lcd = new CountDownLatch(2);
         final String expected = "updated";
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
         StorageEventListener cb = createObjectForStorage(data);
@@ -237,13 +304,7 @@ public class StorageWithServiceResponseTest {
         updatedObject.put(DATA_VALUE_KEY, expected);
 
         //Assert
-        _storage.Update(updatedObject.getString("_id"),updatedObject, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertEquals(e.StatusCode, HttpStatus.SC_OK);
-                lcd.countDown();
-            }
-        });
+        _storage.Update(updatedObject.getString("_id"),updatedObject, defaultCreateListenerAsJObject(lcd));
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
     @Ignore
@@ -460,17 +521,6 @@ public class StorageWithServiceResponseTest {
             this.Event =e;
             _count.countDown();
         }
-    }
-
-    //
-    private ServiceEventListener createCallback(final CountDownLatch signal) {
-        return  new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                signal.countDown();
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
-            }
-        };
     }
 
 

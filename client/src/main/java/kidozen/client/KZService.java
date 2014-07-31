@@ -19,7 +19,6 @@ import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.authentication.KidoZenUserIdentityType;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.SNIConnectionManager;
-import kidozen.client.internal.Utilities;
 
 /**
  * Base class for the following services:
@@ -48,7 +47,7 @@ public class KZService {
 
     Hashtable<String, String> mRequestHeaders = new Hashtable<String, String>();
 
-    private ServiceResponseHandler mServiceResponseHandler = null;
+    //private ServiceResponseHandler mServiceResponseHandler = null;
 
     public KZService() {
 
@@ -184,9 +183,9 @@ public class KZService {
             mStreamMessage = message;
         }
 
-        public void setServiceResponseHandler(ServiceResponseHandler serviceResponseHandler) {
-            mServiceResponseHandler = serviceResponseHandler;
-        }
+        //public void setServiceResponseHandler(ServiceResponseHandler serviceResponseHandler) {
+        //    mServiceResponseHandler = serviceResponseHandler;
+        //}
 
 
         @Override
@@ -223,8 +222,8 @@ public class KZService {
                     //System.out.println("***** =>> mBypassSSLValidation:" + mBypassSSLValidation);
 
                     mSniManager = new SNIConnectionManager(url, mStringMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
-                    if (mServiceResponseHandler!=null) {
-                        Utilities.DispatchServiceStartListener(mServiceResponseHandler);
+                    if (mServiceEventCallback instanceof ServiceResponseHandler) {
+                        //Utilities.DispatchServiceStartListener(mServiceEventCallback);
                     }
                     Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
                     String body = response.get("responseBody");
@@ -280,11 +279,11 @@ public class KZService {
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            if (mServiceEventCallback != null ) {
+            if (mServiceEventCallback instanceof ServiceResponseHandler) {
+                dispatchServiceResponseListener(result, (ServiceResponseHandler) mServiceEventCallback);
+            }
+            else {
                 mServiceEventCallback.onFinish(result);
-            } else if (mServiceResponseHandler!=null) {
-                //Don't need to dispatch in another thread , the AsyncTask run on its own
-                dispatchServiceResponseListener(result, mServiceResponseHandler);
             }
         }
 

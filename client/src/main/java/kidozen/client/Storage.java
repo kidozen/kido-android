@@ -114,11 +114,7 @@ public class Storage extends KZService {
 		if (id=="" || id==null) {
 			throw new InvalidParameterException();
 		}
-
         String  url = mEndpoint + "/" + mName + "/" + id;
-        //HashMap<String, String> params = null;
-        //HashMap<String, String> headers = new HashMap<String, String>();
-
         new KZServiceAsyncTask(KZHttpMethod.GET ,null,null, callback, getStrictSSL()).execute(url);
 	}
 
@@ -130,8 +126,6 @@ public class Storage extends KZService {
 	public void Drop(final ServiceEventListener callback)
 	{
         String  url = mEndpoint + "/" + mName;
-        //HashMap<String, String> params = null;
-        //HashMap<String, String> headers = new HashMap<String, String>();
         new KZServiceAsyncTask(KZHttpMethod.DELETE,null,null,callback, getStrictSSL()).execute(url);
     }
 
@@ -147,9 +141,6 @@ public class Storage extends KZService {
 			throw new InvalidParameterException();
 		}
         String  url = mEndpoint + "/" + mName + "/" + idMessage;
-        //HashMap<String, String> params = null;
-        //HashMap<String, String> headers = new HashMap<String, String>();
-
         new KZServiceAsyncTask(KZHttpMethod.DELETE,null,null,callback, getStrictSSL()).execute(url);
     }
 
@@ -171,8 +162,7 @@ public class Storage extends KZService {
 	 */
 	public void Query(final String query,final ServiceEventListener callback) 
 	{
-		if (query == null || query == "")
-		{
+		if (query == null || query == "") {
 			throw new  InvalidParameterException("query cannot be null or empty");
 		}
 		this.Query(query, "{}","{}", callback);
@@ -186,8 +176,7 @@ public class Storage extends KZService {
 	 */
 	public void Query(final String query, final String options,final ServiceEventListener callback)
 	{
-		if (query == null || query == "" || options == null || options == "" )
-		{
+		if (query == null || query == "" || options == null || options == "" ){
 			throw new  InvalidParameterException("query and options cannot be null or empty");
 		}
 		this.Query(query, "{}",options, callback);	
@@ -212,8 +201,6 @@ public class Storage extends KZService {
         params.put("query", query);
         params.put("options", options);
         params.put("fields", fields);
-        //HashMap<String, String> headers = new HashMap<String, String>();
-
         new KZServiceAsyncTask(KZHttpMethod.GET,params,null,callback, getStrictSSL()).execute(url);
 	}
 
@@ -300,12 +287,11 @@ public class Storage extends KZService {
 
     /**
      *
-     */
+
 
     public void Create(final JSONObject message, final boolean isPrivate, final ServiceResponseHandler serviceResponseListener)
     {
         validateParameters(message);
-
 
         String  url = mEndpoint + "/" + mName;
         HashMap<String, String> params = new HashMap<String, String>();
@@ -323,5 +309,99 @@ public class Storage extends KZService {
     {
         this.Create(message, true, serviceResponseListener);
     }
+    public void Update(final String id, final JSONObject message, final ServiceResponseHandler serviceResponseListener) throws JSONException
+    {
+        JSONObject serializedMsg = checkDateSerialization(message);
+        String  url = mEndpoint + "/" + mName + "/" + id;
+        HashMap<String, String> params = null;
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
+        KZServiceAsyncTask task = new KZServiceAsyncTask(KZHttpMethod.PUT,params,headers,serializedMsg, null, getStrictSSL());
+        task.setServiceResponseHandler(serviceResponseListener);
+        task.execute(url);
+    }
+
+    public void Get(final String id, final ServiceResponseHandler serviceResponseListener)
+    {
+        if (id=="" || id==null) {
+            throw new InvalidParameterException();
+        }
+        String  url = mEndpoint + "/" + mName + "/" + id;
+
+        KZServiceAsyncTask task = new KZServiceAsyncTask(KZHttpMethod.GET ,null, null, null, getStrictSSL());
+        task.setServiceResponseHandler(serviceResponseListener);
+        task.execute(url);
+    }
+    public void Drop(final ServiceResponseHandler callback)
+    {
+        String  url = mEndpoint + "/" + mName;
+        KZServiceAsyncTask task = new KZServiceAsyncTask(KZHttpMethod.DELETE,null,null,null, getStrictSSL());
+        task.setServiceResponseHandler(callback);
+        task.execute(url);
+    }
+    public void Delete(final String idMessage,final ServiceResponseHandler callback)
+    {
+        if (idMessage=="" || idMessage==null) {
+            throw new InvalidParameterException();
+        }
+        String  url = mEndpoint + "/" + mName + "/" + idMessage;
+        KZServiceAsyncTask task = new KZServiceAsyncTask(KZHttpMethod.DELETE,null,null,null, getStrictSSL());
+        task.setServiceResponseHandler(callback);
+        task.execute(url);
+    }
+    public void Query(final String query, final String fields, final String options,final ServiceResponseHandler callback)
+    {
+        if (query == null || query == "" || options == null || options == "" || fields == null || fields == "")
+        {
+            throw new  InvalidParameterException("query, options or fields, cannot be null or empty");
+        }
+        String  url = mEndpoint + "/" + mName;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("query", query);
+        params.put("options", options);
+        params.put("fields", fields);
+
+        KZServiceAsyncTask task = new KZServiceAsyncTask(KZHttpMethod.GET,params,null,null, getStrictSSL());
+        task.setServiceResponseHandler(callback);
+        task.execute(url);
+    }
+    public void All(final ServiceResponseHandler callback)
+    {
+        this.Query("{}", "{}","{}", callback);
+    }
+    public void Query(final String query,final ServiceResponseHandler callback)
+    {
+        if (query == null || query == "") {
+            throw new  InvalidParameterException("query cannot be null or empty");
+        }
+        this.Query(query, "{}","{}", callback);
+    }
+    public void Query(final String query, final String options,final ServiceResponseHandler callback)
+    {
+        if (query == null || query == "" || options == null || options == "" ){
+            throw new  InvalidParameterException("query and options cannot be null or empty");
+        }
+        this.Query(query, "{}",options, callback);
+    }
+    public void Save(JSONObject message, Boolean isPrivate, final ServiceResponseHandler callback) throws Exception
+    {
+        String id = null;
+        try {id = message.getString("_id");} catch (JSONException e) {}
+
+        if (id!=null)
+        {
+            Update(id,message,callback);
+        }
+        else
+        {
+            Create(message, isPrivate, callback);
+        }
+    }
+    public void Save(JSONObject message, final ServiceResponseHandler callback) throws Exception
+    {
+        this.Save(message, true, callback);
+    }
+     */
 }

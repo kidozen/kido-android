@@ -34,4 +34,10 @@ public class ServiceResponseListener extends ServiceResponseHandler {
     public void OnError(int statusCode, String response) {
         Log.d(TAG, String.format("OnError ; StatusCode : %s", statusCode));
     }
+
+
+    @Override
+    public void onFinish(ServiceEvent e) {
+
+    }
 }
