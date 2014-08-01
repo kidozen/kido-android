@@ -44,7 +44,7 @@ public class AppSettings {
     {
         Random rng= new Random();
         String characters ="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        char[] text = new char[128];
+        char[] text = new char[10];
         for (int i = 0; i < 10; i++)
         {
             text[i] = characters.charAt(rng.nextInt(characters.length()));

@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
         public void Authenticate() throws Exception{
             mKidoApp.Authenticate("Kidozen",user,pass, new ServiceResponseListener() {
                 @Override
-                public void OnSuccess(int statusCode, String response) {
+                public void onSuccess(int statusCode, String response) {
                     try {
                         mStorage =mKidoApp.Storage("tasks");
                         mStorage.All(new ServiceEventListener() {

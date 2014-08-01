@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -485,9 +484,9 @@ public class KZApplication {
         return files;
     }
 
-    private void checkMethodParameters(String name) throws InvalidParameterException {
+    private void checkMethodParameters(String name) throws IllegalArgumentException {
         if (name.isEmpty() || name == null) {
-            throw new InvalidParameterException("name cannot be null or empty");
+            throw new IllegalArgumentException("name cannot be null or empty");
         }
     }
 

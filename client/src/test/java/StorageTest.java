@@ -10,9 +10,11 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
@@ -208,28 +210,7 @@ public class StorageTest {
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
-    @Test
-    public void UpdateObjectShouldReturnException() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        final String expected = "updated";
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
-        StorageEventListener cb = createObjectForStorage(data);
 
-        assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
-        JSONObject obj =(JSONObject) cb.Event.Response;
-
-        data.put(DATA_VALUE_KEY,expected);
-
-        //Assert
-        _storage.Update(obj.getString("_id"),data, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertNotNull(e.Exception);
-                lcd.countDown();
-            }
-        });
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
-    }
     @Test
     public void UpdateObjectShouldReturnConflict() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -315,7 +296,8 @@ public class StorageTest {
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
-    @Test
+
+    @Test(expected = IllegalArgumentException.class)
     public void CreateShouldThrowInvalidField() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);

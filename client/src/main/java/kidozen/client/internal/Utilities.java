@@ -154,18 +154,18 @@ public class Utilities {
             @Override
             public void run() {
                 if (e.StatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
-                    callback.OnError(e.StatusCode, e.Body);
+                    callback.onError(e.StatusCode, e.Body);
                 }
                 else {
                     if (e.Response instanceof JSONObject) {
                         JSONObject o = (JSONObject) e.Response;
-                        callback.OnSuccess(e.StatusCode,o);
+                        callback.onSuccess(e.StatusCode, o);
 
                     } else if (e.Response instanceof JSONArray) {
                         JSONArray o = (JSONArray) e.Response;
-                        callback.OnSuccess(e.StatusCode,o);
+                        callback.onSuccess(e.StatusCode, o);
                     } else
-                        callback.OnSuccess(e.StatusCode,e.Body);
+                        callback.onSuccess(e.StatusCode, e.Body);
                 }
             }
         };
@@ -176,7 +176,7 @@ public class Utilities {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                callback.OnStart();
+                callback.onStart();
             }
         };
         dispatchOnThread(r);

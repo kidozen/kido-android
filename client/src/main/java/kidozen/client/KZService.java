@@ -19,6 +19,7 @@ import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.authentication.KidoZenUserIdentityType;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.SNIConnectionManager;
+import kidozen.client.internal.Utilities;
 
 /**
  * Base class for the following services:
@@ -183,11 +184,6 @@ public class KZService {
             mStreamMessage = message;
         }
 
-        //public void setServiceResponseHandler(ServiceResponseHandler serviceResponseHandler) {
-        //    mServiceResponseHandler = serviceResponseHandler;
-        //}
-
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -223,18 +219,18 @@ public class KZService {
 
                     mSniManager = new SNIConnectionManager(url, mStringMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
                     if (mServiceEventCallback instanceof ServiceResponseHandler) {
-                        //Utilities.DispatchServiceStartListener(mServiceEventCallback);
+                        Utilities.DispatchServiceStartListener((ServiceResponseHandler)mServiceEventCallback);
                     }
                     Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
                     createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-                    System.out.println("***** =>> body:" + body);
-                    System.out.println("***** =>> status:" + response.get("statusCode"));
-                    System.out.println("***** =>> content:" + response.get("contentType"));
+                    //System.out.println("***** =>> body:" + body);
+                    //System.out.println("***** =>> status:" + response.get("statusCode"));
+                    //System.out.println("***** =>> content:" + response.get("contentType"));
 
-                    if (body=="") {
+                    if (body == "") {
                         mFinalServiceEvent = new ServiceEvent(this, statusCode, body, body);
                     }
                     else {
@@ -280,27 +276,30 @@ public class KZService {
         @Override
         protected void onPostExecute(ServiceEvent result) {
             if (mServiceEventCallback instanceof ServiceResponseHandler) {
+                //System.out.println("***** =>> onPostExecute. Is ServiceResponseHandler");
                 dispatchServiceResponseListener(result, (ServiceResponseHandler) mServiceEventCallback);
             }
             else {
+                //System.out.println("***** =>> onPostExecute. NOT ServiceResponseHandler");
                 mServiceEventCallback.onFinish(result);
             }
         }
 
         private void dispatchServiceResponseListener(final ServiceEvent e,final ServiceResponseHandler callback) {
+
             if (e.StatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
-                callback.OnError(e.StatusCode, e.Body);
+                callback.onError(e.StatusCode, e.Body);
             }
             else {
                 if (e.Response instanceof JSONObject) {
                     JSONObject o = (JSONObject) e.Response;
-                    callback.OnSuccess(e.StatusCode,o);
+                    callback.onSuccess(e.StatusCode, o);
 
                 } else if (e.Response instanceof JSONArray) {
                     JSONArray o = (JSONArray) e.Response;
-                    callback.OnSuccess(e.StatusCode,o);
+                    callback.onSuccess(e.StatusCode, o);
                 } else
-                    callback.OnSuccess(e.StatusCode,e.Body);
+                    callback.onSuccess(e.StatusCode, e.Body);
             }
         }
 
