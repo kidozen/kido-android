@@ -49,28 +49,18 @@ public class Files extends KZService {
     {
         if (fullDestinationPath.isEmpty() || fullDestinationPath==null)
             throw new IllegalArgumentException("fullDestinationPath");
+        AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fullDestinationPath);
 
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(CONNECTION_HEADER, KEEP_ALIVE_HEADER_VALUE);
+        headers.put(X_FILE_NAME_HEADER, nameAndPath.getKey());
+        headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-
-                AbstractMap.SimpleEntry<String, String> nameAndPath = getNameAndPath(fullDestinationPath);
-
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(CONNECTION_HEADER, KEEP_ALIVE_HEADER_VALUE);
-                headers.put(X_FILE_NAME_HEADER, nameAndPath.getKey());
-                headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
-
-                String url = mEndpoint + nameAndPath.getValue();
-                mSelf.setProcessAsStream(true);
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,fileStream,callback, getStrictSSL()).execute(url);
-            }
-    });
-
-}
+        String url = mEndpoint + nameAndPath.getValue();
+        mSelf.setProcessAsStream(true);
+        new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,fileStream,callback, getStrictSSL()).execute(url);
+    }
 
     /**
 	 * Download a file
@@ -80,30 +70,22 @@ public class Files extends KZService {
     * */
     public void Download(final String filePath, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        String fullFilePath = filePath;
+        if (fullFilePath.isEmpty() || fullFilePath==null)
+            throw new IllegalArgumentException("fullFilePath");
+        if (!fullFilePath.startsWith("/")) {
+            fullFilePath = "/" + fullFilePath;
+        }
 
-                String fullFilePath = filePath;
-                if (fullFilePath.isEmpty() || fullFilePath==null)
-                    throw new IllegalArgumentException("fullFilePath");
-                if (!fullFilePath.startsWith("/")) {
-                    fullFilePath = "/" + fullFilePath;
-                }
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(PRAGMA_HEADER, NO_CACHE);
+        headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(PRAGMA_HEADER, NO_CACHE);
-                headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
-
-                String url = mEndpoint + fullFilePath;
-                mSelf.setProcessAsStream(true);
-                KZServiceAsyncTask at = new KZServiceAsyncTask(KZHttpMethod.GET,params,headers, callback, getStrictSSL());
-                at.execute(url);
-            }
-        });
-
+        String url = mEndpoint + fullFilePath;
+        mSelf.setProcessAsStream(true);
+        KZServiceAsyncTask at = new KZServiceAsyncTask(KZHttpMethod.GET,params,headers, callback, getStrictSSL());
+        at.execute(url);
     }
     /**
      * Deletes a file
@@ -113,27 +95,19 @@ public class Files extends KZService {
      * */
     public void Delete(final String path, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        String fullpath = path;
+        if (path.isEmpty() || path==null)
+            throw new IllegalArgumentException("path");
+        if (!path.startsWith("/"))
+            fullpath = "/" + path;
 
-                String fullpath = path;
-                if (path.isEmpty() || path==null)
-                    throw new IllegalArgumentException("path");
-                if (!path.startsWith("/"))
-                    fullpath = "/" + path;
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(PRAGMA_HEADER, NO_CACHE);
+        headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(PRAGMA_HEADER, NO_CACHE);
-                headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
-
-                String url = mEndpoint + fullpath;
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        String url = mEndpoint + fullpath;
+        new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
     }
     /**
      * Browse the folder
@@ -143,28 +117,21 @@ public class Files extends KZService {
      * */
     public void Browse(final String path,final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String fullpath = path;
-                if (path.isEmpty() || path==null)
-                    throw new IllegalArgumentException("path");
-                if (path.lastIndexOf("/") + 1 != path.length() && path.length() > 1)
-                    throw new IllegalArgumentException("path must finish with '/'");
-                if (!path.startsWith("/"))
-                    fullpath = "/" + path;
+        String fullpath = path;
+        if (path.isEmpty() || path==null)
+            throw new IllegalArgumentException("path");
+        if (path.lastIndexOf("/") + 1 != path.length() && path.length() > 1)
+            throw new IllegalArgumentException("path must finish with '/'");
+        if (!path.startsWith("/"))
+            fullpath = "/" + path;
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(PRAGMA_HEADER, NO_CACHE);
-                headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(PRAGMA_HEADER, NO_CACHE);
+        headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
-                String url = mEndpoint + fullpath;
-                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        String url = mEndpoint + fullpath;
+        new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
     }
 
     private AbstractMap.SimpleEntry<String, String> getNameAndPath(String fullFilePath)

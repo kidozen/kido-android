@@ -44,29 +44,21 @@ public class Notification extends KZService  {
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Subscribe(final String androidId,final String channel,final String subscriptionID, final ServiceEventListener callback) {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        _channel = channel;
+        _deviceId = androidId;
 
-            _channel = channel;
-            _deviceId = androidId;
+        HashMap<String, String> s = new HashMap<String, String>();
+        s.put("deviceId", _deviceId);
+        s.put("subscriptionId", subscriptionID);
+        s.put("platform", PLATFORM_C2DM);
 
-            HashMap<String, String> s = new HashMap<String, String>();
-            s.put("deviceId", _deviceId);
-            s.put("subscriptionId", subscriptionID);
-            s.put("platform", PLATFORM_C2DM);
+        String  url = mEndpoint + "/subscriptions/" + mName + "/" + _channel;
 
-            String  url = mEndpoint + "/subscriptions/" + mName + "/" + _channel;
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-            HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put(Constants.AUTHORIZATION_HEADER, token);
-            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-
-            new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,new JSONObject(s), callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,new JSONObject(s), callback, getStrictSSL()).execute(url);
     }
 
 	/**
@@ -78,19 +70,11 @@ public class Notification extends KZService  {
 	 */
 	public void Unsubscribe(final String channel, final String subscriptionId, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        String  url = mEndpoint + "/subscriptions/" + mName + "/" + channel + "/" + subscriptionId ;
+        HashMap<String, String> params = null;
+        HashMap<String, String> headers = new HashMap<String, String>();
 
-                String  url = mEndpoint + "/subscriptions/" + mName + "/" + channel + "/" + subscriptionId ;
-                HashMap<String, String> params = null;
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
     }
 
 	/**
@@ -102,20 +86,13 @@ public class Notification extends KZService  {
 	 */
 	public void Push(final String channel,final JSONObject data, final ServiceEventListener callback)
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+            String  url = mEndpoint + "/push/" + mName + "/" + channel;
 
-                String  url = mEndpoint + "/push/" + mName + "/" + channel;
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
-            }
-        });
+            new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
     }
 
 	/**
@@ -126,18 +103,11 @@ public class Notification extends KZService  {
 	public void  GetSubscriptions(String deviceId, final ServiceEventListener callback) throws InvalidParameterException {
         if (deviceId.isEmpty() || deviceId == null) throw new InvalidParameterException("Invalid deviceId");
         _deviceId = deviceId;
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/devices/" + _deviceId + "/" + mName;
+        String  url = mEndpoint + "/devices/" + _deviceId + "/" + mName;
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers,  callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        new KZServiceAsyncTask(KZHttpMethod.GET, params, headers,  callback, getStrictSSL()).execute(url);
     }
 
 

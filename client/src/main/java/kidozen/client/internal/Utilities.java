@@ -190,4 +190,7 @@ public class Utilities {
         }
     }
 
+    public static String GetInvalidParameterMessage(String arg) {
+        return String.format("invalid '%s' value",arg);
+    }
 }

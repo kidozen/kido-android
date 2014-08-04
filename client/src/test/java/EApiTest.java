@@ -46,11 +46,10 @@ public class EApiTest {
     public void Setup()
     {
         try {
-            final CountDownLatch signal = new CountDownLatch(2);
+            final CountDownLatch signal = new CountDownLatch(1);
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
             signal.await();
-            System.out.println("luego del await del setup");
         }
         catch (Exception e)
         {
@@ -79,8 +78,7 @@ public class EApiTest {
         service.InvokeMethod(KZ_SERVICE_INVALID_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertNotNull(e.Exception);
-                assertEquals(e.StatusCode, HttpStatus.SC_NOT_FOUND);
+                assertEquals(e.StatusCode, HttpStatus.SC_BAD_REQUEST);
                 lcd.countDown();
             }
         });

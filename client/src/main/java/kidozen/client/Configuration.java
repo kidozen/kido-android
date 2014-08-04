@@ -41,18 +41,12 @@ public class Configuration  extends KZService {
 	 */
 	public void Save(final JSONObject message, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
-            }
-        });
+            String  url = mEndpoint + "/" + mName;
+            HashMap<String, String> params = new HashMap<String, String>();
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+            new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
 	}
 
 	/**
@@ -62,17 +56,11 @@ public class Configuration  extends KZService {
 	 */
 	public void Get(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
+            String  url = mEndpoint + "/" + mName;
+            HashMap<String, String> params = new HashMap<String, String>();
+            HashMap<String, String> headers = new HashMap<String, String>();
 
-                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(url);
-            }
-        });
+            new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(url);
 	}
 
 	/**
@@ -90,17 +78,11 @@ public class Configuration  extends KZService {
 	 */
 	public void Delete(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
+        String  url = mEndpoint + "/" + mName;
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
 
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
+        new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
     }
 
 	/**
@@ -110,15 +92,9 @@ public class Configuration  extends KZService {
 	 */
 	public void All(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
+        String  url = mEndpoint + "/" + mName;
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
 	}
 }

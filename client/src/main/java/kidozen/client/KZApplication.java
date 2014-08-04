@@ -485,7 +485,7 @@ public class KZApplication {
     }
 
     private void checkMethodParameters(String name) throws IllegalArgumentException {
-        if (name.isEmpty() || name == null) {
+        if ( name == null || name.isEmpty() ) {
             throw new IllegalArgumentException("name cannot be null or empty");
         }
     }

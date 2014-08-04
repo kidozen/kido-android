@@ -59,23 +59,23 @@ public class MailSender extends KZService {
             @Override
             public void Fire(String token) {
 
-            JSONObject message= new JSONObject(mail.GetHashMap());
-            HashMap<String, String> params = new HashMap<String, String>();
-            HashMap<String, String> headers = new HashMap<String, String>();
+                JSONObject message= new JSONObject(mail.GetHashMap());
+                HashMap<String, String> params = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<String, String>();
 
-            headers.put(Constants.AUTHORIZATION_HEADER, token);
-            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+                headers.put(Constants.AUTHORIZATION_HEADER, token);
+                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-            if ( mail.Attachments!=null)
-            {
-                Uploader upd =  new Uploader(mSelf, mail, headers, params, callback, mEndpoint, mail.Attachments, token);
-                upd.execute();
-            }
-            else
-            {
-                new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, getStrictSSL()).execute(mEndpoint);
-            }
+                if ( mail.Attachments!=null)
+                {
+                    Uploader upd =  new Uploader(mSelf, mail, headers, params, callback, mEndpoint, mail.Attachments, token);
+                    upd.execute();
+                }
+                else
+                {
+                    new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, getStrictSSL()).execute(mEndpoint);
+                }
 
             }
         });

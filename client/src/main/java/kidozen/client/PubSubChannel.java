@@ -57,20 +57,14 @@ public class PubSubChannel extends KZService {
      */
     public void Publish(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("isPrivate", (isPrivate ? "true" : "false"));
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        String  url = mEndpoint + "/" + mName;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("isPrivate", (isPrivate ? "true" : "false"));
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
-            }
-        });
+        new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
     }
 
     /**

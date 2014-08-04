@@ -43,25 +43,17 @@ public class SMSSender extends KZService {
 	@SuppressWarnings("deprecation")
 	public void Send(final String message, final ServiceEventListener callback) 
     {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        String encodedNumber =  URLEncoder.encode(_number);
+        String encodedMessage =  URLEncoder.encode(message);
+        String  url = mEndpoint;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("to", encodedNumber);
+        params.put("message", encodedMessage);
 
-                String encodedNumber =  URLEncoder.encode(_number);
-                String encodedMessage =  URLEncoder.encode(message);
-                String  url = mEndpoint;
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("to", encodedNumber);
-                params.put("message", encodedMessage);
-
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, callback, getStrictSSL()).execute(url);
     }
 
     /**
@@ -72,17 +64,10 @@ public class SMSSender extends KZService {
      */
     public void GetStatus(final String messageId,  final ServiceEventListener callback) 
     {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        String  url = mEndpoint + "/" + messageId;
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
 
-            String  url = mEndpoint + "/" + messageId;
-            HashMap<String, String> params = new HashMap<String, String>();
-            HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put(Constants.AUTHORIZATION_HEADER, token);
-
-            new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
+        new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
     }
 }

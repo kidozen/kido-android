@@ -37,109 +37,82 @@ public class Logging extends KZService {
     {
         final String jMessage = new LogSerializer<ArrayList>().ToJsonString(data);
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                Integer lvl = level.ordinal();
-                String url = createLogEndpoint(message, level);
+        Integer lvl = level.ordinal();
+        String url = createLogEndpoint(message, level);
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("level", lvl.toString());
+        HashMap<String, String> headers = new HashMap<String, String>();
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
-            }
-        });
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
     }
 
 
     public void Write(final String message,final Map data,final  LogLevel level,final  ServiceEventListener callback) {
         final String jMessage = new LogSerializer<Map>().ToJsonString(data);
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                Integer lvl = level.ordinal();
-                String url = createLogEndpoint(message, level);
+        Integer lvl = level.ordinal();
+        String url = createLogEndpoint(message, level);
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("level", lvl.toString());
+        HashMap<String, String> headers = new HashMap<String, String>();
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
-            }
-        });
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
+
     }
 
 
     public void Write(final String message, final int data, final LogLevel level, final ServiceEventListener callback)
     {
         final String jMessage = new LogSerializer<Integer>().ToJsonString(data);
+        Integer lvl = level.ordinal();
+        String url = createLogEndpoint(message, level);
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                Integer lvl = level.ordinal();
-                String url = createLogEndpoint(message, level);
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("level", lvl.toString());
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
-            }
-        });
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
     }
 
     public void Write(final String message, final String data, final LogLevel level, final ServiceEventListener callback)
     {
         final String jMessage = new LogSerializer<String>().ToJsonString(data);
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                Integer lvl = level.ordinal();
-                String url = createLogEndpoint(message, level);
+        Integer lvl = level.ordinal();
+        String url = createLogEndpoint(message, level);
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("level", lvl.toString());
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
-            }
-        });
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
     }
 
 
 	public void Write(final String message, final JSONObject data, final LogLevel level, final ServiceEventListener callback)
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                Integer lvl = level.ordinal();
-                String url = createLogEndpoint(message, level);
+        Integer lvl = level.ordinal();
+        String url = createLogEndpoint(message, level);
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("level", lvl.toString());
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, data, callback, getStrictSSL()).execute(url);
-            }
-        });
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("level", lvl.toString());
+        HashMap<String, String> headers = new HashMap<String, String>();
+
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, data, callback, getStrictSSL()).execute(url);
 	}
 
 	/**
@@ -160,17 +133,11 @@ public class Logging extends KZService {
 	 */
 	public void Clear(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String url = String.format("%s/log/", mEndpoint);
+            String url = String.format("%s/log/", mEndpoint);
 
-                HashMap<String, String> params = null;
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(mEndpoint);
-            }
-        });
+            HashMap<String, String> params = null;
+            HashMap<String, String> headers = new HashMap<String, String>();
+            new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(mEndpoint);
 	}
 
 	/**
@@ -191,7 +158,6 @@ public class Logging extends KZService {
 	 */
 	public void Query(final String query, final ServiceEventListener callback)
 	{
-		
 		if (query == null )
 		{
 			throw new  InvalidParameterException("query cannot be null");
@@ -200,17 +166,11 @@ public class Logging extends KZService {
 		{
 			throw new  InvalidParameterException("query cannot be empty");
 		}
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("query", query);
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,token);
 
-                new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(mEndpoint);
-            }
-        });
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("query", query);
+        HashMap<String, String> headers = new HashMap<String, String>();
+        new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(mEndpoint);
 	}
 
     class LogSerializer<T> {
