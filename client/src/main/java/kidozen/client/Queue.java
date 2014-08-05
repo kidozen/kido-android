@@ -59,9 +59,6 @@ public class Queue  extends KZService {
 	{
         String  url = mEndpoint + "/" + mName + "/next";
 
-        HashMap<String, String> params = null;
-        HashMap<String, String> headers = new HashMap<String, String>();
-
-        new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
+        new KZServiceAsyncTask(KZHttpMethod.DELETE, null, null, callback, getStrictSSL()).execute(url);
        }
 }

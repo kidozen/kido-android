@@ -52,33 +52,32 @@ public class MailSender extends KZService {
      * @param callback The callback with the result of the service call
      */
     public void Send(final Mail mail, final ServiceEventListener callback) throws ExecutionException, InterruptedException, JSONException {
-        if ( mail == null)
-            throw new InvalidParameterException("mail cannot be null");
+        if ( mail == null )
+            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail"));
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        if ( mail.from()==null || mail.from().isEmpty() )
+            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail.from"));
 
-                JSONObject message= new JSONObject(mail.GetHashMap());
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
+        if ( mail.to()==null || mail.to().isEmpty() )
+            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail.to"));
 
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                if ( mail.Attachments!=null)
-                {
-                    Uploader upd =  new Uploader(mSelf, mail, headers, params, callback, mEndpoint, mail.Attachments, token);
-                    upd.execute();
-                }
-                else
-                {
-                    new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, getStrictSSL()).execute(mEndpoint);
-                }
+        JSONObject message= new JSONObject(mail.GetHashMap());
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
 
-            }
-        });
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+
+        if ( mail.Attachments!=null)
+        {
+            Uploader upd =  new Uploader(mSelf, mail, headers, params, callback, mEndpoint, mail.Attachments);
+            upd.execute();
+        }
+        else
+        {
+            new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, getStrictSSL()).execute(mEndpoint);
+        }
     }
 
     private class Uploader extends AsyncTask {
@@ -106,7 +105,7 @@ public class MailSender extends KZService {
         private ServiceEventListener _callback;
         private boolean _sent = false;
 
-        public Uploader(KZService service, Mail message, HashMap<String, String> headers, HashMap<String, String> params, ServiceEventListener callback, String baseUrl, List<String> attachments, String authHeaderValue)
+        public Uploader(KZService service, Mail message, HashMap<String, String> headers, HashMap<String, String> params, ServiceEventListener callback, String baseUrl, List<String> attachments)
         {
             _mailService = service;
             _message = message;
@@ -116,7 +115,7 @@ public class MailSender extends KZService {
 
             _baseUrl = baseUrl;
             _attachments = attachments;
-            _authHeaderValue = authHeaderValue;
+
         }
         private AbstractMap.SimpleEntry<String, String> getNameAndPath(String fullFilePath)
         {
@@ -125,6 +124,15 @@ public class MailSender extends KZService {
             String path = fullFilePath.replace("/" + file, "");
 
             return  new AbstractMap.SimpleEntry<String, String>(file,path);
+        }
+        @Override
+        protected void onPreExecute() {
+            CreateAuthHeaderValue(new KZServiceEvent<String>() {
+                @Override
+                public void Fire(String token) {
+                    _authHeaderValue = token;
+                }
+            });
         }
         @Override
         protected Object doInBackground(Object[] objects) {

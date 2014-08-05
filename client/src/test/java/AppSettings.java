@@ -25,11 +25,11 @@ public class AppSettings {
         KZ_EMAIL_ATTACH =       "/Users/christian/attach.txt";
         KZ_PROVIDER=            "Kidozen";
         KZ_SERVICE_ID =         "weather";
-/*
+
         KZ_EMAIL_FROM =         "contoso@kidozen.com.com";
         KZ_EMAIL_TO =           "you@kidozen.com";
 
-
+    /*
         KZ_KEY =     "XhIBjFxY23T3c9u7ZCPWbP67ec802eXgbyWCag/7Fw4=";
         KZ_APP =     "tasks";
         KZ_TENANT =  "https://contoso.local.kidozen.com";

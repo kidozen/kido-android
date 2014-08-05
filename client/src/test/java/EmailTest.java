@@ -19,8 +19,8 @@ import kidozen.client.ServiceEventListener;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
 
 
 /**
@@ -84,6 +84,7 @@ public class EmailTest {
         kidozen.SendEmail(mail, sendCallback(lcd));
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
     @Test
     public void ShouldReturnInternalServerError() throws Exception {
         List<String> attachs = new ArrayList<String>();
@@ -107,6 +108,7 @@ public class EmailTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
     @Test
     public void ShouldSendEmailWithMultipleRecipients() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
