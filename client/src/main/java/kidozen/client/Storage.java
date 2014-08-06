@@ -114,6 +114,7 @@ public class Storage extends KZService {
             serializedMsg = checkDateSerialization(message);
         }
         catch (JSONException e) {
+            System.out.println(e.getMessage());
             createServiceEventWithException(e, callback);
         }
 
@@ -136,7 +137,7 @@ public class Storage extends KZService {
      * @throws SynchronousException
     */
     public JSONObject Update(final String id, final JSONObject message) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this,"Update", JSONObject.class , Boolean.TYPE, ServiceEventListener.class)
+        return new SyncHelper<JSONObject>(this,"Update", String.class, JSONObject.class , ServiceEventListener.class)
                 .Invoke(new Object[] { id, message});
     }
 

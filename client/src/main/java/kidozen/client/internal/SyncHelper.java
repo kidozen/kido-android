@@ -49,6 +49,9 @@ public class SyncHelper<T> {
         }
         finally {
             mStatusCode = listener.getStatusCode();
+            System.out.println("Sync STATUS Code: " + String.valueOf(mStatusCode));
+            System.out.println("Sync RESPONSE: " + listener.getStringNResponse());
+            System.out.println("Sync ERROR: " + listener.getError());
             if (listener.getError()!=null)
                 throw new SynchronousException();
             else
