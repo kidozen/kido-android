@@ -48,7 +48,7 @@ public class KZService {
 
     Hashtable<String, String> mRequestHeaders = new Hashtable<String, String>();
 
-    //private ServiceResponseHandler mServiceResponseHandler = null;
+    private int mDefaultServiceTimeoutInSeconds = 10;
 
     public KZService() {
 
@@ -130,6 +130,14 @@ public class KZService {
 
     public void setProcessAsStream(boolean processAsStream) {
         ProcessAsStream = processAsStream;
+    }
+
+    public int getDefaultServiceTimeoutInSeconds() {
+        return mDefaultServiceTimeoutInSeconds;
+    }
+
+    public void setDefaultServiceTimeoutInSeconds(int mDefaultServiceTimeoutInSeconds) {
+        this.mDefaultServiceTimeoutInSeconds = mDefaultServiceTimeoutInSeconds;
     }
 
     public class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {

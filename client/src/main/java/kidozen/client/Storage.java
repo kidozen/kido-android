@@ -7,9 +7,12 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncServiceEventListener;
 
 /**
  * Storage  service interface
@@ -47,7 +50,6 @@ public class Storage extends KZService {
     {
         validateParameters(message);
 
-
         String  url = mEndpoint + "/" + mName;
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("isPrivate", (isPrivate ? "true" : "false"));
@@ -57,6 +59,21 @@ public class Storage extends KZService {
 
         KZServiceAsyncTask task = new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message, callback, getStrictSSL());
         task.execute(url);
+    }
+
+    public JSONObject Create(final JSONObject message, final boolean isPrivate) throws TimeoutException, SynchronousException {
+        CountDownLatch latch = new CountDownLatch(1);
+        SyncServiceEventListener listenner = new SyncServiceEventListener(latch);
+        try {
+            this.Create(message,isPrivate, listenner);
+            latch.await(getDefaultServiceTimeoutInSeconds(), TimeUnit.SECONDS);
+            if (listenner.getError()!=null)
+                throw new SynchronousException();
+            else
+                return listenner.getJSONResponse();
+        } catch (InterruptedException e) {
+            throw new TimeoutException();
+        }
     }
 
     private void validateParameters(JSONObject message) {
