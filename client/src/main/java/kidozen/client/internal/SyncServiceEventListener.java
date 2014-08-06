@@ -1,8 +1,10 @@
 package kidozen.client.internal;
 
+import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 import kidozen.client.ServiceEvent;
@@ -18,12 +20,19 @@ public class SyncServiceEventListener implements ServiceEventListener {
     private Exception mError = null;
     private CountDownLatch mLatch = null;
 
+    private Object mServiceEventResponse = null;
+    private int mStatusCode;
+
+
     public SyncServiceEventListener(CountDownLatch latch) {
         mLatch = latch;
     }
 
     @Override
     public void onFinish(ServiceEvent e) {
+        mStatusCode = e.StatusCode;
+        mServiceEventResponse = e.Response;
+
         if (e.Response instanceof JSONObject)
             mJObjectResponse = (JSONObject) e.Response;
         else if (e.Response instanceof JSONArray)
@@ -34,7 +43,9 @@ public class SyncServiceEventListener implements ServiceEventListener {
             mError = e.Exception;
         mLatch.countDown();
     }
-
+    public Object getServiceResponse(){
+        return mServiceEventResponse;
+    }
     public JSONObject getJSONResponse() {
         return mJObjectResponse;
     }
@@ -46,5 +57,9 @@ public class SyncServiceEventListener implements ServiceEventListener {
     }
     public Exception getError() {
         return mError;
+    }
+
+    public int getStatusCode() {
+        return mStatusCode;
     }
 }

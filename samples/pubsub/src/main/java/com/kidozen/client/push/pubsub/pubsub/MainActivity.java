@@ -20,6 +20,7 @@ import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.ServiceResponseListener;
 import kidozen.client.Storage;
+import kidozen.client.SynchronousException;
 
 
 public class MainActivity extends Activity {
@@ -121,14 +122,12 @@ public class MainActivity extends Activity {
                 @Override
                 public void onSuccess(int statusCode, String response) {
                     try {
-                        mStorage =mKidoApp.Storage("tasks");
-                        mStorage.All(new ServiceEventListener() {
-                            @Override
-                            public void onFinish(ServiceEvent e) {
-                                Log.d("", e.Body);
-                            }
-                        });
+                        mStorage = mKidoApp.Storage("tasks");
+                        JSONObject metadata = mStorage.Create(new JSONObject().put("a","b"));
+                        Log.d(TAG,metadata.toString());
                     } catch (Exception e) {
+                        e.printStackTrace();
+                    } catch (SynchronousException e) {
                         e.printStackTrace();
                     }
 
