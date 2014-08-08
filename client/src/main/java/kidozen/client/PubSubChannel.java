@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 
 /**
  * Publish and subscribe service interface
@@ -65,6 +66,12 @@ public class PubSubChannel extends KZService {
         headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
         new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
+    }
+
+    public boolean Publish(JSONObject message, boolean isPrivate) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Publish", JSONObject.class, boolean.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{message , isPrivate});
+        return (helper.getStatusCode() == HttpStatus.SC_CREATED);
     }
 
     /**

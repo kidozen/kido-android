@@ -2,6 +2,7 @@ package kidozen.client;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.JsonStringToMap;
+import kidozen.client.internal.SyncHelper;
 import kidozen.client.internal.Utilities;
 
 /**
@@ -49,6 +51,13 @@ public class DataSource extends KZService {
 
         new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
     }
+
+    public JSONTokener Query(int timeout) throws TimeoutException, SynchronousException {
+        String result = new SyncHelper<String>(this, "Query", int.class , ServiceEventListener.class)
+                .Invoke(new Object[] { timeout });
+        return new JSONTokener(result);
+    }
+
     /**
      * Invokes a Query DataSource
      *
@@ -56,6 +65,12 @@ public class DataSource extends KZService {
      */
     public void Query(final ServiceEventListener callback) {
         this.Query(0,callback);
+    }
+
+    public JSONTokener Query() throws TimeoutException, SynchronousException {
+        String result = new SyncHelper<String>(this, "Query", int.class , ServiceEventListener.class)
+                .Invoke(new Object[] {});
+        return new JSONTokener(result);
     }
 
     /**
@@ -75,6 +90,13 @@ public class DataSource extends KZService {
 
         new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  new JSONObject(), callback, getStrictSSL()).execute(url);
     }
+
+    public JSONTokener Invoke(int timeout) throws TimeoutException, SynchronousException {
+        String result = new SyncHelper<String>(this, "Invoke", int.class , ServiceEventListener.class)
+                .Invoke(new Object[] { timeout });
+        return new JSONTokener(result);
+    }
+
     /**
      * Invokes a DataSource
      *
@@ -82,6 +104,10 @@ public class DataSource extends KZService {
      */
     public void Invoke(final ServiceEventListener callback) {
         this.Invoke(0,callback);
+    }
+
+    public JSONTokener Invoke() throws TimeoutException, SynchronousException {
+        return this.Invoke(0);
     }
 
     /**
@@ -106,6 +132,12 @@ public class DataSource extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
     }
 
+    public JSONTokener Invoke(JSONObject data, int timeout) throws TimeoutException, SynchronousException {
+        String result = new SyncHelper<String>(this, "Invoke",JSONObject.class, int.class , ServiceEventListener.class)
+                .Invoke(new Object[] { data, timeout });
+        return new JSONTokener(result);
+    }
+
     /**
      * Invokes a DataSource
      *
@@ -115,6 +147,9 @@ public class DataSource extends KZService {
      */
     public void Invoke(final JSONObject data, final ServiceEventListener callback) {
         this.Invoke (data, 0, callback);
+    }
+    public JSONTokener Invoke(JSONObject data) throws TimeoutException, SynchronousException {
+        return this.Invoke(data,0);
     }
 
 
@@ -127,6 +162,10 @@ public class DataSource extends KZService {
      */
     public void Query(final JSONObject data, final ServiceEventListener callback) {
         this.Query(data, 0, callback);
+    }
+
+    public JSONTokener Query(JSONObject data) throws TimeoutException, SynchronousException {
+        return this.Query(data,0);
     }
 
     /**
@@ -152,6 +191,12 @@ public class DataSource extends KZService {
             if (callback!=null)
                 callback.onFinish(new ServiceEvent(this, HttpStatus.SC_NOT_FOUND, e.getMessage(), e));
         }
+    }
+
+    public JSONTokener Query(JSONObject data, int timeout) throws TimeoutException, SynchronousException {
+        String result = new SyncHelper<String>(this, "Query", JSONObject.class, int.class , ServiceEventListener.class)
+                .Invoke(new Object[] { data, timeout });
+        return new JSONTokener(result);
     }
 
     private String appendJsonAsQueryString(JSONObject data) {

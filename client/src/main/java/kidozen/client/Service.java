@@ -1,11 +1,13 @@
 package kidozen.client;
 
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 import kidozen.client.internal.Utilities;
 
 /**
@@ -44,6 +46,10 @@ public class Service extends KZService {
         this.InvokeMethod(method, data, 0, callback);
     }
 
+    public JSONTokener InvokeMethod(String method, JSONObject data) throws TimeoutException, SynchronousException {
+        return this.InvokeMethod(method,data,0) ;
+    }
+
     /**
      * Invokes a LOB method
      *
@@ -53,7 +59,6 @@ public class Service extends KZService {
      * @param callback The callback with the result of the service call
      */
     public void InvokeMethod(final String method, final JSONObject data,final int timeout, final ServiceEventListener callback) {
-
         if (method.isEmpty() || method==null)
             throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("method"));
         if (data==null)
@@ -71,4 +76,11 @@ public class Service extends KZService {
 
         new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, getStrictSSL()).execute(url);
     }
+
+    public JSONTokener InvokeMethod(String method, JSONObject data, int timeout) throws TimeoutException, SynchronousException {
+        String result = new SyncHelper<String>(this, "InvokeMethod", String.class, JSONObject.class, int.class , ServiceEventListener.class)
+                .Invoke(new Object[] { method, data, timeout });
+        return new JSONTokener(result);
+    }
+
 }

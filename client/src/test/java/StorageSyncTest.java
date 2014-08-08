@@ -1,11 +1,11 @@
 import junit.framework.Assert;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -22,6 +22,9 @@ import kidozen.client.Storage;
 import kidozen.client.SynchronousException;
 import kidozen.client.TimeoutException;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -72,7 +75,7 @@ public class StorageSyncTest {
         };
     }
 
-    @Ignore
+    @Test
     public void ShouldCreateMessage() throws JSONException{
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
         try {
@@ -99,7 +102,7 @@ public class StorageSyncTest {
             Assert.assertNotNull(result.getJSONObject("_metadata"));
 
             result.put(DATA_VALUE_KEY, "expected");
-System.out.println(result.toString());
+
             JSONObject updated = storage.Update(result.getString("_id"), result);
             Assert.assertNotNull(updated);
             Assert.assertNotNull(updated.getJSONObject("_metadata"));
@@ -113,7 +116,143 @@ System.out.println(result.toString());
         }
     }
 
-    @Ignore//(expected = SynchronousException.class)
+    @Test
+    public void ShouldDeleteMessage() throws JSONException{
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
+        try {
+            Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+            JSONObject result = storage.Create(data, true);
+            Assert.assertNotNull(result);
+            Assert.assertNotNull(result.getJSONObject("_metadata"));
+
+            result.put(DATA_VALUE_KEY, "expected");
+
+            boolean deleted = storage.Delete(result.getString("_id"));
+            assertTrue(deleted);
+
+        } catch (SynchronousException e) {
+            fail();
+        } catch (InterruptedException e) {
+            fail();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void ShouldGetMessage() throws JSONException{
+        String expectedValue = AppSettings.CreateRandomValue();
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expectedValue);
+        try {
+            Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+            JSONObject result = storage.Create(data, true);
+            Assert.assertNotNull(result);
+            Assert.assertNotNull(result.getJSONObject("_metadata"));
+
+            result.put(DATA_VALUE_KEY, "expected");
+
+            JSONObject lastcreated = storage.Get(result.getString("_id"));
+            assertEquals(expectedValue, lastcreated.getString((DATA_VALUE_KEY)));
+
+        } catch (SynchronousException e) {
+            fail();
+        } catch (InterruptedException e) {
+            fail();
+        } catch (TimeoutException e) {
+            fail();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void ShouldGetAllObjects() throws JSONException{
+        try {
+            Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+
+            JSONArray objects = storage.All();
+            assertTrue(objects.length()>0);
+
+        } catch (SynchronousException e) {
+            fail();
+        } catch (InterruptedException e) {
+            fail();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+    @Test
+    public void ShouldQueryObjects() throws JSONException{
+        try {
+            Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+
+            final String expected = AppSettings.CreateRandomValue();
+            JSONObject message = new JSONObject().put(DATA_VALUE_KEY,expected);
+            storage.Create(message);
+            String query = message.toString();
+
+            JSONArray objects = storage.Query(query);
+            assertEquals(expected,objects.getJSONObject(0).getString(DATA_VALUE_KEY));
+
+        } catch (SynchronousException e) {
+            fail();
+        } catch (InterruptedException e) {
+            fail();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void ShouldCreateObjectWhenCallSAVE() throws Exception
+    {
+        JSONObject data = new JSONObject()
+                .put(DATA_VALUE_KEY, "ShouldCreateObjectWhenCallSAVE");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+        try {
+            JSONObject result = storage.Save(data);
+            assertNotNull(result);
+        } catch (SynchronousException e) {
+            fail();
+        }
+    }
+    @Test
+    public void ShouldCreatePublicObjectWhenCallSAVE() throws Exception
+    {
+        JSONObject data = new JSONObject()
+                .put(DATA_VALUE_KEY, "ShouldCreateMessage");
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+
+        try {
+            JSONObject result  = storage.Save(data,false);
+            assertNotNull(result);
+        } catch (SynchronousException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void ShouldUpdateObjectWhenCallSave() throws Exception {
+        final String expected = "updated";
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
+        try {
+            JSONObject newObject = _storage.Create(data);
+            assertNotNull(newObject);
+            newObject.put(DATA_VALUE_KEY, expected);
+
+            JSONObject savedResult = _storage.Save(newObject);
+
+            JSONObject getResult = _storage.Get(savedResult.getString("_id"));
+
+            assertEquals(getResult.getString(DATA_VALUE_KEY), expected);
+        } catch (SynchronousException e) {
+            fail();
+        }
+    }
+
+    @Test(expected = SynchronousException.class)
     public void ShouldTryToUpdateMessageAndReturnSynchronousEx() throws JSONException, SynchronousException {
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
 

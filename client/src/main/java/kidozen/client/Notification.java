@@ -1,5 +1,7 @@
 package kidozen.client;
 
+import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.security.InvalidParameterException;
@@ -7,6 +9,7 @@ import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 
 /**
  * Push notifications service interface
@@ -61,7 +64,14 @@ public class Notification extends KZService  {
         new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,new JSONObject(s), callback, getStrictSSL()).execute(url);
     }
 
-	/**
+    public boolean Subscribe(String androidId,String channel,String subscriptionID) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Subscribe", String.class, String.class, String.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{androidId,channel,subscriptionID});
+        return (helper.getStatusCode() == HttpStatus.SC_CREATED);
+    }
+
+
+    /**
 	 * Ends the subscription to the channel
 	 *  
 	 * @param channel The name of the channel to push and receive messages
@@ -77,7 +87,13 @@ public class Notification extends KZService  {
         new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
     }
 
-	/**
+    public boolean Unsubscribe(String androidId,String channel,String subscriptionID) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Unsubscribe", String.class, String.class, String.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{androidId,channel,subscriptionID});
+        return (helper.getStatusCode() == HttpStatus.SC_OK);
+    }
+
+    /**
 	 * Push a message into the specified channel
 	 * 
 	 * @param channel The name of the channel to push the message
@@ -95,6 +111,12 @@ public class Notification extends KZService  {
             new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
     }
 
+    public boolean Push(String deviceId, JSONObject data) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Push", String.class, JSONObject.class, ServiceEventListener.class);
+         helper.Invoke(new Object[]{deviceId, data});
+        return (helper.getStatusCode() == HttpStatus.SC_OK);
+    }
+
 	/**
 	 * Retrieves all the subscriptions for the current device
 	 * 
@@ -110,5 +132,9 @@ public class Notification extends KZService  {
         new KZServiceAsyncTask(KZHttpMethod.GET, params, headers,  callback, getStrictSSL()).execute(url);
     }
 
+    public JSONArray GetSubscriptions(String deviceId) throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONArray>(this, "GetSubscriptions", String.class, ServiceEventListener.class)
+                .Invoke(new Object[]{deviceId});
+    }
 
 }

@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -124,7 +123,12 @@ public class MainActivity extends Activity {
                     try {
                         mStorage = mKidoApp.Storage("tasks");
                         JSONObject metadata = mStorage.Create(new JSONObject().put("a","b"));
-                        Log.d(TAG,metadata.toString());
+
+                        metadata.put("somekey","somevalue");
+
+                        JSONObject resp = mStorage.Get(metadata.getString("_id"));
+
+                        Log.d(TAG,resp.toString());
                     } catch (Exception e) {
                         e.printStackTrace();
                     } catch (SynchronousException e) {

@@ -8,13 +8,10 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.SyncHelper;
-import kidozen.client.internal.SyncServiceEventListener;
 
 /**
  * Storage  service interface
@@ -108,7 +105,6 @@ public class Storage extends KZService {
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Update(final String id, final JSONObject message, final ServiceEventListener callback) {
-        validateParameters(message);
         JSONObject serializedMsg = null;
         try {
             serializedMsg = checkDateSerialization(message);
@@ -165,7 +161,7 @@ public class Storage extends KZService {
      * @throws SynchronousException
      */
     public JSONObject Get(final String id) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this,"Get", JSONObject.class , Boolean.TYPE, ServiceEventListener.class)
+        return new SyncHelper<JSONObject>(this,"Get", String.class, ServiceEventListener.class)
                 .Invoke(new Object[] { id });
     }
 
@@ -217,7 +213,7 @@ public class Storage extends KZService {
      * @throws SynchronousException
      */
     public boolean Delete(final String idMessage) throws TimeoutException, SynchronousException {
-        SyncHelper<String> helper = new SyncHelper(this,"Delete", ServiceEventListener.class);
+        SyncHelper<String> helper = new SyncHelper(this,"Delete", String.class, ServiceEventListener.class);
         helper.Invoke(new Object[] {idMessage});
         return (helper.getStatusCode() == HttpStatus.SC_OK);
     }
@@ -232,6 +228,10 @@ public class Storage extends KZService {
 	{
 		this.Query("{}", "{}","{}", callback);
 	}
+
+    public JSONArray All() throws TimeoutException, SynchronousException {
+        return this.Query("{}", "{}", "{}");
+    }
 
 	/**
 	 * Executes a query against the Storage

@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 import kidozen.client.internal.Utilities;
 
 /**
@@ -52,15 +53,9 @@ public class MailSender extends KZService {
      * @param callback The callback with the result of the service call
      */
     public void Send(final Mail mail, final ServiceEventListener callback) throws ExecutionException, InterruptedException, JSONException {
-        if ( mail == null )
-            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail"));
-
-        if ( mail.from()==null || mail.from().isEmpty() )
-            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail.from"));
-
-        if ( mail.to()==null || mail.to().isEmpty() )
-            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail.to"));
-
+        if ( mail == null ) throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail"));
+        if ( mail.from()==null || mail.from().isEmpty() ) throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail.from"));
+        if ( mail.to()==null || mail.to().isEmpty() ) throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("mail.to"));
 
         JSONObject message= new JSONObject(mail.GetHashMap());
         HashMap<String, String> params = new HashMap<String, String>();
@@ -78,6 +73,12 @@ public class MailSender extends KZService {
         {
             new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,message,callback, getStrictSSL()).execute(mEndpoint);
         }
+    }
+
+    public boolean Send(Mail mail) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Send", Mail.class);
+        helper.Invoke(new Object[]{mail});
+        return (helper.getStatusCode() == HttpStatus.SC_OK);
     }
 
     private class Uploader extends AsyncTask {

@@ -1,11 +1,14 @@
 package kidozen.client;
 
+import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 
 
 /**
@@ -49,6 +52,11 @@ public class Configuration  extends KZService {
             new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
 	}
 
+    public JSONObject Save(JSONObject message) throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONObject>(this, "Save", JSONObject.class , ServiceEventListener.class)
+                .Invoke(new Object[] { message });
+    }
+
 	/**
 	 * Retrieves the configuration value
 	 * 
@@ -63,13 +71,16 @@ public class Configuration  extends KZService {
             new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(url);
 	}
 
-	/**
-	 * Deletes the current configuration
-	 */
-	public void Delete()
-	{
-		this.Delete(null);
-	}
+    public JSONObject Get() throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONObject>(this, "Get",  ServiceEventListener.class)
+                .Invoke(new Object[] { });
+    }
+
+    public boolean Delete() throws TimeoutException, SynchronousException {
+        SyncHelper<String> hlp = new SyncHelper(this, "Delete",  ServiceEventListener.class);
+        hlp.Invoke(new Object[]{});
+        return (hlp.getStatusCode()== HttpStatus.SC_OK);
+    }
 
 	/**
 	 * Deletes the current configuration
@@ -95,6 +106,12 @@ public class Configuration  extends KZService {
         String  url = mEndpoint + "/" + mName;
         HashMap<String, String> params = new HashMap<String, String>();
         HashMap<String, String> headers = new HashMap<String, String>();
-        new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
+        new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
 	}
+
+    public JSONArray All() throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONArray>(this, "All",  ServiceEventListener.class)
+            .Invoke(new Object[]{});
+    }
+
 }

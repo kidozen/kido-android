@@ -10,11 +10,9 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
@@ -259,7 +257,6 @@ public class StorageTest {
     @Test
     public void ShouldQueryObjectAndReturnRequestedValues() throws Exception
     {
-        //Robolectric.addHttpResponseRule();
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = AppSettings.CreateRandomValue();
         final String KEY2="additional";

@@ -1,10 +1,14 @@
 package kidozen.client;
 
+import org.apache.http.HttpStatus;
+import org.json.JSONObject;
+
 import java.net.URLEncoder;
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 
 /**
  * SMS  service interface
@@ -56,6 +60,12 @@ public class SMSSender extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, callback, getStrictSSL()).execute(url);
     }
 
+    public boolean Send(JSONObject message) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Send", JSONObject.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{message});
+        return (helper.getStatusCode() == HttpStatus.SC_CREATED);
+    }
+
     /**
      * Get the status of one message: Sent or queued
      * 
@@ -70,4 +80,10 @@ public class SMSSender extends KZService {
 
         new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
     }
+
+    public JSONObject GetStatus(JSONObject message) throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONObject>(this, "GetStatus", JSONObject.class, ServiceEventListener.class)
+            .Invoke(new Object[]{message});
+    }
+
 }
