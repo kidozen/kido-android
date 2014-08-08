@@ -1,18 +1,14 @@
 package kidozen.client.internal;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.apache.http.HttpStatus;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import kidozen.client.KZService;
-import kidozen.client.ServiceEventListener;
 import kidozen.client.SynchronousException;
 import kidozen.client.TimeoutException;
 
@@ -24,6 +20,7 @@ public class SyncHelper<T> {
     private KZService mServiceInstance;
     private Class<?>[] mParamTypes;
     private int mStatusCode;
+    private Exception mError;
 
     public SyncHelper(KZService serviceInstance, String methodName, Class<?>... paramsTypes){
         mServiceInstance = serviceInstance;
@@ -38,24 +35,25 @@ public class SyncHelper<T> {
             mServiceInstance.getClass().getMethod(mMethodName, mParamTypes)
                 .invoke(mServiceInstance, appendValue(paramsValues, listener));
             latch.await(mServiceInstance.getDefaultServiceTimeoutInSeconds(), TimeUnit.SECONDS);
+
+            mStatusCode = listener.getStatusCode();
+            System.out.println("mStatusCode : " + mStatusCode);
+            if (mStatusCode>= HttpStatus.SC_BAD_REQUEST)  {
+                mError = listener.getError();
+                throw new SynchronousException(listener.getStringResponse());
+            }
+            else return  (T)listener.getServiceResponse();
         } catch (InterruptedException e) {
+            System.out.println("InterruptedException : " + e.getMessage());
             throw new TimeoutException();
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            throw  new SynchronousException(e.getMessage());
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            System.out.println("NoSuchMethodException : " + e.getMessage());
+            throw  new SynchronousException(e.getMessage());
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        finally {
-            mStatusCode = listener.getStatusCode();
-            System.out.println("Sync STATUS Code: " + String.valueOf(mStatusCode));
-            System.out.println("Sync RESPONSE: " + listener.getStringNResponse());
-            System.out.println("Sync ERROR: " + listener.getError());
-            if (listener.getError()!=null)
-                throw new SynchronousException();
-            else
-                return  (T)listener.getServiceResponse();
+            System.out.println("IllegalAccessException : " + e.getMessage());
+            throw  new SynchronousException(e.getMessage());
         }
     }
 
@@ -63,6 +61,9 @@ public class SyncHelper<T> {
         ArrayList<Object> temp = new ArrayList<Object>(Arrays.asList(obj));
         temp.add(newObj);
         return temp.toArray();
+    }
+    public Throwable getError() {
+        return mError;
     }
 
     public int getStatusCode() {

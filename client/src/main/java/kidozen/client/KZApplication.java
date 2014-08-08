@@ -8,6 +8,7 @@ import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -321,6 +322,14 @@ public class KZApplication {
         mApplicationLog.Write(message, data, level, callback);
     }
 
+    public void WriteLog(String message, String data, LogLevel level) throws TimeoutException, SynchronousException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        mApplicationLog.Write(message,data,level);
+    }
+
+
     /**
      * Writes an integer entry in the Logging service
      *
@@ -338,6 +347,14 @@ public class KZApplication {
         mApplicationLog.Write(message, data, level, callback);
     }
 
+    public void WriteLog(String message, Integer data, LogLevel level) throws TimeoutException, SynchronousException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        mApplicationLog.Write(message,data,level);
+    }
+
+
     /**
      * Executes a Query against the Logging service
      *
@@ -351,6 +368,13 @@ public class KZApplication {
         }
         checkApplicationLog();
         mApplicationLog.Query(query, callback);
+    }
+
+    public JSONArray QueryLog(String query) throws TimeoutException, SynchronousException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        return mApplicationLog.Query(query);
     }
 
     /**
@@ -370,6 +394,13 @@ public class KZApplication {
         mApplicationLog.Write(message, data, level, callback);
     }
 
+    public void WriteLog(String message, ArrayList data, LogLevel level) throws TimeoutException, SynchronousException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        mApplicationLog.Write(message,data,level);
+    }
+
     /**
      * Writes an string entry in the Logging service
      *
@@ -386,6 +417,14 @@ public class KZApplication {
         checkApplicationLog();
         mApplicationLog.Write(message, data, level, callback);
     }
+
+    public void WriteLog(String message, JSONObject data, LogLevel level) throws TimeoutException, SynchronousException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        mApplicationLog.Write(message,data,level);
+    }
+
 
     /**
      * Writes an Map entry in the Logging service
@@ -404,6 +443,14 @@ public class KZApplication {
         mApplicationLog.Write(message, data, level, callback);
     }
 
+    public void WriteLog(String message, Map data, LogLevel level) throws TimeoutException, SynchronousException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        mApplicationLog.Write(message,data,level);
+    }
+
+
     private void checkApplicationLog() throws Exception {
         if (mApplicationLog == null) {
             mApplicationLog = new Logging(
@@ -421,20 +468,19 @@ public class KZApplication {
 
     /**
      * Clears the KZApplication log
-     */
-    public void ClearLog() throws Exception {
-        checkApplicationLog();
-        mApplicationLog.Clear(null);
-    }
-
-    /**
-     * Clears the KZApplication log
      *
      * @param callback The callback with the result of the service call
      */
     public void ClearLog(ServiceEventListener callback) throws Exception {
         checkApplicationLog();
         mApplicationLog.Clear(callback);
+    }
+
+    public boolean ClearLog() throws SynchronousException, TimeoutException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        return  mApplicationLog.Clear();
     }
 
     /**
@@ -449,20 +495,11 @@ public class KZApplication {
         mApplicationLog.All(callback);
     }
 
-    /**
-     * Returns all the messages from the KZApplication log
-     *
-     * @return a JSONArray with all the log entries
-     * @throws Exception
-     */
-    public JSONArray AllLogMessages() throws Exception {
-        checkApplicationLog();
-        mApplicationLog.All(new ServiceEventListener() {
-            public void onFinish(ServiceEvent e) {
-                mAllApplicationLogEvents = (JSONArray) e.Response;
-            }
-        });
-        return mAllApplicationLogEvents;
+    public JSONArray AllLogMessages() throws TimeoutException, SynchronousException {
+        try { checkApplicationLog();}
+        catch (Exception e) { throw new SynchronousException(e.getMessage());}
+
+        return mApplicationLog.All();
     }
 
     /**

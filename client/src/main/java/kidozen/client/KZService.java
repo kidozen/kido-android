@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -152,6 +153,7 @@ public class KZService {
 
         Boolean mBypassSSLValidation;
         private SNIConnectionManager mSniManager;
+        private String mContentType;
 
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
@@ -232,6 +234,8 @@ public class KZService {
                     Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
+                    mContentType = response.get("contentType").toLowerCase();
+
                     createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
 
@@ -242,20 +246,24 @@ public class KZService {
                     if (body == "") {
                         mFinalServiceEvent = new ServiceEvent(this, statusCode, body, body);
                     }
-                    else {
-                        Object json = new JSONTokener(body).nextValue();
-                        if (json instanceof JSONObject) {
-                            JSONObject theObject = new JSONObject(body);
-                            mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
-                        }
-                        else
-                            if (json instanceof JSONArray) {
+                    else if (mContentType.contains("application/json")) {
+                            Object json = new JSONTokener(body).nextValue();
+                            if (json instanceof JSONObject) {
+                                System.out.println("***** =>> Setting a new JSONObject" );
+
+                                JSONObject theObject = new JSONObject(body);
+                                mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
+                            }
+                            else if (json instanceof JSONArray) {
+                                System.out.println("***** =>> Setting a new JSONArray" );
+
                                 JSONArray theObject = new JSONArray(body);
                                 mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
                             }
-                            else {
-                                mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
-                            }
+                        }
+                        else {
+                            System.out.println("***** =>> Setting a new String" );
+                            mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                         }
                 }
             }
@@ -295,20 +303,26 @@ public class KZService {
         }
 
         private void dispatchServiceResponseListener(final ServiceEvent e,final ServiceResponseHandler callback) {
-
             if (e.StatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
                 callback.onError(e.StatusCode, e.Body);
             }
             else {
-                if (e.Response instanceof JSONObject) {
-                    JSONObject o = (JSONObject) e.Response;
-                    callback.onSuccess(e.StatusCode, o);
-
-                } else if (e.Response instanceof JSONArray) {
-                    JSONArray o = (JSONArray) e.Response;
-                    callback.onSuccess(e.StatusCode, o);
-                } else
-                    callback.onSuccess(e.StatusCode, e.Body);
+                try {
+                    if (mContentType.contains("application/json")) {
+                        Object json = new JSONTokener(e.Body).nextValue();
+                        if (json instanceof JSONObject) {
+                            JSONObject theObject = new JSONObject(e.Body);
+                            callback.onSuccess(e.StatusCode, theObject);
+                        }
+                        else if (json instanceof JSONArray) {
+                            JSONArray o = (JSONArray) e.Response;
+                            callback.onSuccess(e.StatusCode, o);
+                        }
+                    }
+                    else { callback.onSuccess(e.StatusCode, e.Body); }
+                } catch (JSONException e1) {
+                    callback.onError(e.StatusCode, e1.getMessage());
+                }
             }
         }
 

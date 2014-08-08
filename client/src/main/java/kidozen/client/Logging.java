@@ -6,6 +6,8 @@ import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +33,11 @@ public class Logging extends KZService {
     }
 
     private String createLogEndpoint(String message, LogLevel level) {
-        if (message!=null) message = String.format("&message=%s",message);
+        if (message!=null) try {
+            message = String.format("&message=%s", URLEncoder.encode(message,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            message = String.format("&message=%s", URLEncoder.encode(message));
+        }
         String logEndpoint = String.format("%s?level=%s",mEndpoint, level.ordinal());
         return (message!=null ? logEndpoint + message : logEndpoint);
     }
@@ -53,9 +59,10 @@ public class Logging extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
     }
 
-    public JSONObject Write(String message, ArrayList data, LogLevel level) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this, "Write", String.class, ArrayList.class, LogLevel.class, ServiceEventListener.class)
-                .Invoke(new Object[]{ message, data, level });
+    public void Write(String message, ArrayList data, LogLevel level) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper(this, "Write", String.class, ArrayList.class, LogLevel.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{ message, data, level });
+        if (helper.getStatusCode() != HttpStatus.SC_CREATED) throw new SynchronousException(helper.getError().toString());
     }
 
 
@@ -75,9 +82,10 @@ public class Logging extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
     }
 
-    public JSONObject Write(String message, Map data, LogLevel level) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this, "Write", String.class, Map.class, LogLevel.class, ServiceEventListener.class)
-                .Invoke(new Object[]{ message, data, level });
+    public void Write(String message, Map data, LogLevel level) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper(this, "Write", String.class, Map.class, LogLevel.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{ message, data, level });
+        if (helper.getStatusCode() != HttpStatus.SC_CREATED) throw new SynchronousException(helper.getError().toString());
     }
 
     public void Write(final String message, final int data, final LogLevel level, final ServiceEventListener callback)
@@ -95,9 +103,10 @@ public class Logging extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
     }
 
-    public JSONObject Write(String message, int data, LogLevel level) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this, "Write", String.class, int.class, LogLevel.class, ServiceEventListener.class)
-                .Invoke(new Object[]{ message, data, level });
+    public void Write(String message, int data, LogLevel level) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper(this, "Write", String.class, int.class, LogLevel.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{ message, data, level });
+        if (helper.getStatusCode() != HttpStatus.SC_CREATED) throw new SynchronousException(helper.getError().toString());
     }
 
     public void Write(final String message, final String data, final LogLevel level, final ServiceEventListener callback)
@@ -116,9 +125,10 @@ public class Logging extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, jMessage, callback, getStrictSSL()).execute(url);
     }
 
-    public JSONObject Write(String message, String data, LogLevel level) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this, "Write", String.class, String.class, LogLevel.class, ServiceEventListener.class)
-                .Invoke(new Object[]{ message, data, level });
+    public void Write(String message, String data, LogLevel level) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper(this, "Write", String.class, String.class, LogLevel.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{ message, data, level });
+        if (helper.getStatusCode() != HttpStatus.SC_CREATED) throw new SynchronousException(helper.getError().toString());
     }
 
 
@@ -136,9 +146,10 @@ public class Logging extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, null, headers, data, callback, getStrictSSL()).execute(url);
 	}
 
-    public JSONObject Write(String message, JSONObject data, LogLevel level) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this, "Write", String.class, JSONObject.class, LogLevel.class, ServiceEventListener.class)
-                .Invoke(new Object[]{ message, data, level });
+    public void Write(String message, JSONObject data, LogLevel level) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper(this, "Write", String.class, JSONObject.class, LogLevel.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{ message, data, level });
+        if (helper.getStatusCode() != HttpStatus.SC_CREATED) throw new SynchronousException(helper.getError().toString());
     }
 
 	/**
@@ -159,7 +170,7 @@ public class Logging extends KZService {
     public boolean Clear() throws TimeoutException, SynchronousException {
         SyncHelper<String> helper = new SyncHelper<String>(this, "Clear", ServiceEventListener.class);
         helper.Invoke(new Object[]{});
-        return (helper.getStatusCode() == HttpStatus.SC_OK);
+        return (helper.getStatusCode() == HttpStatus.SC_NO_CONTENT);
     }
 
 	/**
@@ -173,14 +184,14 @@ public class Logging extends KZService {
 	}
 
     public JSONArray All() throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONArray>(this, "All",ServiceEventListener.class)
+        return new SyncHelper<JSONArray>(this, "All", ServiceEventListener.class)
                 .Invoke(new Object[]{ });
     }
 
 	/**
 	 * Executes a query against the Log
 	 * 
-	 * @param query An string with the same syntax used for a MongoDb query
+	 * @param query An string with the same syntax used for a LogStash query
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Query(final String query, final ServiceEventListener callback)
@@ -200,7 +211,7 @@ public class Logging extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.GET,params,headers,callback, getStrictSSL()).execute(mEndpoint);
 	}
 
-    public JSONArray Write(String query) throws TimeoutException, SynchronousException {
+    public JSONArray Query(String query) throws TimeoutException, SynchronousException {
         return new SyncHelper<JSONArray>(this, "Query", String.class, ServiceEventListener.class)
                 .Invoke(new Object[]{ query });
     }

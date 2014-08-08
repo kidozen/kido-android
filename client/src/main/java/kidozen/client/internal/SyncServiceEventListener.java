@@ -31,16 +31,20 @@ public class SyncServiceEventListener implements ServiceEventListener {
     @Override
     public void onFinish(ServiceEvent e) {
         mStatusCode = e.StatusCode;
-        mServiceEventResponse = e.Response;
-
-        if (e.Response instanceof JSONObject)
-            mJObjectResponse = (JSONObject) e.Response;
-        else if (e.Response instanceof JSONArray)
-            mJArrayResponse = (JSONArray) e.Response;
-        else if (e.Response instanceof String)
-            mStringResponse = (String) e.Response;
-        if (e.Exception != null)
+        if (mStatusCode >= HttpStatus.SC_BAD_REQUEST ) {
+            mStringResponse = e.Body;
             mError = e.Exception;
+        }
+        else
+        {
+            mServiceEventResponse = e.Response;
+            if (e.Response instanceof JSONObject)
+                mJObjectResponse = (JSONObject) e.Response;
+            else if (e.Response instanceof JSONArray)
+                mJArrayResponse = (JSONArray) e.Response;
+            else if (e.Response instanceof String)
+                mStringResponse = e.Response.toString();
+        }
         mLatch.countDown();
     }
     public Object getServiceResponse(){
@@ -52,7 +56,8 @@ public class SyncServiceEventListener implements ServiceEventListener {
     public JSONArray getJARRAYResponse() {
         return mJArrayResponse;
     }
-    public String getStringNResponse() {
+    public String getStringResponse() {
+
         return mStringResponse;
     }
     public Exception getError() {

@@ -92,7 +92,7 @@ public class PubSubTest {
         assertTrue(lcdPublish.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
         //Listenner await
-        //assertTrue(lcdGetMessage.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        //assertTrue(lcdGetMessage.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.MINUTES));
         assertTrue(lcdSubscribe.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
     }

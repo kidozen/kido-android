@@ -215,7 +215,7 @@ public class SNIConnectionManager
         int responseCode = con.getResponseCode();
         //System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
         String responsebody = con.getResponseMessage();
-        System.out.println("*********-> Response Body:" + responsebody);
+        //System.out.println("*********-> Response Body:" + responsebody);
         String contentType =  con.getHeaderField("content-type");
         //System.out.println("*********-> Response contentType:" + contentType);
 

@@ -30,8 +30,8 @@ import static org.junit.Assert.assertThat;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config(manifest= Config.NONE)
 
-public class DsServiceResponseTest {
-    public static final int TEST_TIMEOUT_IN_MINUTES = 5;
+public class DsSvcResponseTest {
+    public static final int TEST_TIMEOUT_IN_SECONDS = 10;
     private static final String INVOKE_DATA_SOURCE_NAME = "InvokeCityWeather";
     private static final String QUERY_DATA_SOURCE_NAME = "GetCityWeather";
     KZApplication kidozen = null;
@@ -45,7 +45,7 @@ public class DsServiceResponseTest {
             final CountDownLatch signal = new CountDownLatch(1);
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
-            signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+            signal.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         }
         catch (Exception e)
         {
@@ -71,7 +71,7 @@ public class DsServiceResponseTest {
             }
         });
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class DsServiceResponseTest {
             }
         });
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class DsServiceResponseTest {
             }
         });
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 
     @Test
@@ -136,7 +136,7 @@ public class DsServiceResponseTest {
             }
         });
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 
     private ServiceEventListener kidoAuthCallback(final CountDownLatch signal) {
