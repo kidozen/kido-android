@@ -17,8 +17,8 @@ public class AppSettings {
 
     static {
         KZ_TENANT =             "https://loadtests.qa.kidozen.com";
-        KZ_APP =                "tasks";
-        KZ_KEY =                "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";//"1iezHjBY61cLXaDKSlLXszzCStZvYqiU7axVrNIGTrU=";
+        KZ_APP =                "integration-tests";
+        KZ_KEY =                "1iezHjBY61cLXaDKSlLXszzCStZvYqiU7axVrNIGTrU=";
         KZ_USER =               "loadtests@kidozen.com";
         KZ_PASS =               "pass";
 

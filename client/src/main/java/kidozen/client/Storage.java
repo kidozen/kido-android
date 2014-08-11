@@ -347,7 +347,7 @@ public class Storage extends KZService {
     }
 
     public JSONObject Save (JSONObject message, Boolean isPrivate ) throws TimeoutException, SynchronousException {
-        return new SyncHelper<JSONObject>(this, "Save", JSONObject.class , Boolean.TYPE , ServiceEventListener.class)
+        return new SyncHelper<JSONObject>(this, "Save", JSONObject.class , Boolean.class , ServiceEventListener.class)
                 .Invoke(new Object[] { message, isPrivate });
     }
 
