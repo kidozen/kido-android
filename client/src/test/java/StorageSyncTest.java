@@ -93,7 +93,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldUpdateMessage() throws JSONException{
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
         try {
@@ -117,7 +117,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldDeleteMessage() throws JSONException{
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
         try {
@@ -140,7 +140,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldGetMessage() throws JSONException{
         String expectedValue = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expectedValue);
@@ -166,7 +166,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldGetAllObjects() throws JSONException{
         try {
             Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
@@ -183,7 +183,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldQueryObjects() throws JSONException{
         try {
             Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
@@ -205,7 +205,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldCreateObjectWhenCallSAVE() throws Exception {
         JSONObject data = new JSONObject()
                 .put(DATA_VALUE_KEY, "ShouldCreateObjectWhenCallSAVE");
@@ -219,7 +219,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldCreatePublicObjectWhenCallSAVE() throws Exception {
         JSONObject data = new JSONObject()
                 .put(DATA_VALUE_KEY, "ShouldCreateMessage");
@@ -234,7 +234,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test
+    @Test
     public void ShouldUpdateObjectWhenCallSave() throws Exception {
         final String expected = "updated";
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
@@ -253,7 +253,7 @@ public class StorageSyncTest {
         }
     }
 
-    //@Test(expected = SynchronousException.class)
+    @Test(expected = SynchronousException.class)
     public void ShouldTryToUpdateMessageAndReturnSynchronousEx() throws JSONException, SynchronousException {
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
 

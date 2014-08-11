@@ -1,4 +1,6 @@
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -16,7 +18,10 @@ import kidozen.client.KZApplication;
 import kidozen.client.Mail;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.ServiceResponseListener;
+import kidozen.client.SynchronousException;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -122,6 +127,44 @@ public class EmailTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
+    @Test
+    public void ShouldSendMailWithServiceResponse() throws Exception, SynchronousException {
+        final CountDownLatch lcd = new CountDownLatch(1);
+
+        Mail mail = new Mail();
+        mail.to(AppSettings.KZ_EMAIL_TO);
+        mail.from(AppSettings.KZ_EMAIL_FROM);
+        mail.subject(this.CreateRandomValue());
+        mail.textBody(this.CreateRandomValue());
+
+        kidozen.SendEmail(mail, new ServiceResponseListener() {
+            @Override
+            public void onError(int statusCode, String response) {
+                fail();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, String response) {
+                assertEquals(HttpStatus.SC_CREATED, statusCode);
+                lcd.countDown();
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void ShouldSendMailSync() throws Exception, SynchronousException {
+        Mail mail = new Mail();
+        mail.to(AppSettings.KZ_EMAIL_TO);
+        mail.from(AppSettings.KZ_EMAIL_FROM);
+        mail.subject(this.CreateRandomValue());
+        mail.textBody(this.CreateRandomValue());
+
+        kidozen.SendEmail(mail);
+        assertTrue(true);
+    }
+
     //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {
         return  new ServiceEventListener() {

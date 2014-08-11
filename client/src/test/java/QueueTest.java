@@ -15,7 +15,9 @@ import kidozen.client.KZApplication;
 import kidozen.client.Queue;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.ServiceResponseListener;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -54,6 +56,7 @@ public class QueueTest {
             fail();
         }
     }
+
     @Test
     public void ShouldEnqueue() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -83,6 +86,52 @@ public class QueueTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
+    @Test
+    public void ShouldEnqueueWithSvcResponse() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        Queue q = kidozen.Queue(QUEUE_INTEGRATION_TESTS);
+        q.Enqueue (data, new ServiceResponseListener() {
+            @Override
+            public void onError(int statusCode, String response) {
+                fail();
+            }
+            @Override
+            public void onSuccess(int statusCode, String response) {
+                assertThat(statusCode, equalTo( HttpStatus.SC_CREATED));
+                lcd.countDown();
+            }
+        });
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+
+    @Test
+    public void ShouldDequeueWithSvcResponse() throws Exception {
+        final CountDownLatch lcd = new CountDownLatch(1);
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        final Queue q = kidozen.Queue(QUEUE_INTEGRATION_TESTS);
+        q.Enqueue(data, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                q.Dequeue(new ServiceResponseListener() {
+                    @Override
+                    public void onError(int statusCode, String response) {
+                        fail();
+                    }
+                    @Override
+                    public void onSuccess(int statusCode, JSONObject response) {
+                        assertThat(statusCode, equalTo( HttpStatus.SC_OK));
+                        lcd.countDown();
+                    }
+                });
+            }
+        } );
+
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+    }
+
     //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {
         return  new ServiceEventListener() {

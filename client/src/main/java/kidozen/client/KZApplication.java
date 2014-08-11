@@ -20,6 +20,7 @@ import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.KidoAppSettings;
+import kidozen.client.internal.SyncHelper;
 import kidozen.client.internal.Utilities;
 
 //http://stackoverflow.com/questions/18590276/partial-implementation-of-an-interface
@@ -303,6 +304,28 @@ public class KZApplication {
         }
 
         mMailSender.Send(mail, callback);
+    }
+
+    public void SendEmail(Mail mail) throws TimeoutException, SynchronousException {
+        if (mMailSender == null) {
+            try {
+                mMailSender = new MailSender(mApplicationConfiguration.GetSettingAsString("email"),
+                        mProvider,
+                        mUsername,
+                        mPassword,
+                        mPassiveClientId,
+                        mUserIdentity,
+                        mApplicationIdentity);
+            } catch (JSONException e) {
+                throw new IllegalArgumentException("Could not get email endpoint");
+            }
+            mMailSender.mUserIdentity = this.mUserIdentity;
+            mMailSender.setStrictSSL(!StrictSSL);
+        }
+
+        SyncHelper<String> helper = new SyncHelper(mMailSender, "Send", Mail.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{ mail });
+        if (helper.getStatusCode() != HttpStatus.SC_CREATED) throw new SynchronousException(helper.getError().toString());
     }
 
     /**

@@ -1,4 +1,5 @@
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import kidozen.client.Service;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.ServiceResponseListener;
 import kidozen.client.SynchronousException;
 
 import static junit.framework.Assert.assertEquals;
@@ -39,6 +41,8 @@ import static org.junit.Assert.assertThat;
 @Config(manifest= Config.NONE)
 
 public class EApiTest {
+    public static final int TEST_TIMEOUT_IN_SECONDS = 10;
+
     private static final String KZ_SERVICE_METHODID = "get";
     private static final String KZ_SERVICE_INVALID_METHODID = "Invalid";
     public static final int TEST_TIMEOUT_IN_MINUTES = 1;
@@ -95,10 +99,35 @@ public class EApiTest {
         Service service = kidozen.LOBService(AppSettings.KZ_SERVICE_ID);
         try {
             JSONObject result = service.InvokeMethod(KZ_SERVICE_METHODID, data);
-            assertTrue(result.getJSONObject("data").getInt("status")==200);
+            assertTrue(result.getJSONObject("data").getInt("status") == 200);
         } catch (SynchronousException e) {
             fail();
         }
+    }
+
+    @Test
+    public void ShouldInvokeMethodWithServiceResponse() throws Exception, SynchronousException {
+        final CountDownLatch lcd = new CountDownLatch(1);
+
+        Service service = kidozen.LOBService(AppSettings.KZ_SERVICE_ID);
+        service.InvokeMethod(KZ_SERVICE_METHODID, data, new ServiceResponseListener() {
+            @Override
+            public void onError(int statusCode, String response)
+            {
+                fail();
+            }
+            @Override
+            public void onSuccess(int statusCode, JSONObject response) {
+                assertEquals(HttpStatus.SC_OK, statusCode);
+                try {
+                    assertTrue(response.getJSONObject("data").getInt("status") == 200);
+                } catch (JSONException e) {
+                    fail();
+                }
+                lcd.countDown();
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 
     private ServiceEventListener kidoAuthCallback(final CountDownLatch signal) {

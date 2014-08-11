@@ -405,26 +405,6 @@ public class StorageSvcResponseTest {
     }
 
     @Test
-    public void ShouldCreatePublicObjectWhenCallSAVE() throws Exception
-    {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        JSONObject data = new JSONObject()
-                .put(DATA_VALUE_KEY, "ShouldCreateMessage");
-
-        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
-        storage.Save(data, false, new ServiceResponseListener() {
-            @Override
-            public void onSuccess(int status, JSONObject response) {
-                assertThat(status, equalTo(HttpStatus.SC_CREATED));
-                lcd.countDown();
-            }
-
-        });
-
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
-    }
-
-    @Test
     public void ShouldUpdateObjectWhenCallSave() throws Exception {
 
         final CountDownLatch createCdl = new CountDownLatch(1);

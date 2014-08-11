@@ -119,17 +119,7 @@ public class LogSyncTest {
         }
     }
 
-    @Test
-    public void ShouldLogInteger() throws Exception {
-        try {
-            kidozen.WriteLog(null,
-                    365,
-                    LogLevel.LogLevelCritical);
-            assertTrue(true);
-        } catch (SynchronousException e) {
-            fail();
-        }
-    }
+
     @Test
     public void ShouldLogIntegerWithMessage() throws Exception {
         try {
