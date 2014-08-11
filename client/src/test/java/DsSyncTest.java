@@ -10,6 +10,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import kidozen.client.DataSource;
@@ -55,32 +56,52 @@ public class DsSyncTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void ShouldExecuteInvokeWithParameters() throws Exception, SynchronousException {
         DataSource dataSource = kidozen.DataSource(INVOKE_DATA_SOURCE_NAME);
-        JSONTokener result = dataSource.Invoke(data);
-        assertTrue(result.toString().contains("London"));
+        try {
+            JSONObject result = dataSource.Invoke(data);
+            assertTrue(result.toString().contains("London"));
+        } catch (SynchronousException e) {
+            fail();
+        }
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void ShouldExecuteInvokeWithDefaults() throws Exception, SynchronousException {
         DataSource dataSource = kidozen.DataSource(INVOKE_DATA_SOURCE_NAME);
-        JSONTokener result = dataSource.Invoke();
-        assertTrue(result.toString().contains("Buenos Aires"));
+        try {
+            JSONObject result = dataSource.Invoke();
+            assertTrue(result.toString().contains("Buenos Aires"));
+        } catch (SynchronousException e) {
+            fail();
+        }
     }
 
-    @Test(timeout = 10000)
-    public void ShouldExecuteQueryWithParameters() throws Exception, SynchronousException {
+    @Test
+    public void ShouldExecuteQueryWithParameters() throws Exception{
         DataSource dataSource = kidozen.DataSource(QUERY_DATA_SOURCE_NAME);
-        JSONTokener result = dataSource.Query(data);
-        assertTrue(result.toString().contains("London"));
+        try {
+            JSONObject result = dataSource.Query(data);
+            assertTrue(result.toString().contains("London"));
+        } catch (SynchronousException e) {
+            fail();
+        }
     }
 
-    @Test(timeout = 10000)
-    public void ShouldExecuteQueryWithDefaults() throws Exception, SynchronousException {
+    @Test
+    public void ShouldExecuteQueryWithDefaults() throws Exception {
         DataSource dataSource = kidozen.DataSource(QUERY_DATA_SOURCE_NAME);
-        JSONTokener result = dataSource.Query();
-        assertTrue(result.toString().contains("Buenos Aires"));
+        try {
+            JSONObject result = dataSource.Query();
+            assertTrue(result.toString().contains("Buenos Aires"));
+        } catch (ExecutionException e) {
+            fail();
+        } catch (InterruptedException e) {
+            fail();
+        } catch (SynchronousException e) {
+            fail();
+        }
     }
 
     private ServiceEventListener kidoAuthCallback(final CountDownLatch signal) {

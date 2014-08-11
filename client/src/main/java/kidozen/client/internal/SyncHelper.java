@@ -3,6 +3,7 @@ package kidozen.client.internal;
 import org.apache.http.HttpStatus;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -32,8 +33,13 @@ public class SyncHelper<T> {
         CountDownLatch latch = new CountDownLatch(1);
         SyncServiceEventListener listener = new SyncServiceEventListener(latch);
         try {
-            mServiceInstance.getClass().getMethod(mMethodName, mParamTypes)
-                .invoke(mServiceInstance, appendValue(paramsValues, listener));
+            System.out.println("SyncHelper, Invoke, " + mServiceInstance.getClass().getName().toString());
+
+            Method m = mServiceInstance.getClass().getMethod(mMethodName, mParamTypes);
+            System.out.println("SyncHelper, Invoke, " + m.getName().toString());
+
+            m.invoke(mServiceInstance, appendValue(paramsValues, listener));
+
             latch.await(mServiceInstance.getDefaultServiceTimeoutInSeconds(), TimeUnit.SECONDS);
 
             mStatusCode = listener.getStatusCode();
@@ -47,6 +53,7 @@ public class SyncHelper<T> {
             System.out.println("InterruptedException : " + e.getMessage());
             throw new TimeoutException();
         } catch (InvocationTargetException e) {
+            System.out.println("InvocationTargetException : " + e.getMessage());
             throw  new SynchronousException(e.getMessage());
         } catch (NoSuchMethodException e) {
             System.out.println("NoSuchMethodException : " + e.getMessage());
@@ -60,6 +67,9 @@ public class SyncHelper<T> {
     private static Object[] appendValue(Object[] obj, Object newObj) {
         ArrayList<Object> temp = new ArrayList<Object>(Arrays.asList(obj));
         temp.add(newObj);
+        for (int i = 0; i < temp.size(); i++) {
+            System.out.println("SyncHelper, appendValue, " + temp.get(i).toString());
+        }
         return temp.toArray();
     }
     public Throwable getError() {

@@ -30,6 +30,9 @@ public class SyncServiceEventListener implements ServiceEventListener {
 
     @Override
     public void onFinish(ServiceEvent e) {
+        System.out.println("SyncServiceEventListener, Status, " + String.valueOf(e.StatusCode));
+        System.out.println("SyncServiceEventListener, Body, " + String.valueOf(e.Body));
+
         mStatusCode = e.StatusCode;
         if (mStatusCode >= HttpStatus.SC_BAD_REQUEST ) {
             mStringResponse = e.Body;

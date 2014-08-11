@@ -54,6 +54,7 @@ public class StorageSyncTest {
             final CountDownLatch signalInit = new CountDownLatch(1);
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
             signalInit.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+
             final CountDownLatch signalAuth = new CountDownLatch(1);
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signalAuth));
             signalAuth.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
@@ -92,7 +93,7 @@ public class StorageSyncTest {
         }
     }
 
-    @Test
+    //@Test
     public void ShouldUpdateMessage() throws JSONException{
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
         try {
@@ -116,7 +117,7 @@ public class StorageSyncTest {
         }
     }
 
-    @Test
+    //@Test
     public void ShouldDeleteMessage() throws JSONException{
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
         try {
@@ -139,7 +140,7 @@ public class StorageSyncTest {
         }
     }
 
-    @Test
+    //@Test
     public void ShouldGetMessage() throws JSONException{
         String expectedValue = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expectedValue);
@@ -165,7 +166,7 @@ public class StorageSyncTest {
         }
     }
 
-    @Test
+    //@Test
     public void ShouldGetAllObjects() throws JSONException{
         try {
             Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
@@ -181,7 +182,8 @@ public class StorageSyncTest {
             fail();
         }
     }
-    @Test
+
+    //@Test
     public void ShouldQueryObjects() throws JSONException{
         try {
             Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
@@ -203,9 +205,8 @@ public class StorageSyncTest {
         }
     }
 
-    @Test
-    public void ShouldCreateObjectWhenCallSAVE() throws Exception
-    {
+    //@Test
+    public void ShouldCreateObjectWhenCallSAVE() throws Exception {
         JSONObject data = new JSONObject()
                 .put(DATA_VALUE_KEY, "ShouldCreateObjectWhenCallSAVE");
 
@@ -217,9 +218,9 @@ public class StorageSyncTest {
             fail();
         }
     }
-    @Test
-    public void ShouldCreatePublicObjectWhenCallSAVE() throws Exception
-    {
+
+    //@Test
+    public void ShouldCreatePublicObjectWhenCallSAVE() throws Exception {
         JSONObject data = new JSONObject()
                 .put(DATA_VALUE_KEY, "ShouldCreateMessage");
 
@@ -233,7 +234,7 @@ public class StorageSyncTest {
         }
     }
 
-    @Test
+    //@Test
     public void ShouldUpdateObjectWhenCallSave() throws Exception {
         final String expected = "updated";
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
@@ -252,7 +253,7 @@ public class StorageSyncTest {
         }
     }
 
-    @Test(expected = SynchronousException.class)
+    //@Test(expected = SynchronousException.class)
     public void ShouldTryToUpdateMessageAndReturnSynchronousEx() throws JSONException, SynchronousException {
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,"ShouldCreateMessage");
 

@@ -46,7 +46,7 @@ public class Service extends KZService {
         this.InvokeMethod(method, data, 0, callback);
     }
 
-    public JSONTokener InvokeMethod(String method, JSONObject data) throws TimeoutException, SynchronousException {
+    public JSONObject InvokeMethod(String method, JSONObject data) throws TimeoutException, SynchronousException {
         return this.InvokeMethod(method,data,0) ;
     }
 
@@ -77,10 +77,9 @@ public class Service extends KZService {
         new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, getStrictSSL()).execute(url);
     }
 
-    public JSONTokener InvokeMethod(String method, JSONObject data, int timeout) throws TimeoutException, SynchronousException {
-        String result = new SyncHelper<String>(this, "InvokeMethod", String.class, JSONObject.class, int.class , ServiceEventListener.class)
+    public JSONObject InvokeMethod(String method, JSONObject data, int timeout) throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONObject>(this, "InvokeMethod", String.class, JSONObject.class, int.class , ServiceEventListener.class)
                 .Invoke(new Object[] { method, data, timeout });
-        return new JSONTokener(result);
     }
 
 }

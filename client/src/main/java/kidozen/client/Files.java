@@ -8,7 +8,6 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
-import kidozen.client.internal.Constants;
 import kidozen.client.internal.SyncHelper;
 
 
@@ -62,7 +61,7 @@ public class Files extends KZService {
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_OCTET_STREAM_HEADER_VALUE);
 
         String url = mEndpoint + nameAndPath.getValue();
-        mSelf.setProcessAsStream(true);
+        mSelf.setmProcessAsStream(true);
         new KZServiceAsyncTask(KZHttpMethod.POST,params,headers,inputStream,callback, getStrictSSL()).execute(url);
     }
 
@@ -92,7 +91,7 @@ public class Files extends KZService {
         headers.put(CACHE_CONTROL_HEADER, NO_CACHE);
 
         String url = mEndpoint + fullFilePath;
-        mSelf.setProcessAsStream(true);
+        mSelf.setmProcessAsStream(true);
         KZServiceAsyncTask at = new KZServiceAsyncTask(KZHttpMethod.GET,params,headers, callback, getStrictSSL());
         at.execute(url);
     }

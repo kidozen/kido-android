@@ -1,5 +1,6 @@
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -11,10 +12,12 @@ import org.robolectric.annotation.Config;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import kidozen.client.DataSource;
 import kidozen.client.Service;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.SynchronousException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -85,6 +88,17 @@ public class EApiTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
+    }
+
+    @Test
+    public void ShouldInvokeMethodSync() throws Exception, SynchronousException {
+        Service service = kidozen.LOBService(AppSettings.KZ_SERVICE_ID);
+        try {
+            JSONObject result = service.InvokeMethod(KZ_SERVICE_METHODID, data);
+            assertTrue(result.getJSONObject("data").getInt("status")==200);
+        } catch (SynchronousException e) {
+            fail();
+        }
     }
 
     private ServiceEventListener kidoAuthCallback(final CountDownLatch signal) {
