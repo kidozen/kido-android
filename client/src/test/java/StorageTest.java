@@ -281,7 +281,7 @@ public class StorageTest {
                     String fail = obj.getString(KEY2);
                 } catch (JSONException je) {
                     String msg = je.getMessage();
-                    System.out.println("msg = " + msg);
+                    //System.out.println("msg = " + msg);
 
                     String expectedMessage = "No value for additional";
                     assertEquals(expectedMessage, msg);

@@ -92,8 +92,8 @@ public class DsTest {
         dataSource.Query(data,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.println(e.Body);
-                System.out.println(String.valueOf( e.StatusCode));
+                //System.out.println(e.Body);
+                //System.out.println(String.valueOf( e.StatusCode));
 
                 assertTrue(e.Body.indexOf("London")>-1);
                 assertEquals(HttpStatus.SC_OK, e.StatusCode);

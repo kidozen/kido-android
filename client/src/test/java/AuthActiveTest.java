@@ -113,11 +113,11 @@ public class AuthActiveTest {
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
                 assertThat(e.StatusCode, equalTo(HttpStatus.SC_OK));
-                System.out.print("Authenticate");
+                //System.out.print("Authenticate");
             }
         });
         kidozen.SignOut();
-        System.out.print("SignOut");
+        //System.out.print("SignOut");
 
         assertEquals(false, kidozen.UserIsAuthenticated);
 

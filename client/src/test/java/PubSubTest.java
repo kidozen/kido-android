@@ -65,7 +65,7 @@ public class PubSubTest {
         q.Subscribe(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.println("Subscribe:" +  e.Body);
+                //System.out.println("Subscribe:" +  e.Body);
                 lcdSubscribe.countDown();
             }
         });
@@ -75,7 +75,7 @@ public class PubSubTest {
         q.GetMessages(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.println("The message!? :" +  e.Body);
+                //System.out.println("The message!? :" +  e.Body);
                 lcdGetMessage.countDown();
             }
         });
@@ -85,7 +85,7 @@ public class PubSubTest {
         q.Publish(data,true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.println("Publish:" +  e.Body);
+                //System.out.println("Publish:" +  e.Body);
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
             }
         });

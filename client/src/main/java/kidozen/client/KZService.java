@@ -126,7 +126,7 @@ public class KZService {
     }
 
     public boolean shouldProcessAsStream() {
-        System.out.println("KZService, shouldProcessAsStream: " + String.valueOf(mProcessAsStream));
+        //System.out.println("KZService, shouldProcessAsStream: " + String.valueOf(mProcessAsStream));
         return mProcessAsStream;
     }
 
@@ -176,7 +176,7 @@ public class KZService {
                     it.remove();
                 }
             }
-            System.out.println("KZService, ctor.");
+            //System.out.println("KZService, ctor.");
         }
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, String message, ServiceEventListener callback, Boolean bypassSSLValidation)
@@ -203,21 +203,21 @@ public class KZService {
                 @Override
                 public void Fire(String token) {
                     mRequestHeaders.put(Constants.AUTHORIZATION_HEADER, token);
-                    System.out.println("KZService, onPreExecute, got token, " + token);
+                    //System.out.println("KZService, onPreExecute, got token, " + token);
                 }
             });
-            System.out.println("KZService, onPreExecute");
+            //System.out.println("KZService, onPreExecute");
         }
 
         @Override
         protected ServiceEvent doInBackground(String... params) {
-            System.out.println("KZService, doInBackground");
+            //System.out.println("KZService, doInBackground");
             int statusCode = HttpStatus.SC_BAD_REQUEST;
             try
             {
                 String  url = params[0];
-                System.out.println("KZService, doInBackground,  method:" + mHttpMethod);
-                System.out.println("KZService, doInBackground,  url:" + url);
+                //System.out.println("KZService, doInBackground,  method:" + mHttpMethod);
+                //System.out.println("KZService, doInBackground,  url:" + url);
 
                 if (shouldProcessAsStream()) {
                     mSniManager = new SNIConnectionManager(url, mStreamMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
@@ -225,10 +225,10 @@ public class KZService {
                     createCallbackResponseForStream(statusCode, response);
                 }
                 else {
-                    System.out.println("KZService, doInBackground,  mStringMessage:" + mStringMessage);
-                    System.out.println("KZService, doInBackground,  mRequestHeaders:" + mRequestHeaders.toString());
-                    System.out.println("KZService, doInBackground,  mQueryStringParameters:" + mQueryStringParameters);
-                    System.out.println("KZService, doInBackground,  mBypassSSLValidation:" + mBypassSSLValidation);
+                    //System.out.println("KZService, doInBackground,  mStringMessage:" + mStringMessage);
+                    //System.out.println("KZService, doInBackground,  mRequestHeaders:" + mRequestHeaders.toString());
+                    //System.out.println("KZService, doInBackground,  mQueryStringParameters:" + mQueryStringParameters);
+                    //System.out.println("KZService, doInBackground,  mBypassSSLValidation:" + mBypassSSLValidation);
 
                     mSniManager = new SNIConnectionManager(url, mStringMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
                     if (mServiceEventCallback instanceof ServiceResponseHandler) {
@@ -242,9 +242,9 @@ public class KZService {
                     createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
 
-                    System.out.println("KZService, doInBackground,  body:" + body);
-                    System.out.println("KZService, doInBackground,  status:" + response.get("statusCode"));
-                    System.out.println("KZService, doInBackground,  content:" + response.get("contentType"));
+                    //System.out.println("KZService, doInBackground,  body:" + body);
+                    //System.out.println("KZService, doInBackground,  status:" + response.get("statusCode"));
+                    //System.out.println("KZService, doInBackground,  content:" + response.get("contentType"));
 
                     if (body == "") {
                         mFinalServiceEvent = new ServiceEvent(this, statusCode, body, body);
@@ -252,27 +252,27 @@ public class KZService {
                     else if (mContentType.contains("application/json")) {
                             Object json = new JSONTokener(body).nextValue();
                             if (json instanceof JSONObject) {
-                                System.out.println("KZService, doInBackground,  Setting a new JSONObject" );
+                                //System.out.println("KZService, doInBackground,  Setting a new JSONObject" );
 
                                 JSONObject theObject = new JSONObject(body);
                                 mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
                             }
                             else if (json instanceof JSONArray) {
-                                System.out.println("KZService, doInBackground,  Setting a new JSONArray" );
+                                //System.out.println("KZService, doInBackground,  Setting a new JSONArray" );
 
                                 JSONArray theObject = new JSONArray(body);
                                 mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
                             }
                         }
                         else {
-                            System.out.println("KZService, doInBackground,  Setting a new String" );
+                            //System.out.println("KZService, doInBackground,  Setting a new String" );
                             mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                         }
                 }
             }
             catch(Exception e)
             {
-                System.out.println("KZService, doInBackground, Exception: " + e.getMessage().toLowerCase() );
+                //System.out.println("KZService, doInBackground, Exception: " + e.getMessage().toLowerCase() );
 
                 String exMessage = (e.getMessage()==null ? "Unexpected error" : e.getMessage().toString());
                 mFinalServiceEvent = new ServiceEvent(this, statusCode, exMessage, null,e);
@@ -297,14 +297,14 @@ public class KZService {
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            System.out.println("KZService, onPostExecute");
+            //System.out.println("KZService, onPostExecute");
 
             if (mServiceEventCallback instanceof ServiceResponseHandler) {
-                System.out.println("KZService, doInBackground,  onPostExecute. Is ServiceResponseHandler");
+                //System.out.println("KZService, doInBackground,  onPostExecute. Is ServiceResponseHandler");
                 dispatchServiceResponseListener(result, (ServiceResponseHandler) mServiceEventCallback);
             }
             else {
-                System.out.println("KZService, doInBackground,  onPostExecute. NOT ServiceResponseHandler");
+                //System.out.println("KZService, doInBackground,  onPostExecute. NOT ServiceResponseHandler");
                 mServiceEventCallback.onFinish(result);
             }
         }

@@ -110,7 +110,7 @@ public class Storage extends KZService {
             serializedMsg = checkDateSerialization(message);
         }
         catch (JSONException e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
             createServiceEventWithException(e, callback);
         }
 

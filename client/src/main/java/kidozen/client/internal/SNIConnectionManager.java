@@ -213,11 +213,11 @@ public class SNIConnectionManager
         Hashtable<String, String> retVal = new Hashtable<String, String>();
 
         int responseCode = con.getResponseCode();
-        System.out.println("SNIConnectionManager, getExecutionResponse, Status Code:" + String.valueOf(responseCode));
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Status Code:" + String.valueOf(responseCode));
         String responsebody = con.getResponseMessage();
-        System.out.println("SNIConnectionManager, getExecutionResponse, Response Body:" + responsebody);
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Response Body:" + responsebody);
         String contentType =  con.getHeaderField("content-type");
-        System.out.println("SNIConnectionManager, getExecutionResponse, Response contentType:" + contentType);
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Response contentType:" + contentType);
 
         retVal.put("statusCode", String.valueOf(responseCode));
         retVal.put("responseMessage", responsebody);
@@ -230,8 +230,8 @@ public class SNIConnectionManager
         for(Map.Entry<String, List<String>> entry : selects.entrySet()) {
             String key = entry.getKey();
             List<String> value = entry.getValue();
-            System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER KEY *******->" + key);
-            System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER VALUE *****->" + value.toString());
+            //System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER KEY *******->" + key);
+            //System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER VALUE *****->" + value.toString());
         }
 */
 
@@ -240,7 +240,7 @@ public class SNIConnectionManager
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
 
-        System.out.println("SNIConnectionManager, getExecutionResponse," + _urlAsString);
+        //System.out.println("SNIConnectionManager, getExecutionResponse," + _urlAsString);
 
         return retVal;
     }

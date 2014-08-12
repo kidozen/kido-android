@@ -270,7 +270,7 @@ public class StorageSvcResponseTest {
         _storage.Update(updatedObject.getString("_id"),updatedObject, new ServiceResponseListener() {
             @Override
             public void onError(int statusCode, String response) {
-                System.out.println(response);
+                //System.out.println(response);
                 assertEquals(statusCode, HttpStatus.SC_CONFLICT);
                 lcd.countDown();
             }
@@ -339,7 +339,7 @@ public class StorageSvcResponseTest {
                                 }
                                 catch (JSONException je) {
                                     String msg = je.getMessage();
-                                    System.out.println("msg = " + msg);
+                                    //System.out.println("msg = " + msg);
 
                                     String expectedMessage = "No value for additional";
                                     assertEquals(expectedMessage, msg);
@@ -432,31 +432,31 @@ public class StorageSvcResponseTest {
         return new ServiceResponseHandler() {
             @Override
             public void onStart() {
-                System.out.println("onStart");
+                //System.out.println("onStart");
                 lcd.countDown();
             }
 
             @Override
             public void onSuccess(int statusCode, String response) {
-                System.out.println("onSuccess String");
+                //System.out.println("onSuccess String");
                 fail();
             }
 
             @Override
             public void onSuccess(int statusCode, JSONObject response) {
-                System.out.println("onSuccess JSONObject");
+                //System.out.println("onSuccess JSONObject");
                 lcd.countDown();
             }
 
             @Override
             public void onSuccess(int statusCode, JSONArray response) {
-                System.out.println("onSuccess JSONArray");
+                //System.out.println("onSuccess JSONArray");
                 fail();
             }
 
             @Override
             public void onError(int statusCode, String response) {
-                System.out.println("onError");
+                //System.out.println("onError");
                 fail();
             }
         };
@@ -466,31 +466,31 @@ public class StorageSvcResponseTest {
         return new ServiceResponseHandler() {
             @Override
             public void onStart() {
-                System.out.println("onStart");
+                //System.out.println("onStart");
                 lcd.countDown();
             }
 
             @Override
             public void onSuccess(int statusCode, String response) {
-                System.out.println("onSuccess String");
+                //System.out.println("onSuccess String");
                 fail();
             }
 
             @Override
             public void onSuccess(int statusCode, JSONObject response) {
-                System.out.println("onSuccess JSONObject");
+                //System.out.println("onSuccess JSONObject");
                 fail();
             }
 
             @Override
             public void onSuccess(int statusCode, JSONArray response) {
-                System.out.println("onSuccess JSONArray");
+                //System.out.println("onSuccess JSONArray");
                 lcd.countDown();
             }
 
             @Override
             public void onError(int statusCode, String response) {
-                System.out.println("onError");
+                //System.out.println("onError");
                 fail();
             }
         };
