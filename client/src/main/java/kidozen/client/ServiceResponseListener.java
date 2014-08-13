@@ -39,10 +39,4 @@ public class ServiceResponseListener extends ServiceResponseHandler {
         //System.out.println( String.format("onError ; StatusCode : %s", statusCode));
         Log.d(TAG, String.format("onError ; StatusCode : %s", statusCode));
     }
-
-    @Override
-    final public void onFinish(ServiceEvent e) {
-        //System.out.println( String.format("onFinish ; StatusCode : %s", e.StatusCode));
-        Log.d(TAG, String.format("onFinish ; StatusCode : %s", e.StatusCode));
-    }
 }
