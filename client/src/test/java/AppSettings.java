@@ -16,7 +16,7 @@ public class AppSettings {
     public static  String KZ_EMAIL_ATTACH;
 
     static {
-        KZ_TENANT =             "https://yourtenant.kidocloud.com";
+        KZ_TENANT =             "https://your-tenant.kidocloud.com";
         KZ_APP =                "tasks";
         KZ_KEY =                "....";
         KZ_USER =               "you@kidozen.com";
