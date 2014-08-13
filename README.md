@@ -83,7 +83,7 @@ The callback signature provides the onFinish method with the following informati
             }
         );
 
-####ServiceResponseListener callback interface 
+####ServiceResponseListener callback interface  (beta)
 
 The callback signature provides the following methods:
 
@@ -105,7 +105,7 @@ The callback signature provides the following methods:
                 }
         );
 
-####Synchronous interface 
+####Synchronous interface (beta)
 
 This interface will block the current thread 
 
