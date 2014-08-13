@@ -1,7 +1,8 @@
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -10,7 +11,6 @@ import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -18,12 +18,14 @@ import kidozen.client.KZApplication;
 import kidozen.client.Mail;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.ServiceResponseListener;
+import kidozen.client.SynchronousException;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 
 
 /**
@@ -46,8 +48,8 @@ public class EmailTest {
     public void Setup()
     {
         try {
-            final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, kidoInitCallback(signal));
+            final CountDownLatch signal = new CountDownLatch(1);
+            kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         }
@@ -87,6 +89,7 @@ public class EmailTest {
         kidozen.SendEmail(mail, sendCallback(lcd));
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
     @Test
     public void ShouldReturnInternalServerError() throws Exception {
         List<String> attachs = new ArrayList<String>();
@@ -110,6 +113,7 @@ public class EmailTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
     @Test
     public void ShouldSendEmailWithMultipleRecipients() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -123,6 +127,44 @@ public class EmailTest {
 
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
+
+    @Test
+    public void ShouldSendMailWithServiceResponse() throws Exception, SynchronousException {
+        final CountDownLatch lcd = new CountDownLatch(1);
+
+        Mail mail = new Mail();
+        mail.to(AppSettings.KZ_EMAIL_TO);
+        mail.from(AppSettings.KZ_EMAIL_FROM);
+        mail.subject(this.CreateRandomValue());
+        mail.textBody(this.CreateRandomValue());
+
+        kidozen.SendEmail(mail, new ServiceResponseListener() {
+            @Override
+            public void onError(int statusCode, String response) {
+                fail();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, String response) {
+                assertEquals(HttpStatus.SC_CREATED, statusCode);
+                lcd.countDown();
+            }
+        });
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void ShouldSendMailSync() throws Exception, SynchronousException {
+        Mail mail = new Mail();
+        mail.to(AppSettings.KZ_EMAIL_TO);
+        mail.from(AppSettings.KZ_EMAIL_FROM);
+        mail.subject(this.CreateRandomValue());
+        mail.textBody(this.CreateRandomValue());
+
+        kidozen.SendEmail(mail);
+        assertTrue(true);
+    }
+
     //
     private ServiceEventListener sendCallback(final CountDownLatch signal) {
         return  new ServiceEventListener() {
@@ -156,15 +198,9 @@ public class EmailTest {
 
     private String CreateRandomValue()
     {
-        Random rng= new Random();
-        String characters ="qwertyuioplkjhgfdsazxcvbnm";
-        char[] text = new char[10];
-        for (int i = 0; i < 10; i++)
-        {
-            text[i] = characters.charAt(rng.nextInt(characters.length()));
-        }
-        return new String(text);
+        return AppSettings.CreateRandomValue();
 
     }
+
 }
 

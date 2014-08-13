@@ -43,20 +43,12 @@ The integration tests code can help you to understand how to use some features o
 		./gradlew tests
 
 ##Getting started with the code
-One instance of the Application object has one or many instances of each of the services that you can find in the Kidozen platform (Storage, Queue, etc.) SDK API is callback based on all its interfaces, so it will never block the UI. The callback signature is the same for all the methods:
-
-- StatusCode is the http status code response that the service invocation has returned
-- Response the response body of the call. It could be an string with the description of the operation such as “Created” or “Internal server error” or a JSON Object with the results of one operation
-- Exception the Exception object is there was one
+One instance of the Application object has one or many instances of each of the services that you can find in the Kidozen platform (Storage, Queue, etc.)
 
 ###Initialization
 During initialization the SDK pulls the application configuration from the cloud services
 
-		KZApplication app = new KZApplication(TENANT, APP_NAME, APP_KEY, new ServiceEventListener() {
-		    @Override
-		    public void onFinish(ServiceEvent e) {
-		    }
-		});
+		KZApplication app = new KZApplication(TENANT, APP_NAME, APP_KEY);
 
 Getting application key
 
@@ -70,6 +62,57 @@ You must provide the identity provider that you will use the username and the pa
         public void onFinish(ServiceEvent e) {
         }
     });
+
+###Invoke services
+
+Once the user is authenticated you can start using all the services:
+
+####ServiceEventListener callback interface 
+
+The callback signature provides the onFinish method with the following information:
+
+- StatusCode is the http status code response that the service invocation has returned
+- Response the response body of the call. It could be an string with the description of the operation such as “Created” or “Internal server error” or a JSON Object with the results of one operation
+- Exception the Exception object is there was one
+
+        Storage storage= kidozen.Storage("orders");
+        storage.Create(data, new ServiceResponseListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                assertEquals(statusCode, HttpStatus.SC_CREATED);
+            }
+        );
+
+####ServiceResponseListener callback interface  (beta)
+
+The callback signature provides the following methods:
+
+- onStart : this is fired when the operation starts
+- onSuccess: this is fired when the operation was successful.
+- onError: this is fired when the operation failed
+
+        Storage storage= kidozen.Storage("orders");
+        storage.Create(data, new ServiceResponseListener() {
+            @Override
+                public void onSuccess(int statusCode, JSONObject response)
+                {
+                    assertEquals(statusCode, HttpStatus.SC_CREATED);
+                }
+                @Override
+                public void onError(int statusCode, String response)
+                {
+                    fail();
+                }
+        );
+
+####Synchronous interface (beta)
+
+This interface will block the current thread 
+
+        Storage storage= kidozen.Storage(KZ_STORAGE_SERVICE_ID);
+        JSONObject result = storage.Create(data, true);
+        Assert.assertNotNull(result);
+
 
 For more information please check the [KidoZen documentation](http://docs.kidozen.com/)
 

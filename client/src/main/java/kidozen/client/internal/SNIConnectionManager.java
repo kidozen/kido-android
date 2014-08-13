@@ -1,7 +1,6 @@
 package kidozen.client.internal;
 
 import org.apache.http.HttpStatus;
-import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -12,17 +11,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -217,35 +213,34 @@ public class SNIConnectionManager
         Hashtable<String, String> retVal = new Hashtable<String, String>();
 
         int responseCode = con.getResponseCode();
-        //System.out.println("*********-> Status Code:" + String.valueOf(responseCode));
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Status Code:" + String.valueOf(responseCode));
         String responsebody = con.getResponseMessage();
-        //System.out.println("*********-> Response Body:" + responsebody);
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Response Body:" + responsebody);
         String contentType =  con.getHeaderField("content-type");
-        //System.out.println("*********-> Response contentType:" + contentType);
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Response contentType:" + contentType);
 
         retVal.put("statusCode", String.valueOf(responseCode));
         retVal.put("responseMessage", responsebody);
         retVal.put("contentType", (contentType == null ? "" : contentType) );
 
-
+/*
         Map<String, List<String>> selects = con.getHeaderFields();
 
 
         for(Map.Entry<String, List<String>> entry : selects.entrySet()) {
             String key = entry.getKey();
             List<String> value = entry.getValue();
-
-            //System.out.println("** HEADER KEY *******->" + key);
-            //System.out.println("** HEADER VALUE *****->" + value.toString());
+            //System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER KEY *******->" + key);
+            //System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER VALUE *****->" + value.toString());
         }
-
+*/
 
         if (responseCode>= HttpStatus.SC_BAD_REQUEST)
             retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
 
-        //System.out.println("*********->" + _urlAsString);
+        //System.out.println("SNIConnectionManager, getExecutionResponse," + _urlAsString);
 
         return retVal;
     }

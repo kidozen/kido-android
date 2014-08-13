@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -17,11 +18,25 @@ import java.util.Map;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.authentication.KidoZenUserIdentityType;
+import kidozen.client.internal.Constants;
 import kidozen.client.internal.SNIConnectionManager;
+import kidozen.client.internal.Utilities;
 
+/**
+ * Base class for the following services:
+ * - Storage
+ * - Queue
+ * - PubSub
+ * - Log
+ * - Configuration
+ * - Files
+ * - Mail
+ * - DataSource
+ * - Service
+ */
 public class KZService {
-    private Boolean mstrictSSL = true;
-    private boolean ProcessAsStream = false;
+    private Boolean mStrictSSL = true;
+    private boolean mProcessAsStream = false;
     protected String mName;
     protected String mEndpoint;
     protected KidoZenUser mUserIdentity = new KidoZenUser();
@@ -31,6 +46,10 @@ public class KZService {
     String mActiveProvider;
     String mActiveUsername;
     String mActivePassword;
+
+    Hashtable<String, String> mRequestHeaders = new Hashtable<String, String>();
+
+    private int mDefaultServiceTimeoutInSeconds = 10;
 
     public KZService() {
 
@@ -99,19 +118,28 @@ public class KZService {
     }
 
     public Boolean getStrictSSL() {
-        return mstrictSSL;
+        return mStrictSSL;
     }
 
     public void setStrictSSL(Boolean strictSSL) {
-        mstrictSSL = strictSSL;
+        mStrictSSL = strictSSL;
     }
 
-    public boolean isProcessAsStream() {
-        return ProcessAsStream;
+    public boolean shouldProcessAsStream() {
+        //System.out.println("KZService, shouldProcessAsStream: " + String.valueOf(mProcessAsStream));
+        return mProcessAsStream;
     }
 
-    public void setProcessAsStream(boolean processAsStream) {
-        ProcessAsStream = processAsStream;
+    public void setmProcessAsStream(boolean mProcessAsStream) {
+        this.mProcessAsStream = mProcessAsStream;
+    }
+
+    public int getDefaultServiceTimeoutInSeconds() {
+        return mDefaultServiceTimeoutInSeconds;
+    }
+
+    public void setDefaultServiceTimeoutInSeconds(int mDefaultServiceTimeoutInSeconds) {
+        this.mDefaultServiceTimeoutInSeconds = mDefaultServiceTimeoutInSeconds;
     }
 
     public class KZServiceAsyncTask extends AsyncTask<String, Void, ServiceEvent> {
@@ -126,17 +154,29 @@ public class KZService {
 
         Boolean mBypassSSLValidation;
         private SNIConnectionManager mSniManager;
+        private String mContentType;
 
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, ServiceEventListener callback, Boolean bypassSSLValidation)
         {
-            mHeaders = headers;
             mHttpMethod = method;
             mServiceEventCallback = callback;
             mBypassSSLValidation = bypassSSLValidation;
             if (params!=null) {
                 mQueryStringParameters = params;
             }
+            if (headers==null) {
+                mRequestHeaders = new Hashtable<String, String>();
+            }
+            else {
+                Iterator<Map.Entry<String, String>> it = headers.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<String, String> pairs = it.next();
+                    mRequestHeaders.put(pairs.getKey(), pairs.getValue());
+                    it.remove();
+                }
+            }
+            //System.out.println("KZService, ctor.");
         }
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, String message, ServiceEventListener callback, Boolean bypassSSLValidation)
@@ -144,7 +184,6 @@ public class KZService {
             this(method, params, headers,  callback, bypassSSLValidation);
             mStringMessage = message;
         }
-
 
         public KZServiceAsyncTask(KZHttpMethod method, HashMap<String, String> params, HashMap<String, String> headers, JSONObject message, ServiceEventListener callback, Boolean bypassSSLValidation)
         {
@@ -160,68 +199,81 @@ public class KZService {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            CreateAuthHeaderValue(new KZServiceEvent<String>() {
+                @Override
+                public void Fire(String token) {
+                    mRequestHeaders.put(Constants.AUTHORIZATION_HEADER, token);
+                    //System.out.println("KZService, onPreExecute, got token, " + token);
+                }
+            });
+            //System.out.println("KZService, onPreExecute");
         }
 
         @Override
         protected ServiceEvent doInBackground(String... params) {
+            //System.out.println("KZService, doInBackground");
             int statusCode = HttpStatus.SC_BAD_REQUEST;
             try
             {
-                Hashtable<String, String> requestProperties = new Hashtable<String, String>();
-                Iterator<Map.Entry<String, String>> it = mHeaders.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry<String, String> pairs = it.next();
-                    requestProperties.put(pairs.getKey(), pairs.getValue());
-                    it.remove();
-                }
                 String  url = params[0];
-                //System.out.println("***** =>> method:" + mHttpMethod);
-                //System.out.println("***** =>> isStream:" + ProcessAsStream);
+                //System.out.println("KZService, doInBackground,  method:" + mHttpMethod);
+                //System.out.println("KZService, doInBackground,  url:" + url);
 
-                if (isProcessAsStream()) {
-                    mSniManager = new SNIConnectionManager(url, mStreamMessage, requestProperties, mQueryStringParameters, mBypassSSLValidation);
+                if (shouldProcessAsStream()) {
+                    mSniManager = new SNIConnectionManager(url, mStreamMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
                     OutputStream response = mSniManager.ExecuteHttpAsStream(mHttpMethod);
                     createCallbackResponseForStream(statusCode, response);
                 }
                 else {
-                    //System.out.println("***** =>> url:" + url);
-                    //System.out.println("***** =>> mStringMessage:" + mStringMessage);
-                    //System.out.println("***** =>> requestProperties:" + requestProperties.toString());
-                    //System.out.println("***** =>> mQueryStringParameters:" + mQueryStringParameters);
-                    //System.out.println("***** =>> mBypassSSLValidation:" + mBypassSSLValidation);
+                    //System.out.println("KZService, doInBackground,  mStringMessage:" + mStringMessage);
+                    //System.out.println("KZService, doInBackground,  mRequestHeaders:" + mRequestHeaders.toString());
+                    //System.out.println("KZService, doInBackground,  mQueryStringParameters:" + mQueryStringParameters);
+                    //System.out.println("KZService, doInBackground,  mBypassSSLValidation:" + mBypassSSLValidation);
 
-                    mSniManager = new SNIConnectionManager(url, mStringMessage, requestProperties, mQueryStringParameters, mBypassSSLValidation);
+                    mSniManager = new SNIConnectionManager(url, mStringMessage, mRequestHeaders, mQueryStringParameters, mBypassSSLValidation);
+                    if (mServiceEventCallback instanceof ServiceResponseHandler) {
+                        Utilities.DispatchServiceStartListener((ServiceResponseHandler)mServiceEventCallback);
+                    }
                     Hashtable<String, String> response = mSniManager.ExecuteHttp(mHttpMethod);
                     String body = response.get("responseBody");
                     statusCode = Integer.parseInt(response.get("statusCode"));
+                    mContentType = response.get("contentType").toLowerCase();
+
                     createCallbackResponse(statusCode, body);
                     body = (body==null || body.equals("") || body.equals("null") ? "" : body);
-                    //System.out.println("***** =>> body:" + body);
-                    //System.out.println("***** =>> status:" + response.get("statusCode"));
-                    //System.out.println("***** =>> content:" + response.get("contentType"));
 
-                    if (body=="") {
+                    //System.out.println("KZService, doInBackground,  body:" + body);
+                    //System.out.println("KZService, doInBackground,  status:" + response.get("statusCode"));
+                    //System.out.println("KZService, doInBackground,  content:" + response.get("contentType"));
+
+                    if (body == "") {
                         mFinalServiceEvent = new ServiceEvent(this, statusCode, body, body);
                     }
-                    else {
-                        Object json = new JSONTokener(body).nextValue();
-                        if (json instanceof JSONObject) {
-                            JSONObject theObject = new JSONObject(body);
-                            mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
-                        }
-                        else
-                            if (json instanceof JSONArray) {
+                    else if (mContentType.contains("application/json")) {
+                            Object json = new JSONTokener(body).nextValue();
+                            if (json instanceof JSONObject) {
+                                //System.out.println("KZService, doInBackground,  Setting a new JSONObject" );
+
+                                JSONObject theObject = new JSONObject(body);
+                                mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
+                            }
+                            else if (json instanceof JSONArray) {
+                                //System.out.println("KZService, doInBackground,  Setting a new JSONArray" );
+
                                 JSONArray theObject = new JSONArray(body);
                                 mFinalServiceEvent = new ServiceEvent(this, statusCode, body, theObject);
                             }
-                            else {
-                                mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
-                            }
+                        }
+                        else {
+                            //System.out.println("KZService, doInBackground,  Setting a new String" );
+                            mFinalServiceEvent = new ServiceEvent(this, statusCode, body, response.get("responseMessage"));
                         }
                 }
             }
             catch(Exception e)
             {
+                //System.out.println("KZService, doInBackground, Exception: " + e.getMessage().toLowerCase() );
+
                 String exMessage = (e.getMessage()==null ? "Unexpected error" : e.getMessage().toString());
                 mFinalServiceEvent = new ServiceEvent(this, statusCode, exMessage, null,e);
             }
@@ -245,12 +297,44 @@ public class KZService {
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            if (mServiceEventCallback !=null) {
+            //System.out.println("KZService, onPostExecute");
+
+            if (mServiceEventCallback instanceof ServiceResponseHandler) {
+                //System.out.println("KZService, doInBackground,  onPostExecute. Is ServiceResponseHandler");
+                dispatchServiceResponseListener(result, (ServiceResponseHandler) mServiceEventCallback);
+            }
+            else {
+                //System.out.println("KZService, doInBackground,  onPostExecute. NOT ServiceResponseHandler");
                 mServiceEventCallback.onFinish(result);
             }
         }
 
+        private void dispatchServiceResponseListener(final ServiceEvent e,final ServiceResponseHandler callback) {
+            if (e.StatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
+                callback.onError(e.StatusCode, e.Body);
+            }
+            else {
+                try {
+                    if (mContentType.contains("application/json")) {
+                        Object json = new JSONTokener(e.Body).nextValue();
+                        if (json instanceof JSONObject) {
+                            JSONObject theObject = new JSONObject(e.Body);
+                            callback.onSuccess(e.StatusCode, theObject);
+                        }
+                        else if (json instanceof JSONArray) {
+                            JSONArray o = (JSONArray) e.Response;
+                            callback.onSuccess(e.StatusCode, o);
+                        }
+                    }
+                    else { callback.onSuccess(e.StatusCode, e.Body); }
+                } catch (JSONException e1) {
+                    callback.onError(e.StatusCode, e1.getMessage());
+                }
+            }
+        }
+
     }
+
 
 }
 

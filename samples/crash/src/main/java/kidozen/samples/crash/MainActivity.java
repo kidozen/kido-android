@@ -36,7 +36,8 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 try
                 {
-                    kido = new kidozen.client.KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
+                    kido = new kidozen.client.KZApplication(tenantMarketPlace, application, appkey, false);
+                    kido.Initialize(new kidozen.client.ServiceEventListener() {
                         @Override
                         public void onFinish(kidozen.client.ServiceEvent e) {
                             crashbutton.setEnabled(true);

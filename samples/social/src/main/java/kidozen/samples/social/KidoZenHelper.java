@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.apache.http.HttpStatus;
 
+import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
 
 /**
@@ -21,19 +22,24 @@ public class KidoZenHelper {
     private IAuthenticationEvents authEvents;
 
     public KidoZenHelper() {
-        kido = new KZApplication(tenantMarketPlace, application, appkey, false, new kidozen.client.ServiceEventListener() {
-            @Override
-            public void onFinish(kidozen.client.ServiceEvent e) {
-                isInitialized = (e.StatusCode == HttpStatus.SC_OK);
-            }
-        });
+        kido = new KZApplication(tenantMarketPlace, application, appkey, false);
+        try {
+            kido.Initialize(new kidozen.client.ServiceEventListener() {
+                @Override
+                public void onFinish(kidozen.client.ServiceEvent e) {
+                    isInitialized = (e.StatusCode == HttpStatus.SC_OK);
+                }
+            });
+        } catch (InitializationException e) {
+            e.printStackTrace();
+        }
     }
 
     public void SignOut() {
         kido.SignOut();
     }
 
-    public void SignIn(Context context) {
+    public void SignIn(Context context) throws InitializationException{
         kido.Authenticate(context, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
