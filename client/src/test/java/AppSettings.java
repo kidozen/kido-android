@@ -16,14 +16,14 @@ public class AppSettings {
     public static  String KZ_EMAIL_ATTACH;
 
     static {
-        KZ_TENANT =             "https://your-tenant.kidocloud.com";
+        KZ_TENANT =             "https://contoso.local.kidozen.com";
         KZ_APP =                "tasks";
-        KZ_KEY =                "....";
-        KZ_USER =               "you@kidozen.com";
-        KZ_PASS =               "supersecret";
+        KZ_KEY =                "4UVnQIra6UYDgmng/lo2GFdPNAp0ggxucG7KR1QinB4=";
+        KZ_USER =               "leandrob@ad.kidozen.com";
+        KZ_PASS =               "Password11";
 
         KZ_EMAIL_ATTACH =       "/Users/you/attach.txt";
-        KZ_PROVIDER=            "Kidozen";
+        KZ_PROVIDER=            "Kido ADFS";
         KZ_SERVICE_ID =         "weather";
 
         KZ_EMAIL_FROM =         "contoso@kidozen.com.com";
