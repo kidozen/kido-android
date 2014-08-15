@@ -36,7 +36,6 @@ public class DsSvcResponseTest {
     private static final String QUERY_DATA_SOURCE_NAME = "GetCityWeather";
     KZApplication kidozen = null;
     JSONObject data;
-
     @Before
     public void Setup()
     {
