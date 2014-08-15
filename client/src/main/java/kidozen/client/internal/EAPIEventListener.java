@@ -22,26 +22,34 @@ public class EAPIEventListener implements ServiceEventListener {
     @Override
     public void onFinish(ServiceEvent e) {
         if (mOriginalCaller!=null) {
-            JSONObject response = (JSONObject) e.Response;
-            String body = response.optString("data");
             ServiceEvent event = null;
-            if (body!=null) {
-                event = createServiceEvent(e, body);
+            if (e.StatusCode >= HttpStatus.SC_BAD_REQUEST) {
+                event = createErrorEvent(e, e.Body);
+                if (mOriginalCaller instanceof ServiceResponseHandler)
+                    dispatchServiceResponseListener(event, (ServiceResponseHandler) mOriginalCaller);
+                else
+                    mOriginalCaller.onFinish(event);
             }
             else {
-                body = response.optString("error");
-                event = createErrorEvent(e, body);
-            }
+                JSONObject response = (JSONObject) e.Response;
+                String body = response.optString("data");
+                if (body != null) {
+                    event = createServiceEvent(e, body);
+                } else {
+                    body = response.optString("error");
+                    event = createErrorEvent(e, body);
+                }
 
-            if (mOriginalCaller instanceof ServiceResponseHandler)
-                mOriginalCaller.onFinish(event);
-            else
-                dispatchServiceResponseListener(event,(ServiceResponseHandler)mOriginalCaller);
+                if (mOriginalCaller instanceof ServiceResponseHandler)
+                    dispatchServiceResponseListener(event, (ServiceResponseHandler) mOriginalCaller);
+                else
+                    mOriginalCaller.onFinish(event);
+            }
         }
     }
 
     private ServiceEvent createErrorEvent (ServiceEvent e, String body) {
-        ServiceEvent event = new ServiceEvent(e.Response);
+        ServiceEvent event = new ServiceEvent(e.Body);
 
         if (body.isEmpty() || body==null) {
             String error = "'data' or 'error' property not found. Please contact service administrator";

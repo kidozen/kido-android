@@ -1,20 +1,15 @@
 package kidozen.client;
 
-import android.os.AsyncTask;
-
 import org.apache.http.HttpStatus;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.EAPIEventListener;
 import kidozen.client.internal.JsonStringToMap;
 import kidozen.client.internal.SyncHelper;
 import kidozen.client.internal.Utilities;
@@ -55,7 +50,8 @@ public class DataSource extends KZService {
         if (timeout>0)
             headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-        new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, callback, getStrictSSL()).execute(url);
+        EAPIEventListener serviceCallback = new EAPIEventListener(callback);
+        new KZServiceAsyncTask(KZHttpMethod.GET, params, headers, serviceCallback, getStrictSSL()).execute(url);
     }
     /**
      * Invokes a Query DataSource
@@ -94,7 +90,9 @@ public class DataSource extends KZService {
             HashMap<String, String> headers = new HashMap<String, String>();
             if (timeout>0)
                 headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-            new KZServiceAsyncTask(KZHttpMethod.GET, null, headers, callback, getStrictSSL()).execute(url);
+
+            EAPIEventListener serviceCallback = new EAPIEventListener(callback);
+            new KZServiceAsyncTask(KZHttpMethod.GET, null, headers, serviceCallback, getStrictSSL()).execute(url);
 
         } catch (Exception e) {
             if (callback!=null)
@@ -133,7 +131,8 @@ public class DataSource extends KZService {
         if (timeout>0)
             headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  new JSONObject(), callback, getStrictSSL()).execute(url);
+        EAPIEventListener serviceCallback = new EAPIEventListener(callback);
+        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers,  new JSONObject(), serviceCallback, getStrictSSL()).execute(url);
     }
 
     public JSONObject Invoke(int timeout) throws TimeoutException, SynchronousException {
@@ -169,7 +168,8 @@ public class DataSource extends KZService {
         if (timeout>0)
             headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
+        EAPIEventListener serviceCallback = new EAPIEventListener(callback);
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, serviceCallback, getStrictSSL()).execute(url);
     }
 
     /**

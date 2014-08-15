@@ -18,9 +18,9 @@ public class MainActivity extends Activity {
     TextView textviewMessages, textviewUrl, textviewApp, textviewKey;
     Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
 
-    String tenantMarketPlace = "http://contoso.kidocloud.com";
-    String application = "myApplication";
-    String appkey = "get this value from your marketplace";
+    String tenantMarketPlace = "https://kidodemo.kidocloud.com";
+    String application = "directory";
+    String appkey = "237P6ZGh+ehlMOKHmTHiOt8OskVQ42gS8Qk1W2qel+A=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,6 @@ public class MainActivity extends Activity {
                             crashbutton.setEnabled(true);
                             crashnullref.setEnabled(true);
                             crashinvalidactivity.setEnabled(true);
-                            textviewMessages.setText( String.valueOf(e.StatusCode));
                             kido.EnableCrashReporter(mSelf.getApplication());
                         }
                     });

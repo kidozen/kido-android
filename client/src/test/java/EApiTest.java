@@ -1,7 +1,6 @@
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -13,16 +12,14 @@ import org.robolectric.annotation.Config;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import kidozen.client.DataSource;
-import kidozen.client.Service;
 import kidozen.client.KZApplication;
+import kidozen.client.Service;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.ServiceResponseListener;
 import kidozen.client.SynchronousException;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -75,7 +72,7 @@ public class EApiTest {
                 lcd.countDown();
             }
         });
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 
     @Test
@@ -90,7 +87,7 @@ public class EApiTest {
             }
         });
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
 
     }
 
@@ -99,7 +96,7 @@ public class EApiTest {
         Service service = kidozen.LOBService(AppSettings.KZ_SERVICE_ID);
         try {
             JSONObject result = service.InvokeMethod(KZ_SERVICE_METHODID, data);
-            assertTrue(result.getJSONObject("data").getInt("status") == 200);
+            assertTrue(result.getInt("status") == 200);
         } catch (SynchronousException e) {
             fail();
         }
@@ -120,7 +117,7 @@ public class EApiTest {
             public void onSuccess(int statusCode, JSONObject response) {
                 assertEquals(HttpStatus.SC_OK, statusCode);
                 try {
-                    assertTrue(response.getJSONObject("data").getInt("status") == 200);
+                    assertTrue(response.getInt("status") == 200);
                 } catch (JSONException e) {
                     fail();
                 }
