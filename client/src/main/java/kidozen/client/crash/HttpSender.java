@@ -45,6 +45,7 @@ public class HttpSender extends KZService implements ReportSender {
     private String mToken = "empty";
     private ArrayList<String> mBreadCrumbs;
     private static final String APPLICATION_BREADCRUMB = "APPLICATION_BREADCRUMB";
+    private ServiceEvent mEvent = null;
 
 
     public HttpSender(String crashEndpoint, String token) {
@@ -63,13 +64,16 @@ public class HttpSender extends KZService implements ReportSender {
         {
             final CountDownLatch cdl = new CountDownLatch(1);
             IdentityManager.getInstance().GetRawToken(mApplicationKey, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                mToken = ((KidoZenUser) e.Response).Token;
-                cdl.countDown();
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    mEvent = e;
+                    cdl.countDown();
                 }
             });
             cdl.await(DEFAULT_TIMEOUT, TimeUnit.MINUTES);
+            if (mEvent.Exception!=null || mEvent.StatusCode >= HttpStatus.SC_BAD_REQUEST) throw new ReportSenderException(mEvent.Body);
+            mToken = ((KidoZenUser) mEvent.Response).Token;
+
             String authHeaderValue = String.format("WRAP access_token=\"%s\"", mToken);
 
             Log.d(LOG_TAG, String.format("About to send log to Log V3 service: %s ", mCrashEndpoint));
@@ -94,6 +98,9 @@ public class HttpSender extends KZService implements ReportSender {
         }
         catch (InterruptedException e) {
             throw new ReportSenderException("Timeout trying to send report to KidoZen services." , e);
+        }
+        catch (ReportSenderException e) {
+            throw e;
         }
         catch (Exception e) {
             throw new ReportSenderException("Error while sending  report to KidoZen services." , e);
