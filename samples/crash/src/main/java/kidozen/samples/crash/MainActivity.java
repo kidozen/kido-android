@@ -15,12 +15,12 @@ import kidozen.client.KZApplication;
 public class MainActivity extends Activity {
     MainActivity mSelf;
     KZApplication kido;
-    TextView textviewMessages, textviewUrl, textviewApp, textviewKey;
+    TextView textviewMessages;
     Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
 
-    String tenantMarketPlace = "https://kidodemo.kidocloud.com";
-    String application = "directory";
-    String appkey = "237P6ZGh+ehlMOKHmTHiOt8OskVQ42gS8Qk1W2qel+A=";
+    String tenantMarketPlace = "https://contoso.kidocloud.com";
+    String application = "myApplication";
+    String appkey = "get this value from your marketplace";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
