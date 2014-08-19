@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import kidozen.client.InitializationException;
+
 
 public class MainActivity extends Activity implements IPushEvents {
     private KidoZenHelper helper = new KidoZenHelper(this);
@@ -34,7 +36,11 @@ public class MainActivity extends Activity implements IPushEvents {
         signInBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.SignIn();
+                try {
+                    helper.SignIn();
+                } catch (InitializationException e) {
+                    Log.e(TAG,e.getMessage());
+                }
             }
         });
 

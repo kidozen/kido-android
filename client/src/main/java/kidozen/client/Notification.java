@@ -1,5 +1,7 @@
 package kidozen.client;
 
+import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.security.InvalidParameterException;
@@ -7,6 +9,7 @@ import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 
 /**
  * Push notifications service interface
@@ -44,32 +47,31 @@ public class Notification extends KZService  {
 	 * @param callback The callback with the result of the service call
 	 */
 	public void Subscribe(final String androidId,final String channel,final String subscriptionID, final ServiceEventListener callback) {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        _channel = channel;
+        _deviceId = androidId;
 
-            _channel = channel;
-            _deviceId = androidId;
+        HashMap<String, String> s = new HashMap<String, String>();
+        s.put("deviceId", _deviceId);
+        s.put("subscriptionId", subscriptionID);
+        s.put("platform", PLATFORM_C2DM);
 
-            HashMap<String, String> s = new HashMap<String, String>();
-            s.put("deviceId", _deviceId);
-            s.put("subscriptionId", subscriptionID);
-            s.put("platform", PLATFORM_C2DM);
+        String  url = mEndpoint + "/subscriptions/" + mName + "/" + _channel;
 
-            String  url = mEndpoint + "/subscriptions/" + mName + "/" + _channel;
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-            HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put(Constants.AUTHORIZATION_HEADER, token);
-            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-
-            new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,new JSONObject(s), callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,new JSONObject(s), callback, getStrictSSL()).execute(url);
     }
 
-	/**
+    public boolean Subscribe(String androidId,String channel,String subscriptionID) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Subscribe", String.class, String.class, String.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{androidId,channel,subscriptionID});
+        return (helper.getStatusCode() == HttpStatus.SC_CREATED);
+    }
+
+
+    /**
 	 * Ends the subscription to the channel
 	 *  
 	 * @param channel The name of the channel to push and receive messages
@@ -78,22 +80,20 @@ public class Notification extends KZService  {
 	 */
 	public void Unsubscribe(final String channel, final String subscriptionId, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        String  url = mEndpoint + "/subscriptions/" + mName + "/" + channel + "/" + subscriptionId ;
+        HashMap<String, String> params = null;
+        HashMap<String, String> headers = new HashMap<String, String>();
 
-                String  url = mEndpoint + "/subscriptions/" + mName + "/" + channel + "/" + subscriptionId ;
-                HashMap<String, String> params = null;
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
     }
 
-	/**
+    public boolean Unsubscribe(String androidId,String channel,String subscriptionID) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Unsubscribe", String.class, String.class, String.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{androidId,channel,subscriptionID});
+        return (helper.getStatusCode() == HttpStatus.SC_OK);
+    }
+
+    /**
 	 * Push a message into the specified channel
 	 * 
 	 * @param channel The name of the channel to push the message
@@ -102,20 +102,19 @@ public class Notification extends KZService  {
 	 */
 	public void Push(final String channel,final JSONObject data, final ServiceEventListener callback)
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+            String  url = mEndpoint + "/push/" + mName + "/" + channel;
 
-                String  url = mEndpoint + "/push/" + mName + "/" + channel;
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+            headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+            new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
+    }
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, null, headers,  data, callback, getStrictSSL()).execute(url);
-            }
-        });
+    public boolean Push(String deviceId, JSONObject data) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Push", String.class, JSONObject.class, ServiceEventListener.class);
+         helper.Invoke(new Object[]{deviceId, data});
+        return (helper.getStatusCode() == HttpStatus.SC_OK);
     }
 
 	/**
@@ -126,19 +125,16 @@ public class Notification extends KZService  {
 	public void  GetSubscriptions(String deviceId, final ServiceEventListener callback) throws InvalidParameterException {
         if (deviceId.isEmpty() || deviceId == null) throw new InvalidParameterException("Invalid deviceId");
         _deviceId = deviceId;
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/devices/" + _deviceId + "/" + mName;
+        String  url = mEndpoint + "/devices/" + _deviceId + "/" + mName;
 
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                new KZServiceAsyncTask(KZHttpMethod.GET, params, headers,  callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        new KZServiceAsyncTask(KZHttpMethod.GET, params, headers,  callback, getStrictSSL()).execute(url);
     }
 
+    public JSONArray GetSubscriptions(String deviceId) throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONArray>(this, "GetSubscriptions", String.class, ServiceEventListener.class)
+                .Invoke(new Object[]{deviceId});
+    }
 
 }

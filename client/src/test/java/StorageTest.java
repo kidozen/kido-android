@@ -10,7 +10,6 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -19,12 +18,12 @@ import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.Storage;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,7 +49,7 @@ public class StorageTest {
     {
         try {
             final CountDownLatch signalInit = new CountDownLatch(1);
-            kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, kidoInitCallback(signalInit));
+            kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
             signalInit.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
             final CountDownLatch signalAuth = new CountDownLatch(1);
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signalAuth));
@@ -95,7 +94,7 @@ public class StorageTest {
     @Test
     public void ShouldDeleteMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        final String expected = this.CreateRandomValue();
+        final String expected = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected);
         StorageEventListener cb = createObjectForStorage(data);
 
@@ -114,7 +113,7 @@ public class StorageTest {
     @Test
     public void ShouldGetMessage() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        final String expected = this.CreateRandomValue();
+        final String expected = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected);
         StorageEventListener cb = createObjectForStorage(data);
 
@@ -140,7 +139,7 @@ public class StorageTest {
     public void ShouldDropCollection() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(2);
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
 
         Storage toDrop = kidozen.Storage("toDrop");
         toDrop.Create(data, new ServiceEventListener() {
@@ -168,7 +167,7 @@ public class StorageTest {
     public void ShouldGetAllObjects() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);
-        final String expected = this.CreateRandomValue();
+        final String expected = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected);
         StorageEventListener cb = createObjectForStorage(data);
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
@@ -191,7 +190,7 @@ public class StorageTest {
     public void ShouldUpdateObject() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = "updated";
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
         StorageEventListener cb = createObjectForStorage(data);
 
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
@@ -209,33 +208,12 @@ public class StorageTest {
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
-    @Test
-    public void UpdateObjectShouldReturnException() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
-        final String expected = "updated";
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
-        StorageEventListener cb = createObjectForStorage(data);
 
-        assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
-        JSONObject obj =(JSONObject) cb.Event.Response;
-
-        data.put(DATA_VALUE_KEY,expected);
-
-        //Assert
-        _storage.Update(obj.getString("_id"),data, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertNotNull(e.Exception);
-                lcd.countDown();
-            }
-        });
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
-    }
     @Test
     public void UpdateObjectShouldReturnConflict() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = "updated";
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
         StorageEventListener cb = createObjectForStorage(data);
 
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
@@ -259,7 +237,7 @@ public class StorageTest {
     @Test
     public void ShouldQueryObject() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        final String expected = this.CreateRandomValue();
+        final String expected = AppSettings.CreateRandomValue();
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,expected);
         StorageEventListener cb = createObjectForStorage(data);
 
@@ -279,13 +257,12 @@ public class StorageTest {
     @Test
     public void ShouldQueryObjectAndReturnRequestedValues() throws Exception
     {
-        //Robolectric.addHttpResponseRule();
         final CountDownLatch lcd = new CountDownLatch(1);
-        final String expected = this.CreateRandomValue();
+        final String expected = AppSettings.CreateRandomValue();
         final String KEY2="additional";
         JSONObject data = new JSONObject()
                 .put(DATA_VALUE_KEY, expected)
-                .put(KEY2, this.CreateRandomValue());
+                .put(KEY2, AppSettings.CreateRandomValue());
 
         StorageEventListener cb = createObjectForStorage(data);
 
@@ -304,7 +281,7 @@ public class StorageTest {
                     String fail = obj.getString(KEY2);
                 } catch (JSONException je) {
                     String msg = je.getMessage();
-                    System.out.println("msg = " + msg);
+                    //System.out.println("msg = " + msg);
 
                     String expectedMessage = "No value for additional";
                     assertEquals(expectedMessage, msg);
@@ -316,7 +293,8 @@ public class StorageTest {
         });
         assertTrue(lcd.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
-    @Test
+
+    @Test(expected = IllegalArgumentException.class)
     public void CreateShouldThrowInvalidField() throws Exception
     {
         final CountDownLatch lcd = new CountDownLatch(1);
@@ -377,7 +355,7 @@ public class StorageTest {
     public void ShouldUpdateObjectWhenCallSave() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
         final String expected = "updated";
-        JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
+        JSONObject data = new JSONObject().put(DATA_VALUE_KEY, AppSettings.CreateRandomValue());
         StorageEventListener cb = createObjectForStorage(data);
 
         assertEquals(cb.Event.StatusCode, HttpStatus.SC_CREATED);
@@ -432,15 +410,6 @@ public class StorageTest {
         };
     }
 
-    private ServiceEventListener kidoInitCallback(final CountDownLatch signal) {
-        return new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                signal.countDown();
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
-            }
-        };
-    }
 
     private ServiceEventListener kidoAuthCallback(final CountDownLatch signal) {
         return new ServiceEventListener() {
@@ -452,16 +421,4 @@ public class StorageTest {
         };
     }
 
-    private String CreateRandomValue()
-    {
-        Random rng= new Random();
-        String characters ="qwertyuioplkjhgfdsazxcvbnm";
-        char[] text = new char[10];
-        for (int i = 0; i < 10; i++)
-        {
-            text[i] = characters.charAt(rng.nextInt(characters.length()));
-        }
-        return new String(text);
-
-    }
 }

@@ -1,11 +1,14 @@
 package kidozen.client;
 
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
+import kidozen.client.internal.Utilities;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,6 +46,10 @@ public class Service extends KZService {
         this.InvokeMethod(method, data, 0, callback);
     }
 
+    public JSONObject InvokeMethod(String method, JSONObject data) throws TimeoutException, SynchronousException {
+        return this.InvokeMethod(method,data,0) ;
+    }
+
     /**
      * Invokes a LOB method
      *
@@ -52,23 +59,27 @@ public class Service extends KZService {
      * @param callback The callback with the result of the service call
      */
     public void InvokeMethod(final String method, final JSONObject data,final int timeout, final ServiceEventListener callback) {
+        if (method.isEmpty() || method==null)
+            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("method"));
+        if (data==null)
+            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("data"));
+        if (timeout < 0)
+            throw new IllegalArgumentException(Utilities.GetInvalidParameterMessage("timeout"));
 
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
+        String url = mEndpoint + "api/services/"+ mName +"/invoke/" + method;
+        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        if (timeout>0)
+            headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-                String url = mEndpoint + "api/services/"+ mName +"/invoke/" + method;
-                HashMap<String, String> params = new HashMap<String, String>();
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER, token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-                if (timeout>0)
-                    headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
-
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, getStrictSSL()).execute(url);
-            }
-        });
-
+        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, getStrictSSL()).execute(url);
     }
+
+    public JSONObject InvokeMethod(String method, JSONObject data, int timeout) throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONObject>(this, "InvokeMethod", String.class, JSONObject.class, int.class , ServiceEventListener.class)
+                .Invoke(new Object[] { method, data, timeout });
+    }
+
 }

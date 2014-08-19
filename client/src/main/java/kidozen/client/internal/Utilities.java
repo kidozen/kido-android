@@ -1,8 +1,11 @@
 package kidozen.client.internal;
 
+import android.os.Looper;
 import android.util.Log;
 
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -20,6 +23,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
+
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceResponseHandler;
 
 public class Utilities {
 
@@ -143,7 +149,48 @@ public class Utilities {
         return retVal;
     }
 
-    public static String AppendJsonAsQueryString(JSONObject data) throws UnsupportedEncodingException {
-        return "?json=" + URLEncoder.encode(data.toString(), "utf-8");
+    public static void DispatchServiceResponseListener(final ServiceEvent e,final ServiceResponseHandler callback) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                if (e.StatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
+                    callback.onError(e.StatusCode, e.Body);
+                }
+                else {
+                    if (e.Response instanceof JSONObject) {
+                        JSONObject o = (JSONObject) e.Response;
+                        callback.onSuccess(e.StatusCode, o);
+
+                    } else if (e.Response instanceof JSONArray) {
+                        JSONArray o = (JSONArray) e.Response;
+                        callback.onSuccess(e.StatusCode, o);
+                    } else
+                        callback.onSuccess(e.StatusCode, e.Body);
+                }
+            }
+        };
+        dispatchOnThread(r);
+    }
+
+    public static void DispatchServiceStartListener(final ServiceResponseHandler callback) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                callback.onStart();
+            }
+        };
+        dispatchOnThread(r);
+    }
+
+    private static void dispatchOnThread(Runnable r) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            new Thread(r).start();
+        } else {
+            r.run();
+        }
+    }
+
+    public static String GetInvalidParameterMessage(String arg) {
+        return String.format("invalid '%s' value",arg);
     }
 }

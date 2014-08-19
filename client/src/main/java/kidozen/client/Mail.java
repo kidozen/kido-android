@@ -11,6 +11,7 @@ public class Mail {
 	{
 		email.put("to", value);
 	};
+
     public void from (String value)
 	{
     	email.put("from", value);
@@ -35,7 +36,29 @@ public class Mail {
     {
     	return email;
     }
-    
+
+    public String to ()
+    {
+        return email.get ("to");
+    };
+
+    public String from ()
+    {
+        return email.get ("from");
+    }
+    public String subject()
+    {
+        return email.get ("subject");
+    }
+    public String htmlBody()
+    {
+        return email.get ("bodyHtml");
+    }
+    public String textBody ()
+    {
+        return email.get ("bodyText");
+    }
+
     @Override
     public String toString() {
     	return email.toString();

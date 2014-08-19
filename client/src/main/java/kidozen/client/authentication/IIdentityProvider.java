@@ -2,7 +2,7 @@ package kidozen.client.authentication;
 
 import java.net.URI;
 
-import kidozen.client.KZAction;
+import kidozen.client.internal.KZAction;
 
 /**
  * Identity Provider interface

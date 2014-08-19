@@ -1,11 +1,13 @@
 package kidozen.client;
 
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 
 /**
  * Queue service interface
@@ -39,22 +41,21 @@ public class Queue  extends KZService {
 	 */
 	public void Enqueue(final JSONObject message, final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("isPrivate","true");
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        String  url = mEndpoint + "/" + mName;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("isPrivate","true");
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
-            }
-        });
+        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
 	}
 
+    public boolean Enqueue(JSONObject message) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Enqueue", String.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{message});
+        return (helper.getStatusCode() == HttpStatus.SC_CREATED);
+    }
 
 	/**
 	 * Dequeues a message
@@ -63,17 +64,12 @@ public class Queue  extends KZService {
 	 */
 	public void Dequeue(final ServiceEventListener callback) 
 	{
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName + "/next";
+        String  url = mEndpoint + "/" + mName + "/next";
+        new KZServiceAsyncTask(KZHttpMethod.DELETE, null, null, callback, getStrictSSL()).execute(url);
+    }
 
-                HashMap<String, String> params = null;
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,token);
-
-                new KZServiceAsyncTask(KZHttpMethod.DELETE, params, headers, callback, getStrictSSL()).execute(url);
-            }
-        });
-       }
+    public JSONObject Dequeue() throws TimeoutException, SynchronousException {
+        return new SyncHelper<JSONObject>(this, "Dequeue", ServiceEventListener.class)
+                .Invoke(new Object[]{});
+    }
 }

@@ -68,15 +68,16 @@ task androidSourcesJar(type: Jar) {
 }
 
 dependencies {
+    androidTestCompile 'junit:junit:4.11'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.netiq:websocket:0.7'
     compile 'com.google.code.gson:gson:2.2.4'
-    androidTestCompile 'junit:junit:4.11'
     androidTestCompile 'org.robolectric:robolectric:2.3'
 }
 
 //only include files that are suffixed with Test.class and set the max heap size
 robolectric {
-    exclude '**/**Test.class'
+    exclude '**/PubSubTest.class'
+    //include '**/StorageSyncTest.class'
     maxHeapSize = "2048m"
 }

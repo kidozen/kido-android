@@ -41,7 +41,8 @@ public class AuthKeyTest {
     public void ShouldAuthenticateUsingApplicationKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
 
-        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
+        kidozen.Initialize( new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 actualStatusCode = e.StatusCode;
@@ -55,7 +56,8 @@ public class AuthKeyTest {
     @Test
     public void ShouldFailUsingApplicationKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
-        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, "fail", false, new ServiceEventListener() {
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, "fail", false);
+        kidozen.Initialize( new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 actualStatusCode = e.StatusCode;

@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.SyncHelper;
 
 /**
  * Publish and subscribe service interface
@@ -57,20 +58,20 @@ public class PubSubChannel extends KZService {
      */
     public void Publish(final JSONObject message, final boolean isPrivate, final ServiceEventListener callback)
     {
-        CreateAuthHeaderValue(new KZServiceEvent<String>() {
-            @Override
-            public void Fire(String token) {
-                String  url = mEndpoint + "/" + mName;
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("isPrivate", (isPrivate ? "true" : "false"));
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put(Constants.AUTHORIZATION_HEADER,token);
-                headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-                headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
+        String  url = mEndpoint + "/" + mName;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("isPrivate", (isPrivate ? "true" : "false"));
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
 
-                new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
-            }
-        });
+        new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
+    }
+
+    public boolean Publish(JSONObject message, boolean isPrivate) throws TimeoutException, SynchronousException {
+        SyncHelper<String> helper = new SyncHelper<String>(this, "Publish", JSONObject.class, boolean.class, ServiceEventListener.class);
+        helper.Invoke(new Object[]{message , isPrivate});
+        return (helper.getStatusCode() == HttpStatus.SC_CREATED);
     }
 
     /**

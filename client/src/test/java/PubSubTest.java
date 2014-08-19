@@ -2,27 +2,25 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import kidozen.client.KZAction;
 import kidozen.client.KZApplication;
 import kidozen.client.PubSubChannel;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,15 +37,15 @@ public class PubSubTest {
 
     public static final int TEST_TIMEOUT_IN_MINUTES = 2;
     public static final String DATA_VALUE_KEY = "value";
-    public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests2";
+    public static final String PUBSUB_INTEGRATION_TESTS = "PubSubChannelIntegrationTests3";
     KZApplication kidozen = null;
 
     @Before
     public void Setup()
     {
         try {
-            final CountDownLatch signal = new CountDownLatch(2);
-            kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false, kidoInitCallback(signal));
+            final CountDownLatch signal = new CountDownLatch(1);
+            kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
             kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         }
@@ -59,39 +57,44 @@ public class PubSubTest {
 
     @Test
     public void ShouldSubscribeAndReceiveMessage() throws Exception {
-        final CountDownLatch lcd = new CountDownLatch(1);
         JSONObject data = new JSONObject().put(DATA_VALUE_KEY,this.CreateRandomValue());
         final PubSubChannel q = kidozen.PubSubChannel(PUBSUB_INTEGRATION_TESTS);
 
+        //Subscribes to channel
+        final CountDownLatch lcdSubscribe = new CountDownLatch(1);
         q.Subscribe(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.println("Subscribe:" +  e.Body);
-                lcd.countDown();
+                //System.out.println("Subscribe:" +  e.Body);
+                lcdSubscribe.countDown();
             }
         });
-        Thread.sleep(TEST_TIMEOUT_IN_MINUTES * 1000 * 60); // gives some time to channels
+
+        //Set ups listener
+        final CountDownLatch lcdGetMessage = new CountDownLatch(1);
+        q.GetMessages(new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                //System.out.println("The message!? :" +  e.Body);
+                lcdGetMessage.countDown();
+            }
+        });
+
+        //Push a message in channel
+        final CountDownLatch lcdPublish = new CountDownLatch(1);
         q.Publish(data,true, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                System.out.println("Publish:" +  e.Body);
-
+                //System.out.println("Publish:" +  e.Body);
                 assertThat(e.StatusCode, equalTo( HttpStatus.SC_CREATED));
             }
         });
+        assertTrue(lcdPublish.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
-        assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
+        //Listenner await
+        //assertTrue(lcdGetMessage.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.MINUTES));
+        assertTrue(lcdSubscribe.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
 
-    }
-
-    private ServiceEventListener kidoInitCallback(final CountDownLatch signal) {
-        return new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                assertThat(e.StatusCode, equalTo( HttpStatus.SC_OK));
-                signal.countDown();
-            }
-        };
     }
 
     private ServiceEventListener kidoAuthCallback(final CountDownLatch signal) {
@@ -106,15 +109,9 @@ public class PubSubTest {
 
     private String CreateRandomValue()
     {
-        Random rng= new Random();
-        String characters ="qwertyuioplkjhgfdsazxcvbnm";
-        char[] text = new char[10];
-        for (int i = 0; i < 10; i++)
-        {
-            text[i] = characters.charAt(rng.nextInt(characters.length()));
-        }
-        return new String(text);
+        return AppSettings.CreateRandomValue();
 
     }
+
 }
 
