@@ -59,6 +59,9 @@ public class DsTest {
         dataSource.Invoke(data,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                //System.out.println(e.Body);
+                //System.out.println(String.valueOf( e.StatusCode));
+
                 assertEquals(HttpStatus.SC_OK, e.StatusCode);
                 assertTrue(e.Body.indexOf("London")>-1);
                 lcd.countDown();
@@ -76,6 +79,9 @@ public class DsTest {
         dataSource.Invoke(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                //System.out.println(e.Body);
+                //System.out.println(String.valueOf( e.StatusCode));
+
                 assertEquals(HttpStatus.SC_OK, e.StatusCode);
                 assertTrue(e.Body.indexOf("Buenos Aires")>-1);
                 lcd.countDown();
@@ -112,6 +118,9 @@ public class DsTest {
         dataSource.Query(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
+                //System.out.println(e.Body);
+                //System.out.println(String.valueOf( e.StatusCode));
+
                 assertTrue(e.Body.indexOf("Buenos Aires")>-1);
                 assertEquals(HttpStatus.SC_OK, e.StatusCode);
                 lcd.countDown();

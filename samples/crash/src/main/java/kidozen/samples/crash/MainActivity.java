@@ -15,10 +15,10 @@ import kidozen.client.KZApplication;
 public class MainActivity extends Activity {
     MainActivity mSelf;
     KZApplication kido;
-    TextView textviewMessages, textviewUrl, textviewApp, textviewKey;
+    TextView textviewMessages;
     Button initbutton, crashbutton, crashnullref, crashinvalidactivity;
 
-    String tenantMarketPlace = "http://contoso.kidocloud.com";
+    String tenantMarketPlace = "https://contoso.kidocloud.com";
     String application = "myApplication";
     String appkey = "get this value from your marketplace";
 
@@ -43,7 +43,6 @@ public class MainActivity extends Activity {
                             crashbutton.setEnabled(true);
                             crashnullref.setEnabled(true);
                             crashinvalidactivity.setEnabled(true);
-                            textviewMessages.setText( String.valueOf(e.StatusCode));
                             kido.EnableCrashReporter(mSelf.getApplication());
                         }
                     });

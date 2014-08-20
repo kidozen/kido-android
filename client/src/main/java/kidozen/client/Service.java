@@ -1,12 +1,12 @@
 package kidozen.client;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.util.HashMap;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
+import kidozen.client.internal.EAPIEventListener;
 import kidozen.client.internal.SyncHelper;
 import kidozen.client.internal.Utilities;
 
@@ -18,7 +18,6 @@ import kidozen.client.internal.Utilities;
  * To change this template use File | Settings | File Templates.
  */
 public class Service extends KZService {
-
     /**
      * You should not create a new instances of this constructor. Instead use the LOBService() method of the KZApplication object.
      *
@@ -74,7 +73,8 @@ public class Service extends KZService {
         if (timeout>0)
             headers.put(Constants.SERVICE_TIMEOUT_HEADER, Integer.toString(timeout));
 
-        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, callback, getStrictSSL()).execute(url);
+        EAPIEventListener serviceCallback = new EAPIEventListener(callback);
+        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, data, serviceCallback, getStrictSSL()).execute(url);
     }
 
     public JSONObject InvokeMethod(String method, JSONObject data, int timeout) throws TimeoutException, SynchronousException {

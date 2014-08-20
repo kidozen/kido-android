@@ -298,7 +298,6 @@ public class KZService {
         @Override
         protected void onPostExecute(ServiceEvent result) {
             //System.out.println("KZService, onPostExecute");
-
             if (mServiceEventCallback instanceof ServiceResponseHandler) {
                 //System.out.println("KZService, doInBackground,  onPostExecute. Is ServiceResponseHandler");
                 dispatchServiceResponseListener(result, (ServiceResponseHandler) mServiceEventCallback);

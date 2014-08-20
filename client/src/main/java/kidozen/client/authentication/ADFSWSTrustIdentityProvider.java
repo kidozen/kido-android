@@ -59,7 +59,6 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
                 SNIConnectionManager sniManager = new SNIConnectionManager(url, _message, requestProperties, null, bypassSSLValidation);
                 Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
 				String body = authResponse.get("responseBody");
-
 				if (body != null) {
                     //Parse response to check soap Faults. Throws an exception
                     Utilities.CheckFaultsInResponse(body);
