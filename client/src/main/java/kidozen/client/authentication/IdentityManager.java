@@ -419,7 +419,7 @@ public class IdentityManager {
             _identityProvider.RequestToken(new URI(endpoint), new KZAction<String>() {
                 @SuppressWarnings("deprecation")
                 public void onServiceResponse(String wrapAssertionFromIp) throws Exception {
-                System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
+                    //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                     nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
                     nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
@@ -429,9 +429,8 @@ public class IdentityManager {
                     Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
                     _userTokeFromAuthService = authResponse.get("responseBody");
                     _statusCode = authResponse.get("statusCode");
-
-                System.out.println("Got auth token from Identity Provider, _userTokeFromAuthService: " +  _userTokeFromAuthService);
-                System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
+                    //System.out.println("Got auth token from Identity Provider, _userTokeFromAuthService: " +  _userTokeFromAuthService);
+                    //System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
 
                     if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
                 }

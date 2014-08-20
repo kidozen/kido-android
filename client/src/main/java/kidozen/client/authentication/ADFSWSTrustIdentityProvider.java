@@ -66,7 +66,6 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 					int startOfAssertion = body.indexOf("<Assertion ");
 					int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
 					body = body.substring(startOfAssertion, endOfAssertion);
-System.out.println("******* ADFSWSTrustIdentityProvider ==>" + body);
 					action.onServiceResponse(body);
 				}
 			}

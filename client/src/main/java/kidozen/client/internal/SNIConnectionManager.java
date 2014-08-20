@@ -213,17 +213,17 @@ public class SNIConnectionManager
         Hashtable<String, String> retVal = new Hashtable<String, String>();
 
         int responseCode = con.getResponseCode();
-        System.out.println("SNIConnectionManager, getExecutionResponse, Status Code:" + String.valueOf(responseCode));
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Status Code:" + String.valueOf(responseCode));
         String responsebody = con.getResponseMessage();
-        System.out.println("SNIConnectionManager, getExecutionResponse, Response Body:" + responsebody);
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Response Body:" + responsebody);
         String contentType =  con.getHeaderField("content-type");
-        System.out.println("SNIConnectionManager, getExecutionResponse, Response contentType:" + contentType);
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Response contentType:" + contentType);
 
         retVal.put("statusCode", String.valueOf(responseCode));
         retVal.put("responseMessage", responsebody);
         retVal.put("contentType", (contentType == null ? "" : contentType) );
 
-
+        /*
         Map<String, List<String>> selects = con.getHeaderFields();
         for(Map.Entry<String, List<String>> entry : selects.entrySet()) {
             String key = entry.getKey();
@@ -231,6 +231,7 @@ public class SNIConnectionManager
             System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER KEY *******->" + key);
             System.out.println("SNIConnectionManager, getExecutionResponse, ** HEADER VALUE *****->" + value.toString());
         }
+        */
 
 
         if (responseCode>= HttpStatus.SC_BAD_REQUEST)

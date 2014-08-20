@@ -77,7 +77,7 @@ dependencies {
 
 //only include files that are suffixed with Test.class and set the max heap size
 robolectric {
-    //exclude '**/PubSubTest.class'
-    include '**/AuthActiveTest.class'
+    exclude '**/PubSubTest.class'
+    include '**/**Test.class'
     maxHeapSize = "2048m"
 }
