@@ -20,10 +20,10 @@ public class KidoZenHelper implements IGcmEvents {
     private final String TAG = this.getClass().getSimpleName();
     private KZApplication kido = null;
 
-    private String tenantMarketPlace = "http://contoso.kidocloud.com";
-    private String application = "myApplication";
-    private String appkey = "get this value from your marketplace";
-    private String user              = "myaccount@kidozen.com";
+    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
+    private String application = "tasks";
+    private String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
+    private String user              = "loadtests@kidozen.com";
     private String passw             = "secret";
     private String provider          = "Kidozen";
 
