@@ -140,6 +140,26 @@ public class AuthActiveTest {
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 
+    @Test
+    public void AuthenticationShouldFailWithValidIPUser() throws Exception {
+        /*
+        * 1 - authenticates against IP, this returns a valid token , then
+        * 2 - authenticate "to the application", this must fail
+        * */
+        kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
+        final CountDownLatch alcd = new CountDownLatch(1);
+        kidozen.Authenticate(AppSettings.KZ_PROVIDER, "contoso@kidozen.com", "Kidozen", new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                alcd.countDown();
+                assertThat(e.StatusCode, equalTo(HttpStatus.SC_UNAUTHORIZED));
+                assertTrue(e.Body.toLowerCase().contains("unauthorized".toLowerCase()));
+            }
+        });
+        assertEquals(false, kidozen.UserIsAuthenticated);
+        alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
+    }
+
 
     public void ShouldReturnClaimsUsingDefaultSettings() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);

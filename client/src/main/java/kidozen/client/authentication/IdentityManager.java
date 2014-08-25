@@ -391,6 +391,8 @@ public class IdentityManager {
     private class FederatedIdentity extends AsyncTask<String, Void, Object[]> {
         IIdentityProvider _identityProvider;
         String _userTokeFromAuthService, _statusCode;
+        final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
+
         final CountDownLatch _lcd = new CountDownLatch(1);
         public FederatedIdentity(IIdentityProvider iIdentityProvider) {
             _identityProvider = iIdentityProvider;
@@ -433,6 +435,10 @@ public class IdentityManager {
                     //System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
 
                     if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
+                    if (!URLDecoder.decode(_userTokeFromAuthService).contains(USER_SOURCE_CLAIM)) {
+                        _statusCode = String.valueOf(HttpStatus.SC_UNAUTHORIZED);
+                        throw new Exception("unauthorized");
+                    }
                 }
             });
         }

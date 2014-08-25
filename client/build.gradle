@@ -34,6 +34,17 @@ android {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            buildConfigField "String", "test_marketplace", "\"${getProjectProperty('tenant')}\""
+            buildConfigField "String", "test_application", "\"${getProjectProperty('app')}\""
+            buildConfigField "String", "test_app_key", "\"${getProjectProperty('key')}\""
+            buildConfigField "String", "test_provider", "\"${getProjectProperty('provider')}\""
+            buildConfigField "String", "test_username", "\"${getProjectProperty('user')}\""
+            buildConfigField "String", "test_password", "\"${getProjectProperty('pass')}\""
+            buildConfigField "String", "test_service", "\"${getProjectProperty('service')}\""
+            buildConfigField "String", "test_email_to", "\"${getProjectProperty('email_to')}\""
+            buildConfigField "String", "test_email_attach", "\"${getProjectProperty('email_attach')}\""
+        }
     }
     productFlavors {
     }
@@ -41,7 +52,15 @@ android {
         androidTest.setRoot('src/test')
     }
 }
-
+def String getProjectProperty(String propertyName)
+{
+    String movieTitle = "null"
+    if (hasProperty(propertyName))
+    {
+        movieTitle = this.properties[propertyName]
+    }
+    return movieTitle
+}
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
     if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
@@ -80,4 +99,5 @@ robolectric {
     exclude '**/PubSubTest.class'
     include '**/**Test.class'
     maxHeapSize = "2048m"
+
 }
