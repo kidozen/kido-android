@@ -35,13 +35,22 @@ This will generate two files in the 'builds/libs' folder
 - client-sources.jar: sources
 
 ## Execute integration tests
-The integration tests code can help you to understand how to use some features of the SDK. To run the tests you should :
+The integration tests code can help you to understand how to use some features of the SDK. To run the tests execute the following command:
 
-- Navigate to the folder: 'client/src/test/java' and update the file 'AppSettings.java' with your KidoZen environment details.
-- Run the tests using gradle by running the following command:
+		./gradlew test --info -Ptenant=TENANT -Papp=APP -Pkey=KEY -Pprovider=PROVIDER -Puser=USER -Ppass=SECRET -Pservice=SERVICE -Pemail_to=EMAIL -Pemail_attach=PATH_TO_FILE
 
-		./gradlew tests
+where:
 
+- TENANT : your KidoZen marketplace url eg: https://contoso.kidocloud.com
+- APP : the KidoZen application you want to use eg: tasks
+- KEY : the application key, you can find it in the marketplace
+- PROVIDER : the Identity provider you want to use for user authentication eg: Kidozen
+- USER : the username
+- SECRET : the user password
+- SERVICE : the service name to execute some integration tests. Check the code of the files DsTest.java and EApiTest.java to configure the services and datasources properly
+- EMAIL : email address to use for Email services integration tests
+- PATH_TO_FILE : path to file to attach for Email services integration tests
+		
 ##Getting started with the code
 One instance of the Application object has one or many instances of each of the services that you can find in the Kidozen platform (Storage, Queue, etc.)
 

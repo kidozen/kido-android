@@ -211,6 +211,7 @@ public class SNIConnectionManager
 
     protected Hashtable<String, String> getExecutionResponse( HttpURLConnection con) throws IOException {
         Hashtable<String, String> retVal = new Hashtable<String, String>();
+        //System.out.println("SNIConnectionManager, getExecutionResponse," + _urlAsString);
 
         int responseCode = con.getResponseCode();
         //System.out.println("SNIConnectionManager, getExecutionResponse, Status Code:" + String.valueOf(responseCode));
@@ -233,13 +234,10 @@ public class SNIConnectionManager
         }
         */
 
-
         if (responseCode>= HttpStatus.SC_BAD_REQUEST)
             retVal.put("responseBody", Utilities.convertStreamToString(con.getErrorStream()));
         else
             retVal.put("responseBody", Utilities.convertStreamToString(con.getInputStream()));
-
-        //System.out.println("SNIConnectionManager, getExecutionResponse," + _urlAsString);
 
         return retVal;
     }
