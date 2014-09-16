@@ -15,7 +15,7 @@ import kidozen.client.internal.Utilities;
  * @version 1.00, April 2013
  *
  */
-public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
+public class ADFSWSTrustIdentityProvider extends IIdentityProvider {
 	private static final String CONTENT_TYPE = "Content-Type";
 	private static final String SOAP_XML = "application/soap+xml;charset=UTF-8";
 	private String _message;
@@ -47,7 +47,7 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 
 	}
 
-    public void RequestToken(URI identityProviderUrl, KZAction<String> action) throws Exception {
+    public String RequestToken(URI identityProviderUrl) throws Exception {
 			_endpoint = identityProviderUrl.toString();
 			_message = _message.replace("[To]", _endpoint).toString();
 			Hashtable<String, String> requestProperties = new Hashtable<String, String>();
@@ -64,7 +64,8 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 					int startOfAssertion = body.indexOf("<Assertion ");
 					int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
 					body = body.substring(startOfAssertion, endOfAssertion);
-					action.onServiceResponse(body);
+					return body;
+					//action.onServiceResponse(body);
 				}
 			}
             catch (IllegalArgumentException e) // wrong user, password or scope
@@ -78,7 +79,8 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 			catch (Exception e) {
 				throw e;
 			}
-	}
+        return null;
+    }
 
 
 

@@ -1,7 +1,10 @@
 package kidozen.client.authentication;
 
+import android.util.Log;
+
 import java.net.URI;
 
+import kidozen.client.ServiceEvent;
 import kidozen.client.internal.KZAction;
 
 /**
@@ -18,7 +21,7 @@ import kidozen.client.internal.KZAction;
  * @version 1.00, April 2013
  *
  */
-public interface IIdentityProvider{
+public abstract class IIdentityProvider{
 
     /**
 	 * Initialization step
@@ -26,15 +29,14 @@ public interface IIdentityProvider{
 	 * @param scope The identity scope
 	 * @throws Exception 
 	 */
-	public void Initialize(String scope) throws Exception;
+	public abstract void Initialize(String scope) throws Exception;
 
     /**
 	 * This method executes a request to the Identity Provider
 	 * 
 	 * @param identityProviderUrl The identity provider endpoint
-	 * @param action
 	 * @throws Exception
 	 */
-	public void RequestToken (URI identityProviderUrl, KZAction<String> action) throws Exception;
+	public abstract String RequestToken(URI identityProviderUrl) throws Exception;
 
 }

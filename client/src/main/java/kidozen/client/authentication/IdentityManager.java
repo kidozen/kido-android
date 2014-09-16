@@ -229,12 +229,7 @@ public class IdentityManager {
     public void Authenticate(IIdentityProvider provider, ServiceEventListener callback) {
         try {
             provider.Initialize("https://");
-            provider.RequestToken(new URI("https"), new KZAction<String>() {
-                @Override
-                public void onServiceResponse(String response) throws Exception {
-
-                }
-            });
+            String token = provider.RequestToken(new URI("https"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -437,7 +432,29 @@ public class IdentityManager {
             Object[] response = new Object[2];
             try
             {
-                this.getFederatedToken(params[0], params[1], params[2]);
+                String requestTokenEndpoint = params[0].toString();
+                String authServiceEndpoint= params[1].toString();
+                String applicationScope= params[2].toString();
+
+                String wrapAssertionFromIp = _identityProvider.RequestToken(new URI(requestTokenEndpoint));
+                //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
+                nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
+                nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
+                String message = Utilities.getQuery(nameValuePairs);
+                SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, mStrictSSL);
+                Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+                _userTokeFromAuthService = authResponse.get("responseBody");
+                _statusCode = authResponse.get("statusCode");
+                //System.out.println("Got auth token from Identity Provider, _userTokeFromAuthService: " +  _userTokeFromAuthService);
+                //System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
+
+                if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
+                if (!URLDecoder.decode(_userTokeFromAuthService).contains(USER_SOURCE_CLAIM)) {
+                    _statusCode = String.valueOf(HttpStatus.SC_UNAUTHORIZED);
+                    throw new Exception("unauthorized");
+                }
                 response[0] = _userTokeFromAuthService;
             }
             catch (Exception e) {
@@ -449,7 +466,7 @@ public class IdentityManager {
             }
         }
 
-
+        /*
         private void getFederatedToken(String endpoint, final String authServiceEndpoint, final String applicationScope) throws Exception {
             _identityProvider.RequestToken(new URI(endpoint), new KZAction<String>() {
                 @SuppressWarnings("deprecation")
@@ -475,6 +492,7 @@ public class IdentityManager {
                 }
             });
         }
+        */
     }
     //
     private class KeyIdentity extends AsyncTask<String, Void, Object[]> {

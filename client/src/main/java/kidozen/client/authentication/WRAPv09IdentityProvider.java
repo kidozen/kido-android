@@ -19,7 +19,7 @@ import kidozen.client.internal.Utilities;
  * @author KidoZen
  * @version 1.00, April 2013
  */
-public class WRAPv09IdentityProvider implements IIdentityProvider {
+public class WRAPv09IdentityProvider extends IIdentityProvider {
 	private String _wrapName, _wrapPassword, _wrapScope;
 	public Boolean bypassSSLValidation;
 
@@ -38,7 +38,7 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
 		this._wrapScope = scope;
 	}
 
-    public void RequestToken(URI identityProviderUrl,final KZAction<String> action) throws Exception {
+    public String RequestToken(URI identityProviderUrl) throws Exception {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("wrap_name", _wrapName));
 		nameValuePairs.add(new BasicNameValuePair("wrap_password", _wrapPassword));
@@ -60,7 +60,8 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
                 int startOfAssertion = body.indexOf("<Assertion ");
                 int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
                 body = body.substring(startOfAssertion, endOfAssertion);
-                action.onServiceResponse(body);
+                return body;
+                //action.onServiceResponse(body);
             }
         }
 		catch(StringIndexOutOfBoundsException e) // wrong user, password or scope
@@ -70,6 +71,7 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
 		catch (Exception e) {
 			throw e;
 		}
+        return null;
 	}
 
 
