@@ -46,16 +46,8 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 		}
 
 	}
-	public void BeforeRequestToken(Object[] params) {
-	}
-	
-	public void Configure(Object configuration) {
-	}
 
-	public void AfterRequestToken(Object[] params) {
-	}
-	
-	public void RequestToken(URI identityProviderUrl, KZAction<String> action) throws Exception {
+    public void RequestToken(URI identityProviderUrl, KZAction<String> action) throws Exception {
 			_endpoint = identityProviderUrl.toString();
 			_message = _message.replace("[To]", _endpoint).toString();
 			Hashtable<String, String> requestProperties = new Hashtable<String, String>();

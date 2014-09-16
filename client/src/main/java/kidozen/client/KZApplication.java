@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import kidozen.client.authentication.IIdentityProvider;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
@@ -763,6 +764,39 @@ public class KZApplication {
                 Utilities.DispatchServiceResponseListener(e,callback);
             }
         });
+    }
+
+    public void Authenticate(final IIdentityProvider provider, final ServiceResponseHandler callback) throws InitializationException {
+        if (!mApplicationConfiguration.IsInitialized)
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    InvokeCustomAuthentication(provider, callback);
+                }
+            });
+        else
+            InvokeCustomAuthentication(provider, callback);
+    }
+
+    private void InvokeCustomAuthentication(IIdentityProvider provider, final ServiceResponseHandler callback) {
+        try {
+            IdentityManager.getInstance().Setup(StrictSSL, mApplicationKey);
+            IdentityManager.getInstance().Authenticate(provider, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
+                        UserIsAuthenticated = true;
+                        SetKidoZenUser((KidoZenUser) e.Response);
+                        if (mUserIdentity.HasExpired()) {
+                            Log.w(Constants.LOG_CAT_TAG, "There is a mismatch between your device date and the KidoZen authentication service.\nThe expiration time from the service is lower than the device date.\nThe OnSessionExpirationRun method will be ignored");
+                        }
+                    }
+                    if (callback != null) callback.onFinish(e);
+                }
+            });
+        } catch (Exception e) {
+            callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
+        }
     }
 
     /**

@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import kidozen.client.KZHttpMethod;
@@ -73,10 +72,15 @@ public class IdentityManager {
         return INSTANCE;
     }
 
+    public void Setup(boolean strictSSL, String applicationKey) {
+        mStrictSSL = !strictSSL;
+        mApplicationKey = applicationKey;
+    }
+
     public void Setup(JSONObject authConfig, boolean strictSSL, String applicationKey){
         mStrictSSL = !strictSSL;
-        mAuthConfig = authConfig;
         mApplicationKey = applicationKey;
+        mAuthConfig = authConfig;
     }
 
     // Active authentication with User and Password
@@ -95,9 +99,8 @@ public class IdentityManager {
                 String applicationScope = mAuthConfig.getString("applicationScope");
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
-                IIdentityProvider identityProvider = createIP(providerName, username, password);
+                IIdentityProvider identityProvider = createIpWithUsername(providerName, username, password);
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
-
                 Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
                 if (response[1]!=null)
                 {
@@ -129,7 +132,7 @@ public class IdentityManager {
         }
     }
 
-    private IIdentityProvider createIP(String providerName,String username, String password) throws Exception {
+    private IIdentityProvider createIpWithUsername(String providerName, String username, String password) throws Exception {
         String authServiceScope = mAuthConfig.getString("authServiceScope");
         String ipProtocol = null;
 
@@ -220,6 +223,36 @@ public class IdentityManager {
             startPassiveAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
             context.startActivity(startPassiveAuth);
         }
+    }
+
+    //Custom IP implementation
+    public void Authenticate(IIdentityProvider provider, ServiceEventListener callback) {
+        try {
+            provider.Initialize("https://");
+            provider.RequestToken(new URI("https"), new KZAction<String>() {
+                @Override
+                public void onServiceResponse(String response) throws Exception {
+
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+/*        FederatedIdentity id = new FederatedIdentity(provider);
+        Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
+        if (response[1]!=null)
+        {
+            invokeCallbackWithException(callback, (Exception) response[1]);
+        }
+        else
+        {
+            String token = response[0].toString();
+            addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
+            rawToken = getRawToken(token);
+            invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
+        }
+*/
     }
 
     // Next release must use this method for all auth types
@@ -387,6 +420,7 @@ public class IdentityManager {
     public void SignOut(String cacheKey) {
         mTokensCache.remove(cacheKey);
     }
+
 
     //Calls IP and then KidoZen identity provider to get the token
     private class FederatedIdentity extends AsyncTask<String, Void, Object[]> {
