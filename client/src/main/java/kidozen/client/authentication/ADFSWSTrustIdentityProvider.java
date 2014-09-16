@@ -21,15 +21,21 @@ public class ADFSWSTrustIdentityProvider implements IIdentityProvider {
 	private String _message;
 	private String _username, _password, _scope, _endpoint;
 	public Boolean bypassSSLValidation;
-	public ADFSWSTrustIdentityProvider()
+
+    public ADFSWSTrustIdentityProvider()
 	{
 		_message = TEMPLATE;
 	}
-	public void Initialize(String username, String password, String scope) throws Exception
+
+    public ADFSWSTrustIdentityProvider(String username, String password) {
+        this();
+        _username = username;
+        _password = password;
+    }
+
+	public void Initialize( String scope) throws Exception
 	{
 		_message = TEMPLATE;
-		_username= username;
-		_password = password;
 		_scope = scope;
 		try {
 			_message = _message.replace("[applyTo]", _scope);

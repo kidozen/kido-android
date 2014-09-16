@@ -79,7 +79,7 @@ public class IdentityManager {
         mApplicationKey = applicationKey;
     }
 
-    // Active authentication
+    // Active authentication with User and Password
     public String Authenticate(final String providerName,final String username, final String password,final ServiceEventListener callback) {
         String cacheKey = Utilities.createHash(String.format("%s%s%s", providerName, username, password));
         String rawToken = null;
@@ -94,6 +94,7 @@ public class IdentityManager {
             else {
                 String applicationScope = mAuthConfig.getString("applicationScope");
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
+
                 IIdentityProvider identityProvider = createIP(providerName, username, password);
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
 
@@ -148,14 +149,14 @@ public class IdentityManager {
 
         IIdentityProvider ip = null;
         if (ipProtocol.equalsIgnoreCase("wrapv0.9")) {
-            ip = new WRAPv09IdentityProvider();
+            ip = new WRAPv09IdentityProvider(username, password);
             ((WRAPv09IdentityProvider)ip).bypassSSLValidation= mStrictSSL;
         }
         else {
-            ip = new ADFSWSTrustIdentityProvider();
+            ip = new ADFSWSTrustIdentityProvider(username, password);
             ((ADFSWSTrustIdentityProvider)ip).bypassSSLValidation= mStrictSSL;
         }
-        ip.Initialize(username, password, authServiceScope);
+        ip.Initialize(authServiceScope);
         return ip;
     }
 
@@ -393,7 +394,6 @@ public class IdentityManager {
         String _userTokeFromAuthService, _statusCode;
         final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
 
-        final CountDownLatch _lcd = new CountDownLatch(1);
         public FederatedIdentity(IIdentityProvider iIdentityProvider) {
             _identityProvider = iIdentityProvider;
         }
@@ -411,7 +411,6 @@ public class IdentityManager {
             }
             finally
             {
-                //_lcd.await(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
                 return response;
             }
         }

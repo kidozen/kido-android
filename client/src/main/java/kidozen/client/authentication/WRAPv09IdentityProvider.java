@@ -28,15 +28,18 @@ public class WRAPv09IdentityProvider implements IIdentityProvider {
 
 	}
 
-	public void Configure(Object configuration) {
+    public WRAPv09IdentityProvider(String username, String password) {
+        this();
+        this._wrapName=  username;
+        this._wrapPassword = password;
+    }
+
+    public void Configure(Object configuration) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public void Initialize(String username, String password, String scope)
-			throws Exception {
-		this._wrapName=  username;
-		this._wrapPassword = password;
+	public void Initialize( String scope) throws Exception {
 		this._wrapScope = scope;
 	}
 

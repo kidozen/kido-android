@@ -35,7 +35,7 @@ public interface IIdentityProvider{
 	 * @param scope The identity scope
 	 * @throws Exception 
 	 */
-	public void Initialize(String username, String password, String scope) throws Exception;
+	public void Initialize(String scope) throws Exception;
 
 	/**
 	 * Implement this method to execute actions before the token request to the Identity Provider
