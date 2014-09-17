@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutionException;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
-import kidozen.client.internal.KZAction;
 import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.internal.Utilities;
 
@@ -99,7 +98,7 @@ public class IdentityManager {
                 String applicationScope = mAuthConfig.getString("applicationScope");
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
-                IIdentityProvider identityProvider = createIpWithUsername(providerName, username, password);
+                BaseIdentityProvider identityProvider = createIpWithUsername(providerName, username, password);
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
                 Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
                 if (response[1]!=null)
@@ -132,7 +131,7 @@ public class IdentityManager {
         }
     }
 
-    private IIdentityProvider createIpWithUsername(String providerName, String username, String password) throws Exception {
+    private BaseIdentityProvider createIpWithUsername(String providerName, String username, String password) throws Exception {
         String authServiceScope = mAuthConfig.getString("authServiceScope");
         String ipProtocol = null;
 
@@ -150,7 +149,7 @@ public class IdentityManager {
             throw new Exception("provider not found");
         }
 
-        IIdentityProvider ip = null;
+        BaseIdentityProvider ip = null;
         if (ipProtocol.equalsIgnoreCase("wrapv0.9")) {
             ip = new WRAPv09IdentityProvider(username, password);
             ((WRAPv09IdentityProvider)ip).bypassSSLValidation= mStrictSSL;
@@ -226,28 +225,51 @@ public class IdentityManager {
     }
 
     //Custom IP implementation
-    public void Authenticate(IIdentityProvider provider, ServiceEventListener callback) {
+    public String Authenticate(BaseIdentityProvider provider, String endpoint, String scope, ServiceEventListener callback) {
+        String cacheKey = Utilities.createHash(String.format("%s%s", endpoint, scope));
+        String rawToken = null;
         try {
-            provider.Initialize("https://");
-            String token = provider.RequestToken(new URI("https"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            JSONObject cacheItem = mTokensCache.get(cacheKey);
+            if (cacheItem!=null) {
+                rawToken = cacheItem.getString("rawToken");
+                KidoZenUser usr = (KidoZenUser) mTokensCache.get(cacheKey).get("user");
+                usr.PulledFromCache = true;
+                invokeCallback(callback, rawToken, usr);
+            }
+            else {
+                String applicationScope = mAuthConfig.getString("applicationScope");
+                String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
-/*        FederatedIdentity id = new FederatedIdentity(provider);
-        Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
-        if (response[1]!=null)
-        {
-            invokeCallbackWithException(callback, (Exception) response[1]);
+                CustomFederatedIdentity id = new CustomFederatedIdentity(provider);
+                Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
+                if (response[1]!=null)
+                {
+                    invokeCallbackWithException(callback, (Exception) response[1]);
+                }
+                else
+                {
+                    String token = response[0].toString();
+                    addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
+                    rawToken = getRawToken(token);
+                    invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
+                }
+            }
         }
-        else
-        {
-            String token = response[0].toString();
-            addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
-            rawToken = getRawToken(token);
-            invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
+        catch (InterruptedException e) {
+            invokeCallbackWithException(callback,e);
         }
-*/
+        catch (ExecutionException e) {
+            invokeCallbackWithException(callback,e);
+        }
+        catch (JSONException e) {
+            invokeCallbackWithException(callback,e);
+        }
+        catch (Exception e) {
+            invokeCallbackWithException(callback,e);
+        }
+        finally {
+            return rawToken;
+        }
     }
 
     // Next release must use this method for all auth types
@@ -419,11 +441,11 @@ public class IdentityManager {
 
     //Calls IP and then KidoZen identity provider to get the token
     private class FederatedIdentity extends AsyncTask<String, Void, Object[]> {
-        IIdentityProvider _identityProvider;
+        BaseIdentityProvider _identityProvider;
         String _userTokeFromAuthService, _statusCode;
         final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
 
-        public FederatedIdentity(IIdentityProvider iIdentityProvider) {
+        public FederatedIdentity(BaseIdentityProvider iIdentityProvider) {
             _identityProvider = iIdentityProvider;
         }
 
@@ -465,34 +487,6 @@ public class IdentityManager {
                 return response;
             }
         }
-
-        /*
-        private void getFederatedToken(String endpoint, final String authServiceEndpoint, final String applicationScope) throws Exception {
-            _identityProvider.RequestToken(new URI(endpoint), new KZAction<String>() {
-                @SuppressWarnings("deprecation")
-                public void onServiceResponse(String wrapAssertionFromIp) throws Exception {
-                    //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                    nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
-                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
-                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
-                    String message = Utilities.getQuery(nameValuePairs);
-                    SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, mStrictSSL);
-                    Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
-                    _userTokeFromAuthService = authResponse.get("responseBody");
-                    _statusCode = authResponse.get("statusCode");
-                    //System.out.println("Got auth token from Identity Provider, _userTokeFromAuthService: " +  _userTokeFromAuthService);
-                    //System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
-
-                    if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
-                    if (!URLDecoder.decode(_userTokeFromAuthService).contains(USER_SOURCE_CLAIM)) {
-                        _statusCode = String.valueOf(HttpStatus.SC_UNAUTHORIZED);
-                        throw new Exception("unauthorized");
-                    }
-                }
-            });
-        }
-        */
     }
     //
     private class KeyIdentity extends AsyncTask<String, Void, Object[]> {
@@ -572,6 +566,56 @@ public class IdentityManager {
                 response[1] = e.getMessage();
             }
             finally {
+                return response;
+            }
+        }
+    }
+
+    //Calls IP and then KidoZen identity provider to get the token
+    private class CustomFederatedIdentity extends AsyncTask<String, Void, Object[]> {
+        BaseIdentityProvider _identityProvider;
+        String _userTokeFromAuthService, _statusCode;
+        final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
+
+        public CustomFederatedIdentity(BaseIdentityProvider iIdentityProvider) {
+            _identityProvider = iIdentityProvider;
+        }
+
+        @Override
+        protected Object[] doInBackground(String... params) {
+            Object[] response = new Object[2];
+            try
+            {
+                String requestTokenEndpoint = params[0].toString();
+                String authServiceEndpoint= params[1].toString();
+                String applicationScope= params[2].toString();
+
+                String wrapAssertionFromIp = _identityProvider.RequestToken(new URI(requestTokenEndpoint));
+                //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
+                nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
+                nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
+                String message = Utilities.getQuery(nameValuePairs);
+                SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, mStrictSSL);
+                Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+                _userTokeFromAuthService = authResponse.get("responseBody");
+                _statusCode = authResponse.get("statusCode");
+                //System.out.println("Got auth token from Identity Provider, _userTokeFromAuthService: " +  _userTokeFromAuthService);
+                //System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
+
+                if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
+                if (!URLDecoder.decode(_userTokeFromAuthService).contains(USER_SOURCE_CLAIM)) {
+                    _statusCode = String.valueOf(HttpStatus.SC_UNAUTHORIZED);
+                    throw new Exception("unauthorized");
+                }
+                response[0] = _userTokeFromAuthService;
+            }
+            catch (Exception e) {
+                response[1] = e;
+            }
+            finally
+            {
                 return response;
             }
         }

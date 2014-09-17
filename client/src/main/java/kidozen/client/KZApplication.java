@@ -8,14 +8,13 @@ import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import kidozen.client.authentication.IIdentityProvider;
+import kidozen.client.authentication.BaseIdentityProvider;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
@@ -58,6 +57,8 @@ public class KZApplication {
     private static CrashReporter mCrashReporter;
 
     private KidoAppSettings mApplicationConfiguration;
+
+    private BaseIdentityProvider mCustomProvider;
 
     /**
      * Enables crash reporter feature in the current application
@@ -640,9 +641,9 @@ public class KZApplication {
     }
 
     /**
-     * Authenticates a user using the specified provider
+     * Authenticates a user using the specified mCustomProvider
      *
-     * @param providerKey The key that identifies the provider
+     * @param providerKey The key that identifies the mCustomProvider
      * @param username    The user account
      * @param password    The password for the user
      * @param callback    The callback with the result of the service call
@@ -766,22 +767,27 @@ public class KZApplication {
         });
     }
 
-    public void Authenticate(final IIdentityProvider provider, final ServiceResponseHandler callback) throws InitializationException {
+    public void SetIdentityProvider(final BaseIdentityProvider provider) {
+        // TODO: check if this instance implementes the methods I need
+        mCustomProvider = provider;
+    }
+
+    public void Authenticate(final String endpoint, final String scope, final ServiceResponseHandler callback) throws InitializationException {
         if (!mApplicationConfiguration.IsInitialized)
             this.Initialize(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    InvokeCustomAuthentication(provider, callback);
+                    InvokeCustomAuthentication(endpoint, scope, callback);
                 }
             });
         else
-            InvokeCustomAuthentication(provider, callback);
+            InvokeCustomAuthentication(endpoint, scope, callback);
     }
 
-    private void InvokeCustomAuthentication(IIdentityProvider provider, final ServiceResponseHandler callback) {
+    private void InvokeCustomAuthentication(final String endpoint,final String scope, final ServiceResponseHandler callback) {
         try {
             IdentityManager.getInstance().Setup(StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(provider, new ServiceEventListener() {
+            IdentityManager.getInstance().Authenticate(mCustomProvider, endpoint, scope, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
