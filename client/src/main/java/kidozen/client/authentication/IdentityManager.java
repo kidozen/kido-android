@@ -151,7 +151,7 @@ public class IdentityManager {
         BaseIdentityProvider ip = null;
         if (ipProtocol.equalsIgnoreCase("wrapv0.9")) {
             ip = new WRAPv09IdentityProvider(username, password);
-            ((WRAPv09IdentityProvider)ip).bypassSSLValidation= mStrictSSL;
+            ((WRAPv09IdentityProvider)ip).StrictSSL = mStrictSSL;
         }
         else {
             ip = new ADFSWSTrustIdentityProvider(username, password);
@@ -240,7 +240,8 @@ public class IdentityManager {
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
                 CustomFederatedIdentity id = new CustomFederatedIdentity(provider);
-                Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
+
+                Object[] response = id.execute(endpoint, authServiceEndpoint,applicationScope).get();
                 if (response[1]!=null)
                 {
                     invokeCallbackWithException(callback, (Exception) response[1]);
@@ -588,11 +589,9 @@ public class IdentityManager {
             try
             {
                 String authServiceScope = mAuthConfig.getString("authServiceScope");
-
                 String requestTokenEndpoint = params[0].toString();
                 String authServiceEndpoint= params[1].toString();
                 String applicationScope= params[2].toString();
-
                 String wrapAssertionFromIp = _identityProvider.RequestToken(new URI(requestTokenEndpoint),authServiceScope);
                 //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();

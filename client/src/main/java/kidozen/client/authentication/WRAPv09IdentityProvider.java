@@ -20,7 +20,7 @@ import kidozen.client.internal.Utilities;
  */
 public class WRAPv09IdentityProvider extends BaseIdentityProvider {
 	private String _wrapName, _wrapPassword;
-	public Boolean bypassSSLValidation;
+	public Boolean StrictSSL = true;
 
     public WRAPv09IdentityProvider(String username, String password) {
         this._wrapName=  username;
@@ -35,9 +35,11 @@ public class WRAPv09IdentityProvider extends BaseIdentityProvider {
         String statusCode = "";
         String body = "";
         try {
+
             String url = identityProviderUrl.toString();
             String message = Utilities.getQuery(nameValuePairs);
-            SNIConnectionManager sniManager = new SNIConnectionManager(url, message, null, null, bypassSSLValidation);
+
+            SNIConnectionManager sniManager = new SNIConnectionManager(url, message, null, null, StrictSSL);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
 
             body = authResponse.get("responseBody");

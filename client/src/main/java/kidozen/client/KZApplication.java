@@ -773,6 +773,15 @@ public class KZApplication {
     }
 
     public void Authenticate(final String endpoint, final String scope, final ServiceResponseHandler callback) throws InitializationException {
+        this.Authenticate(endpoint,scope, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                Utilities.DispatchServiceResponseListener(e,callback);
+            }
+        });
+    }
+
+    public void Authenticate(final String endpoint,final String scope,final ServiceEventListener callback) throws InitializationException {
         if (!mApplicationConfiguration.IsInitialized)
             this.Initialize(new ServiceEventListener() {
                 @Override
@@ -784,7 +793,9 @@ public class KZApplication {
             InvokeCustomAuthentication(endpoint, scope, callback);
     }
 
-    private void InvokeCustomAuthentication(final String endpoint,final String scope, final ServiceResponseHandler callback) {
+
+
+    private void InvokeCustomAuthentication(final String endpoint,final String scope, final ServiceEventListener callback) {
         try {
             IdentityManager.getInstance().Setup(StrictSSL, mApplicationKey);
             IdentityManager.getInstance().Authenticate(mCustomProvider, endpoint, scope, new ServiceEventListener() {

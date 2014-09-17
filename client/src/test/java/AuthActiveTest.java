@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.authentication.WRAPv09IdentityProvider;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -186,4 +187,5 @@ public class AuthActiveTest {
 
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
+
 }
