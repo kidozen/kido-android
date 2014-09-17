@@ -18,7 +18,7 @@ public class ADFSWSTrustIdentityProvider extends BaseIdentityProvider {
 	private static final String CONTENT_TYPE = "Content-Type";
 	private static final String SOAP_XML = "application/soap+xml;charset=UTF-8";
 	private String _message;
-	private String _username, _password, _scope, _endpoint;
+	private String _username, _password;
 	public Boolean bypassSSLValidation;
 
     public ADFSWSTrustIdentityProvider()
@@ -32,23 +32,22 @@ public class ADFSWSTrustIdentityProvider extends BaseIdentityProvider {
         _password = password;
     }
 
-	public void Initialize( String scope) throws Exception
+	private void createTemplate(URI identityProviderUrl, String scope) throws Exception
 	{
 		_message = TEMPLATE;
-		_scope = scope;
 		try {
-			_message = _message.replace("[applyTo]", _scope);
+            String endpoint = identityProviderUrl.toString();
+            _message = _message.replace("[applyTo]", scope);
 			_message = _message.replace("[Username]", _username).toString();
 			_message = _message.replace("[Password]", _password);
+            _message = _message.replace("[To]", endpoint).toString();
 		} catch (Exception e) {
 			throw e;
 		}
-
 	}
 
-    public String RequestToken(URI identityProviderUrl) throws Exception {
-        _endpoint = identityProviderUrl.toString();
-        _message = _message.replace("[To]", _endpoint).toString();
+    public String RequestToken(URI identityProviderUrl, String scope) throws Exception {
+        this.createTemplate(identityProviderUrl, scope);
         Hashtable<String, String> requestProperties = new Hashtable<String, String>();
         requestProperties.put(CONTENT_TYPE,SOAP_XML);
         try {

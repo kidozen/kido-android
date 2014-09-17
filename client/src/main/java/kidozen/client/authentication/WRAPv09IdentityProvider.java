@@ -19,29 +19,19 @@ import kidozen.client.internal.Utilities;
  * @version 1.00, April 2013
  */
 public class WRAPv09IdentityProvider extends BaseIdentityProvider {
-	private String _wrapName, _wrapPassword, _wrapScope;
+	private String _wrapName, _wrapPassword;
 	public Boolean bypassSSLValidation;
 
-	public WRAPv09IdentityProvider()
-	{
-
-	}
-
     public WRAPv09IdentityProvider(String username, String password) {
-        this();
         this._wrapName=  username;
         this._wrapPassword = password;
     }
 
-	public void Initialize( String scope) throws Exception {
-		this._wrapScope = scope;
-	}
-
-    public String RequestToken(URI identityProviderUrl) throws Exception {
+    public String RequestToken(URI identityProviderUrl, String scope) throws Exception {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("wrap_name", _wrapName));
 		nameValuePairs.add(new BasicNameValuePair("wrap_password", _wrapPassword));
-		nameValuePairs.add(new BasicNameValuePair("wrap_scope", _wrapScope));
+		nameValuePairs.add(new BasicNameValuePair("wrap_scope", scope));
         String statusCode = "";
         String body = "";
         try {
