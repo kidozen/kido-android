@@ -19,29 +19,30 @@ import kidozen.client.internal.Utilities;
  * @version 1.00, April 2013
  */
 public class WRAPv09IdentityProvider extends BaseIdentityProvider {
-	private String _wrapName, _wrapPassword;
+	private String mWrapName,
+            mWrapPassword,
+            mWrapScope,
+            mIpEndpoint;
 	public Boolean StrictSSL = true;
 
-    public WRAPv09IdentityProvider(String username, String password) {
-        this._wrapName=  username;
-        this._wrapPassword = password;
+    public WRAPv09IdentityProvider(String username, String password, String endpoint, String scope) {
+        this.mWrapName =  username;
+        this.mWrapPassword = password;
+        this.mIpEndpoint = endpoint;
+        this.mWrapScope = scope;
     }
 
-    public String RequestToken(URI identityProviderUrl, String scope) throws Exception {
+    public String RequestToken() throws Exception {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-		nameValuePairs.add(new BasicNameValuePair("wrap_name", _wrapName));
-		nameValuePairs.add(new BasicNameValuePair("wrap_password", _wrapPassword));
-		nameValuePairs.add(new BasicNameValuePair("wrap_scope", scope));
+		nameValuePairs.add(new BasicNameValuePair("wrap_name", mWrapName));
+		nameValuePairs.add(new BasicNameValuePair("wrap_password", mWrapPassword));
+		nameValuePairs.add(new BasicNameValuePair("wrap_scope", mWrapScope));
         String statusCode = "";
         String body = "";
         try {
-
-            String url = identityProviderUrl.toString();
             String message = Utilities.getQuery(nameValuePairs);
-
-            SNIConnectionManager sniManager = new SNIConnectionManager(url, message, null, null, StrictSSL);
+            SNIConnectionManager sniManager = new SNIConnectionManager(mIpEndpoint, message, null, null, StrictSSL);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
-
             body = authResponse.get("responseBody");
             statusCode =  authResponse.get("statusCode");
             if (body != null) {
@@ -52,7 +53,6 @@ public class WRAPv09IdentityProvider extends BaseIdentityProvider {
                 int endOfAssertion = body.indexOf("</Assertion>") + "</Assertion>".length();
                 body = body.substring(startOfAssertion, endOfAssertion);
                 return body;
-                //action.onServiceResponse(body);
             }
         }
 		catch(StringIndexOutOfBoundsException e) // wrong user, password or scope

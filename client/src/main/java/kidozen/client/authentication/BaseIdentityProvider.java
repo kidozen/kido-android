@@ -17,14 +17,5 @@ import java.net.URI;
  *
  */
 public abstract class BaseIdentityProvider {
-
-    /**
-	 * This method executes a request to the Identity Provider
-	 * 
-	 * @param identityProviderUrl The identity provider endpoint
-     * @param scope The identity scope
-	 * @throws Exception
-	 */
-	public abstract String RequestToken(URI identityProviderUrl, String scope) throws Exception;
-
+    public abstract String RequestToken() throws Exception;
 }

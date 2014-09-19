@@ -17,42 +17,45 @@ import kidozen.client.internal.Utilities;
 public class ADFSWSTrustIdentityProvider extends BaseIdentityProvider {
 	private static final String CONTENT_TYPE = "Content-Type";
 	private static final String SOAP_XML = "application/soap+xml;charset=UTF-8";
-	private String _message;
-	private String _username, _password;
+	private String mMessage,
+            mUsername,
+            mPassword,
+            mEndpoint,
+            mScope;
 	public Boolean bypassSSLValidation;
 
     public ADFSWSTrustIdentityProvider()
 	{
-		_message = TEMPLATE;
+		mMessage = TEMPLATE;
 	}
 
-    public ADFSWSTrustIdentityProvider(String username, String password) {
+    public ADFSWSTrustIdentityProvider(String username, String password, String endpoint, String scope) {
         this();
-        _username = username;
-        _password = password;
+        mUsername = username;
+        mPassword = password;
+        mEndpoint = endpoint;
+        mScope = scope;
     }
 
-	private void createTemplate(URI identityProviderUrl, String scope) throws Exception
+	private void createTemplate() throws Exception
 	{
-		_message = TEMPLATE;
+		mMessage = TEMPLATE;
 		try {
-            String endpoint = identityProviderUrl.toString();
-            _message = _message.replace("[applyTo]", scope);
-			_message = _message.replace("[Username]", _username).toString();
-			_message = _message.replace("[Password]", _password);
-            _message = _message.replace("[To]", endpoint).toString();
+            mMessage = mMessage.replace("[applyTo]", mScope);
+			mMessage = mMessage.replace("[Username]", mUsername).toString();
+			mMessage = mMessage.replace("[Password]", mPassword);
+            mMessage = mMessage.replace("[To]", mEndpoint).toString();
 		} catch (Exception e) {
 			throw e;
 		}
 	}
 
-    public String RequestToken(URI identityProviderUrl, String scope) throws Exception {
-        this.createTemplate(identityProviderUrl, scope);
+    public String RequestToken() throws Exception {
+        this.createTemplate();
         Hashtable<String, String> requestProperties = new Hashtable<String, String>();
         requestProperties.put(CONTENT_TYPE,SOAP_XML);
         try {
-            String url = identityProviderUrl.toString();
-            SNIConnectionManager sniManager = new SNIConnectionManager(url, _message, requestProperties, null, bypassSSLValidation);
+            SNIConnectionManager sniManager = new SNIConnectionManager(mEndpoint, mMessage, requestProperties, null, bypassSSLValidation);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
             String body = authResponse.get("responseBody");
             if (body != null) {

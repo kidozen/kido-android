@@ -43,11 +43,9 @@ public class CustomAuthTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        WRAPv09IdentityProvider ip = new WRAPv09IdentityProvider(AppSettings.KZ_USER,AppSettings.KZ_PASS);
-        kidozen.SetIdentityProvider(ip);
+        WRAPv09IdentityProvider ip = new WRAPv09IdentityProvider(AppSettings.KZ_USER,AppSettings.KZ_PASS,"https://identity.kidozen.com/wrapv0.9","http://auth.kidozen.com/");
 
-
-        kidozen.Authenticate("https://identity.kidozen.com/wrapv0.9","http://auth.kidozen.com/", new ServiceEventListener() {
+        kidozen.Authenticate(ip, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -55,8 +53,6 @@ public class CustomAuthTest {
             }
         });
         assertEquals(true, kidozen.UserIsAuthenticated);
-        Hashtable<String,String> claims; // TODO FIX THIS: = kidozen.mUserIdentity.Claims;
-
         alcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
     }
 }

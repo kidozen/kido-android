@@ -772,8 +772,8 @@ public class KZApplication {
         mCustomProvider = provider;
     }
 
-    public void Authenticate(final String endpoint, final String scope, final ServiceResponseHandler callback) throws InitializationException {
-        this.Authenticate(endpoint,scope, new ServiceEventListener() {
+    public void Authenticate(final BaseIdentityProvider ip, final ServiceResponseHandler callback) throws InitializationException {
+        this.Authenticate(ip, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 Utilities.DispatchServiceResponseListener(e,callback);
@@ -781,24 +781,24 @@ public class KZApplication {
         });
     }
 
-    public void Authenticate(final String endpoint,final String scope,final ServiceEventListener callback) throws InitializationException {
+    public void Authenticate(final BaseIdentityProvider ip,final ServiceEventListener callback) throws InitializationException {
         if (!mApplicationConfiguration.IsInitialized)
             this.Initialize(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    InvokeCustomAuthentication(endpoint, scope, callback);
+                    InvokeCustomAuthentication(ip, callback);
                 }
             });
         else
-            InvokeCustomAuthentication(endpoint, scope, callback);
+            InvokeCustomAuthentication(ip, callback);
     }
 
 
 
-    private void InvokeCustomAuthentication(final String endpoint,final String scope, final ServiceEventListener callback) {
+    private void InvokeCustomAuthentication(final BaseIdentityProvider ip, final ServiceEventListener callback) {
         try {
             IdentityManager.getInstance().Setup(StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(mCustomProvider, endpoint, scope, new ServiceEventListener() {
+            IdentityManager.getInstance().Authenticate(mCustomProvider, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {

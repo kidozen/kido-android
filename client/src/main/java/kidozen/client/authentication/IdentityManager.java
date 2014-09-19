@@ -98,7 +98,7 @@ public class IdentityManager {
                 String applicationScope = mAuthConfig.getString("applicationScope");
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
-                BaseIdentityProvider identityProvider = createIpWithUsername(providerName, username, password);
+                BaseIdentityProvider identityProvider = createIpWithUsername(providerName, username, password, authServiceEndpoint,applicationScope);
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
                 Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
                 if (response[1]!=null)
@@ -131,7 +131,7 @@ public class IdentityManager {
         }
     }
 
-    private BaseIdentityProvider createIpWithUsername(String providerName, String username, String password) throws Exception {
+    private BaseIdentityProvider createIpWithUsername(String providerName, String username, String password, String serviceEndpoint,String applicationScope) throws Exception {
         String ipProtocol = null;
 
         JSONObject identityProviders = mAuthConfig.getJSONObject("identityProviders");
@@ -150,11 +150,11 @@ public class IdentityManager {
 
         BaseIdentityProvider ip = null;
         if (ipProtocol.equalsIgnoreCase("wrapv0.9")) {
-            ip = new WRAPv09IdentityProvider(username, password);
+            ip = new WRAPv09IdentityProvider(username, password,serviceEndpoint, applicationScope);
             ((WRAPv09IdentityProvider)ip).StrictSSL = mStrictSSL;
         }
         else {
-            ip = new ADFSWSTrustIdentityProvider(username, password);
+            ip = new ADFSWSTrustIdentityProvider(username, password, serviceEndpoint, applicationScope);
             ((ADFSWSTrustIdentityProvider)ip).bypassSSLValidation= mStrictSSL;
         }
         //ip.Initialize(authServiceScope);
@@ -224,8 +224,8 @@ public class IdentityManager {
     }
 
     //Custom IP implementation
-    public String Authenticate(BaseIdentityProvider provider, String endpoint, String scope, ServiceEventListener callback) {
-        String cacheKey = Utilities.createHash(String.format("%s%s", endpoint, scope));
+    public String Authenticate(BaseIdentityProvider provider, ServiceEventListener callback) {
+        String cacheKey = Utilities.createHash(String.format("%i", provider.hashCode()));
         String rawToken = null;
         try {
             JSONObject cacheItem = mTokensCache.get(cacheKey);
@@ -241,7 +241,7 @@ public class IdentityManager {
 
                 CustomFederatedIdentity id = new CustomFederatedIdentity(provider);
 
-                Object[] response = id.execute(endpoint, authServiceEndpoint,applicationScope).get();
+                Object[] response = id.execute(authServiceEndpoint,applicationScope).get();
                 if (response[1]!=null)
                 {
                     invokeCallbackWithException(callback, (Exception) response[1]);
@@ -456,11 +456,11 @@ public class IdentityManager {
             {
                 String authServiceScope = mAuthConfig.getString("authServiceScope");
 
-                String requestTokenEndpoint = params[0].toString();
+                //String requestTokenEndpoint = params[0].toString();
                 String authServiceEndpoint= params[1].toString();
                 String applicationScope= params[2].toString();
 
-                String wrapAssertionFromIp = _identityProvider.RequestToken(new URI(requestTokenEndpoint),authServiceScope);
+                String wrapAssertionFromIp = _identityProvider.RequestToken();
                 //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
@@ -589,10 +589,11 @@ public class IdentityManager {
             try
             {
                 String authServiceScope = mAuthConfig.getString("authServiceScope");
-                String requestTokenEndpoint = params[0].toString();
-                String authServiceEndpoint= params[1].toString();
-                String applicationScope= params[2].toString();
-                String wrapAssertionFromIp = _identityProvider.RequestToken(new URI(requestTokenEndpoint),authServiceScope);
+                //String requestTokenEndpoint = params[0].toString();
+                String authServiceEndpoint= params[0].toString();
+                String applicationScope= params[1].toString();
+
+                String wrapAssertionFromIp = _identityProvider.RequestToken();
                 //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
