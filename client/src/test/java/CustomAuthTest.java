@@ -44,6 +44,7 @@ public class CustomAuthTest {
         final CountDownLatch alcd = new CountDownLatch(1);
 
         WRAPv09IdentityProvider ip = new WRAPv09IdentityProvider(AppSettings.KZ_USER,AppSettings.KZ_PASS,"https://identity.kidozen.com/wrapv0.9","http://auth.kidozen.com/");
+        ip.assertionFormat = "SAML";
 
         kidozen.Authenticate(ip, new ServiceEventListener() {
             @Override

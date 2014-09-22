@@ -17,5 +17,7 @@ import java.net.URI;
  *
  */
 public abstract class BaseIdentityProvider {
+    public String assertionFormat = "SAML";
+
     public abstract String RequestToken() throws Exception;
 }

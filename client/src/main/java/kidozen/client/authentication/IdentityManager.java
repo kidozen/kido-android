@@ -35,6 +35,7 @@ import kidozen.client.internal.Utilities;
 public class IdentityManager {
     public static String PASSIVE_STRICT_SSL = "PASSIVE_STRICT_SSL";
     public static String PASSIVE_SIGNIN_URL = "PASSIVE_SIGNIN_URL";
+
     protected static final String ACCEPT = "Accept";
     protected static final String APPLICATION_JSON = "application/json";
     protected static final String CONTENT_TYPE = "content-type";
@@ -44,7 +45,9 @@ public class IdentityManager {
     private boolean mStrictSSL;
     private JSONObject mAuthConfig;
 
-    String ipEndpoint = null;
+    private String mAssertionFormat;
+
+    private String ipEndpoint = null;
 
     private static IdentityManager INSTANCE = null;
     private PassiveAuthenticationResponseReceiver mReceiver;
@@ -99,6 +102,8 @@ public class IdentityManager {
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
                 BaseIdentityProvider identityProvider = createIpWithUsername(providerName, username, password, authServiceEndpoint,applicationScope);
+                mAssertionFormat = identityProvider.assertionFormat;
+
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
                 Object[] response = id.execute().get();
                 if (response[1]!=null)
@@ -237,7 +242,7 @@ public class IdentityManager {
             }
             else {
                 CustomFederatedIdentity id = new CustomFederatedIdentity(provider);
-
+                mAssertionFormat = provider.assertionFormat;
                 Object[] response = id.execute().get();
                 if (response[1]!=null)
                 {
@@ -457,7 +462,7 @@ public class IdentityManager {
                 String wrapAssertionFromIp = _identityProvider.RequestToken();
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("wrap_scope", authServiceScope));
-                nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
+                nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", mAssertionFormat));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
                 String message = Utilities.getQuery(nameValuePairs);
                 SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, mStrictSSL);
@@ -585,10 +590,10 @@ public class IdentityManager {
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
                 String wrapAssertionFromIp = _identityProvider.RequestToken();
-System.out.println("IdentityManager, CustomFederatedIdentity, wrapAssertionFromIp: " + wrapAssertionFromIp);
+
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("wrap_scope", authServiceScope));
-                nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
+                nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", mAssertionFormat));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
                 String message = Utilities.getQuery(nameValuePairs);
                 SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, mStrictSSL);
