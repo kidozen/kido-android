@@ -150,11 +150,11 @@ public class IdentityManager {
 
         BaseIdentityProvider ip = null;
         if (ipProtocol.equalsIgnoreCase("wrapv0.9")) {
-            ip = new WRAPv09IdentityProvider(username, password,serviceEndpoint, applicationScope);
+            ip = new WRAPv09IdentityProvider(username, password,ipEndpoint, applicationScope);
             ((WRAPv09IdentityProvider)ip).StrictSSL = mStrictSSL;
         }
         else {
-            ip = new ADFSWSTrustIdentityProvider(username, password, serviceEndpoint, applicationScope);
+            ip = new ADFSWSTrustIdentityProvider(username, password, ipEndpoint, applicationScope);
             ((ADFSWSTrustIdentityProvider)ip).bypassSSLValidation= mStrictSSL;
         }
         //ip.Initialize(authServiceScope);
