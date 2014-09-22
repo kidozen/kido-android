@@ -19,13 +19,39 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ip  = new GooglePlusIdentityProvider(this);
-        Button test =(Button) findViewById(R.id.sign_out_button);
-        test.setOnClickListener(new View.OnClickListener() {
+
+        Button signInButton =(Button) findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
                     String t = ip.RequestToken();
                     Log.d("this", t);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+        Button signOutButton =(Button) findViewById(R.id.sign_out_button);
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    ip.SignOut();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Button revokeButton =(Button) findViewById(R.id.revoke_button);
+        revokeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    ip.Revoke();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

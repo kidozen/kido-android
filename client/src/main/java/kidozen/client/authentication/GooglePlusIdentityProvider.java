@@ -21,8 +21,9 @@ import java.io.IOException;
 /**
  * Created by christian on 9/22/14.
  */
-public class GooglePlusIdentityProvider extends Activity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private android.content.Context mContext;
+public class GooglePlusIdentityProvider extends BaseIdentityProvider  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login";
+    private Activity mContext;
 
     private static final int STATE_DEFAULT = 0;
     private static final int STATE_SIGN_IN = 1;
@@ -35,14 +36,16 @@ public class GooglePlusIdentityProvider extends Activity  implements GoogleApiCl
 
 
     //BaseIdentityProvider
+    @Override
     public String RequestToken() throws Exception {
-        mGoogleApiClient = buildGoogleApiClient();
         mGoogleApiClient.connect();
+
         return "abc";
     }
 
-    public GooglePlusIdentityProvider(Context context) {
+    public GooglePlusIdentityProvider(Activity context) {
         mContext = context;
+        mGoogleApiClient = buildGoogleApiClient();
         buildGoogleApiClient();
     }
 
@@ -56,6 +59,28 @@ public class GooglePlusIdentityProvider extends Activity  implements GoogleApiCl
                 .build();
     }
 
+    public void Revoke(){
+        // After we revoke permissions for the user with a GoogleApiClient
+        // instance, we must discard it and create a new one.
+        Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+        // Our sample has caches no user data from Google+, however we
+        // would normally register a callback on revokeAccessAndDisconnect
+        // to delete user data so that we comply with Google developer
+        // policies.
+        Plus.AccountApi.revokeAccessAndDisconnect(mGoogleApiClient);
+        //mGoogleApiClient = buildGoogleApiClient();
+        //mGoogleApiClient.connect();
+    }
+
+    public void SignOut(){
+        // We clear the default account on sign out so that Google Play
+        // services will not return an onConnected callback without user
+        // interaction.
+        Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+        mGoogleApiClient.disconnect();
+        //mGoogleApiClient.connect();
+    }
+
     //Cnn callbacks
     @Override
     public void onConnected(Bundle bundle) {
@@ -63,7 +88,11 @@ public class GooglePlusIdentityProvider extends Activity  implements GoogleApiCl
             @Override
             public void run() {
                 try {
-                    mToken = GoogleAuthUtil.getToken(mContext,"christian.carnero@gmail.com","oauth2:https://www.googleapis.com/auth/plus.login");
+                    mToken = GoogleAuthUtil.getToken(
+                            mContext,
+                            Plus.AccountApi.getAccountName(mGoogleApiClient),
+                            OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN
+                    );
                     Log.d(TAG,mToken);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -81,7 +110,6 @@ public class GooglePlusIdentityProvider extends Activity  implements GoogleApiCl
         Log.d("", "onConnSuspended");
     }
 
-    private int mSignInProgress;
     private PendingIntent mSignInIntent;
     private int mSignInError;
 
@@ -92,7 +120,7 @@ public class GooglePlusIdentityProvider extends Activity  implements GoogleApiCl
         mSignInError = result.getErrorCode();
 
         try {
-            result.startResolutionForResult((Activity) mContext, mSignInError);
+            if (result.hasResolution()) result.startResolutionForResult( mContext, mSignInError);
         } catch (IntentSender.SendIntentException e) {
             e.printStackTrace();
         }

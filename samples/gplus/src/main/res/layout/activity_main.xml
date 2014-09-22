@@ -9,12 +9,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="2dip">
-    <com.google.android.gms.common.SignInButton
+
+    <Button
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dip"
-        android:enabled="false" />
+        android:enabled="true" />
 
     <Button
         android:id="@+id/sign_out_button"
@@ -23,7 +24,14 @@
         android:text="@string/sign_out_button_name"
         android:enabled="true" />
 
-    <TextView
+        <Button
+            android:id="@+id/revoke_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/revoke_button_name"
+            android:enabled="true" />
+
+        <TextView
         android:text="@string/hello_world"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
