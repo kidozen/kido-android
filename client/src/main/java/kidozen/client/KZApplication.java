@@ -798,7 +798,7 @@ public class KZApplication {
     private void InvokeCustomAuthentication(final BaseIdentityProvider ip, final ServiceEventListener callback) {
         try {
             IdentityManager.getInstance().Setup(StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(mCustomProvider, new ServiceEventListener() {
+            IdentityManager.getInstance().Authenticate(ip, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     if (e.StatusCode < HttpStatus.SC_BAD_REQUEST) {
@@ -812,6 +812,7 @@ public class KZApplication {
                 }
             });
         } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
             callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
         }
     }

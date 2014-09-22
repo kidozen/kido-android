@@ -41,6 +41,7 @@ public class WRAPv09IdentityProvider extends BaseIdentityProvider {
         String body = "";
         try {
             String message = Utilities.getQuery(nameValuePairs);
+            //System.out.println("IP Message: " + message);
             SNIConnectionManager sniManager = new SNIConnectionManager(mIpEndpoint, message, null, null, StrictSSL);
             Hashtable<String, String>  authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
             body = authResponse.get("responseBody");

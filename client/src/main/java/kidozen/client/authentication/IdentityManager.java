@@ -95,12 +95,12 @@ public class IdentityManager {
                 invokeCallback(callback, rawToken, usr);
             }
             else {
-                String applicationScope = mAuthConfig.getString("applicationScope");
+                String applicationScope = mAuthConfig.getString("authServiceScope");
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
                 BaseIdentityProvider identityProvider = createIpWithUsername(providerName, username, password, authServiceEndpoint,applicationScope);
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
-                Object[] response = id.execute(ipEndpoint, authServiceEndpoint,applicationScope).get();
+                Object[] response = id.execute().get();
                 if (response[1]!=null)
                 {
                     invokeCallbackWithException(callback, (Exception) response[1]);
@@ -225,7 +225,7 @@ public class IdentityManager {
 
     //Custom IP implementation
     public String Authenticate(BaseIdentityProvider provider, ServiceEventListener callback) {
-        String cacheKey = Utilities.createHash(String.format("%i", provider.hashCode()));
+        String cacheKey = Utilities.createHash(String.format("%d", provider.hashCode()));
         String rawToken = null;
         try {
             JSONObject cacheItem = mTokensCache.get(cacheKey);
@@ -236,12 +236,9 @@ public class IdentityManager {
                 invokeCallback(callback, rawToken, usr);
             }
             else {
-                String applicationScope = mAuthConfig.getString("applicationScope");
-                String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
-
                 CustomFederatedIdentity id = new CustomFederatedIdentity(provider);
 
-                Object[] response = id.execute(authServiceEndpoint,applicationScope).get();
+                Object[] response = id.execute().get();
                 if (response[1]!=null)
                 {
                     invokeCallbackWithException(callback, (Exception) response[1]);
@@ -440,7 +437,7 @@ public class IdentityManager {
 
 
     //Calls IP and then KidoZen identity provider to get the token
-    private class FederatedIdentity extends AsyncTask<String, Void, Object[]> {
+    private class FederatedIdentity extends AsyncTask<Void, Void, Object[]> {
         BaseIdentityProvider _identityProvider;
         String _userTokeFromAuthService, _statusCode;
         final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
@@ -450,20 +447,16 @@ public class IdentityManager {
         }
 
         @Override
-        protected Object[] doInBackground(String... params) {
+        protected Object[] doInBackground(Void... params) {
             Object[] response = new Object[2];
             try
             {
-                String authServiceScope = mAuthConfig.getString("authServiceScope");
-
-                //String requestTokenEndpoint = params[0].toString();
-                String authServiceEndpoint= params[1].toString();
-                String applicationScope= params[2].toString();
+                String authServiceScope = mAuthConfig.getString("applicationScope");
+                String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
                 String wrapAssertionFromIp = _identityProvider.RequestToken();
-                //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
+                nameValuePairs.add(new BasicNameValuePair("wrap_scope", authServiceScope));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
                 String message = Utilities.getQuery(nameValuePairs);
@@ -574,7 +567,7 @@ public class IdentityManager {
     }
 
     //Calls IP and then KidoZen identity provider to get the token
-    private class CustomFederatedIdentity extends AsyncTask<String, Void, Object[]> {
+    private class CustomFederatedIdentity extends AsyncTask<Void, Void, Object[]> {
         BaseIdentityProvider _identityProvider;
         String _userTokeFromAuthService, _statusCode;
         final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
@@ -584,19 +577,17 @@ public class IdentityManager {
         }
 
         @Override
-        protected Object[] doInBackground(String... params) {
+        protected Object[] doInBackground(Void... params) {
             Object[] response = new Object[2];
             try
             {
-                String authServiceScope = mAuthConfig.getString("authServiceScope");
-                //String requestTokenEndpoint = params[0].toString();
-                String authServiceEndpoint= params[0].toString();
-                String applicationScope= params[1].toString();
+                String authServiceScope = mAuthConfig.getString("applicationScope");
+                String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
                 String wrapAssertionFromIp = _identityProvider.RequestToken();
-                //System.out.println("IdentityManager, getFederatedToken, wrapAssertionFromIp: " + wrapAssertionFromIp);
+System.out.println("IdentityManager, CustomFederatedIdentity, wrapAssertionFromIp: " + wrapAssertionFromIp);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                nameValuePairs.add(new BasicNameValuePair("wrap_scope", applicationScope));
+                nameValuePairs.add(new BasicNameValuePair("wrap_scope", authServiceScope));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "SAML"));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion", wrapAssertionFromIp));
                 String message = Utilities.getQuery(nameValuePairs);
