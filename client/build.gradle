@@ -88,6 +88,7 @@ task androidSourcesJar(type: Jar) {
 
 dependencies {
     androidTestCompile 'junit:junit:4.11'
+    compile 'com.google.android.gms:play-services:5.0.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.netiq:websocket:0.7'
     compile 'com.google.code.gson:gson:2.2.4'
