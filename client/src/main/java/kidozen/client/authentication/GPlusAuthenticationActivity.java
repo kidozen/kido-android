@@ -2,29 +2,29 @@ package kidozen.client.authentication;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 
-import java.io.IOException;
-
 /**
 * Created by christian on 9/22/14.
 */
 public class GPlusAuthenticationActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private static final String AUTHENTICATION_RESULT = "GPLUS_AUTH_RESULT";
     private String TAG = this.getClass().getSimpleName();
     public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login";
     private GoogleApiClient mGoogleApiClient;
     private String mToken;
+    private ProgressDialog mConnectionProgressDialog;
+    private static final int GPLUS_ACTIVITY_REQUEST_CODE = 49404;
+    private boolean mResolveOnFail;
 
     public GPlusAuthenticationActivity() {
         super();
@@ -35,6 +35,8 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
         super.onCreate(savedInstanceState);
         mGoogleApiClient = buildGoogleApiClient();
         buildGoogleApiClient();
+        mConnectionProgressDialog = new ProgressDialog(this);
+        mConnectionProgressDialog.setMessage("Signing in...");
 
         if (!mGoogleApiClient.isConnected()) {
             // Show the dialog as we are now signing in.
@@ -48,6 +50,7 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
             if (mConnectionResult != null) {
                 startResolution();
             } else {
+                mConnectionProgressDialog.show();
                 // If we don't have one though, we can start connect in
                 // order to retrieve one.
                 mGoogleApiClient.connect();
@@ -91,34 +94,43 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
     @Override
     public void onConnected(Bundle bundle) {
         final Context context = this.getApplicationContext();
+        mConnectionProgressDialog.dismiss();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.setAction(GPlusAuthenticationResponseReceiver.ACTION_RESP);
+                broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
                 try {
-                    mToken = GoogleAuthUtil.getToken(
-                            context,
-                            Plus.AccountApi.getAccountName(mGoogleApiClient),
-                            OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN
-                    );
+                    mToken = GoogleAuthUtil.getToken(context,Plus.AccountApi.getAccountName(mGoogleApiClient),OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN);
                     Log.d(TAG, mToken);
-                    
-                    Intent broadcastIntent = new Intent();
-                    broadcastIntent.setAction(GPlusAuthenticationResponseReceiver.ACTION_RESP);
-                    broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    broadcastIntent.putExtra(AUTHENTICATION_RESULT, mToken);
-                    sendBroadcast(broadcastIntent);
+                    String userTokeFromAuthService = mToken;
+                    /*
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                    nameValuePairs.add(new BasicNameValuePair("wrap_scope", "?????"));
+                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "google_signin"));
+                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion", mToken));
+                    String message = Utilities.getQuery(nameValuePairs);
+                    SNIConnectionManager sniManager = new SNIConnectionManager(authServiceEndpoint, message, null, null, mStrictSSL);
+                    Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+                    String userTokeFromAuthService = authResponse.get("responseBody");
+                    String statusCode = authResponse.get("statusCode");
 
+                    */
+                    broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
+                    broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.AUTH_SERVICE_PAYLOAD, userTokeFromAuthService);
                     Revoke();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (GoogleAuthException e) {
-                    e.printStackTrace();
+                //catch (IOException e) {
+                //catch (GoogleAuthException e) {
+                } catch (Exception e) {
+                    broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
+                    broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, e.getMessage());
                 }
+                sendBroadcast(broadcastIntent);
+                GPlusAuthenticationActivity.this.finish();
             }
         }).start();
-
-        Log.d("", "onConnected");
     }
 
     @Override
@@ -140,19 +152,16 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
         if (result.hasResolution()) {
             mConnectionResult = result;
             if (mResolveOnFail) {
-                // This is a local helper function that starts
-                // the resolution of the problem, which may be
-                // showing the user an account chooser or similar.
+                // Starts the resolution of the problem ( may be
+                // showing the user an account chooser or similar )
                 startResolution();
             }
         }
     }
-    private static final int OUR_REQUEST_CODE = 49404;
-    private boolean mResolveOnFail;
 
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
-        Log.v(TAG, "ActivityResult: " + requestCode);
-        if (requestCode == OUR_REQUEST_CODE && responseCode == RESULT_OK) {
+        Log.v(TAG, "ActivityResult: requestCode :" + requestCode + "; responseCode: " + responseCode);
+        if (requestCode == GPLUS_ACTIVITY_REQUEST_CODE && responseCode == RESULT_OK) {
             // If we have a successful result, we will want to be able to
             // resolve any further errors, so turn on resolution with our
             // flag.
@@ -161,11 +170,16 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
             // there are any more errors to resolve we'll get our
             // onConnectionFailed, but if not, we'll get onConnected.
             mGoogleApiClient.connect();
-        } else if (requestCode == OUR_REQUEST_CODE && responseCode != RESULT_OK) {
-            // If we've got an error we can't resolve, we're no
-            // longer in the midst of signing in, so we can stop
-            // the progress spinner.
-            //mConnectionProgressDialog.dismiss();
+        } else if (requestCode == GPLUS_ACTIVITY_REQUEST_CODE && responseCode != RESULT_OK) {
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction(GPlusAuthenticationResponseReceiver.ACTION_RESP);
+            broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_CANCEL_BY_USER_CODE);
+            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, KZPassiveAuthBroadcastConstants.CANCEL_BY_USER_MESSAGE);
+            sendBroadcast(broadcastIntent);
+
+            GPlusAuthenticationActivity.this.finish();
+            mConnectionProgressDialog.dismiss();
         }
     }
 
@@ -178,7 +192,7 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
             // and pass it an integer tag we can use to track. This means
             // that when we get the onActivityResult callback we'll know
             // its from being started here.
-            mConnectionResult.startResolutionForResult(this, OUR_REQUEST_CODE);
+            mConnectionResult.startResolutionForResult(this, GPLUS_ACTIVITY_REQUEST_CODE);
         } catch (IntentSender.SendIntentException e) {
             // Any problems, just try to connect() again so we get a new
             // ConnectionResult.

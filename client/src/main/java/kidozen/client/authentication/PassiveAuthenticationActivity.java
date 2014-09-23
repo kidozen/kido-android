@@ -21,17 +21,12 @@ import android.widget.LinearLayout;
 
 import java.io.UnsupportedEncodingException;
 
+import kidozen.client.internal.PassiveAuthenticationUtilities;
+
 /**
  * Created by christian on 6/17/14.
  */
 public class PassiveAuthenticationActivity extends Activity {
-    public static final int REQUEST_COMPLETE = 100;
-    public static final int REQUEST_FAILED = 1000;
-    public static final String ERROR_DESCRIPTION = "";
-    public static final String ERROR_FAILING_URL = "";
-    public static final int ERROR_CODE = 0;
-
-    public static final String AUTHENTICATION_RESULT = "PASSIVE_AUTHENTICATION_RESULT";
     public static final String AUTH_SERVICE_PAYLOAD = "AUTH_SERVICE_PAYLOAD";
 
     private static final String mPrefix="Success payload=";
@@ -51,11 +46,14 @@ public class PassiveAuthenticationActivity extends Activity {
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
 
-            Intent broadcastIntent = createResponseReceiverIntent(REQUEST_FAILED);
-            //broadcastIntent.putExtra(ERROR_CODE, errorCode);
-            broadcastIntent.putExtra(ERROR_DESCRIPTION, description);
-            broadcastIntent.putExtra(ERROR_FAILING_URL, failingUrl);
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction(PassiveAuthenticationResponseReceiver.ACTION_RESP);
+            broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
+            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, description);
+            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_FAILING_URL, failingUrl);
             sendBroadcast(broadcastIntent);
+
             PassiveAuthenticationActivity.this.finish();
             progressDialog.dismiss();
             webView.setVisibility(View.VISIBLE);
@@ -76,9 +74,14 @@ public class PassiveAuthenticationActivity extends Activity {
                 webView.loadUrl(GET_TITLE_FN);
 
             } else if ( payload.indexOf(mFailPrefix) > -1 ) {
-                Intent broadcastIntent = createResponseReceiverIntent(REQUEST_FAILED);
-                broadcastIntent.putExtra(ERROR_DESCRIPTION, "error description");
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.setAction(PassiveAuthenticationResponseReceiver.ACTION_RESP);
+                broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
+                broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, payload);
+
                 sendBroadcast(broadcastIntent);
+
                 PassiveAuthenticationActivity.this.finish();
             }
             progressDialog.dismiss();
@@ -87,14 +90,6 @@ public class PassiveAuthenticationActivity extends Activity {
 
     }
 
-    private Intent createResponseReceiverIntent(int value) {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(PassiveAuthenticationResponseReceiver.ACTION_RESP);
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.putExtra(AUTHENTICATION_RESULT, value);
-
-        return broadcastIntent;
-    }
 
     WebViewClient getWebViewClient() {
         return new AuthenticationWebViewClient();
@@ -116,18 +111,24 @@ public class PassiveAuthenticationActivity extends Activity {
         @JavascriptInterface
         public void getTitleCallback(String jsResult) {
 
-            Intent broadcastIntent = createResponseReceiverIntent(REQUEST_COMPLETE);
             String payload = jsResult.replace(mPrefix,"");
             byte[] data = Base64.decode(payload, Base64.DEFAULT);
-            String jsonPayload = null;
-            try {
-                jsonPayload = new String(data,"UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
 
-            broadcastIntent.putExtra(AUTH_SERVICE_PAYLOAD,jsonPayload);
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction(PassiveAuthenticationResponseReceiver.ACTION_RESP);
+            broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+
+            try {
+                String jsonPayload = new String(data,"UTF-8");
+                broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
+                broadcastIntent.putExtra(AUTH_SERVICE_PAYLOAD,jsonPayload);
+
+            } catch (UnsupportedEncodingException e) {
+                broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
+                broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, e.getMessage());
+            }
             sendBroadcast(broadcastIntent);
+
             PassiveAuthenticationActivity.this.finish();
 
         }
