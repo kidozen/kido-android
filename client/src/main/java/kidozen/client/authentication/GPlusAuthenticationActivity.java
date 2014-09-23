@@ -20,7 +20,7 @@ import com.google.android.gms.plus.Plus;
 */
 public class GPlusAuthenticationActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private String TAG = this.getClass().getSimpleName();
-    public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email";
+    public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login email";
     private GoogleApiClient mGoogleApiClient;
     private String mToken;
     private ProgressDialog mConnectionProgressDialog;
@@ -76,7 +76,7 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
                 .addOnConnectionFailedListener(this)
                 //.addScope(Plus.SCOPE_PLUS_LOGIN)
                 //.addScope(Plus.SCOPE_PLUS_PROFILE)
-                .addScope(new Scope("https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email"))
+                .addScope(new Scope("https://www.googleapis.com/auth/plus.login email"))
                 .build();
     }
 
