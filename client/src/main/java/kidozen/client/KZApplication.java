@@ -822,12 +822,20 @@ public class KZApplication {
     }
 
     public void AuthenticateWithGPlus(Context context, final ServiceResponseHandler callback) throws InitializationException{
-        this.Authenticate(context, new ServiceEventListener() {
+        this.AuthenticateWithGPlus(context, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 Utilities.DispatchServiceResponseListener(e,callback);
             }
         });
+    }
+
+    public void SignOutFromGPlus(Context context){
+        IdentityManager.getInstance().SignOut(context, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
+    }
+
+    public void RevokeAccessFromGPlus(Context context) {
+        IdentityManager.getInstance().RevokeAccessFromGPlus(context);
     }
 
 

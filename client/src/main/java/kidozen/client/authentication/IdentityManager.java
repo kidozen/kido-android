@@ -32,6 +32,10 @@ import kidozen.client.internal.Utilities;
  * Created by christian on 4/29/14.
  */
 public class IdentityManager {
+    public static final String GPLUS_AUTH_ACTION_CODE = "ACTION_CODE";
+    public static final int GPLUS_AUTH_ACTION_CODE_SIGN_OUT = 0;
+    public static final int GPLUS_AUTH_ACTION_CODE_REVOKE = 1;
+
     public static String PASSIVE_STRICT_SSL = "PASSIVE_STRICT_SSL";
     public static String PASSIVE_SIGNIN_URL = "PASSIVE_SIGNIN_URL";
 
@@ -209,7 +213,7 @@ public class IdentityManager {
 
     // Social / passive authentication
     public void Authenticate(Context context, KZPassiveAuthTypes userIdentifierType, ServiceEventListener callback) throws JSONException{
-        String key = String.valueOf( userIdentifierType);
+        String key = String.valueOf(userIdentifierType);
         mContext = context;
         JSONObject cacheItem = mTokensCache.get(key);
         if (cacheItem != null) {
@@ -224,6 +228,7 @@ public class IdentityManager {
                 filter.addCategory(Intent.CATEGORY_DEFAULT);
                 mPassiveAuthenticationReceiver = new PassiveAuthenticationResponseReceiver(callback);
                 context.registerReceiver(mPassiveAuthenticationReceiver, filter);
+
                 Intent startPassiveAuth = new Intent(context, PassiveAuthenticationActivity.class);
                 startPassiveAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startPassiveAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
@@ -235,10 +240,11 @@ public class IdentityManager {
                 filter.addCategory(Intent.CATEGORY_DEFAULT);
                 mGPlusAuthenticationReceiver = new GPlusAuthenticationResponseReceiver(callback);
                 context.registerReceiver(mGPlusAuthenticationReceiver, filter);
+
                 Intent startGPlusAuth = new Intent(context, GPlusAuthenticationActivity.class);
                 startGPlusAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                //startPassiveAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
-                //startPassiveAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
+                startGPlusAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
+                startGPlusAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
                 context.startActivity(startGPlusAuth);
             }
         }
@@ -453,6 +459,21 @@ public class IdentityManager {
 
     public void SignOut(String cacheKey) {
         mTokensCache.remove(cacheKey);
+    }
+
+    public void SignOut(Context context, KZPassiveAuthTypes authenticationUserId) {
+        this.SignOut(String.valueOf(authenticationUserId));
+        Intent startGPlusAuth = new Intent(context, GPlusAuthenticationActivity.class);
+        startGPlusAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startGPlusAuth.putExtra(GPLUS_AUTH_ACTION_CODE, GPLUS_AUTH_ACTION_CODE_SIGN_OUT);
+        context.startActivity(startGPlusAuth);
+    }
+
+    public void RevokeAccessFromGPlus(Context context) {
+        Intent startGPlusAuth = new Intent(context, GPlusAuthenticationActivity.class);
+        startGPlusAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startGPlusAuth.putExtra(GPLUS_AUTH_ACTION_CODE, GPLUS_AUTH_ACTION_CODE_REVOKE);
+        context.startActivity(startGPlusAuth);
     }
 
 

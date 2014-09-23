@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
@@ -16,15 +17,18 @@ import kidozen.client.authentication.GPlusIdentityProvider;
 
 
 public class MainActivity extends Activity {
-    GPlusIdentityProvider ip;
+
     KZApplication mApplication ;
     Context myContext;
+    TextView mMessagesTv;
+    private String TAG = this.getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //ip  = new GPlusIdentityProvider(this);
+
+        mMessagesTv = (TextView) findViewById(R.id.messages_text_view);
         myContext = this.getApplicationContext();
 
         mApplication = new KZApplication("https://loadtests.qa.kidozen.com","tasks","NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=",false);
@@ -37,25 +41,26 @@ public class MainActivity extends Activity {
                     mApplication.AuthenticateWithGPlus(myContext,new ServiceEventListener() {
                         @Override
                         public void onFinish(ServiceEvent e) {
-                            Log.d("this", e.Body);
+                        Log.d(TAG, e.Body);
+                        mMessagesTv.setText(e.Body);
                         }
                     });
-                    //String t = ip.RequestToken();
-                    //Log.d("this", t);
                 } catch (Exception e) {
+                    mMessagesTv.setText("there was an error trying to authenticate to G+");
                     e.printStackTrace();
                 }
             }
         });
 
-/*
+
         Button signOutButton =(Button) findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    ip.SignOut();
+                    mApplication.SignOutFromGPlus(myContext);
                 } catch (Exception e) {
+                    mMessagesTv.setText("there was an error trying to signing out from G+");
                     e.printStackTrace();
                 }
             }
@@ -66,13 +71,14 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 try {
-                    ip.Revoke();
+                    mApplication.RevokeAccessFromGPlus(myContext);
                 } catch (Exception e) {
+                    mMessagesTv.setText("there was an error trying to revoke token from G+");
                     e.printStackTrace();
                 }
             }
         });
-        */
+
     }
 
 

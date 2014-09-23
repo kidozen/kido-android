@@ -31,10 +31,11 @@
             android:text="@string/revoke_button_name"
             android:enabled="true" />
 
-        <TextView
+    </LinearLayout>
+    <TextView
+        android:id="@+id/messages_text_view"
         android:text="@string/hello_world"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    </LinearLayout>
 </LinearLayout>
