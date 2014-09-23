@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
             }
         });
 
-
+/*
         Button signOutButton =(Button) findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +57,7 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        */
     }
 
 
