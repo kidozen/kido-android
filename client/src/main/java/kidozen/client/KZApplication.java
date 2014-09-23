@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 
 import kidozen.client.authentication.BaseIdentityProvider;
 import kidozen.client.authentication.IdentityManager;
+import kidozen.client.authentication.KZPassiveAuthTypes;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
 import kidozen.client.internal.Constants;
@@ -627,6 +628,15 @@ public class KZApplication {
         }
     }
 
+
+    private String getUserUniqueIdentifier() {
+        String userUniqueIdentifier = "";
+        if (mUserIdentity!=null)
+            userUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
+        return userUniqueIdentifier;
+    }
+
+
     /**
      * Sign outs the current user
      */
@@ -641,7 +651,7 @@ public class KZApplication {
     }
 
     /**
-     * Authenticates a user using the specified mCustomProvider
+     * Authenticates a user using the specified provider
      *
      * @param providerKey The key that identifies the mCustomProvider
      * @param username    The user account
@@ -659,6 +669,15 @@ public class KZApplication {
             });
         else
             InvokeActiveAuthentication(providerKey, username, password, callback);
+    }
+
+    public void Authenticate(final String providerKey, final String username, final String password, final ServiceResponseHandler callback) throws InitializationException {
+        this.Authenticate(providerKey,username, password, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                Utilities.DispatchServiceResponseListener(e,callback);
+            }
+        });
     }
 
     private void InvokeActiveAuthentication(final String providerKey, final String username, final String password, final ServiceEventListener callback) {
@@ -690,23 +709,6 @@ public class KZApplication {
     }
 
     /**
-     *
-     * @param providerKey
-     * @param username
-     * @param password
-     * @param callback
-     * @throws InitializationException
-     */
-    public void Authenticate(final String providerKey, final String username, final String password, final ServiceResponseHandler callback) throws InitializationException {
-        this.Authenticate(providerKey,username, password, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                Utilities.DispatchServiceResponseListener(e,callback);
-            }
-        });
-    }
-
-    /**
      * Enables passive Authentication
      *
      * @param context Android context instance
@@ -718,26 +720,19 @@ public class KZApplication {
             this.Initialize(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    InvokePassiveAuthentication(context, callback, getUserUniqueIdentifier());
+                    InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
                 }
             });
         else
-            InvokePassiveAuthentication(context, callback, getUserUniqueIdentifier());
+            InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
     }
 
-    private String getUserUniqueIdentifier() {
-        String mUserUniqueIdentifier = "";
-        if (mUserIdentity!=null)
-            mUserUniqueIdentifier = mUserIdentity.Claims.get("http://schemas.kidozen.com/userid").toString();
-        return mUserUniqueIdentifier;
-    }
-
-    private void InvokePassiveAuthentication(Context context, final ServiceEventListener callback, String mUserUniqueIdentifier) {
+    private void InvokePassiveAuthentication(Context context, final ServiceEventListener callback, KZPassiveAuthTypes passiveAuthType) {
         try {
             JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(context, mUserUniqueIdentifier, new ServiceEventListener()   {
+            IdentityManager.getInstance().Authenticate(context, passiveAuthType, new ServiceEventListener()   {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     SetKidoZenUser((KidoZenUser) e.Response);
@@ -752,12 +747,6 @@ public class KZApplication {
         }
     }
 
-    /**
-     *
-     * @param context
-     * @param callback
-     * @throws InitializationException
-     */
     public void Authenticate(Context context, final ServiceResponseHandler callback) throws InitializationException{
         this.Authenticate(context, new ServiceEventListener() {
             @Override
@@ -767,11 +756,9 @@ public class KZApplication {
         });
     }
 
-    public void SetIdentityProvider(final BaseIdentityProvider provider) {
-        // TODO: check if this instance implementes the methods I need
-        mCustomProvider = provider;
-    }
-
+    /*
+    * Custom Authentication
+    * */
     public void Authenticate(final BaseIdentityProvider ip, final ServiceResponseHandler callback) throws InitializationException {
         this.Authenticate(ip, new ServiceEventListener() {
             @Override
@@ -792,8 +779,6 @@ public class KZApplication {
         else
             InvokeCustomAuthentication(ip, callback);
     }
-
-
 
     private void InvokeCustomAuthentication(final BaseIdentityProvider ip, final ServiceEventListener callback) {
         try {
@@ -816,6 +801,35 @@ public class KZApplication {
             callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), e));
         }
     }
+
+    /**
+     * Enables G+ OAuth Authentication
+     *
+     * @param context Android context instance
+     * @param callback The callback with the result of the service call
+     * @throws InitializationException
+     */
+    public void AuthenticateWithGPlus(final Context context, final ServiceEventListener callback) throws InitializationException {
+        if (!mApplicationConfiguration.IsInitialized)
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
+                }
+            });
+        else
+            InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
+    }
+
+    public void AuthenticateWithGPlus(Context context, final ServiceResponseHandler callback) throws InitializationException{
+        this.Authenticate(context, new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                Utilities.DispatchServiceResponseListener(e,callback);
+            }
+        });
+    }
+
 
     /**
      * Returns the current application name

@@ -1,6 +1,7 @@
 package kidozen.samples.gplussample;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -8,25 +9,39 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import kidozen.client.authentication.GooglePlusIdentityProvider;
+import kidozen.client.KZApplication;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
+import kidozen.client.authentication.GPlusIdentityProvider;
 
 
 public class MainActivity extends Activity {
-    GooglePlusIdentityProvider ip;
+    GPlusIdentityProvider ip;
+    KZApplication mApplication ;
+    Context myContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ip  = new GooglePlusIdentityProvider(this);
+        //ip  = new GPlusIdentityProvider(this);
+        myContext = this.getApplicationContext();
+
+        mApplication = new KZApplication("https://loadtests.qa.kidozen.com","tasks","NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=",false);
 
         Button signInButton =(Button) findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    String t = ip.RequestToken();
-                    Log.d("this", t);
+                    mApplication.AuthenticateWithGPlus(myContext,new ServiceEventListener() {
+                        @Override
+                        public void onFinish(ServiceEvent e) {
+                            Log.d("this", e.Body);
+                        }
+                    });
+                    //String t = ip.RequestToken();
+                    //Log.d("this", t);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

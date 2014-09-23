@@ -12,7 +12,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,9 +49,14 @@ public class IdentityManager {
     private String ipEndpoint = null;
 
     private static IdentityManager INSTANCE = null;
-    private PassiveAuthenticationResponseReceiver mReceiver;
+
     private String mApplicationKey;
     private Context mContext;
+
+    private GPlusAuthenticationResponseReceiver mGPlusAuthenticationReceiver;
+    private PassiveAuthenticationResponseReceiver mPassiveAuthenticationReceiver;
+
+
 
     // Private constructor suppresses
     private IdentityManager(){}
@@ -204,27 +208,39 @@ public class IdentityManager {
     }
 
     // Social / passive authentication
-    public void Authenticate(Context context, String userUniqueIdentifier, ServiceEventListener callback) throws JSONException{
-        String key = userUniqueIdentifier;
+    public void Authenticate(Context context, KZPassiveAuthTypes userIdentifierType, ServiceEventListener callback) throws JSONException{
+        String key = String.valueOf( userIdentifierType);
         mContext = context;
         JSONObject cacheItem = mTokensCache.get(key);
         if (cacheItem != null) {
-            String rawToken = cacheItem.getString("rawToken"); // usar el token de refresh
+            String rawToken = cacheItem.getString("rawToken"); // TODO: use refresh token
             KidoZenUser usr = (KidoZenUser) mTokensCache.get(key).get("user");
             usr.PulledFromCache = true;
             invokeCallback(callback, rawToken, usr);
         }
         else {
-            IntentFilter filter = new IntentFilter(PassiveAuthenticationResponseReceiver.ACTION_RESP);
-            filter.addCategory(Intent.CATEGORY_DEFAULT);
-            mReceiver = new PassiveAuthenticationResponseReceiver(callback);
-            context.registerReceiver(mReceiver, filter);
-
-            Intent startPassiveAuth = new Intent(context, PassiveAuthenticationActivity.class);
-            startPassiveAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startPassiveAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
-            startPassiveAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
-            context.startActivity(startPassiveAuth);
+            if (userIdentifierType == KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID) {
+                IntentFilter filter = new IntentFilter(PassiveAuthenticationResponseReceiver.ACTION_RESP);
+                filter.addCategory(Intent.CATEGORY_DEFAULT);
+                mPassiveAuthenticationReceiver = new PassiveAuthenticationResponseReceiver(callback);
+                context.registerReceiver(mPassiveAuthenticationReceiver, filter);
+                Intent startPassiveAuth = new Intent(context, PassiveAuthenticationActivity.class);
+                startPassiveAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startPassiveAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
+                startPassiveAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
+                context.startActivity(startPassiveAuth);
+            }
+            else {
+                IntentFilter filter = new IntentFilter(GPlusAuthenticationResponseReceiver.ACTION_RESP);
+                filter.addCategory(Intent.CATEGORY_DEFAULT);
+                mGPlusAuthenticationReceiver = new GPlusAuthenticationResponseReceiver(callback);
+                context.registerReceiver(mGPlusAuthenticationReceiver, filter);
+                Intent startGPlusAuth = new Intent(context, GPlusAuthenticationActivity.class);
+                startGPlusAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //startPassiveAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
+                //startPassiveAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
+                context.startActivity(startGPlusAuth);
+            }
         }
     }
 
@@ -303,8 +319,7 @@ public class IdentityManager {
                 }
                 // Something failed. Try to launch the Authentication activity again.
                 else {
-                    Log.i(TAG,"Something failed. Try to launch the Authentication activity again ....");
-                    this.Authenticate(mContext,"", callback);
+                    throw new Exception("Could not get token from internal cache. Please, try to authenticate again");
                 }
         }
         catch (Exception e) {
