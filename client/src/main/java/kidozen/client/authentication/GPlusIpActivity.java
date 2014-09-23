@@ -24,7 +24,6 @@ public class GPlusIpActivity extends Activity implements GoogleApiClient.Connect
     public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login";
     private GoogleApiClient mGoogleApiClient;
     private String mToken;
-    private boolean firstConnect = false;
 
     public GPlusIpActivity() {
         super();
