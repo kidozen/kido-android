@@ -68,7 +68,7 @@ public class EApiTest {
         service.InvokeMethod(KZ_SERVICE_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertEquals(e.StatusCode, HttpStatus.SC_OK);
+                assertEquals(HttpStatus.SC_OK,e.StatusCode);
                 lcd.countDown();
             }
         });
@@ -82,7 +82,7 @@ public class EApiTest {
         service.InvokeMethod(KZ_SERVICE_INVALID_METHODID, data, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                assertEquals(e.StatusCode, HttpStatus.SC_BAD_REQUEST);
+                assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,e.StatusCode);
                 lcd.countDown();
             }
         });
