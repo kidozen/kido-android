@@ -16,7 +16,7 @@ public class KZPassiveAuthBroadcastConstants {
     public static final int REQUEST_FAILED_CODE = 50020;
     public static final int REQUEST_CANCEL_BY_USER_CODE = 50030;
 
-    //public static final String REQUEST_COMPLETE = "REQUEST_COMPLETE";
-    //public static final String REQUEST_FAILED = "REQUEST_FAILED";
+    public static final String GOOGLE_PLUS_KIDOZEN_SCOPE = "GOOGLE_PLUS_KIDOZEN_SCOPE";
+    public static final String GOOGLE_PLUS_SCOPE = "GOOGLE_PLUS_SCOPE";
     //public static final String CANCEL_BY_USER = "CANCEL_BY_USER";
 }

@@ -15,12 +15,24 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import kidozen.client.KZHttpMethod;
+import kidozen.client.internal.SNIConnectionManager;
+import kidozen.client.internal.Utilities;
+
 /**
 * Created by christian on 9/22/14.
 */
 public class GPlusAuthenticationActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private String TAG = this.getClass().getSimpleName();
-    public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login email";
+    //public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login email";
     private GoogleApiClient mGoogleApiClient;
     private String mToken;
     private ProgressDialog mConnectionProgressDialog;
@@ -31,6 +43,10 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
     private String mSignInUrl = "";
     private boolean mStrictSSL = true;
 
+    private String mGooglePlusKidozenScope;
+    private String mGooglePlusScope;
+    private String mOAuthPrefix = "oauth2:";
+
     public GPlusAuthenticationActivity() {
         super();
     }
@@ -38,15 +54,18 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mGoogleApiClient = buildGoogleApiClient();
-        buildGoogleApiClient();
         mConnectionProgressDialog = new ProgressDialog(this);
         mConnectionProgressDialog.setMessage("Signing in...");
 
         Intent intent = this.getIntent();
         mActionCode = intent.getIntExtra(IdentityManager.GPLUS_AUTH_ACTION_CODE, -1);
         mSignInUrl = intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_SIGNIN_URL);
+        mGooglePlusScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE);
+        mGooglePlusKidozenScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE);
+
         mStrictSSL = Boolean.parseBoolean(intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_STRICT_SSL)) ;
+
+        mGoogleApiClient = buildGoogleApiClient();
 
 
         if (!mGoogleApiClient.isConnected()) {
@@ -74,9 +93,7 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
                 .addApi(Plus.API, Plus.PlusOptions.builder().build())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                //.addScope(Plus.SCOPE_PLUS_LOGIN)
-                //.addScope(Plus.SCOPE_PLUS_PROFILE)
-                .addScope(new Scope("https://www.googleapis.com/auth/plus.login email"))
+                .addScope(new Scope(mGooglePlusScope))
                 .build();
     }
 
@@ -113,26 +130,25 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
                     broadcastIntent.setAction(GPlusAuthenticationResponseReceiver.ACTION_RESP);
                     broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
                     try {
-                        mToken = GoogleAuthUtil.getToken(context, Plus.AccountApi.getAccountName(mGoogleApiClient), OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN);
+                        mToken = GoogleAuthUtil.getToken(context, Plus.AccountApi.getAccountName(mGoogleApiClient), mOAuthPrefix + mGooglePlusScope);
                         Log.d(TAG, mToken);
-                        String userTokeFromAuthService = mToken;
-                    /*
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                    nameValuePairs.add(new BasicNameValuePair("wrap_scope", "?????"));
-                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "google_signin"));
-                    nameValuePairs.add(new BasicNameValuePair("wrap_assertion", mToken));
-                    String message = Utilities.getQuery(nameValuePairs);
-                    SNIConnectionManager sniManager = new SNIConnectionManager(mSignInUrl, message, null, null, mStrictSSL);
-                    Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
-                    String userTokeFromAuthService = authResponse.get("responseBody");
-                    String statusCode = authResponse.get("statusCode");
+                        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                        nameValuePairs.add(new BasicNameValuePair("wrap_scope",mGooglePlusKidozenScope));
+                        nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", "google-signin"));
+                        nameValuePairs.add(new BasicNameValuePair("wrap_assertion", mToken));
+                        String message = Utilities.getQuery(nameValuePairs);
+                        SNIConnectionManager sniManager = new SNIConnectionManager(mSignInUrl, message, null, null, mStrictSSL);
+                        Hashtable<String, String> authResponse = sniManager.ExecuteHttp(KZHttpMethod.POST);
+                        String body = authResponse.get("responseBody");
+                        String statusCode = authResponse.get("statusCode");
 
-                    */
+                        if (Integer.valueOf(statusCode) > HttpStatus.SC_OK) throw new Exception(body);
+
                         broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
-                        broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.AUTH_SERVICE_PAYLOAD, userTokeFromAuthService);
+                        broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.AUTH_SERVICE_PAYLOAD, body);
 
-                        //catch (IOException e) {
-                        //catch (GoogleAuthException e) {
+                    //catch (IOException e) {
+                    //catch (GoogleAuthException e) {
                     } catch (Exception e) {
                         broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
                         broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, e.getMessage());

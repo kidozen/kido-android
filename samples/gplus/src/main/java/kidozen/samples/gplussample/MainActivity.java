@@ -13,15 +13,18 @@ import android.widget.TextView;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.Storage;
 import kidozen.client.authentication.GPlusIdentityProvider;
 
 
 public class MainActivity extends Activity {
+    private String TAG = this.getClass().getSimpleName();
 
     KZApplication mApplication ;
+    Storage mStorage;
+
     Context myContext;
     TextView mMessagesTv;
-    private String TAG = this.getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,12 @@ public class MainActivity extends Activity {
                         @Override
                         public void onFinish(ServiceEvent e) {
                         Log.d(TAG, e.Body);
-                        mMessagesTv.setText(e.Body);
+                        mMessagesTv.setText("Authenticated");
+                            try {
+                                mStorage = mApplication.Storage("tasks");
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
+                            }
                         }
                     });
                 } catch (Exception e) {
@@ -76,6 +84,19 @@ public class MainActivity extends Activity {
                     mMessagesTv.setText("there was an error trying to revoke token from G+");
                     e.printStackTrace();
                 }
+            }
+        });
+
+        Button queryStorageButton = (Button) findViewById(R.id.query_storage_button);
+        queryStorageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mStorage.All(new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        Log.d(TAG, e.Body);
+                    }
+                });
             }
         });
 

@@ -24,12 +24,12 @@
         android:text="@string/sign_out_button_name"
         android:enabled="true" />
 
-        <Button
-            android:id="@+id/revoke_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/revoke_button_name"
-            android:enabled="true" />
+    <Button
+        android:id="@+id/revoke_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/revoke_button_name"
+        android:enabled="true" />
 
     </LinearLayout>
     <TextView
@@ -37,5 +37,11 @@
         android:text="@string/hello_world"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/query_storage_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Query storage"
+        android:enabled="true" />
 
 </LinearLayout>

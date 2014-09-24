@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="revoke_button_name">Revoke</string>
+    <string name="query_storage_button">Query storage</string>
 
 </resources>

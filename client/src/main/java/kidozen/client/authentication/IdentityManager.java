@@ -243,7 +243,9 @@ public class IdentityManager {
 
                 Intent startGPlusAuth = new Intent(context, GPlusAuthenticationActivity.class);
                 startGPlusAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startGPlusAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
+                startGPlusAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("authServiceEndpoint"));
+                startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE, mAuthConfig.getString("applicationScope"));
+                startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE, mAuthConfig.getJSONObject("google").getString("scopes"));
                 startGPlusAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
                 context.startActivity(startGPlusAuth);
             }
@@ -299,7 +301,12 @@ public class IdentityManager {
     // Next release must use this method for all auth types
     public void GetToken(final KidoZenUser user, final ServiceEventListener callback) {
         try {
-                JSONObject cacheItem = mTokensCache.get(user.getUserHash());
+                JSONObject cacheItem = null;
+                if (user.HashKey.contains("GPLUS_AUTHENTICATION_USERID") || user.HashKey.contains("PASSIVE_AUTHENTICATION_USERID") )
+                    cacheItem = mTokensCache.get(user.HashKey);
+                else
+                    cacheItem = mTokensCache.get(user.getUserHash());
+
                 if (cacheItem!=null) {
                     if (user.HasExpired()) {
                         JSONObject message = new JSONObject()
