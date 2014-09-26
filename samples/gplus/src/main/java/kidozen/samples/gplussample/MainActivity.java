@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.apache.http.HttpStatus;
+
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
@@ -82,16 +84,21 @@ public class MainActivity extends Activity {
                     mApplication.AuthenticateWithGPlus(myContext,new ServiceEventListener() {
                         @Override
                         public void onFinish(ServiceEvent e) {
-                        Log.d(TAG, e.Body);
-                        mMessagesTv.setText("Authenticated");
+                        if (e.StatusCode== HttpStatus.SC_OK)
+                        {
+                            mMessagesTv.setText("Authenticated");
                             try {
                                 signOutButton.setEnabled(true);
                                 revokeButton.setEnabled(true);
                                 showUserNameButton.setEnabled(true);
                             } catch (Exception e1) {
                                 e1.printStackTrace();
-                                mMessagesTv.setText("Cannot log in");
+                                mMessagesTv.setText("Cannot log in. " + e1.getMessage());
                             }
+                        }
+                        else {
+                            mMessagesTv.setText("Cannot log in.");
+                        }
                         }
                     });
                 } catch (Exception e) {
