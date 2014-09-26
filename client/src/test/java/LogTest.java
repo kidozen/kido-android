@@ -197,7 +197,7 @@ public class LogTest {
         assertTrue(lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES));
     }
 
-    //@Test
+    @Test
     public void ShouldWriteMessageUsingKey() throws Exception {
         final CountDownLatch lcd = new CountDownLatch(1);
 

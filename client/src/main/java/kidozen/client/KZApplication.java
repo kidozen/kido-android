@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import kidozen.client.authentication.BaseIdentityProvider;
@@ -47,19 +48,14 @@ public class KZApplication {
     private String mPassword;
     private String mPassiveClientId;
     private String mReportingUrl;
-    private Boolean mIsAuthenticatedWithAppKey = false;
-    private Boolean mIsInitialized = false;
 
     private KidoZenUser mUserIdentity;
     private KidoZenUser mApplicationIdentity;
-    private static JSONArray mAllApplicationLogEvents;
     private Logging mApplicationLog;
     private MailSender mMailSender;
     private static CrashReporter mCrashReporter;
 
     private KidoAppSettings mApplicationConfiguration;
-
-    private BaseIdentityProvider mCustomProvider;
 
     /**
      * Enables crash reporter feature in the current application
@@ -68,7 +64,7 @@ public class KZApplication {
      * @throws IllegalStateException
      */
     public void EnableCrashReporter(Application application) throws IllegalStateException {
-        if (mApplicationKey == Constants.UNSET_APPLICATION_KEY) {
+        if (mApplicationKey == "" || mApplicationKey ==null) {
             throw new IllegalStateException("Crash report feature can only be enabled using an application key.");
         } else {
             // EnableCrashReporter is called only when the ctor has the app key,
@@ -135,7 +131,8 @@ public class KZApplication {
         this.mApplicationKey = applicationKey;
         mTenantMarketPlace = tenantMarketPlace;
         mApplicationName = application;
-        if (applicationKey.equals(Constants.UNSET_APPLICATION_KEY)) {
+
+        if (mApplicationKey.equals("") || mApplicationKey == null) {
             throw new IllegalArgumentException("Application key is required.");
         }
 
@@ -476,8 +473,21 @@ public class KZApplication {
         mApplicationLog.Write(message,data,level);
     }
 
-
+    private boolean hasErrorsAfterCallingInitialization = false;
     private void checkApplicationLog() throws Exception {
+        //Logging can be use without auth, so we must be sure the application has been initialized and authenticated with a valid Key
+        if (mUserIdentity==null && mApplicationIdentity ==null) {
+            System.out.println("mUser or mApp is null ... initializing");
+            final CountDownLatch cdl = new CountDownLatch(1);
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    cdl.countDown();
+                    hasErrorsAfterCallingInitialization = (e.StatusCode!=HttpStatus.SC_OK);
+                }
+            });
+        }
+        if (hasErrorsAfterCallingInitialization) throw new Exception("could not initialize Logging");
         if (mApplicationLog == null) {
             mApplicationLog = new Logging(
                     mApplicationConfiguration.GetSettingAsString("logging-v3"),
@@ -653,7 +663,7 @@ public class KZApplication {
     /**
      * Authenticates a user using the specified provider
      *
-     * @param providerKey The key that identifies the mCustomProvider
+     * @param providerKey The key that identifies the Provider
      * @param username    The user account
      * @param password    The password for the user
      * @param callback    The callback with the result of the service call
@@ -864,7 +874,6 @@ public class KZApplication {
                     @Override
                     public void onFinish(ServiceEvent e) {
                         if (e.StatusCode== HttpStatus.SC_OK) {
-                            mIsAuthenticatedWithAppKey = true;
                             mApplicationIdentity = (KidoZenUser) e.Response;
                         }
                         if (mServiceEventListenerCallback !=null) mServiceEventListenerCallback.onFinish(e);
