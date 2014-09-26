@@ -1,6 +1,10 @@
 # Kidozen SDK for Android Devices v 1.2
 The KidoZen SDK for Android provides libraries for developers to build connected mobile applications using KidoZen. This guide walks through the steps for setting up the SDK and running the code samples.
 
+## Whats new
+- Support for G+ authentication ( see the gplus example in the samples folder )
+- Support for custom providers authentication
+
 ## About the SDK
 The KidoZen SDK for Android includes:
 - Source code
@@ -128,7 +132,7 @@ For more information please check the [KidoZen documentation](http://docs.kidoze
 ## Samples
 You wil find samples about Social Authentication, Push notifications and other services inside the 'Samples' folder.
 
-###Breaking changes
+###Breaking changes with first version
 
 - The constructor now requires an Application Id. You must get this ID from your marketplace
 - The 'ByPassSSL' parameter changed his name and default value. Now its called 'StrictSSL' and its default value is TRUE instead of FALSE
