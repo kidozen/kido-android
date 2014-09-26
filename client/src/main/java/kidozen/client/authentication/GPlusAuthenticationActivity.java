@@ -40,9 +40,9 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
     private boolean mResolveOnFail;
 
     private int mActionCode = -1;
-    private String mSignInUrl = "";
     private boolean mStrictSSL = true;
 
+    private String mSignInUrl;
     private String mGooglePlusKidozenScope;
     private String mGooglePlusScope;
     private String mOAuthPrefix = "oauth2:";
@@ -59,9 +59,9 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
 
         Intent intent = this.getIntent();
         mActionCode = intent.getIntExtra(IdentityManager.GPLUS_AUTH_ACTION_CODE, -1);
-        mSignInUrl = intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_SIGNIN_URL);
-        mGooglePlusScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE);
-        mGooglePlusKidozenScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE);
+        if (mSignInUrl==null) mSignInUrl = intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_SIGNIN_URL);
+        if (mGooglePlusScope==null) mGooglePlusScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE);
+        if (mGooglePlusKidozenScope==null) mGooglePlusKidozenScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE);
 
         mStrictSSL = Boolean.parseBoolean(intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_STRICT_SSL)) ;
 

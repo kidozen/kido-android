@@ -830,11 +830,11 @@ public class KZApplication {
         });
     }
 
-    public void SignOutFromGPlus(Context context){
+    public void SignOutFromGPlus(Context context) throws InitializationException {
         IdentityManager.getInstance().SignOut(context, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
     }
 
-    public void RevokeAccessFromGPlus(Context context) {
+    public void RevokeAccessFromGPlus(Context context) throws InitializationException {
         IdentityManager.getInstance().RevokeAccessFromGPlus(context);
     }
 

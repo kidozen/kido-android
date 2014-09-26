@@ -14,7 +14,6 @@ import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
 import kidozen.client.Storage;
-import kidozen.client.authentication.GPlusIdentityProvider;
 
 
 public class MainActivity extends Activity {
@@ -26,6 +25,10 @@ public class MainActivity extends Activity {
     Context myContext;
     TextView mMessagesTv;
 
+    String tenantMarketPlace = "https://contoso.kidocloud.com";
+    String application = "myApplication";
+    String appkey = "get this value from your marketplace";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,9 +37,44 @@ public class MainActivity extends Activity {
         mMessagesTv = (TextView) findViewById(R.id.messages_text_view);
         myContext = this.getApplicationContext();
 
-        mApplication = new KZApplication("https://loadtests.qa.kidozen.com","tasks","NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=",false);
+        mApplication = new KZApplication(tenantMarketPlace,application,appkey,false);
 
-        Button signInButton =(Button) findViewById(R.id.sign_in_button);
+        final Button signOutButton =(Button) findViewById(R.id.sign_out_button);
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    mApplication.SignOutFromGPlus(myContext);
+                } catch (Exception e) {
+                    mMessagesTv.setText(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        final Button revokeButton =(Button) findViewById(R.id.revoke_button);
+        revokeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    mApplication.RevokeAccessFromGPlus(myContext);
+                } catch (Exception e) {
+                    mMessagesTv.setText(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        final Button showUserNameButton = (Button) findViewById(R.id.get_name_button);
+        showUserNameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String username = mApplication.GetKidoZenUser().Claims.get("name");
+                mMessagesTv.setText("Hello: " + username);
+            }
+        });
+
+        final Button signInButton =(Button) findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -47,9 +85,12 @@ public class MainActivity extends Activity {
                         Log.d(TAG, e.Body);
                         mMessagesTv.setText("Authenticated");
                             try {
-                                mStorage = mApplication.Storage("tasks");
+                                signOutButton.setEnabled(true);
+                                revokeButton.setEnabled(true);
+                                showUserNameButton.setEnabled(true);
                             } catch (Exception e1) {
                                 e1.printStackTrace();
+                                mMessagesTv.setText("Cannot log in");
                             }
                         }
                     });
@@ -61,44 +102,6 @@ public class MainActivity extends Activity {
         });
 
 
-        Button signOutButton =(Button) findViewById(R.id.sign_out_button);
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    mApplication.SignOutFromGPlus(myContext);
-                } catch (Exception e) {
-                    mMessagesTv.setText("there was an error trying to signing out from G+");
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        Button revokeButton =(Button) findViewById(R.id.revoke_button);
-        revokeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    mApplication.RevokeAccessFromGPlus(myContext);
-                } catch (Exception e) {
-                    mMessagesTv.setText("there was an error trying to revoke token from G+");
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        Button queryStorageButton = (Button) findViewById(R.id.query_storage_button);
-        queryStorageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mStorage.All(new ServiceEventListener() {
-                    @Override
-                    public void onFinish(ServiceEvent e) {
-                        Log.d(TAG, e.Body);
-                    }
-                });
-            }
-        });
 
     }
 

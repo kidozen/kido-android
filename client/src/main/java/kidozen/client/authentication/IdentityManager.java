@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import kidozen.client.InitializationException;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
@@ -468,18 +469,38 @@ public class IdentityManager {
         mTokensCache.remove(cacheKey);
     }
 
-    public void SignOut(Context context, KZPassiveAuthTypes authenticationUserId) {
+    public void SignOut(Context context, KZPassiveAuthTypes authenticationUserId) throws InitializationException {
         this.SignOut(String.valueOf(authenticationUserId));
         Intent startGPlusAuth = new Intent(context, GPlusAuthenticationActivity.class);
         startGPlusAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startGPlusAuth.putExtra(GPLUS_AUTH_ACTION_CODE, GPLUS_AUTH_ACTION_CODE_SIGN_OUT);
+        try {
+            startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE, mAuthConfig.getString("applicationScope"));
+            startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE, mAuthConfig.getJSONObject("google").getString("scopes"));
+        } catch ( NullPointerException ex) {
+            throw new InitializationException("There was an error trying to sign out from G+. You must be logged in to KidoZen first using G+ to sign out");
+        }catch ( JSONException ex) {
+            throw new InitializationException("There was an error trying to sign out from G+. You must be logged in to KidoZen first using G+ to sign out");
+        }
+        startGPlusAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
+
         context.startActivity(startGPlusAuth);
     }
 
-    public void RevokeAccessFromGPlus(Context context) {
+    public void RevokeAccessFromGPlus(Context context) throws InitializationException {
         Intent startGPlusAuth = new Intent(context, GPlusAuthenticationActivity.class);
         startGPlusAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startGPlusAuth.putExtra(GPLUS_AUTH_ACTION_CODE, GPLUS_AUTH_ACTION_CODE_REVOKE);
+        try {
+            startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE, mAuthConfig.getString("applicationScope"));
+            startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE, mAuthConfig.getJSONObject("google").getString("scopes"));
+        } catch ( NullPointerException ex) {
+            throw new InitializationException("There was an error trying to revoke token from G+. You must be logged in to KidoZen first using G+ to sign out");
+        }catch ( JSONException ex) {
+            throw new InitializationException("There was an error trying to revoke token from G+. You must be logged in to KidoZen first using G+ to sign out");
+        }
+        startGPlusAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
+
         context.startActivity(startGPlusAuth);
     }
 

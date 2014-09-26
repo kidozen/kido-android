@@ -14,7 +14,7 @@
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dip"
+        android:text="Sign in"
         android:enabled="true" />
 
     <Button
@@ -22,14 +22,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sign_out_button_name"
-        android:enabled="true" />
+        android:enabled="false" />
 
     <Button
         android:id="@+id/revoke_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/revoke_button_name"
-        android:enabled="true" />
+        android:enabled="false" />
 
     </LinearLayout>
     <TextView
@@ -38,10 +38,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <Button
-        android:id="@+id/query_storage_button"
+        android:id="@+id/get_name_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Query storage"
-        android:enabled="true" />
+        android:text="Get user name"
+        android:enabled="false" />
 
 </LinearLayout>
