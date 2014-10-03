@@ -13,9 +13,9 @@ import kidozen.client.KZApplication;
 public class KidoZenHelper {
     private KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
-    private String application       = "tasks";
-    private String appkey            = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
+    String tenantMarketPlace = "https://contoso.kidocloud.com";
+    String application = "myApplication";
+    String appkey = "get this value from your marketplace";
 
     private Boolean isInitialized    = false;
 

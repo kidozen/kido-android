@@ -3,7 +3,6 @@ package kidozen.samples.gplussample;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,14 +14,12 @@ import org.apache.http.HttpStatus;
 import kidozen.client.KZApplication;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
-import kidozen.client.Storage;
 
 
 public class MainActivity extends Activity {
     private String TAG = this.getClass().getSimpleName();
 
     KZApplication mApplication ;
-    Storage mStorage;
 
     Context myContext;
     TextView mMessagesTv;
@@ -30,6 +27,7 @@ public class MainActivity extends Activity {
     String tenantMarketPlace = "https://contoso.kidocloud.com";
     String application = "myApplication";
     String appkey = "get this value from your marketplace";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
