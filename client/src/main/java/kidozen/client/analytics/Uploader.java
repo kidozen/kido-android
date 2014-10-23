@@ -3,6 +3,7 @@ package kidozen.client.analytics;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
@@ -18,12 +19,32 @@ public class Uploader {
     private Context mContext = null;
     private String TAG = this.getClass().getSimpleName();
     private Session mSession = null;
+    private Handler mUploaderHandler = new Handler();
+    private Runnable mUploaderTimerTask;
 
+    public void StartUploaderTransitionTimer() {
+        final int timerTimeout = mSession.getSessionTimeout() * 60000;
+        this.mUploaderTimerTask = new Runnable() {
+            public void run() {
+                uploadCurrentEvents();
+                mUploaderHandler.postDelayed(this, timerTimeout);
+            }
+        };
+        this.mUploaderHandler.postDelayed(mUploaderTimerTask, timerTimeout);
+    }
+
+    private void uploadCurrentEvents() {
+        String message = mSession.GetEventsSerializedAsJson();
+        Log.d(TAG,"Timer: " + message);
+        mSession.RemoveSavedEvents();
+        mSession.RemoveCurrentEvents();
+    }
 
     public Uploader(Context context, Session session) {
         mContext = context;
         mSession = session;
         registerApplicationCallbacks();
+        StartUploaderTransitionTimer();
     }
 
     public static Uploader getInstance(Context context, Session session) {
@@ -51,7 +72,7 @@ public class Uploader {
     private final long MAX_ACTIVITY_TRANSITION_TIME_MS = 2000;
 
     //The application also provides two methods for starting and stopping the timer/task:
-    public void startActivityTransitionTimer() {
+    private void startActivityTransitionTimer() {
         this.mActivityTransitionTimer = new Timer();
         this.mActivityTransitionTimerTask = new TimerTask() {
             public void run() { mWasInBackground = true; }
@@ -59,7 +80,7 @@ public class Uploader {
         this.mActivityTransitionTimer.schedule(mActivityTransitionTimerTask,MAX_ACTIVITY_TRANSITION_TIME_MS);
     }
 
-    public void stopActivityTransitionTimer() {
+    private void stopActivityTransitionTimer() {
         if (this.mActivityTransitionTimerTask != null) {
             this.mActivityTransitionTimerTask.cancel();
         }

@@ -25,6 +25,14 @@ public class Session {
     private Date mStartDateWithTimeout = null;
     private int mSessionTimeout = 1;
 
+    public int getSessionTimeout() {
+        return mSessionTimeout;
+    }
+
+    public void setSessionTimeout(int timeout) {
+        mSessionTimeout = timeout;
+    }
+
     public Session(Context context){
         mContext = context;
         mUUID = UUID.randomUUID().toString();
@@ -72,6 +80,11 @@ public class Session {
             fos.write(gson.toJson(mEvents).getBytes("UTF-8"));
             fos.close();
         }
+    }
+
+    public String GetEventsSerializedAsJson() {
+        Gson gson = new Gson();
+        return gson.toJson(mEvents);
     }
 
     public void LogEvent(Event event) {
