@@ -57,6 +57,7 @@ public class KZApplication {
     private static CrashReporter mCrashReporter;
 
     private KidoAppSettings mApplicationConfiguration;
+    private Analytics mAnalytics = null;
 
     /**
      * Enables crash reporter feature in the current application
@@ -78,7 +79,19 @@ public class KZApplication {
 
 
     public void EnableAnalytics(Context context) throws IllegalStateException {
-        Analytics.getInstance(true,context);
+        mAnalytics = Analytics.getInstance(true,context);
+    }
+
+    public void TagClick(String buttonName) {
+        mAnalytics.TagClick(buttonName);
+    }
+
+    public void TagActivity(String activityName) {
+        mAnalytics.TagActivity(activityName);
+    }
+
+    public void TagCustom(String title, JSONObject data) {
+        mAnalytics.TagEvent(title,data);
     }
 
     /**

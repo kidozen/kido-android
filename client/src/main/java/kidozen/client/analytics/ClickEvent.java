@@ -8,6 +8,8 @@ import org.json.JSONObject;
 public class ClickEvent extends Event   {
     public ClickEvent(String data, String uuid) {
         super();
+        setData(data);
+        setUUID(uuid);
     }
 
     @Override

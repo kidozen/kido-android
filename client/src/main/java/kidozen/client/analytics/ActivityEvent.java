@@ -8,6 +8,8 @@ import org.json.JSONObject;
 public class ActivityEvent extends Event   {
     public ActivityEvent(String data, String uuid) {
         super();
+        setUUID(uuid);
+        setData(data);
     }
 
     @Override
