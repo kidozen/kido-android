@@ -1,6 +1,7 @@
 package kidozen.samples.social;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,7 +16,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     private KidoZenHelper helper = new KidoZenHelper();
     MainActivity mSelf = this;
     TextView textView;
-    Button signIn , signOut;
+    Button signIn , signOut, newActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,14 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
 
         textView = (TextView) findViewById(R.id.textView);
 
+        newActivity = (Button) findViewById(R.id.buttonNewActivity);
+        newActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mSelf, MyNewActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
     }

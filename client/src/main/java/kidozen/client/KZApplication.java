@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
+import kidozen.client.analytics.Analytics;
 import kidozen.client.authentication.BaseIdentityProvider;
 import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KZPassiveAuthTypes;
@@ -73,6 +74,11 @@ public class KZApplication {
             Log.d("Crash", String.format("Sending crash to application: %s", mReportingUrl));
             mCrashReporter = new CrashReporter(application, mReportingUrl, mApplicationKey);
         }
+    }
+
+
+    public void EnableAnalytics(Context context) throws IllegalStateException {
+        Analytics.getInstance(true,context);
     }
 
     /**
