@@ -13,10 +13,6 @@ import kidozen.client.KZApplication;
 public class KidoZenHelper {
     private KZApplication kido = null;
 
-    String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
-    String application = "tasks";
-    String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
-
     private Boolean isInitialized    = false;
 
     private IAuthenticationEvents authEvents;
