@@ -35,20 +35,16 @@ public class Session {
         c.add(Calendar.MINUTE, mSessionTimeout);
         mStartDateWithTimeout = c.getTime();
     }
+
     public boolean ShouldUploadSessionUsingBackgroundDate() {
         Date now = Calendar.getInstance().getTime();
-        return
-                mStartDateWithTimeout !=null
+        return mStartDateWithTimeout !=null
                 && mSessionTimeout > 0
                 && mStartDateWithTimeout.compareTo(now) < 0;
     }
 
     public String getUUID() {
         return mUUID;
-    }
-
-    public void setUUID(String mUUID) {
-        this.mUUID = mUUID;
     }
 
     public void RemoveSavedEvents() {
@@ -80,15 +76,13 @@ public class Session {
 
     public void LogEvent(Event event) {
         mEvents.add(event);
+        try {
+            Save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Collection getEvents() {
-        return mEvents;
-    }
-
-    public void setEvents(ArrayList<Event> mEvents) {
-        this.mEvents = mEvents;
-    }
 
     public String LoadEventsFromDisk() throws IOException {
         FileInputStream fis = null;
