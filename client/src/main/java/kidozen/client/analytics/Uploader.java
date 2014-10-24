@@ -46,6 +46,8 @@ public class Uploader {
 
     private void uploadCurrentEvents() {
         String message = mSession.GetEventsSerializedAsJson();
+        if ( message==null || message.isEmpty()) return;
+
         Log.d(TAG,"Uploading events after 5 minutes: " + message);
         this.mUploaderHandler.removeCallbacksAndMessages(0);
         mLogger.Write(message,new ServiceEventListener() {
@@ -77,15 +79,13 @@ public class Uploader {
     }
 
     private void uploadSessionAndEvents(String message) {
-        Log.d(TAG,"Uploading events and session information: " + message);
+        //Log.d(TAG,"Uploading events and session information: " + message);
         this.mUploaderHandler.removeCallbacksAndMessages(0);
         mLogger.Write(message,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 if (e.StatusCode== HttpStatus.SC_CREATED) {
-                    mSession.RemoveSavedEvents();
-                    mSession.RemoveCurrentEvents();
-                    mSession.RemoveCurrentSession();
+                    mSession.Reset();
                 }
                 StartUploaderTransitionTimer();
             }
@@ -136,7 +136,7 @@ public class Uploader {
                 if (mWasInBackground) {
                     try {
                         String message = mergeSessionAndEvents();
-                        Log.d(TAG,"Back from background: " + message);
+                        //Log.d(TAG,"Back from background: " + message);
                         uploadSessionAndEvents(message);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -178,7 +178,8 @@ public class Uploader {
     private String mergeSessionAndEvents() throws IOException {
         String events = mSession.LoadEventsFromDisk();
         String sessionDetails = mSession.LoadSessionInformationFromDisk();
-
+        //Log.d("MERGE","READING EVENTS: " + events);
+        //Log.d("MERGE","READING sessionDetails: " + sessionDetails);
         //Deserialize the session details to update end date
         Gson gson = new Gson();
         SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);

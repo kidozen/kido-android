@@ -13,9 +13,9 @@ import kidozen.client.KZApplication;
 public class KidoZenHelper {
     private KZApplication kido = null;
 
-    String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
-    String application = "tasks";
-    String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
+    String tenantMarketPlace = "https://contoso.kidocloud.com";
+    String application = "myApplication";
+    String appkey = "get this value from your marketplace";
 
     private Boolean isInitialized    = false;
 
@@ -39,16 +39,13 @@ public class KidoZenHelper {
         kido.SignOut();
     }
 
-    public void SignIn(final Context context) throws InitializationException{
+    public void SignIn(Context context) throws InitializationException{
         kido.Authenticate(context, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {
                     if (authEvents!=null && isInitialized) {
                         authEvents.ReturnUserName(kido.GetKidoZenUser().Claims.get("name"));
-                        kido.EnableAnalytics(context.getApplicationContext());
-                        kido.TagActivity("Activity tagged");
-                        kido.TagClick("Click tagged");
                     }
                 }
             }

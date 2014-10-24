@@ -49,6 +49,7 @@ public class Analytics {
     public void Reset() {
         mSession.RemoveSavedEvents();
         mSession.RemoveCurrentEvents();
+        mSession.RemoveCurrentSession();
         mSession.StartNew();
     }
 

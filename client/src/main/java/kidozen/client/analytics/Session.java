@@ -71,7 +71,7 @@ public class Session {
 
         // persists current session information for later usage
         mCurrentSessionInfoFilename = String.format("%s.session", mUUID);
-        mSessionDetails = new SessionDetails(mUUID);
+        mSessionDetails = new SessionDetails(mUUID,mContext);
         try {
             FileOutputStream fos = mContext.openFileOutput(mCurrentSessionInfoFilename, Context.MODE_PRIVATE);
             Gson gson = new Gson();
@@ -91,8 +91,13 @@ public class Session {
     }
 
     public String GetEventsSerializedAsJson() {
-        Gson gson = new Gson();
-        return gson.toJson(mEvents);
+        if (mEvents.size()<=0) {
+            return "";
+        }
+        else {
+            Gson gson = new Gson();
+            return gson.toJson(mEvents);
+        }
     }
 
     public void LogEvent(Event event) {
@@ -131,6 +136,14 @@ public class Session {
     public void RemoveCurrentSession() {
         mContext.deleteFile(mCurrentSessionInfoFilename);
     }
+
+    public void Reset() {
+        this.RemoveSavedEvents();
+        this.RemoveCurrentEvents();
+        this.RemoveCurrentSession();
+        this.StartNew();
+    }
+
 }
 
 

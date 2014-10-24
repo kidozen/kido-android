@@ -1,5 +1,7 @@
 package kidozen.client.analytics;
 
+import android.content.Context;
+
 import java.util.Date;
 
 /**
@@ -13,10 +15,15 @@ public class SessionDetails {
     public String Platform;
     public DeviceInfo DeviceInformation ;
 
-    public SessionDetails(String uuid) {
+    public String eventName;
+    public String eventValue;
+
+    public SessionDetails(String uuid, Context context) {
         sessionUUID = uuid;
         StartDate = new Date().getTime();
         Platform = "Android";
-        DeviceInformation = new DeviceInfo();
+        eventName = "New Session";
+        eventValue = "Session ID: " + sessionUUID;
+        DeviceInformation = new DeviceInfo(context);
     }
 }
