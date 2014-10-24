@@ -6,9 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,12 +32,6 @@ public class Uploader {
     private Runnable mUploaderTimerTask;
     private AnalyticsLog mLogger;
 
-    private ServiceEventListener uploadCallback = new ServiceEventListener() {
-        @Override
-        public void onFinish(ServiceEvent e) {
-
-        }
-    };
 
     public void StartUploaderTransitionTimer() {
         final int timerTimeout = mSession.getSessionTimeout() * 60000;
@@ -49,20 +46,20 @@ public class Uploader {
 
     private void uploadCurrentEvents() {
         String message = mSession.GetEventsSerializedAsJson();
-        Log.d(TAG,"Timer: " + message);
+        Log.d(TAG,"Uploading events after 5 minutes: " + message);
         this.mUploaderHandler.removeCallbacksAndMessages(0);
         mLogger.Write(message,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
-                if (e.StatusCode== HttpStatus.SC_OK) {
+                if (e.StatusCode== HttpStatus.SC_CREATED) {
                     mSession.RemoveSavedEvents();
                     mSession.RemoveCurrentEvents();
                 }
                 StartUploaderTransitionTimer();
             }
         });
-
     }
+
     public Uploader(Context context, Session session, AnalyticsLog log) {
         mContext = context;
         mSession = session;
@@ -77,6 +74,22 @@ public class Uploader {
 
         }
         return mSingleton;
+    }
+
+    private void uploadSessionAndEvents(String message) {
+        Log.d(TAG,"Uploading events and session information: " + message);
+        this.mUploaderHandler.removeCallbacksAndMessages(0);
+        mLogger.Write(message,new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                if (e.StatusCode== HttpStatus.SC_CREATED) {
+                    mSession.RemoveSavedEvents();
+                    mSession.RemoveCurrentEvents();
+                    mSession.RemoveCurrentSession();
+                }
+                StartUploaderTransitionTimer();
+            }
+        });
     }
 
     /*
@@ -121,12 +134,10 @@ public class Uploader {
             public void onActivityResumed(Activity activity) {
                 Log.d(TAG, activity.getLocalClassName() + "; onActivityResumed");
                 if (mWasInBackground) {
-                    Log.d(TAG,"WAS in background");
                     try {
-                        String content = mSession.LoadEventsFromDisk();
-                        Log.d(TAG,content);
-                        mSession.RemoveSavedEvents();
-                        mSession.RemoveCurrentEvents();
+                        String message = mergeSessionAndEvents();
+                        Log.d(TAG,"Back from background: " + message);
+                        uploadSessionAndEvents(message);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -162,6 +173,23 @@ public class Uploader {
             public void onActivityStarted(Activity activity) {
             }
         });
+    }
+    //TODO: Fix this Quick and dirty merge.
+    private String mergeSessionAndEvents() throws IOException {
+        String events = mSession.LoadEventsFromDisk();
+        String sessionDetails = mSession.LoadSessionInformationFromDisk();
+
+        //Deserialize the session details to update end date
+        Gson gson = new Gson();
+        SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);
+        details.EndDate = new Date().getTime();
+        details.length = details.EndDate - details.StartDate;
+        //serialize again to upload to server
+        sessionDetails =  gson.toJson(details);
+
+        int endJsonArray = events.lastIndexOf("]");
+        String message = events.substring(0,endJsonArray);
+        return  message + "," + sessionDetails + "]";
     }
 
     /*

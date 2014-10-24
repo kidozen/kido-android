@@ -20,10 +20,13 @@ import java.util.UUID;
 public class Session {
     private String mUUID;
     private Collection mEvents;
-    private String mFileName;
+    private String mEventsFileName;
     private Context mContext;
     private Date mStartDateWithTimeout = null;
     private int mSessionTimeout = 1;
+
+    private SessionDetails mSessionDetails;
+    private String mCurrentSessionInfoFilename;
 
     public int getSessionTimeout() {
         return mSessionTimeout;
@@ -33,20 +36,14 @@ public class Session {
         mSessionTimeout = timeout;
     }
 
-    public Session(Context context){
+    public Session(Context context) {
         mContext = context;
-        mUUID = UUID.randomUUID().toString();
-        mFileName = String.format("%s.events", mUUID);
-        mEvents = new ArrayList<Event>();
-
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.MINUTE, mSessionTimeout);
-        mStartDateWithTimeout = c.getTime();
+        this.StartNew();
     }
 
-    public boolean ShouldUploadSessionUsingBackgroundDate() {
+    public boolean ShouldUploadSessionAfterTimeout() {
         Date now = Calendar.getInstance().getTime();
-        return mStartDateWithTimeout !=null
+        return mStartDateWithTimeout != null
                 && mSessionTimeout > 0
                 && mStartDateWithTimeout.compareTo(now) < 0;
     }
@@ -56,7 +53,7 @@ public class Session {
     }
 
     public void RemoveSavedEvents() {
-        mContext.deleteFile(mFileName);
+        mContext.deleteFile(mEventsFileName);
     }
 
     public void RemoveCurrentEvents() {
@@ -65,21 +62,32 @@ public class Session {
 
     public void StartNew() {
         mUUID = UUID.randomUUID().toString();
-        mFileName = String.format("%s.events",mUUID);
+        mEventsFileName = String.format("%s.events", mUUID);
         mEvents = new ArrayList<Event>();
 
         Calendar c = Calendar.getInstance();
         c.add(Calendar.MINUTE, mSessionTimeout);
         mStartDateWithTimeout = c.getTime();
+
+        // persists current session information for later usage
+        mCurrentSessionInfoFilename = String.format("%s.session", mUUID);
+        mSessionDetails = new SessionDetails(mUUID);
+        try {
+            FileOutputStream fos = mContext.openFileOutput(mCurrentSessionInfoFilename, Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            fos.write(gson.toJson(mSessionDetails).getBytes("UTF-8"));
+
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void Save() throws IOException {
-        if (ShouldUploadSessionUsingBackgroundDate()) {
-            FileOutputStream fos = mContext.openFileOutput(mFileName, Context.MODE_PRIVATE);
-            Gson gson = new Gson();
-            fos.write(gson.toJson(mEvents).getBytes("UTF-8"));
-            fos.close();
-        }
+        FileOutputStream fos = mContext.openFileOutput(mEventsFileName, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        fos.write(gson.toJson(mEvents).getBytes("UTF-8"));
+        fos.close();
     }
 
     public String GetEventsSerializedAsJson() {
@@ -96,23 +104,33 @@ public class Session {
         }
     }
 
-
     public String LoadEventsFromDisk() throws IOException {
+        return readFile(mEventsFileName);
+    }
+
+    public String LoadSessionInformationFromDisk() throws IOException {
+        return readFile(mCurrentSessionInfoFilename);
+    }
+
+    private String readFile(String filename) throws IOException {
         FileInputStream fis = null;
         StringBuilder sb = new StringBuilder();
         try {
-            fis = mContext.openFileInput(mFileName);
+            fis = mContext.openFileInput(filename);
             int content;
             while ((content = fis.read()) != -1) {
-                sb.append((char)content);
+                sb.append((char) content);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        finally {
-            return  sb.toString();
+        } finally {
+            return sb.toString();
         }
     }
 
-
+    public void RemoveCurrentSession() {
+        mContext.deleteFile(mCurrentSessionInfoFilename);
+    }
 }
+
+
