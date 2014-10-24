@@ -52,6 +52,7 @@ public class KZApplication {
 
     private KidoZenUser mUserIdentity;
     private KidoZenUser mApplicationIdentity;
+    private AnalyticsLog mAnalyticsLog;
     private Logging mApplicationLog;
     private MailSender mMailSender;
     private static CrashReporter mCrashReporter;
@@ -79,7 +80,23 @@ public class KZApplication {
 
 
     public void EnableAnalytics(Context context) throws IllegalStateException {
-        mAnalytics = Analytics.getInstance(true,context);
+        if (mAnalyticsLog == null) {
+            try {
+                mAnalyticsLog = new AnalyticsLog(
+                        mApplicationConfiguration.GetSettingAsString("url"),
+                        mProvider,
+                        mUsername,
+                        mPassword,
+                        mPassiveClientId,
+                        mUserIdentity,
+                        mApplicationIdentity);
+            } catch (JSONException e) {
+                throw new IllegalStateException("Could not initialize Analytics. Please check the application configuration");
+            }
+            mAnalyticsLog.mUserIdentity = this.mUserIdentity;
+            mAnalyticsLog.setStrictSSL(!StrictSSL);
+        }
+        mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog);
     }
 
     public void TagClick(String buttonName) {

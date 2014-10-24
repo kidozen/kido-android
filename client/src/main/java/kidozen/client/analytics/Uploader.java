@@ -6,9 +6,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import org.apache.http.HttpStatus;
+
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import kidozen.client.AnalyticsLog;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
 
 /**
  * Created by christian on 10/22/14.
@@ -21,6 +27,14 @@ public class Uploader {
     private Session mSession = null;
     private Handler mUploaderHandler = new Handler();
     private Runnable mUploaderTimerTask;
+    private AnalyticsLog mLogger;
+
+    private ServiceEventListener uploadCallback = new ServiceEventListener() {
+        @Override
+        public void onFinish(ServiceEvent e) {
+
+        }
+    };
 
     public void StartUploaderTransitionTimer() {
         final int timerTimeout = mSession.getSessionTimeout() * 60000;
@@ -36,20 +50,31 @@ public class Uploader {
     private void uploadCurrentEvents() {
         String message = mSession.GetEventsSerializedAsJson();
         Log.d(TAG,"Timer: " + message);
-        mSession.RemoveSavedEvents();
-        mSession.RemoveCurrentEvents();
-    }
+        this.mUploaderHandler.removeCallbacksAndMessages(0);
+        mLogger.Write(message,new ServiceEventListener() {
+            @Override
+            public void onFinish(ServiceEvent e) {
+                if (e.StatusCode== HttpStatus.SC_OK) {
+                    mSession.RemoveSavedEvents();
+                    mSession.RemoveCurrentEvents();
+                }
+                StartUploaderTransitionTimer();
+            }
+        });
 
-    public Uploader(Context context, Session session) {
+    }
+    public Uploader(Context context, Session session, AnalyticsLog log) {
         mContext = context;
         mSession = session;
+        mLogger = log;
         registerApplicationCallbacks();
         StartUploaderTransitionTimer();
     }
 
-    public static Uploader getInstance(Context context, Session session) {
+    public static Uploader getInstance(Context context, Session session, AnalyticsLog log) {
         if (mSingleton == null) {
-            mSingleton = new Uploader(context,session);
+            mSingleton = new Uploader(context,session, log);
+
         }
         return mSingleton;
     }

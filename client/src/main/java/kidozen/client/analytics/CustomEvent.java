@@ -8,6 +8,9 @@ import org.json.JSONObject;
 public class CustomEvent extends Event   {
     public CustomEvent(String title, JSONObject data, String uuid) {
         super();
+        setUUID(uuid);
+        setData(data.toString());
+        setEventName("CustomEvent");
     }
 
     @Override

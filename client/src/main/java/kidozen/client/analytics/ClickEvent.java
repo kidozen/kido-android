@@ -10,6 +10,7 @@ public class ClickEvent extends Event   {
         super();
         setData(data);
         setUUID(uuid);
+        setEventName("Click");
     }
 
     @Override
