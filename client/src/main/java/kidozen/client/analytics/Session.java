@@ -23,7 +23,7 @@ public class Session {
     private String mEventsFileName;
     private Context mContext;
     private Date mStartDateWithTimeout = null;
-    private int mSessionTimeout = 1;
+    private int mSessionTimeout = 5;
 
     private SessionDetails mSessionDetails;
     private String mCurrentSessionInfoFilename;
