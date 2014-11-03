@@ -40,17 +40,11 @@ public class Analytics {
             mSession = new Session(context);
             mLogger = logger;
             mUploader = Uploader.getInstance(mContext, mSession, mLogger);
+            mUploader.StartUploaderTransitionTimer();
         }
         else {
             mSession = null;
         }
-    }
-
-    public void Reset() {
-        mSession.RemoveSavedEvents();
-        mSession.RemoveCurrentEvents();
-        mSession.RemoveCurrentSession();
-        mSession.StartNew();
     }
 
     public void TagClick(String data) {
@@ -66,4 +60,8 @@ public class Analytics {
         mSession.LogEvent(event);
     }
 
+    public void SetSessionTimeOutInSeconds(int timeout) {
+        mSession.setSessionTimeoutInSeconds(timeout);
+        mUploader.StartUploaderTransitionTimer();
+    }
 }

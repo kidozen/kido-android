@@ -24,28 +24,21 @@ public class Session {
     private String mEventsFileName;
     private Context mContext;
     private Date mStartDateWithTimeout = null;
-    private int mSessionTimeout = 5;
+    private int mSessionTimeoutInSeconds = 5 * 60 * 1000; //5 minutes
     private SessionDetails mSessionDetails;
     private String mCurrentSessionInfoFilename;
 
-    public int getSessionTimeout() {
-        return mSessionTimeout;
+    public int getSessionTimeoutInSeconds() {
+        return mSessionTimeoutInSeconds;
     }
 
-    public void setSessionTimeout(int timeout) {
-        mSessionTimeout = timeout;
+    public void setSessionTimeoutInSeconds(int timeout) {
+        mSessionTimeoutInSeconds = timeout * 1000;
     }
 
     public Session(Context context) {
         mContext = context;
         this.StartNew();
-    }
-
-    public boolean ShouldUploadSessionAfterTimeout() {
-        Date now = Calendar.getInstance().getTime();
-        return mStartDateWithTimeout != null
-                && mSessionTimeout > 0
-                && mStartDateWithTimeout.compareTo(now) < 0;
     }
 
     public String getUUID() {
@@ -66,7 +59,7 @@ public class Session {
         mEvents = new ArrayList<Event>();
 
         Calendar c = Calendar.getInstance();
-        c.add(Calendar.MINUTE, mSessionTimeout);
+        c.add(Calendar.MINUTE, mSessionTimeoutInSeconds);
         mStartDateWithTimeout = c.getTime();
 
         // persists current session information for later usage

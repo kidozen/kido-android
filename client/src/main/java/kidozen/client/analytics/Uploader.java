@@ -23,7 +23,7 @@ import kidozen.client.ServiceEventListener;
  * Created by christian on 10/22/14.
  */
 public class Uploader {
-    private static final String NO_SESSION_EVENTS = "0";
+    private static final String NO_SESSION_EVENTS = "NO_SESSION_EVENTS";
     static Uploader mSingleton = null;
 
     private Context mContext = null;
@@ -35,7 +35,9 @@ public class Uploader {
 
 
     public void StartUploaderTransitionTimer() {
-        final int timerTimeout = mSession.getSessionTimeout() * 60000;
+        if (mUploaderHandler!=null) mUploaderHandler.removeCallbacksAndMessages(0);
+
+        final int timerTimeout = mSession.getSessionTimeoutInSeconds();
         this.mUploaderTimerTask = new Runnable() {
             public void run() {
                 uploadCurrentEvents();
@@ -46,21 +48,43 @@ public class Uploader {
     }
 
     private void uploadCurrentEvents() {
-        String message = mSession.GetEventsSerializedAsJson();
-        if ( message==null || message.isEmpty()) return;
+        String events = mSession.GetEventsSerializedAsJson();
+        if ( events==null || events.isEmpty()) return;
+        String sessionInformation = events;
 
-        Log.d(TAG,"Uploading events after 5 minutes: " + message);
-        this.mUploaderHandler.removeCallbacksAndMessages(0);
-        mLogger.Write(message,new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                if (e.StatusCode== HttpStatus.SC_CREATED) {
-                    mSession.RemoveSavedEvents();
-                    mSession.RemoveCurrentEvents();
+        if (!mWasInBackground) {
+            try {
+                String sessionDetails = mSession.LoadSessionInformationFromDisk();
+                Gson gson = new Gson();
+                SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);
+                details.EndDate = new Date().getTime();
+                details.length = details.EndDate - details.StartDate;
+                details.eventAttr.sessionLength = String.valueOf(details.length);
+                //serialize again to upload to server
+                sessionDetails =  gson.toJson(details);
+
+                int endJsonArray = events.lastIndexOf("]");
+                if (endJsonArray>0) {
+                    String message = events.substring(0,endJsonArray);
+                    sessionInformation = message + "," + sessionDetails + "]";
                 }
-                StartUploaderTransitionTimer();
+                Log.d(TAG,"Uploading events after session timeout : " + sessionInformation);
+                this.mUploaderHandler.removeCallbacksAndMessages(0);
+                mLogger.Write(sessionInformation,new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        if (e.StatusCode== HttpStatus.SC_CREATED) {
+                            mSession.Reset();
+                        }
+                        StartUploaderTransitionTimer();
+                    }
+                });
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
+        }
+
     }
 
     public Uploader(Context context, Session session, AnalyticsLog log) {
@@ -68,7 +92,6 @@ public class Uploader {
         mSession = session;
         mLogger = log;
         registerApplicationCallbacks();
-        StartUploaderTransitionTimer();
     }
 
     public static Uploader getInstance(Context context, Session session, AnalyticsLog log) {
@@ -137,8 +160,7 @@ public class Uploader {
                 if (mWasInBackground) {
                     try {
                         String message = mergeSessionAndEvents();
-                        if (!message.equalsIgnoreCase(NO_SESSION_EVENTS)){
-                            //Log.d(TAG,"Back from background: " + message);
+                        if (!message.equalsIgnoreCase(NO_SESSION_EVENTS)) {
                             uploadSessionAndEvents(message);
                         }
                     } catch (IOException e) {
@@ -166,8 +188,11 @@ public class Uploader {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
+                if (activity.isFinishing()) {
 
+                }
             }
+
             @Override
             public void onActivityCreated(Activity activity, Bundle bundle) {
             }
@@ -181,15 +206,15 @@ public class Uploader {
     private String mergeSessionAndEvents() throws IOException {
         String events = mSession.LoadEventsFromDisk();
         String sessionDetails = mSession.LoadSessionInformationFromDisk();
-Log.d("MERGE","READING EVENTS: " + events);
-Log.d("MERGE","READING sessionDetails: " + sessionDetails);
+        //Log.d("MERGE","READING EVENTS: " + events);
+        //Log.d("MERGE","READING sessionDetails: " + sessionDetails);
         //Deserialize the session details to update end date
         Gson gson = new Gson();
         SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);
         details.EndDate = new Date().getTime();
         details.length = details.EndDate - details.StartDate;
         details.eventAttr.sessionLength = String.valueOf(details.length);
-        details.eventAttr.uniqueId = details.sessionUUID;
+        //details.eventAttr.uniqueId = details.sessionUUID;
         //serialize again to upload to server
         sessionDetails =  gson.toJson(details);
         String sessionInformation;

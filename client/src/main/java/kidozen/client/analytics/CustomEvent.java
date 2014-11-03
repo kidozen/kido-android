@@ -13,8 +13,4 @@ public class CustomEvent extends Event   {
         setEventName("CustomEvent");
     }
 
-    @Override
-    public JSONObject Serialize() {
-        return null;
-    }
 }

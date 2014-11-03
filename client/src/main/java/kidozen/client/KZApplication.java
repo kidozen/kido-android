@@ -111,6 +111,9 @@ public class KZApplication {
         mAnalytics.TagEvent(title,data);
     }
 
+    public void SetAnalyticsSessionTimeOutInSeconds(int timeout) {
+        mAnalytics.SetSessionTimeOutInSeconds(timeout);
+    }
     /**
      * Add breadcrumbs. A breadcrumb is a developer-defined text string that allows developers to capture app run-time information
      *

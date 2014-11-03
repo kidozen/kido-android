@@ -40,5 +40,4 @@ public abstract class Event {
         this.sessionUUID = mUUID;
     }
 
-    public abstract JSONObject Serialize();
 }

@@ -18,7 +18,7 @@ public class DeviceInfo {
     public String systemVersion = "Unknown";
     public String deviceModel = "Unknown";
     public String sessionLength = "-1";
-    public String uniqueId = "0";
+    //public String uniqueId = "0";
     public String isoCountryCode = "Unknown";
     public String mobileCountryCode = "Unknown";
 
