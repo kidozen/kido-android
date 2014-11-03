@@ -1,6 +1,7 @@
-include ':client', ':client.push', ':crash', ':push', ':social', ':gplus'
+include ':client', ':client.push', ':crash', ':push', ':social', ':gplus', ':analytics'
 project(':client.push').projectDir = new File('client.push')
 project(':crash').projectDir = new File('samples/crash')
 project(':push').projectDir = new File('samples/push')
 project(':social').projectDir = new File('samples/social')
 project(':gplus').projectDir = new File('samples/gplus')
+project(':analytics').projectDir = new File('samples/analytics')

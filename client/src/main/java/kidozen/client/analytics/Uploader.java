@@ -23,6 +23,7 @@ import kidozen.client.ServiceEventListener;
  * Created by christian on 10/22/14.
  */
 public class Uploader {
+    private static final String NO_SESSION_EVENTS = "0";
     static Uploader mSingleton = null;
 
     private Context mContext = null;
@@ -136,8 +137,10 @@ public class Uploader {
                 if (mWasInBackground) {
                     try {
                         String message = mergeSessionAndEvents();
-                        //Log.d(TAG,"Back from background: " + message);
-                        uploadSessionAndEvents(message);
+                        if (!message.equalsIgnoreCase(NO_SESSION_EVENTS)){
+                            //Log.d(TAG,"Back from background: " + message);
+                            uploadSessionAndEvents(message);
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -178,8 +181,8 @@ public class Uploader {
     private String mergeSessionAndEvents() throws IOException {
         String events = mSession.LoadEventsFromDisk();
         String sessionDetails = mSession.LoadSessionInformationFromDisk();
-        //Log.d("MERGE","READING EVENTS: " + events);
-        //Log.d("MERGE","READING sessionDetails: " + sessionDetails);
+Log.d("MERGE","READING EVENTS: " + events);
+Log.d("MERGE","READING sessionDetails: " + sessionDetails);
         //Deserialize the session details to update end date
         Gson gson = new Gson();
         SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);
@@ -187,10 +190,17 @@ public class Uploader {
         details.length = details.EndDate - details.StartDate;
         //serialize again to upload to server
         sessionDetails =  gson.toJson(details);
+        String sessionInformation;
 
         int endJsonArray = events.lastIndexOf("]");
-        String message = events.substring(0,endJsonArray);
-        return  message + "," + sessionDetails + "]";
+        if (endJsonArray>0) {
+            String message = events.substring(0,endJsonArray);
+            sessionInformation = message + "," + sessionDetails + "]";
+            return sessionInformation;
+        }
+        else {
+            return NO_SESSION_EVENTS;
+        }
     }
 
     /*
