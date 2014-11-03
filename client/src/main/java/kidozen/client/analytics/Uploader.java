@@ -188,6 +188,8 @@ Log.d("MERGE","READING sessionDetails: " + sessionDetails);
         SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);
         details.EndDate = new Date().getTime();
         details.length = details.EndDate - details.StartDate;
+        details.eventAttr.sessionLength = String.valueOf(details.length);
+        details.eventAttr.uniqueId = details.sessionUUID;
         //serialize again to upload to server
         sessionDetails =  gson.toJson(details);
         String sessionInformation;

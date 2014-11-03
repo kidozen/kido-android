@@ -10,7 +10,7 @@ public class ActivityEvent extends Event   {
         super();
         setUUID(uuid);
         setData(data);
-        setEventName("Activity");
+        setEventName("View");
     }
 
     @Override

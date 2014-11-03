@@ -20,11 +20,11 @@ import java.util.UUID;
 public class Session {
     private String mUUID;
     private Collection mEvents;
+
     private String mEventsFileName;
     private Context mContext;
     private Date mStartDateWithTimeout = null;
     private int mSessionTimeout = 5;
-
     private SessionDetails mSessionDetails;
     private String mCurrentSessionInfoFilename;
 

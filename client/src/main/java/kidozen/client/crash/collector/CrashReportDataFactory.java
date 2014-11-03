@@ -312,7 +312,7 @@ public final class CrashReportDataFactory {
 
             final PackageInfo pi = pm.getPackageInfo();
             if (pi != null) {
-                // Application Version
+                // Application systemVersion
                 if (crashReportFields.contains(APP_VERSION_CODE)) {
                     crashReportData.put(APP_VERSION_CODE, Integer.toString(pi.versionCode));
                 }

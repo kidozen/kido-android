@@ -12,8 +12,7 @@ public class SessionDetails {
     public long EndDate;
     public long length;
     public String sessionUUID;
-    public String Platform;
-    public DeviceInfo DeviceInformation ;
+    public DeviceInfo eventAttr;
 
     public String eventName;
     public String eventValue;
@@ -21,9 +20,20 @@ public class SessionDetails {
     public SessionDetails(String uuid, Context context) {
         sessionUUID = uuid;
         StartDate = new Date().getTime();
-        Platform = "Android";
-        eventName = "New Session";
+        eventName = "usersession";
         eventValue = "Session ID: " + sessionUUID;
-        DeviceInformation = new DeviceInfo(context);
+        eventAttr = new DeviceInfo(context);
     }
 }
+/*
+*
+*  event.eventAttr.carrierName
+ event.eventAttr.deviceModel
+ event.eventAttr.isoCountryCode
+ event.eventAttr.mobileCountryCode
+ event.eventAttr.networkAccess
+ event.eventAttr.platform
+ event.eventAttr.sessionLength
+ event.eventAttr.systemVersion
+
+* */
