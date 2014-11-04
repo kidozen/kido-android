@@ -1,11 +1,17 @@
 package kidozen.client.analytics;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -18,9 +24,12 @@ public class DeviceInfo {
     public String systemVersion = "Unknown";
     public String deviceModel = "Unknown";
     public String sessionLength = "-1";
-    //public String uniqueId = "0";
     public String isoCountryCode = "Unknown";
-    public String mobileCountryCode = "Unknown";
+    public String countryName= "Unknown";
+    public String locality= "Unknown";
+    public String adminArea= "Unknown";
+    public String subAdminArea= "Unknown";
+    public String locale= "Unknown";
 
     public DeviceInfo(Context context) {
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -39,16 +48,62 @@ public class DeviceInfo {
                 networkAccess = "BLUETOOTH";
                 break;
         }
-
+        getLocationInformation(context);
         deviceModel = getDeviceName();
         systemVersion = Build.VERSION.RELEASE + "." + Build.VERSION.INCREMENTAL;
-        isoCountryCode = getIsoCountryCode(context);
-        mobileCountryCode = Locale.getDefault().getCountry();
     }
 
-    private String getIsoCountryCode(Context context) {
-        TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        return tm.getSimCountryIso();
+
+    private void getLocationInformation(Context context) {
+        Location loc = getLastBestLocation(context, 30);
+        Geocoder gcd = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = gcd.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+            if (addresses.size() > 0)
+            {
+                Address address = addresses.get(0);
+
+                isoCountryCode = address.getCountryCode();
+                countryName = address.getCountryName();
+                locality = address.getLocality();
+                adminArea = address.getAdminArea();
+                subAdminArea = address.getSubAdminArea();
+                locale = address.getLocale().toString();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Location getLastBestLocation(Context context, long minTime) {
+        LocationManager locationManager;
+
+        Location bestResult = null;
+        float bestAccuracy = Float.MAX_VALUE;
+        long bestTime = Long.MIN_VALUE;
+
+        locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+
+        List<String> matchingProviders = locationManager.getAllProviders();
+        for (String provider: matchingProviders) {
+            Location location = locationManager.getLastKnownLocation(provider);
+            if (location != null) {
+                float accuracy = location.getAccuracy();
+                long time = location.getTime();
+
+                if ((time > minTime && accuracy < bestAccuracy)) {
+                    bestResult = location;
+                    bestAccuracy = accuracy;
+                    bestTime = time;
+                }
+                else if (time < minTime && bestAccuracy == Float.MAX_VALUE && time > bestTime) {
+                    bestResult = location;
+                    bestTime = time;
+                }
+            }
+        }
+
+        return bestResult;
     }
 
     private String getDeviceName() {
