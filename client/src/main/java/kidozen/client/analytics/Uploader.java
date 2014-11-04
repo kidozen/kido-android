@@ -49,9 +49,7 @@ public class Uploader {
 
     private void uploadCurrentEvents() {
         String events = mSession.GetEventsSerializedAsJson();
-        if ( events==null || events.isEmpty()) return;
         String sessionInformation = events;
-
         if (!mWasInBackground) {
             try {
                 String sessionDetails = mSession.LoadSessionInformationFromDisk();
@@ -63,11 +61,16 @@ public class Uploader {
                 //serialize again to upload to server
                 sessionDetails =  gson.toJson(details);
 
-                int endJsonArray = events.lastIndexOf("]");
-                if (endJsonArray>0) {
-                    String message = events.substring(0,endJsonArray);
-                    sessionInformation = message + "," + sessionDetails + "]";
+                sessionInformation = "[" + sessionDetails + "]";
+                // If there was events, adds the session details to events array
+                if ( events!=null && !events.isEmpty()) {
+                    int endJsonArray = events.lastIndexOf("]");
+                    if (endJsonArray>0) {
+                        String message = events.substring(0,endJsonArray);
+                        sessionInformation = message + "," + sessionDetails + "]";
+                    }
                 }
+
                 Log.d(TAG,"Uploading events after session timeout : " + sessionInformation);
                 this.mUploaderHandler.removeCallbacksAndMessages(0);
                 mLogger.Write(sessionInformation,new ServiceEventListener() {
@@ -103,15 +106,15 @@ public class Uploader {
     }
 
     private void uploadSessionAndEvents(String message) {
-        //Log.d(TAG,"Uploading events and session information: " + message);
+        Log.d(TAG,"Uploading session and events ( if any ) after wasInBackground: " + message);
         this.mUploaderHandler.removeCallbacksAndMessages(0);
         mLogger.Write(message,new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 if (e.StatusCode== HttpStatus.SC_CREATED) {
                     mSession.Reset();
+                    StartUploaderTransitionTimer();
                 }
-                StartUploaderTransitionTimer();
             }
         });
     }
@@ -160,9 +163,7 @@ public class Uploader {
                 if (mWasInBackground) {
                     try {
                         String message = mergeSessionAndEvents();
-                        if (!message.equalsIgnoreCase(NO_SESSION_EVENTS)) {
-                            uploadSessionAndEvents(message);
-                        }
+                        uploadSessionAndEvents(message);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -204,30 +205,29 @@ public class Uploader {
     }
     //TODO: Fix this Quick and dirty merge.
     private String mergeSessionAndEvents() throws IOException {
-        String events = mSession.LoadEventsFromDisk();
+
         String sessionDetails = mSession.LoadSessionInformationFromDisk();
-        //Log.d("MERGE","READING EVENTS: " + events);
-        //Log.d("MERGE","READING sessionDetails: " + sessionDetails);
         //Deserialize the session details to update end date
         Gson gson = new Gson();
         SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);
         details.EndDate = new Date().getTime();
         details.length = details.EndDate - details.StartDate;
         details.eventAttr.sessionLength = String.valueOf(details.length);
-        //details.eventAttr.uniqueId = details.sessionUUID;
         //serialize again to upload to server
         sessionDetails =  gson.toJson(details);
-        String sessionInformation;
 
-        int endJsonArray = events.lastIndexOf("]");
-        if (endJsonArray>0) {
-            String message = events.substring(0,endJsonArray);
-            sessionInformation = message + "," + sessionDetails + "]";
-            return sessionInformation;
+        String sessionInformation = "[" + sessionDetails + "]";
+        // If there was events, adds the session details to events array
+        String events = mSession.LoadEventsFromDisk();
+        if ( events!=null && !events.isEmpty()) {
+            int endJsonArray = events.lastIndexOf("]");
+            if (endJsonArray>0) {
+                String message = events.substring(0,endJsonArray);
+                sessionInformation = message + "," + sessionDetails + "]";
+            }
         }
-        else {
-            return NO_SESSION_EVENTS;
-        }
+
+        return sessionInformation;
     }
 
     /*

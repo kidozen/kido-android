@@ -14,9 +14,9 @@ import kidozen.client.KZApplication;
  */
 public class KidoZenHelper {
     private KZApplication kido = null;
-    private String tenantMarketPlace = "https://contoso.kidocloud.com";
+    private String tenantMarketPlace = "https://testssl.kidocloud.com";
     private String application = "tasks";
-    private String appkey = "get this value from: marketplace -> application -> coding -> keys";
+    private String appkey = "upTbyOhvjn7/D2jia1D5LkzI66Di4HBoyf4AMFjkZN0=";//"get this value from: marketplace -> application -> coding -> keys";
 
     private Boolean isInitialized    = false;
     private kidozen.samples.analytics.IAuthenticationEvents authEvents;
@@ -66,7 +66,7 @@ public class KidoZenHelper {
                     if (authEvents!=null && isInitialized) {
                         authEvents.ReturnUserName(kido.GetKidoZenUser().Claims.get("name"));
                         kido.EnableAnalytics(mContext);
-                        kido.SetAnalyticsSessionTimeOutInSeconds(60);
+                        //kido.SetAnalyticsSessionTimeOutInSeconds(60);
                     }
                 }
             }
