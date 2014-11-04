@@ -1,4 +1,4 @@
-package kidozen.client.analytics;
+package kidozen.client.analytics.events;
 
 import org.json.JSONObject;
 

@@ -1,4 +1,4 @@
-package kidozen.client.analytics;
+package kidozen.client.analytics.events;
 
 /**
  * Created by christian on 10/22/14.

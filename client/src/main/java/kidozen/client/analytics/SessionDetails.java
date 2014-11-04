@@ -13,9 +13,10 @@ public class SessionDetails {
     public long length;
     public String sessionUUID;
     public DeviceInfo eventAttr;
-
     public String eventName;
     public String eventValue;
+
+    public boolean isPeding = false;
 
     public SessionDetails(String uuid, Context context) {
         sessionUUID = uuid;
@@ -25,15 +26,3 @@ public class SessionDetails {
         eventAttr = new DeviceInfo(context);
     }
 }
-/*
-*
-*  event.eventAttr.carrierName
- event.eventAttr.deviceModel
- event.eventAttr.isoCountryCode
- event.eventAttr.mobileCountryCode
- event.eventAttr.networkAccess
- event.eventAttr.platform
- event.eventAttr.sessionLength
- event.eventAttr.systemVersion
-
-* */

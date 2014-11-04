@@ -3,11 +3,13 @@ package kidozen.samples.analytics;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -19,6 +21,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     MainActivity mSelf = this;
     TextView textView;
     Button signIn , signOut, newActivity, tagClick, tagCustomEvent;
+    private boolean exit = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,24 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if (exit) {
+            helper.StopAnalytics();
+            MainActivity.this.finish();
+        }
+        else {
+            Toast.makeText(this, "Press Back again to Exit.",Toast.LENGTH_SHORT).show();
+            exit = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    exit = false;
+                }
+            }, 3 * 1000);
+
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

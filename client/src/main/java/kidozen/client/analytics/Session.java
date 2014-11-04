@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,6 +14,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
+
+import kidozen.client.analytics.events.Event;
 
 /**
  * Created by christian on 10/22/14.
@@ -38,7 +41,6 @@ public class Session {
 
     public Session(Context context) {
         mContext = context;
-        this.StartNew();
     }
 
     public String getUUID() {
@@ -76,6 +78,18 @@ public class Session {
         }
     }
 
+    public ArrayList<String> GetPendingSessions() throws IOException {
+        ArrayList<String> files = new ArrayList<String>();
+        File[] file = mContext.getFilesDir().listFiles();
+        for (int i=0;i< file.length;i++) {
+            if (file[i].getName().toLowerCase().endsWith(".session")) {
+                files.add(file[i].getName());
+            }
+        }
+        return files;
+    }
+
+
     public void Save() throws IOException {
         FileOutputStream fos = mContext.openFileOutput(mEventsFileName, Context.MODE_PRIVATE);
         Gson gson = new Gson();
@@ -110,7 +124,7 @@ public class Session {
         return readFile(mCurrentSessionInfoFilename);
     }
 
-    private String readFile(String filename) throws IOException {
+    public String readFile(String filename) throws IOException {
         FileInputStream fis = null;
         StringBuilder sb = new StringBuilder();
         try {
@@ -130,11 +144,9 @@ public class Session {
         mContext.deleteFile(mCurrentSessionInfoFilename);
     }
 
-    public void Reset() {
+    public void ResetEvents() {
         this.RemoveSavedEvents();
         this.RemoveCurrentEvents();
-        this.RemoveCurrentSession();
-        this.StartNew();
     }
 
 }

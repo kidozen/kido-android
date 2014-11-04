@@ -66,7 +66,7 @@ public class KidoZenHelper {
                     if (authEvents!=null && isInitialized) {
                         authEvents.ReturnUserName(kido.GetKidoZenUser().Claims.get("name"));
                         kido.EnableAnalytics(mContext);
-                        //kido.SetAnalyticsSessionTimeOutInSeconds(60);
+                        kido.SetAnalyticsSessionTimeOutInSeconds(60);
                     }
                 }
             }
@@ -102,5 +102,9 @@ public class KidoZenHelper {
             thisInstance = new KidoZenHelper(context);
         }
         return thisInstance;
+    }
+
+    public void StopAnalytics() {
+        kido.FinishAnalyticsSession();
     }
 }

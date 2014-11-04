@@ -896,6 +896,14 @@ public class KZApplication {
         return mApplicationName;
     }
 
+    public void FinishAnalyticsSession() {
+        mAnalytics.StopSession();
+    }
+
+    public void StartAnalyticsSession() {
+        mAnalytics.StartSession();
+    }
+
     private class InitializationWithKeyCallback implements ServiceEventListener {
         ServiceEventListener mServiceEventListenerCallback;
         public InitializationWithKeyCallback(ServiceEventListener cb) {
