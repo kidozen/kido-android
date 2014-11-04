@@ -63,7 +63,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
         tagClick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.TagClick("hello");
+                helper.TagClick("Tag Click Button Touched");
             }
         });
 
@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
         tagCustomEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.TagCustom("custom");
+                helper.TagCustom("Tag Custom Event Button Touched");
             }
         });
 
