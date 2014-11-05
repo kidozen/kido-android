@@ -10,9 +10,15 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -23,6 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceResponseHandler;
@@ -30,7 +38,85 @@ import kidozen.client.ServiceResponseHandler;
 public class Utilities {
 
     private static final String TAG = "Utilities";
+    public static String getStringFromFile (String filePath) {
+        try {
+            File fl = new File(filePath);
+            FileInputStream fin = new FileInputStream(fl);
+            String ret = Utilities.convertStreamToString(fin);
 
+            fin.close();
+            return ret;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void writeStringToFile(String string, String filepath) {
+
+        try {
+            PrintWriter out = new PrintWriter(filepath);
+            out.println(string);
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean unpackZip(String path, String zipname)
+    {
+        // Create destination directory if it does not exist.
+        File f = new File(path);
+        if (!f.exists()) {
+            f.mkdir();
+        }
+
+        InputStream is;
+        ZipInputStream zis;
+        try
+        {
+            String filename;
+            is = new FileInputStream(zipname);
+            zis = new ZipInputStream(new BufferedInputStream(is));
+            ZipEntry ze;
+            byte[] buffer = new byte[1024];
+            int count;
+
+            while ((ze = zis.getNextEntry()) != null)
+            {
+                filename = ze.getName();
+
+                // Need to create directories if not exists, or
+                // it will generate an Exception...
+                if (ze.isDirectory()) {
+                    File fmd = new File(path + "/" + filename);
+                    fmd.mkdirs();
+                    continue;
+                }
+
+                FileOutputStream fout = new FileOutputStream(path + "/" + filename);
+
+                while ((count = zis.read(buffer)) != -1)
+                {
+                    fout.write(buffer, 0, count);
+                }
+
+                fout.close();
+                zis.closeEntry();
+            }
+
+            zis.close();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
     public static  String convertStreamToString(java.io.InputStream instream) throws IOException{
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(instream));

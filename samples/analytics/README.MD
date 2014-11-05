@@ -1,5 +1,5 @@
-# Kidozen SDK Social Sample
-This folder contains code sample about how to use Social Login (Passive Authentication)
+# Kidozen SDK Analytics Sample
+This folder contains code sample about how to use Analytics
 
 ## How to run the example
 

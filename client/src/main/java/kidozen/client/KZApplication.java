@@ -2,6 +2,7 @@ package kidozen.client;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import org.apache.http.HttpStatus;
@@ -21,6 +22,8 @@ import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KZPassiveAuthTypes;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
+import kidozen.client.dataviz.DataVisualizationActivity;
+import kidozen.client.dataviz.DataVisualizationActivityConstants;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.KidoAppSettings;
 import kidozen.client.internal.SyncHelper;
@@ -59,6 +62,33 @@ public class KZApplication {
 
     private KidoAppSettings mApplicationConfiguration;
     private Analytics mAnalytics = null;
+
+
+    private DataVisualizationActivity dataVisualizationActivity;
+
+    public void showDataVisualization(Context context, String dataVizname) {
+        // TODO: Verify that we are already logged in.
+
+        Intent intent = new Intent(context, DataVisualizationActivity.class);
+        intent.putExtra(DataVisualizationActivityConstants.APPLICATION_NAME,mApplicationName);
+        try {
+            intent.putExtra(DataVisualizationActivityConstants.DOMAIN, mApplicationConfiguration.GetSettingAsString("domain"));
+        } catch (JSONException e) {
+            throw new IllegalStateException("Could not initialize Data visualization. Please check the application configuration");
+        }
+        intent.putExtra(DataVisualizationActivityConstants.DATAVIZ_NAME, dataVizname);
+        intent.putExtra(DataVisualizationActivityConstants.STRICT_SSL, !StrictSSL);
+        intent.putExtra(DataVisualizationActivityConstants.AUTH_HEADER, mUserIdentity.Token);
+        intent.putExtra(DataVisualizationActivityConstants.AUTH_RESPONSE, mUserIdentity.authenticationResponse);
+
+        intent.putExtra(DataVisualizationActivityConstants.TENANT_MARKET_PLACE, mTenantMarketPlace);
+        intent.putExtra(DataVisualizationActivityConstants.USERNAME, mUsername);
+        intent.putExtra(DataVisualizationActivityConstants.PASSWORD, mPassword);
+        intent.putExtra(DataVisualizationActivityConstants.PROVIDER, mProvider);
+        context.startActivity(intent);
+    }
+
+    /**
 
     /**
      * Enables crash reporter feature in the current application

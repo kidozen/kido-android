@@ -413,6 +413,7 @@ public class IdentityManager {
             tokenClaims.put(keyName,v);
         }
         KidoZenUser user = new KidoZenUser();
+        user.authenticationResponse = tokenAsString;
         user.IdentityType = userIdentity;
         user.Token = rawTokenAsString;
         user.RefreshToken = refreshToken;

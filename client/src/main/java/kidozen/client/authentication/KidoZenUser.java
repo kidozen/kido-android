@@ -54,6 +54,11 @@ public class KidoZenUser {
 
     private Long _expiration;
 
+    /**
+     * This is plain response we received when authenticating.
+     * Needed for dataviz.
+     */
+    public String authenticationResponse;
 
     /**
 	 * Checks if the user belongs to the role
