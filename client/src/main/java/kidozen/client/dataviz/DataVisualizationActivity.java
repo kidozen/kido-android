@@ -1,9 +1,12 @@
 package kidozen.client.dataviz;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.http.SslError;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.ViewGroup;
@@ -42,27 +45,30 @@ public class DataVisualizationActivity extends Activity {
     private String password;
     private String provider;
 
+    private ProgressDialog progressDialog;
 
     /**
      * This class is in charge of downloading the zip file that contains the visualization file.
      */
     private class DataVisualizationZipDownloader extends AsyncTask<String, Void, Void> {
+        private String mLastErrorMessage = null;
 
         protected Void doInBackground(String... params) {
-
             try {
                 ByteArrayOutputStream os = (ByteArrayOutputStream)connectionManager.ExecuteHttpAsStream(KZHttpMethod.GET);
                 FileOutputStream fos = new FileOutputStream (new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dataVizname + ".zip"));
                 os.writeTo(fos);
                 os.close();
                 fos.close();
-
-                Utilities.unpackZip(destinationDirectory(), zipFilePath());
-                this.replacePlaceholders();
-
-                return null;
+                if (  Utilities.unpackZip(destinationDirectory(), zipFilePath())) {
+                    this.replacePlaceholders();
+                }
+                else {
+                    mLastErrorMessage = "Could not unzip file " + dataVizname + ".zip";
+                }
             } catch (Exception e) {
                 e.printStackTrace();
+                mLastErrorMessage = e.getCause().getMessage();
             }
             return null;
         }
@@ -73,7 +79,8 @@ public class DataVisualizationActivity extends Activity {
          */
         @Override
         protected void onPostExecute(Void aVoid) {
-            webView.loadUrl("file://" + indexFilePath());
+            if (mLastErrorMessage!=null) webView.loadUrl("file://" + indexFilePath());
+            progressDialog.dismiss();
         }
 
         /**
@@ -115,6 +122,13 @@ public class DataVisualizationActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading");
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setProgress(0); // set percentage completed to 0%
+        progressDialog.show();
+
         this.configureParams();
         this.addWebView(this);
         this.downloadZipFileAndLoadInWebView();
@@ -221,7 +235,7 @@ public class DataVisualizationActivity extends Activity {
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
         // DEBUG.
-        webView.setWebContentsDebuggingEnabled(true);
+        //webView.setWebContentsDebuggingEnabled(true);
 
         mainLayout.addView(webView);
 

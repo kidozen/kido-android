@@ -1,6 +1,7 @@
 package kidozen.samples.dataviz;
 
 import android.content.Context;
+import android.text.Editable;
 
 import org.apache.http.HttpStatus;
 
@@ -13,13 +14,18 @@ import kidozen.client.KZApplication;
 public class KidoZenHelper {
     private KZApplication kido = null;
 
-    String tenantMarketPlace = "https://contoso.kidocloud.com";
-    String application = "myApplication";
-    String appkey = "get this value from your marketplace";
+    String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
+    String application = "tasks";
+    String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
 
     private Boolean isInitialized    = false;
 
     private IAuthenticationEvents authEvents;
+
+    public void setAuthEvents(IAuthenticationEvents authEvents) {
+        this.authEvents = authEvents;
+    }
+
 
     public KidoZenHelper() {
         kido = new KZApplication(tenantMarketPlace, application, appkey, false);
@@ -52,11 +58,7 @@ public class KidoZenHelper {
         });
     }
 
-    public void setAuthEvents(IAuthenticationEvents authEvents) {
-        this.authEvents = authEvents;
-    }
-
-    public void setDataVisualization(Context context) {
-        kido.showDataVisualization(context,"quotes");
+    public void setDataVisualization(Context context, String name) {
+        kido.showDataVisualization(context,name);
     }
 }

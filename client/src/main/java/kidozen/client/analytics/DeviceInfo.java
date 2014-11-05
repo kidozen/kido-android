@@ -50,7 +50,7 @@ public class DeviceInfo {
         }
         getLocationInformation(context);
         deviceModel = getDeviceName();
-        systemVersion = Build.VERSION.RELEASE + "." + Build.VERSION.INCREMENTAL;
+        systemVersion = Build.VERSION.RELEASE ;
     }
 
 

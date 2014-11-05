@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import kidozen.client.InitializationException;
@@ -16,6 +17,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     private KidoZenHelper helper = new KidoZenHelper();
     MainActivity mSelf = this;
     TextView textView;
+    EditText editVizName;
     Button signIn , signOut, displayDataVisualization;
     Context mContext;
     @Override
@@ -48,15 +50,15 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
 
         textView = (TextView) findViewById(R.id.textView);
 
+        editVizName = (EditText) findViewById(R.id.editTextDataVizName);
+
         displayDataVisualization = (Button) findViewById(R.id.buttonDisplayDataViz);
         displayDataVisualization.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.setDataVisualization(mContext);
+                helper.setDataVisualization(mContext, editVizName.getText().toString());
             }
         });
-
-
     }
 
 
@@ -81,6 +83,8 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
 
     @Override
     public void ReturnUserName(String username) {
+        this.signOut.setEnabled(true);
+        this.displayDataVisualization.setEnabled(true);
         textView.setText( "Hello: " + username );
     }
 

@@ -62,7 +62,6 @@ public class IdentityManager {
     private PassiveAuthenticationResponseReceiver mPassiveAuthenticationReceiver;
 
 
-
     // Private constructor suppresses
     private IdentityManager(){}
 
@@ -466,7 +465,16 @@ public class IdentityManager {
         }
     }
 
+    private void unregisterReceivers() {
+        if (mPassiveAuthenticationReceiver!=null) {
+            mContext.unregisterReceiver(mPassiveAuthenticationReceiver);
+        }
+        if (mGPlusAuthenticationReceiver!=null) {
+            mContext.unregisterReceiver(mGPlusAuthenticationReceiver);
+        }
+    }
     public void SignOut(String cacheKey) {
+        this.unregisterReceivers();
         mTokensCache.remove(cacheKey);
     }
 
@@ -486,6 +494,7 @@ public class IdentityManager {
         startGPlusAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
 
         context.startActivity(startGPlusAuth);
+        this.unregisterReceivers();
     }
 
     public void RevokeAccessFromGPlus(Context context) throws InitializationException {
@@ -510,7 +519,6 @@ public class IdentityManager {
     private class FederatedIdentity extends AsyncTask<Void, Void, Object[]> {
         BaseIdentityProvider _identityProvider;
         String _userTokeFromAuthService, _statusCode;
-        final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
 
         public FederatedIdentity(BaseIdentityProvider iIdentityProvider) {
             _identityProvider = iIdentityProvider;
@@ -538,7 +546,7 @@ public class IdentityManager {
                 //System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
 
                 if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
-                if (!URLDecoder.decode(_userTokeFromAuthService).contains(USER_SOURCE_CLAIM)) {
+                if (!URLDecoder.decode(_userTokeFromAuthService).contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
                     _statusCode = String.valueOf(HttpStatus.SC_UNAUTHORIZED);
                     throw new Exception("unauthorized");
                 }
@@ -640,7 +648,6 @@ public class IdentityManager {
     private class CustomFederatedIdentity extends AsyncTask<Void, Void, Object[]> {
         BaseIdentityProvider _identityProvider;
         String _userTokeFromAuthService, _statusCode;
-        final String USER_SOURCE_CLAIM = "http://schemas.kidozen.com/usersource";
 
         public CustomFederatedIdentity(BaseIdentityProvider iIdentityProvider) {
             _identityProvider = iIdentityProvider;
@@ -669,7 +676,7 @@ public class IdentityManager {
                 //System.out.println("Got auth token from Identity Provider, _statusCode" + _statusCode);
 
                 if (Integer.parseInt(_statusCode) >= HttpStatus.SC_BAD_REQUEST) throw new Exception(String.format("Invalid Response (Http Status Code = %s). Body : %s", _statusCode, _userTokeFromAuthService));
-                if (!URLDecoder.decode(_userTokeFromAuthService).contains(USER_SOURCE_CLAIM)) {
+                if (!URLDecoder.decode(_userTokeFromAuthService).contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
                     _statusCode = String.valueOf(HttpStatus.SC_UNAUTHORIZED);
                     throw new Exception("unauthorized");
                 }

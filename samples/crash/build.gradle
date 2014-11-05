@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "kidozen.samples.crash"
-        minSdkVersion 15
-        targetSdkVersion 15
+        minSdkVersion 16
+        targetSdkVersion 20
         versionCode 1
         versionName "1.0"
     }

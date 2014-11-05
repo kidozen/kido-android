@@ -73,19 +73,19 @@ public class KZApplication {
         intent.putExtra(DataVisualizationActivityConstants.APPLICATION_NAME,mApplicationName);
         try {
             intent.putExtra(DataVisualizationActivityConstants.DOMAIN, mApplicationConfiguration.GetSettingAsString("domain"));
+            intent.putExtra(DataVisualizationActivityConstants.DATAVIZ_NAME, dataVizname);
+            intent.putExtra(DataVisualizationActivityConstants.STRICT_SSL, !StrictSSL);
+            intent.putExtra(DataVisualizationActivityConstants.AUTH_HEADER, mUserIdentity.Token);
+            intent.putExtra(DataVisualizationActivityConstants.AUTH_RESPONSE, mUserIdentity.authenticationResponse);
+
+            intent.putExtra(DataVisualizationActivityConstants.TENANT_MARKET_PLACE, mTenantMarketPlace);
+            intent.putExtra(DataVisualizationActivityConstants.USERNAME, mUsername);
+            intent.putExtra(DataVisualizationActivityConstants.PASSWORD, mPassword);
+            intent.putExtra(DataVisualizationActivityConstants.PROVIDER, mProvider);
+            context.startActivity(intent);
         } catch (JSONException e) {
             throw new IllegalStateException("Could not initialize Data visualization. Please check the application configuration");
         }
-        intent.putExtra(DataVisualizationActivityConstants.DATAVIZ_NAME, dataVizname);
-        intent.putExtra(DataVisualizationActivityConstants.STRICT_SSL, !StrictSSL);
-        intent.putExtra(DataVisualizationActivityConstants.AUTH_HEADER, mUserIdentity.Token);
-        intent.putExtra(DataVisualizationActivityConstants.AUTH_RESPONSE, mUserIdentity.authenticationResponse);
-
-        intent.putExtra(DataVisualizationActivityConstants.TENANT_MARKET_PLACE, mTenantMarketPlace);
-        intent.putExtra(DataVisualizationActivityConstants.USERNAME, mUsername);
-        intent.putExtra(DataVisualizationActivityConstants.PASSWORD, mPassword);
-        intent.putExtra(DataVisualizationActivityConstants.PROVIDER, mProvider);
-        context.startActivity(intent);
     }
 
     /**

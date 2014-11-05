@@ -31,8 +31,7 @@ import kidozen.client.internal.Utilities;
 * Created by christian on 9/22/14.
 */
 public class GPlusAuthenticationActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private String TAG = this.getClass().getSimpleName();
-    //public static final String OAUTH2_HTTPS_WWW_GOOGLEAPIS_COM_AUTH_PLUS_LOGIN = "oauth2:https://www.googleapis.com/auth/plus.login email";
+    private String TAG = "GPlusAuthenticationActivity";
     private GoogleApiClient mGoogleApiClient;
     private String mToken;
     private ProgressDialog mConnectionProgressDialog;
@@ -59,11 +58,11 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
 
         Intent intent = this.getIntent();
         mActionCode = intent.getIntExtra(IdentityManager.GPLUS_AUTH_ACTION_CODE, -1);
-        if (mSignInUrl==null) mSignInUrl = intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_SIGNIN_URL);
+        if (mSignInUrl==null) mSignInUrl = intent.getStringExtra(IdentityManager.PASSIVE_SIGNIN_URL);
         if (mGooglePlusScope==null) mGooglePlusScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE);
         if (mGooglePlusKidozenScope==null) mGooglePlusKidozenScope= intent.getStringExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE);
 
-        mStrictSSL = Boolean.parseBoolean(intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_STRICT_SSL)) ;
+        mStrictSSL = Boolean.parseBoolean(intent.getStringExtra(IdentityManager.PASSIVE_STRICT_SSL)) ;
 
         mGoogleApiClient = buildGoogleApiClient();
 
@@ -144,11 +143,15 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
 
                         if (Integer.valueOf(statusCode) > HttpStatus.SC_OK) throw new Exception(body);
 
-                        broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
-                        broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.AUTH_SERVICE_PAYLOAD, body);
+                        if (body.contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
+                            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
+                            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.AUTH_SERVICE_PAYLOAD, body);
+                        }
+                        else {
+                            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
+                            broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, "unauthorized");
+                        }
 
-                    //catch (IOException e) {
-                    //catch (GoogleAuthException e) {
                     } catch (Exception e) {
                         broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
                         broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, e.getMessage());

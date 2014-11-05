@@ -21,8 +21,6 @@ import android.widget.LinearLayout;
 
 import java.io.UnsupportedEncodingException;
 
-import kidozen.client.internal.PassiveAuthenticationUtilities;
-
 /**
  * Created by christian on 6/17/14.
  */
@@ -61,7 +59,6 @@ public class PassiveAuthenticationActivity extends Activity {
 
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            //TODO: Integrate with 'StrictSSL'
             if(!mStrictSSL)
                 handler.proceed(); // Ignore SSL certificate errors
         }
@@ -120,8 +117,15 @@ public class PassiveAuthenticationActivity extends Activity {
 
             try {
                 String jsonPayload = new String(data,"UTF-8");
-                broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
-                broadcastIntent.putExtra(AUTH_SERVICE_PAYLOAD,jsonPayload);
+
+                if (jsonPayload.contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
+                    broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
+                    broadcastIntent.putExtra(AUTH_SERVICE_PAYLOAD,jsonPayload);
+                }
+                else {
+                    broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
+                    broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.ERROR_DESCRIPTION, "unauthorized");
+                }
 
             } catch (UnsupportedEncodingException e) {
                 broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_FAILED_CODE);
