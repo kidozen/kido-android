@@ -19,6 +19,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -143,7 +144,7 @@ public class GPlusAuthenticationActivity extends Activity implements GoogleApiCl
 
                         if (Integer.valueOf(statusCode) > HttpStatus.SC_OK) throw new Exception(body);
 
-                        if (body.contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
+                        if (URLDecoder.decode(body).contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
                             broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
                             broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.AUTH_SERVICE_PAYLOAD, body);
                         }

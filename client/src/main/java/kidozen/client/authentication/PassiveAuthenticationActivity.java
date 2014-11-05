@@ -20,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 /**
  * Created by christian on 6/17/14.
@@ -118,7 +119,7 @@ public class PassiveAuthenticationActivity extends Activity {
             try {
                 String jsonPayload = new String(data,"UTF-8");
 
-                if (jsonPayload.contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
+                if (URLDecoder.decode(jsonPayload).contains(Constants.USER_SOURCE_AUTHORIZATION_CLAIM)) {
                     broadcastIntent.putExtra(KZPassiveAuthBroadcastConstants.REQUEST_CODE, KZPassiveAuthBroadcastConstants.REQUEST_COMPLETE_CODE);
                     broadcastIntent.putExtra(AUTH_SERVICE_PAYLOAD,jsonPayload);
                 }
