@@ -11,9 +11,12 @@ import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -165,13 +168,24 @@ public class PassiveAuthenticationActivity extends Activity {
         progressDialog.setProgress(0); // set percentage completed to 0%
 
 
+        CookieSyncManager.createInstance(context);
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
+        //cookieManager.setAcceptCookie(false);
+
         webView = new WebView(context);
+
+        WebSettings ws = webView.getSettings();
+        ws.setSaveFormData(false);
+
+
         webView.setVerticalScrollBarEnabled(false);
         webView.setHorizontalScrollBarEnabled(false);
         webView.setWebViewClient(getWebViewClient());
         webView.setWebChromeClient(getWebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setLayoutParams(frame);
+
         webView.getSettings().setSavePassword(false);
         webView.loadUrl(signInUrl);
 

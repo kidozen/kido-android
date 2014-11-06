@@ -88,6 +88,7 @@ public class DataVisualizationActivity extends Activity {
          */
         private void replacePlaceholders() {
             String indexString = Utilities.getStringFromFile(indexFilePath());
+            indexString = indexString.replace("//cdn.kidozen.com/kido-js-sdk/kido-js.min.js","https://cdn.rawgit.com/kidozen/kido-js/v0.1.9/dist/kido-js.min.js");
             indexString = indexString.replace("{{:options}}", optionsString());
             indexString = indexString.replace("{{:marketplace}}", "\""+ tenantMarketPlace +"\"");
             indexString = indexString.replace("{{:name}}", "\"" + applicationName + "\"");
@@ -200,7 +201,6 @@ public class DataVisualizationActivity extends Activity {
         Hashtable<String, String> headers = new Hashtable<String, String>();
         headers.put("Authorization", this.authHeaderValue);
         String url = String.format("https://%s.%s/api/v2/visualizations/%s/app/download?type=mobile",this.applicationName,this.domain,this.dataVizName);
-        //String url =   "https://" + this.applicationName + "." + this.domain + "/api/v2/visualizations/" + this.dataVizName + "/app/download?type=mobile";
         this.connectionManager = new SNIConnectionManager(url, "", headers, params, true);
 
         // Will effectively download the zip, after that, unzip it and replace the placeholders with
@@ -223,7 +223,6 @@ public class DataVisualizationActivity extends Activity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                //TODO: Integrate with 'StrictSSL'
                 if(!strictSSL)
                     handler.proceed(); // Ignore SSL certificate errors
             }
