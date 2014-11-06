@@ -799,19 +799,39 @@ public class KZApplication {
             this.Initialize(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
+                    InvokePassiveAuthentication(context,true, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
                 }
             });
         else
-            InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
+            InvokePassiveAuthentication(context,true, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
     }
 
-    private void InvokePassiveAuthentication(Context context, final ServiceEventListener callback, KZPassiveAuthTypes passiveAuthType) {
+    /**
+     * Enables passive Authentication
+     *
+     * @param context Android context instance
+     * @param forceLogin cleans previous session and forces to display the username and password login screen
+     * @param callback The callback with the result of the service call
+     * @throws InitializationException
+     */
+    public void Authenticate(final Context context, final Boolean forceLogin, final ServiceEventListener callback) throws InitializationException {
+        if (!mApplicationConfiguration.IsInitialized)
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    InvokePassiveAuthentication(context, forceLogin, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
+                }
+            });
+        else
+            InvokePassiveAuthentication(context,forceLogin, callback, KZPassiveAuthTypes.PASSIVE_AUTHENTICATION_USERID);
+    }
+
+    private void InvokePassiveAuthentication(Context context, Boolean cleanCookies, final ServiceEventListener callback, KZPassiveAuthTypes passiveAuthType) {
         try {
             JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().Authenticate(context, passiveAuthType, new ServiceEventListener()   {
+            IdentityManager.getInstance().Authenticate(context, cleanCookies, passiveAuthType, new ServiceEventListener()   {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     SetKidoZenUser((KidoZenUser) e.Response);
@@ -893,11 +913,30 @@ public class KZApplication {
             this.Initialize(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
+                    InvokePassiveAuthentication(context,true, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
                 }
             });
         else
-            InvokePassiveAuthentication(context, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
+            InvokePassiveAuthentication(context,true, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
+    }
+    /**
+     * Enables passive Authentication
+     *
+     * @param context Android context instance
+     * @param forceLogin cleans previous session and forces to display the username and password login screen
+     * @param callback The callback with the result of the service call
+     * @throws InitializationException
+     */
+    public void AuthenticateWithGPlus(final Context context, final Boolean forceLogin, final ServiceEventListener callback) throws InitializationException {
+        if (!mApplicationConfiguration.IsInitialized)
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    InvokePassiveAuthentication(context, forceLogin, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
+                }
+            });
+        else
+            InvokePassiveAuthentication(context,forceLogin, callback, KZPassiveAuthTypes.GPLUS_AUTHENTICATION_USERID);
     }
 
     public void AuthenticateWithGPlus(Context context, final ServiceResponseHandler callback) throws InitializationException{

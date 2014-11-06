@@ -16,7 +16,7 @@ public class KidoZenHelper {
     private KZApplication kido = null;
     private String tenantMarketPlace = "https://kidodemo.kidocloud.com";
     private String application = "tasks";
-    private String appkey = "wb8KTX2/21A6ISM7PncaNozhxxCxcL8+TtB2aKbZyu8=";//"get this value from: marketplace -> application -> coding -> keys";
+    private String appkey = "get this value from: marketplace -> application -> coding -> keys";
 
     private Boolean isInitialized    = false;
     private kidozen.samples.analytics.IAuthenticationEvents authEvents;

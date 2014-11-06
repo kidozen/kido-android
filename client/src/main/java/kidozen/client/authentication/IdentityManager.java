@@ -37,6 +37,7 @@ public class IdentityManager {
     public static final int GPLUS_AUTH_ACTION_CODE_SIGN_OUT = 0;
     public static final int GPLUS_AUTH_ACTION_CODE_REVOKE = 1;
 
+    public static String FORCE_CLEAN_COOKIES = "FORCE_CLEAN_COOKIES";
     public static String PASSIVE_STRICT_SSL = "PASSIVE_STRICT_SSL";
     public static String PASSIVE_SIGNIN_URL = "PASSIVE_SIGNIN_URL";
 
@@ -211,8 +212,12 @@ public class IdentityManager {
         }
     }
 
+    public void Authenticate(Context context, KZPassiveAuthTypes userIdentifierType, ServiceEventListener callback) throws JSONException {
+        this.Authenticate(context,true,userIdentifierType,callback);
+    }
+
     // Social / passive authentication
-    public void Authenticate(Context context, KZPassiveAuthTypes userIdentifierType, ServiceEventListener callback) throws JSONException{
+    public void Authenticate(Context context, Boolean cleanCookies, KZPassiveAuthTypes userIdentifierType, ServiceEventListener callback) throws JSONException {
         String key = String.valueOf(userIdentifierType);
         mContext = context;
         JSONObject cacheItem = mTokensCache.get(key);
@@ -233,6 +238,7 @@ public class IdentityManager {
                 startPassiveAuth.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startPassiveAuth.putExtra(PASSIVE_SIGNIN_URL, mAuthConfig.getString("signInUrl"));
                 startPassiveAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
+                startPassiveAuth.putExtra(FORCE_CLEAN_COOKIES, String.valueOf(cleanCookies));
                 context.startActivity(startPassiveAuth);
             }
             else {
@@ -247,6 +253,7 @@ public class IdentityManager {
                 startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_KIDOZEN_SCOPE, mAuthConfig.getString("applicationScope"));
                 startGPlusAuth.putExtra(KZPassiveAuthBroadcastConstants.GOOGLE_PLUS_SCOPE, mAuthConfig.getJSONObject("google").getString("scopes"));
                 startGPlusAuth.putExtra(PASSIVE_STRICT_SSL, String.valueOf(mStrictSSL));
+                startGPlusAuth.putExtra(FORCE_CLEAN_COOKIES, String.valueOf(cleanCookies));
                 context.startActivity(startGPlusAuth);
             }
         }

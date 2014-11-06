@@ -38,6 +38,7 @@ public class PassiveAuthenticationActivity extends Activity {
     private Boolean mStrictSSL = true;
     private WebChromeClient webChromeClient;
     private ProgressDialog progressDialog;
+    private boolean mForceCleanCookies = false;
 
 
     private class AuthenticationWebViewClient extends WebViewClient {
@@ -150,8 +151,9 @@ public class PassiveAuthenticationActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        String signInUrl = intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_SIGNIN_URL);
-        mStrictSSL = Boolean.parseBoolean(intent.getStringExtra(kidozen.client.authentication.IdentityManager.PASSIVE_STRICT_SSL)) ;
+        String signInUrl = intent.getStringExtra(IdentityManager.PASSIVE_SIGNIN_URL);
+        mStrictSSL = Boolean.parseBoolean(intent.getStringExtra(IdentityManager.PASSIVE_STRICT_SSL)) ;
+        mForceCleanCookies= Boolean.parseBoolean(intent.getStringExtra(IdentityManager.FORCE_CLEAN_COOKIES)) ;
         Context context = this;
         // no window title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -167,17 +169,16 @@ public class PassiveAuthenticationActivity extends Activity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setProgress(0); // set percentage completed to 0%
 
-
-        CookieSyncManager.createInstance(context);
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeAllCookie();
-        //cookieManager.setAcceptCookie(false);
-
         webView = new WebView(context);
 
-        WebSettings ws = webView.getSettings();
-        ws.setSaveFormData(false);
+        if(mForceCleanCookies) {
+            CookieSyncManager.createInstance(context);
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.removeAllCookie();
 
+            WebSettings ws = webView.getSettings();
+            ws.setSaveFormData(false);
+        }
 
         webView.setVerticalScrollBarEnabled(false);
         webView.setHorizontalScrollBarEnabled(false);

@@ -88,7 +88,6 @@ public class DataVisualizationActivity extends Activity {
          */
         private void replacePlaceholders() {
             String indexString = Utilities.getStringFromFile(indexFilePath());
-            indexString = indexString.replace("//cdn.kidozen.com/kido-js-sdk/kido-js.min.js","https://cdn.rawgit.com/kidozen/kido-js/v0.1.9/dist/kido-js.min.js");
             indexString = indexString.replace("{{:options}}", optionsString());
             indexString = indexString.replace("{{:marketplace}}", "\""+ tenantMarketPlace +"\"");
             indexString = indexString.replace("{{:name}}", "\"" + applicationName + "\"");
