@@ -1,12 +1,11 @@
 package kidozen.client.dataviz;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.http.SslError;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.ViewGroup;
@@ -31,11 +30,11 @@ import kidozen.client.internal.Utilities;
  * This Activity will display a webView that will load the local data visualization file.
  */
 public class DataVisualizationActivity extends Activity {
-
+    private Configuration currentConfiguration;
     private WebView webView;
     private String applicationName;
     private String domain;
-    private String dataVizname;
+    private String dataVizName;
     private Boolean strictSSL;
     private String authHeaderValue;
     private SNIConnectionManager connectionManager;
@@ -56,7 +55,7 @@ public class DataVisualizationActivity extends Activity {
         protected Void doInBackground(String... params) {
             try {
                 ByteArrayOutputStream os = (ByteArrayOutputStream)connectionManager.ExecuteHttpAsStream(KZHttpMethod.GET);
-                FileOutputStream fos = new FileOutputStream (new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dataVizname + ".zip"));
+                FileOutputStream fos = new FileOutputStream (new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dataVizName + ".zip"));
                 os.writeTo(fos);
                 os.close();
                 fos.close();
@@ -64,7 +63,7 @@ public class DataVisualizationActivity extends Activity {
                     this.replacePlaceholders();
                 }
                 else {
-                    mLastErrorMessage = "Could not unzip file " + dataVizname + ".zip";
+                    mLastErrorMessage = "Could not unzip file " + dataVizName + ".zip";
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -79,7 +78,7 @@ public class DataVisualizationActivity extends Activity {
          */
         @Override
         protected void onPostExecute(Void aVoid) {
-            if (mLastErrorMessage!=null) webView.loadUrl("file://" + indexFilePath());
+            if (mLastErrorMessage==null) webView.loadUrl("file://" + indexFilePath());
             progressDialog.dismiss();
         }
 
@@ -122,8 +121,9 @@ public class DataVisualizationActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading");
+        progressDialog.setMessage("Downloading visualizations");
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setProgress(0); // set percentage completed to 0%
@@ -157,7 +157,7 @@ public class DataVisualizationActivity extends Activity {
     }
 
     private String zipFilePath() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + dataVizname + ".zip";
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + dataVizName + ".zip";
     }
 
     private String indexFilePath() {
@@ -165,7 +165,7 @@ public class DataVisualizationActivity extends Activity {
     }
 
     private String destinationDirectory() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + dataVizname;
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + dataVizName;
     }
 
 
@@ -174,7 +174,7 @@ public class DataVisualizationActivity extends Activity {
         if (extras != null) {
             this.applicationName = extras.getString(DataVisualizationActivityConstants.APPLICATION_NAME);
             this.domain = extras.getString(DataVisualizationActivityConstants.DOMAIN);
-            this.dataVizname = extras.getString(DataVisualizationActivityConstants.DATAVIZ_NAME);
+            this.dataVizName = extras.getString(DataVisualizationActivityConstants.DATAVIZ_NAME);
             this.strictSSL = extras.getBoolean(DataVisualizationActivityConstants.STRICT_SSL);
             String token = extras.getString(DataVisualizationActivityConstants.AUTH_HEADER);
             this.authHeaderValue = String.format("WRAP access_token=\"%s\"", token);
@@ -199,8 +199,8 @@ public class DataVisualizationActivity extends Activity {
 
         Hashtable<String, String> headers = new Hashtable<String, String>();
         headers.put("Authorization", this.authHeaderValue);
-
-        String url = "https://" + this.applicationName + "." + this.domain + "/api/v2/visualizations/" + this.dataVizname + "/app/download?type=mobile";
+        String url = String.format("https://%s.%s/api/v2/visualizations/%s/app/download?type=mobile",this.applicationName,this.domain,this.dataVizName);
+        //String url =   "https://" + this.applicationName + "." + this.domain + "/api/v2/visualizations/" + this.dataVizName + "/app/download?type=mobile";
         this.connectionManager = new SNIConnectionManager(url, "", headers, params, true);
 
         // Will effectively download the zip, after that, unzip it and replace the placeholders with
