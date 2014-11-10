@@ -2,6 +2,9 @@
 The KidoZen SDK for Android provides libraries for developers to build connected mobile applications using KidoZen. This guide walks through the steps for setting up the SDK and running the code samples.
 
 ## Whats new
+- Analytics support ( see the analytics example in the samples folder )
+- Data Visualization support ( see the dataviz example in the samples folder )
+
 - Support for G+ authentication ( see the gplus example in the samples folder )
 - Support for custom providers authentication
 

@@ -64,6 +64,8 @@ public class StorageSvcResponseTest {
         }
         catch (Exception e)
         {
+            System.out.println("ERROR");
+            System.out.println(e.getMessage());
             fail();
         }
     }

@@ -19,7 +19,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -45,36 +44,36 @@ public class SNIConnectionManager
     public String LastResponseMessage;
     public String LastResponseBody;
 
-    String _urlAsString;
-    Hashtable<String, String> _requestProperties;
-    HashMap<String,String> _params;
-    boolean _developerMode;
-    String _bodyAsString;
-    InputStream _bodyAsStream;
+    String mUrlAsString;
+    Hashtable<String, String> mRequestHeaders;
+    HashMap<String,String> mParameters;
+    boolean mDeveloperMode;
+    String mBodyAsString;
+    InputStream mBodyAsStream;
 
     public SNIConnectionManager (String urlAsString, String message, Hashtable<String, String> requestProperties, HashMap<String,String> params, boolean developerMode)
     {
-        _urlAsString = urlAsString;
-        _requestProperties = requestProperties;
-        _params = params;
-        _developerMode = developerMode;
-        _bodyAsString = message;
+        mUrlAsString = urlAsString;
+        mRequestHeaders = requestProperties;
+        mParameters = params;
+        mDeveloperMode = developerMode;
+        mBodyAsString = message;
     }
 
     public SNIConnectionManager (String urlAsString, InputStream message, Hashtable<String, String> requestProperties, HashMap<String,String> params, boolean developerMode)
     {
-        _urlAsString = urlAsString;
-        _requestProperties = requestProperties;
-        _params = params;
-        _developerMode = developerMode;
-        _bodyAsString = null;
-        _bodyAsStream = message;
+        mUrlAsString = urlAsString;
+        mRequestHeaders = requestProperties;
+        mParameters = params;
+        mDeveloperMode = developerMode;
+        mBodyAsString = null;
+        mBodyAsStream = message;
     }
 
     public OutputStream ExecuteHttpAsStream(KZHttpMethod method) throws Exception
     {
         HttpURLConnection con = CreateConnectionThatHandlesRedirects(method);
-        if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && _bodyAsStream!=null) {
+        if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && mBodyAsStream !=null) {
             con.setDoOutput(true);
 
             int bytesRead, bytesAvailable, bufferSize;
@@ -82,18 +81,18 @@ public class SNIConnectionManager
             int maxBufferSize = 1*1024*1024;
 
             DataOutputStream dos = new DataOutputStream( con.getOutputStream() );
-            bytesAvailable = _bodyAsStream.available();
+            bytesAvailable = mBodyAsStream.available();
             bufferSize = Math.min(bytesAvailable, maxBufferSize);
             buffer = new byte[bufferSize];
-            bytesRead = _bodyAsStream.read(buffer, 0, bufferSize);
+            bytesRead = mBodyAsStream.read(buffer, 0, bufferSize);
             while (bytesRead > 0)
             {
                 dos.write(buffer, 0, bufferSize);
-                bytesAvailable = _bodyAsStream.available();
+                bytesAvailable = mBodyAsStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                bytesRead = _bodyAsStream.read(buffer, 0, bufferSize);
+                bytesRead = mBodyAsStream.read(buffer, 0, bufferSize);
             }
-            _bodyAsStream.close();
+            mBodyAsStream.close();
             dos.flush();
             dos.close();
         }
@@ -135,11 +134,11 @@ public class SNIConnectionManager
     {
         HttpURLConnection con = CreateConnectionThatHandlesRedirects(method);
         //System.out.println("ExecuteHttp");
-        if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && _bodyAsString!=null) {
+        if (method ==KZHttpMethod.POST || method ==KZHttpMethod.PUT && mBodyAsString !=null) {
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-            writer.write(_bodyAsString);
+            writer.write(mBodyAsString);
             writer.close();
             os.close();
         }
@@ -147,14 +146,14 @@ public class SNIConnectionManager
     }
 
     protected HttpURLConnection CreateConnectionThatHandlesRedirects(KZHttpMethod method) throws  IOException, NoSuchAlgorithmException, KeyManagementException {
-        if(_params!=null) {
-            if (_params.keySet().size() > 0) _urlAsString = _urlAsString + "?" + Utilities.getQuery(_params);
+        if(mParameters !=null) {
+            if (mParameters.keySet().size() > 0) mUrlAsString = mUrlAsString + "?" + Utilities.getQuery(mParameters);
         }
-        URL url = new URL(_urlAsString);
+        URL url = new URL(mUrlAsString);
 
         //just in case services doesnt have configured redirection
         if (url.getProtocol().toLowerCase().equals("https")) {
-            return CreateSNIConnection(_urlAsString, method);
+            return CreateSNIConnection(mUrlAsString, method);
         }
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -166,20 +165,22 @@ public class SNIConnectionManager
     }
 
     protected HttpURLConnection CreateSNIConnection(String url, KZHttpMethod method) throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        if (_developerMode) {
+        if (mDeveloperMode) {
             trustAllHosts();
         }
         URL connectionUrl = new URL(url);
         HttpsURLConnection secureConnection = (HttpsURLConnection) connectionUrl.openConnection();
         secureConnection.setRequestMethod(method.toString());
 
-        if (_requestProperties!=null) {
-            for (Map.Entry<String, String> entry : _requestProperties.entrySet()) {
+        if (mRequestHeaders !=null) {
+            for (Map.Entry<String, String> entry : mRequestHeaders.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
                 secureConnection.setRequestProperty(key, value);
             }
         }
+        secureConnection.setRequestProperty(Constants.X_KIDO_SDK_HEADER,Constants.X_KIDO_SDK_HEADER_VALUE);
+        secureConnection.setRequestProperty(Constants.X_KIDO_SDK_VERSION_HEADER,Constants.X_KIDO_SDK_VERSION_HEADER_VALUE);
         return secureConnection;
     }
 
@@ -211,17 +212,17 @@ public class SNIConnectionManager
 
     protected Hashtable<String, String> getExecutionResponse( HttpURLConnection con) throws IOException {
         Hashtable<String, String> retVal = new Hashtable<String, String>();
-        //System.out.println("SNIConnectionManager, getExecutionResponse," + _urlAsString);
+        //System.out.println("SNIConnectionManager, getExecutionResponse," + mUrlAsString);
 
         int responseCode = con.getResponseCode();
         //System.out.println("SNIConnectionManager, getExecutionResponse, Status Code:" + String.valueOf(responseCode));
-        String responsebody = con.getResponseMessage();
-        //System.out.println("SNIConnectionManager, getExecutionResponse, Response Body:" + responsebody);
+        String responseBody = con.getResponseMessage();
+        //System.out.println("SNIConnectionManager, getExecutionResponse, Response Body:" + responseBody);
         String contentType =  con.getHeaderField("content-type");
         //System.out.println("SNIConnectionManager, getExecutionResponse, Response contentType:" + contentType);
 
         retVal.put("statusCode", String.valueOf(responseCode));
-        retVal.put("responseMessage", responsebody);
+        retVal.put("responseMessage", responseBody);
         retVal.put("contentType", (contentType == null ? "" : contentType) );
 
         /*
