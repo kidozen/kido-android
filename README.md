@@ -18,8 +18,8 @@ To get Your Credentials Register at [KidoZen]("http://kidozen.com/")
 
 ## Requirements
 - Android SDK Build Tools 19.1 For more information on the Android SDK, [see]("http://developer.android.com/index.html">http://developer.android.com/index.html)
-- Google Play Services Library
-- Google Repository
+- Google Play Services Library (User Android SDK Manager to get it)
+- Google Repository (User Android SDK Manager to get it)
 - To run the code examples, you also need the Android Studio 0.8.14 or above
 
 ## How to Include the KidoZen SDK for Android in an Existing Application
