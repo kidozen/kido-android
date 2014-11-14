@@ -57,7 +57,7 @@ def String getProjectProperty(String propertyName)
     String propertyValue = "null"
     if (hasProperty(propertyName))
     {
-        movieTitle = this.properties[propertyName]
+        propertyValue = this.properties[propertyName]
     }
     return propertyValue
 }

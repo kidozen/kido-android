@@ -22,8 +22,8 @@ import kidozen.client.authentication.IdentityManager;
 import kidozen.client.authentication.KZPassiveAuthTypes;
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.crash.CrashReporter;
-import kidozen.client.dataviz.DataVisualizationActivity;
-import kidozen.client.dataviz.DataVisualizationActivityConstants;
+import kidozen.client.datavisualization.DataVisualizationActivity;
+import kidozen.client.datavisualization.DataVisualizationActivityConstants;
 import kidozen.client.internal.Constants;
 import kidozen.client.internal.KidoAppSettings;
 import kidozen.client.internal.SyncHelper;
@@ -66,14 +66,12 @@ public class KZApplication {
 
     private DataVisualizationActivity dataVisualizationActivity;
 
-    public void showDataVisualization(Context context, String dataVizname) {
-        // TODO: Verify that we are already logged in.
-
+    public void showDataVisualization(Context context, String visualization) {
         Intent intent = new Intent(context, DataVisualizationActivity.class);
         intent.putExtra(DataVisualizationActivityConstants.APPLICATION_NAME,mApplicationName);
         try {
             intent.putExtra(DataVisualizationActivityConstants.DOMAIN, mApplicationConfiguration.GetSettingAsString("domain"));
-            intent.putExtra(DataVisualizationActivityConstants.DATAVIZ_NAME, dataVizname);
+            intent.putExtra(DataVisualizationActivityConstants.DATAVIZ_NAME, visualization);
             intent.putExtra(DataVisualizationActivityConstants.STRICT_SSL, !StrictSSL);
             intent.putExtra(DataVisualizationActivityConstants.AUTH_HEADER, mUserIdentity.Token);
             intent.putExtra(DataVisualizationActivityConstants.AUTH_RESPONSE, mUserIdentity.authenticationResponse);

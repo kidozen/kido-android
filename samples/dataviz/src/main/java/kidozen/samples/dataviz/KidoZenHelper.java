@@ -1,12 +1,15 @@
 package kidozen.samples.dataviz;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.text.Editable;
 
 import org.apache.http.HttpStatus;
 
 import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
+import kidozen.client.authentication.GPlusAuthenticationResponseReceiver;
 
 /**
  * Created by christian on 7/8/14.
@@ -14,9 +17,9 @@ import kidozen.client.KZApplication;
 public class KidoZenHelper {
     private KZApplication kido = null;
 
-    String tenantMarketPlace = "https://contoso.kidocloud.com";
+    String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
     String application = "tasks";
-    String appkey = "get this value from: marketplace -> application -> coding -> keys";
+    String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
 
     private Boolean isInitialized    = false;
 
@@ -46,7 +49,7 @@ public class KidoZenHelper {
     }
 
     public void SignIn(Context context) throws InitializationException{
-        kido.Authenticate(context, new kidozen.client.ServiceEventListener() {
+        kido.Authenticate(context,false, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {

@@ -1,16 +1,23 @@
 package kidozen.samples.dataviz;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import kidozen.client.InitializationException;
+import kidozen.client.authentication.GPlusAuthenticationResponseReceiver;
+import kidozen.client.datavisualization.Constants;
 
 
 public class MainActivity extends Activity implements IAuthenticationEvents {
@@ -20,6 +27,9 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     EditText editVizName;
     Button signIn , signOut, displayDataVisualization;
     Context mContext;
+    private MyBroadcastReceiver mMyBroadcastReceiver;
+    private boolean exit=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +71,31 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
         });
     }
 
+    public void registerReceiver() {
+        IntentFilter filter = new IntentFilter(Constants.DATA_VISUALIZATION_BROADCAST_ACTION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        mMyBroadcastReceiver = new MyBroadcastReceiver();
+        mContext.registerReceiver(mMyBroadcastReceiver, filter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (exit) {
+            mContext.unregisterReceiver(mMyBroadcastReceiver);
+            MainActivity.this.finish();
+        }
+        else {
+            Toast.makeText(this, "Press Back again to Exit.", Toast.LENGTH_SHORT).show();
+            exit = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    exit = false;
+                }
+            }, 3 * 1000);
+
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,4 +124,10 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     }
 
 
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(mContext, "Press Back again to Exit.", Toast.LENGTH_LONG).show();
+        }
+    }
 }
