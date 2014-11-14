@@ -54,13 +54,14 @@ android {
 }
 def String getProjectProperty(String propertyName)
 {
-    String movieTitle = "null"
+    String propertyValue = "null"
     if (hasProperty(propertyName))
     {
         movieTitle = this.properties[propertyName]
     }
-    return movieTitle
+    return propertyValue
 }
+
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
     if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
