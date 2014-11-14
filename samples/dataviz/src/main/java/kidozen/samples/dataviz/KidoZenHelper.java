@@ -17,9 +17,9 @@ import kidozen.client.authentication.GPlusAuthenticationResponseReceiver;
 public class KidoZenHelper {
     private KZApplication kido = null;
 
-    String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
-    String application = "tasks";
-    String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
+    private String tenantMarketPlace = "https://kidodemo.kidocloud.com";
+    private String application = "tasks";
+    private String appkey = "get this value from: marketplace -> application -> coding -> keys";
 
     private Boolean isInitialized    = false;
 

@@ -37,6 +37,7 @@ import kidozen.client.authentication.PassiveAuthenticationResponseReceiver;
 import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.internal.Utilities;
 
+
 /**
  * This Activity will display a webView that will load the local data visualization file.
  */
@@ -46,7 +47,7 @@ public class DataVisualizationActivity extends Activity {
     private String applicationName;
     private String domain;
     private String dataVizName;
-    private Boolean mStrictSSL;
+    private Boolean strictSSL;
     private String authHeaderValue;
     private SNIConnectionManager connectionManager;
     private String authenticationResponse;
@@ -54,30 +55,8 @@ public class DataVisualizationActivity extends Activity {
     private String username;
     private String password;
     private String provider;
-    private static final String mFailPrefix="Error message=";
 
     private ProgressDialog progressDialog;
-
-    WebChromeClient getWebChromeClient() {
-        return new JSValidationWebChromeClient();
-    }
-    private class JSValidationWebChromeClient extends WebChromeClient {
-        @Override
-        public void onProgressChanged(WebView view, int progress) {
-            progressDialog.setProgress(progress);
-        }
-        @Override
-        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-            String message = String.format("%s;%d;%s",consoleMessage.lineNumber(), consoleMessage.message(), consoleMessage.sourceId());
-            Intent broadcastIntent = new Intent();
-            broadcastIntent.setAction(kidozen.client.datavisualization.Constants.DATA_VISUALIZATION_BROADCAST_ACTION);
-            broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            broadcastIntent.putExtra(kidozen.client.datavisualization.Constants.DATA_VISUALIZATION_BROADCAST_CONSOLE_MESSAGE, message);
-            sendBroadcast(broadcastIntent);
-            return super.onConsoleMessage(consoleMessage);
-        }
-
-    }
 
     /**
      * This class is in charge of downloading the zip file that contains the visualization file.
@@ -88,20 +67,15 @@ public class DataVisualizationActivity extends Activity {
         protected Void doInBackground(String... params) {
             try {
                 ByteArrayOutputStream os = (ByteArrayOutputStream)connectionManager.ExecuteHttpAsStream(KZHttpMethod.GET);
-                if (os==null) {
-                    mLastErrorMessage = "Could not get visualization. Please check its name";
+                FileOutputStream fos = new FileOutputStream (new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dataVizName + ".zip"));
+                os.writeTo(fos);
+                os.close();
+                fos.close();
+                if (  Utilities.unpackZip(destinationDirectory(), zipFilePath())) {
+                    this.replacePlaceholders();
                 }
                 else {
-                    FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dataVizName + ".zip"));
-                    os.writeTo(fos);
-                    os.close();
-                    fos.close();
-                    if (Utilities.unpackZip(destinationDirectory(), zipFilePath())) {
-                        this.replacePlaceholders();
-                    }
-                    else {
-                        mLastErrorMessage = "Could not unzip file " + dataVizName + ".zip";
-                    }
+                    mLastErrorMessage = "Could not unzip file " + dataVizName + ".zip";
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -153,6 +127,7 @@ public class DataVisualizationActivity extends Activity {
                 return options;
             }
         }
+
     }
 
     @Override
@@ -212,7 +187,7 @@ public class DataVisualizationActivity extends Activity {
             this.applicationName = extras.getString(DataVisualizationActivityConstants.APPLICATION_NAME);
             this.domain = extras.getString(DataVisualizationActivityConstants.DOMAIN);
             this.dataVizName = extras.getString(DataVisualizationActivityConstants.DATAVIZ_NAME);
-            this.mStrictSSL = extras.getBoolean(DataVisualizationActivityConstants.STRICT_SSL);
+            this.strictSSL = extras.getBoolean(DataVisualizationActivityConstants.STRICT_SSL);
             String token = extras.getString(DataVisualizationActivityConstants.AUTH_HEADER);
             this.authHeaderValue = String.format("WRAP access_token=\"%s\"", token);
             this.authenticationResponse = extras.getString(DataVisualizationActivityConstants.AUTH_RESPONSE);
@@ -245,50 +220,25 @@ public class DataVisualizationActivity extends Activity {
 
     }
 
-
-    private class JSValidationWebViewClient extends WebViewClient {
-        private static final java.lang.String GET_TITLE_FN = "javascript:( function () { window.HTMLOUT.getTitleCallback(document.title); } ) ()";
-        protected final String TAG = JSValidationWebViewClient.class.getSimpleName();
-
-        @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            super.onReceivedError(view, errorCode, description, failingUrl);
-
-            progressDialog.dismiss();
-            webView.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            if(!mStrictSSL)
-                handler.proceed(); // Ignore SSL certificate errors
-        }
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            super.onPageFinished(view, url);
-            String payload = view.getTitle();
-            Log.d(TAG, payload);
-            if ( payload.indexOf(mFailPrefix) > -1 ) {
-                // TODO, display something
-            }
-            progressDialog.dismiss();
-
-        }
-
+    WebChromeClient getWebChromeClient() {
+        return new JSValidationWebChromeClient();
     }
-    ErrorCheckJavaScriptInterface getJavaScriptInterface() {
-        return new ErrorCheckJavaScriptInterface();
-    }
-
-    private class ErrorCheckJavaScriptInterface {
-        private final String TAG = ErrorCheckJavaScriptInterface.class.getSimpleName();
-
-        @JavascriptInterface
-        public void getTitleCallback(String jsResult) {
-            String payload = jsResult.replace(mFailPrefix,"");
-            Log.d(TAG, payload);
+    private class JSValidationWebChromeClient extends WebChromeClient {
+        @Override
+        public void onProgressChanged(WebView view, int progress) {
+            progressDialog.setProgress(progress);
         }
+        @Override
+        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+            String message = String.format("Line: %s. Message: %s. SourceId: %s",String.valueOf(consoleMessage.lineNumber()) , consoleMessage.message(), consoleMessage.sourceId());
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction(kidozen.client.datavisualization.Constants.DATA_VISUALIZATION_BROADCAST_ACTION);
+            broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            broadcastIntent.putExtra(kidozen.client.datavisualization.Constants.DATA_VISUALIZATION_BROADCAST_CONSOLE_MESSAGE, message);
+            sendBroadcast(broadcastIntent);
+            return super.onConsoleMessage(consoleMessage);
+        }
+
     }
 
 
@@ -303,11 +253,22 @@ public class DataVisualizationActivity extends Activity {
         webView = new WebView(context);
         webView.setVerticalScrollBarEnabled(true);
         webView.setHorizontalScrollBarEnabled(false);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                if(!strictSSL)
+                    handler.proceed(); // Ignore SSL certificate errors
+            }
+        });
         webView.setWebChromeClient(getWebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setLayoutParams(frame);
+
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-        webView.addJavascriptInterface(getJavaScriptInterface(), "HTMLOUT");
+
+        // DEBUG.
+        //webView.setWebContentsDebuggingEnabled(true);
+
         mainLayout.addView(webView);
 
         setContentView(mainLayout,

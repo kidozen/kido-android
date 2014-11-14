@@ -67,6 +67,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
             @Override
             public void onClick(View view) {
                 helper.setDataVisualization(mContext, editVizName.getText().toString());
+                registerReceiver();
             }
         });
     }
@@ -127,7 +128,8 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     public class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(mContext, "Press Back again to Exit.", Toast.LENGTH_LONG).show();
+            String message = intent.getStringExtra(Constants.DATA_VISUALIZATION_BROADCAST_CONSOLE_MESSAGE);
+            Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
         }
     }
 }
