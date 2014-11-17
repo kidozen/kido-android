@@ -1,4 +1,4 @@
-package kidozen.samples.dataviz;
+package kidozen.samples.social;
 
 import android.app.Activity;
 import android.os.Bundle;

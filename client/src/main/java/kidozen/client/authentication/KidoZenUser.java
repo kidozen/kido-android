@@ -56,7 +56,7 @@ public class KidoZenUser {
 
     /**
      * This is plain response we received when authenticating.
-     * Needed for dataviz.
+     * Needed for social.
      */
     public String authenticationResponse;
 

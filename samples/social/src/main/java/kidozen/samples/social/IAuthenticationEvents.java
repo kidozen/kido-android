@@ -1,4 +1,4 @@
-package kidozen.samples.dataviz;
+package kidozen.samples.social;
 
 /**
  * Created by christian on 7/8/14.

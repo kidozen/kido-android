@@ -67,15 +67,19 @@ public class DataVisualizationActivity extends Activity {
         protected Void doInBackground(String... params) {
             try {
                 ByteArrayOutputStream os = (ByteArrayOutputStream)connectionManager.ExecuteHttpAsStream(KZHttpMethod.GET);
-                FileOutputStream fos = new FileOutputStream (new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dataVizName + ".zip"));
-                os.writeTo(fos);
-                os.close();
-                fos.close();
-                if (  Utilities.unpackZip(destinationDirectory(), zipFilePath())) {
-                    this.replacePlaceholders();
+                if (os!=null) {
+                    FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dataVizName + ".zip"));
+                    os.writeTo(fos);
+                    os.close();
+                    fos.close();
+                    if (Utilities.unpackZip(destinationDirectory(), zipFilePath())) {
+                        this.replacePlaceholders();
+                    } else {
+                        mLastErrorMessage = "Could not unzip file " + dataVizName + ".zip";
+                    }
                 }
                 else {
-                    mLastErrorMessage = "Could not unzip file " + dataVizName + ".zip";
+                    mLastErrorMessage = "Could not open visualization.";
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -90,7 +94,18 @@ public class DataVisualizationActivity extends Activity {
          */
         @Override
         protected void onPostExecute(Void aVoid) {
-            if (mLastErrorMessage==null) webView.loadUrl("file://" + indexFilePath());
+            if (mLastErrorMessage==null)  {
+                webView.loadUrl("file://" + indexFilePath()) ;
+            }
+            else {
+                String message = mLastErrorMessage;
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.setAction(kidozen.client.datavisualization.Constants.DATA_VISUALIZATION_BROADCAST_ACTION);
+                broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                broadcastIntent.putExtra(kidozen.client.datavisualization.Constants.DATA_VISUALIZATION_BROADCAST_CONSOLE_MESSAGE, message);
+                sendBroadcast(broadcastIntent);
+            }
+
             progressDialog.dismiss();
         }
 
