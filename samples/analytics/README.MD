@@ -3,7 +3,7 @@ This folder contains code sample about how to use Analytics
 
 ## How to run the example
 
-Navigate to folder 'src/main/java' and edit the file 'KidoZenHelper.java'. Update the following lines with the righ values
+Navigate to folder 'src/main/java' and edit the file 'example.com.datavisualizations.KidoZenHelper.java'. Update the following lines with the righ values
 
 		String tenantMarketPlace = "http://contoso.kidocloud.com";
 		String application = "myApplication";
