@@ -267,7 +267,7 @@ public class KZApplication {
      */
     public Configuration Configuration(String name) throws Exception {
         checkMethodParameters(name);
-        Configuration configuration = new Configuration(mApplicationConfiguration.GetSettingAsString("configuration"),
+        Configuration configuration = new Configuration(mApplicationConfiguration.GetSettingAsString("config"),
                 name,
                 mProvider,
                 mUsername,
