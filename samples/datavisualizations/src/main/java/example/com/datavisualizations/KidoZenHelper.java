@@ -1,22 +1,27 @@
 package example.com.datavisualizations;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.http.HttpStatus;
 
 import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
+import kidozen.client.PubSubChannel;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
 import kidozen.client.authentication.GPlusAuthenticationResponseReceiver;
 
 /**
  * Created by christian on 7/8/14.
  */
 public class KidoZenHelper {
+    private static final String TAG = "KidoZenHelper";
     private KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://kidodemo.kidocloud.com";
+    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
     private String application = "tasks";
-    private String appkey = "get this value from: marketplace -> application -> coding -> keys";
+    private String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
 
     private Boolean isInitialized    = false;
 
@@ -59,6 +64,18 @@ public class KidoZenHelper {
     }
 
     public void setDataVisualization(Context context, String name) {
-        kido.showDataVisualization(context,name);
+        try {
+            PubSubChannel channel = kido.PubSubChannel("myAndroidChannel");
+            channel.Subscribe(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    Log.d(TAG,e.Body);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //kido.showDataVisualization(context,name);
     }
 }

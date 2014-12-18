@@ -2,7 +2,11 @@ package kidozen.client;
 
 import android.util.Log;
 
-import com.netiq.websocket.WebSocketClient;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.engineio.client.Transport;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Manager;
+import com.github.nkzawa.socketio.client.Socket;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
@@ -12,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
@@ -27,7 +32,6 @@ public class PubSubChannel extends KZService {
     private static final String TAG = "PubSubChannel";
     public static final String MESSAGE_CALLBACK_NOT_SET = "Message Callback has not been set. Check if you are using 'GetMessages' method in your application ";
     private String _wsEndpoint;
-    private WSClient _wsClient;
     private ServiceEventListener _messagesCallback;
     private ServiceEventListener _apiCallback;
 
@@ -48,6 +52,64 @@ public class PubSubChannel extends KZService {
         super(ep,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
         _wsEndpoint = wsEndpoint;
     }
+
+
+    /**
+     * Subscribes the specified callback in the current channel
+     *
+     * @param callback
+     * @throws URISyntaxException
+     */
+    public void Subscribe(final ServiceEventListener callback) throws URISyntaxException {
+        String ep = _wsEndpoint.replace("wss://", "https://")  + mName;
+        final Socket socket = IO.socket(ep);
+
+        socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Transport transport = (Transport)args[0];
+                transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Map<String, String> headers = (Map<String, String>) args[0];
+                        headers.put(Constants.AUTHORIZATION_HEADER, mUserIdentity.Token);
+                    }
+                });
+            }
+        });
+
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+                socket.emit("foo", "hi");
+                socket.disconnect();
+            }
+
+        }).on("event", new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG,args.toString());
+            }
+
+        }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG,args.toString());
+            }
+
+        }).on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG,args.toString());
+            }
+        });
+        socket.connect();
+        _apiCallback = callback;
+    }
+
 
     /**
      * Publish a new message in the current channel
@@ -70,33 +132,8 @@ public class PubSubChannel extends KZService {
 
     public boolean Publish(JSONObject message, boolean isPrivate) throws TimeoutException, SynchronousException {
         SyncHelper<String> helper = new SyncHelper<String>(this, "Publish", JSONObject.class, boolean.class, ServiceEventListener.class);
-        helper.Invoke(new Object[]{message , isPrivate});
+        helper.Invoke(new Object[]{message, isPrivate});
         return (helper.getStatusCode() == HttpStatus.SC_CREATED);
-    }
-
-    /**
-     * Subscribes the specified callback in the current channel
-     *
-     * @param callback
-     * @throws URISyntaxException
-     */
-    public void Subscribe(final ServiceEventListener callback) throws URISyntaxException {
-        _wsClient = new WSClient(new URI(_wsEndpoint), mName);
-        _wsClient.connect();
-        _apiCallback = callback;
-    }
-
-    /**
-     * Ends the current subscription to the channel
-     */
-    public void Unsubscribe() {
-        try
-        {
-            _wsClient.close();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -104,92 +141,4 @@ public class PubSubChannel extends KZService {
         _messagesCallback = callback;
     }
 
-
-    private class WSClient extends WebSocketClient {
-        private String _name;
-
-        public WSClient(URI serverURI, String name) {
-            super(serverURI);
-            _name = name;
-        }
-
-        @Override
-        public void onMessage(String wsMessage) {
-            try
-            {
-                int start= wsMessage.indexOf("::") + 2;
-                String message = wsMessage.substring(start);
-                JSONObject jsonMessage = new JSONObject(message);
-                NotifyApiCallback( jsonMessage, _messagesCallback);
-            }
-            catch (Exception e) {
-                ExecuteCallBackWithException(e, _messagesCallback);
-            }
-        }
-
-        @Override
-        public void onIOError(IOException ex) {
-            JSONObject jsonMessage = null;
-            try
-            {
-                jsonMessage = new JSONObject()
-                        .put("result","IOError")
-                        .put("Exception", ex);
-                NotifyApiCallback( jsonMessage, _messagesCallback);
-
-            }
-            catch (JSONException e) {
-                ExecuteCallBackWithException(e, _messagesCallback);
-            }
-        }
-
-        @Override
-        public void onClose() {
-            JSONObject jsonMessage = null;
-            try
-            {
-                jsonMessage = new JSONObject()
-                        .put("result", "onClose success");
-                NotifyApiCallback( jsonMessage, _messagesCallback);
-            }
-            catch (JSONException e) {
-                ExecuteCallBackWithException(e, _messagesCallback);
-            }
-        }
-
-        @Override
-        public void onOpen() {
-            String command = String.format("bindToChannel::{\"application\":\"local\", \"channel\":\"%s\"}",_name);
-            try
-            {
-                this.send(command);
-                //Notifies API Callback Success
-                NotifyApiCallback( new JSONObject().put("result", "onOpen success"), _apiCallback);
-            }
-            catch (Exception e) {
-                ExecuteCallBackWithException(e, _apiCallback);
-            }
-        }
-
-
-        private void NotifyApiCallback(JSONObject o, ServiceEventListener apiCallback) {
-            if (apiCallback!=null) {
-                ServiceEvent evt = new ServiceEvent(this,HttpStatus.SC_OK, o.toString(),o);
-                apiCallback.onFinish(evt);
-            }
-            else {
-                Log.i(TAG, MESSAGE_CALLBACK_NOT_SET);
-            }
-        }
-
-        private void ExecuteCallBackWithException(Exception e, ServiceEventListener apiCallback) {
-            e.printStackTrace();
-            if (apiCallback!=null) {
-                ServiceEvent evt = new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST, e.getMessage(), null ,e);
-                apiCallback.onFinish(evt);            }
-            else {
-                Log.i(TAG, MESSAGE_CALLBACK_NOT_SET);
-            }
-        }
-    }
 }
