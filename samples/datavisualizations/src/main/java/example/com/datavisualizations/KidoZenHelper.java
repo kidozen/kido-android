@@ -19,9 +19,9 @@ public class KidoZenHelper {
     private static final String TAG = "KidoZenHelper";
     private KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
-    private String application = "tasks";
-    private String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
+    private String tenantMarketPlace = "https://contoso.local.kidozen.com";
+    private String application = "test1";
+    private String appkey = "DH4OvSVT678swmSmopkMo5BHKXzJhxd42zcLvAC5WFA=";//"upTbyOhvjn7/D2jia1D5LkzI66Di4HBoyf4AMFjkZN0=";//"NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
 
     private Boolean isInitialized    = false;
 

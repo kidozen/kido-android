@@ -2,21 +2,15 @@ package kidozen.client;
 
 import android.util.Log;
 
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.engineio.client.Transport;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Manager;
-import com.github.nkzawa.socketio.client.Socket;
-
 import org.apache.http.HttpStatus;
-import org.json.JSONException;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
@@ -61,55 +55,46 @@ public class PubSubChannel extends KZService {
      * @throws URISyntaxException
      */
     public void Subscribe(final ServiceEventListener callback) throws URISyntaxException {
-        String ep = _wsEndpoint.replace("wss://", "https://")  + mName;
-        final Socket socket = IO.socket(ep);
-
-        socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                Transport transport = (Transport)args[0];
-                transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
-                    @Override
-                    public void call(Object... args) {
-                        Map<String, String> headers = (Map<String, String>) args[0];
-                        headers.put(Constants.AUTHORIZATION_HEADER, mUserIdentity.Token);
-                    }
-                });
-            }
-        });
-
-        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-
-            @Override
-            public void call(Object... args) {
-                socket.emit("foo", "hi");
-                socket.disconnect();
-            }
-
-        }).on("event", new Emitter.Listener() {
-
-            @Override
-            public void call(Object... args) {
-                Log.d(TAG,args.toString());
-            }
-
-        }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-
-            @Override
-            public void call(Object... args) {
-                Log.d(TAG,args.toString());
-            }
-
-        }).on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                Log.d(TAG,args.toString());
-            }
-        });
-        socket.connect();
+        String ep = "wss://kidowebsocket-tasks-testssl.kidocloud.com"; //"wss://echo.websocket.org"; //"wss://kidowebsocket-test1-contoso.local.kidozen.com";//
+        connectWebSocket(ep);
         _apiCallback = callback;
     }
 
+    private void connectWebSocket(String ep) {
+        List<BasicNameValuePair> extraHeaders = Arrays.asList(
+                new BasicNameValuePair("Cookie", "session=abcd")
+        );
+
+        WebSocketClient client = new WebSocketClient(URI.create(ep), new WebSocketClient.Listener() {
+            @Override
+            public void onConnect() {
+                System.out.println("Connected!");
+            }
+
+            @Override
+            public void onMessage(String message) {
+                System.out.println(String.format("Got string message! %s", message));
+            }
+
+            @Override
+            public void onMessage(byte[] data) {
+                System.out.println("Got binary message!");
+            }
+
+            @Override
+            public void onDisconnect(int code, String reason) {
+                System.out.println( String.format("Disconnected! Code: %d Reason: %s", code, reason));
+            }
+
+            @Override
+            public void onError(Exception error) {
+                System.out.println("Error!" + error.getMessage().toString());
+            }
+        }, extraHeaders);
+System.out.println("about to connect");
+        client.connect();
+System.out.println("did  connect?");
+    }
 
     /**
      * Publish a new message in the current channel

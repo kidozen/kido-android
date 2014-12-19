@@ -93,14 +93,15 @@ dependencies {
     compile 'com.google.android.gms:play-services:5.0.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.code.gson:gson:2.2.4'
+ //   compile "org.java-websocket:Java-WebSocket:1.3.0"
     androidTestCompile 'org.robolectric:robolectric:2.3'
-    compile 'com.github.nkzawa:socket.io-client:0.3.0'
+
 }
 
 //only include files that are suffixed with Test.class and set the max heap size
 robolectric {
-    exclude '**/PubSubTest.class'
-    include '**/LogTest.class'
+    //exclude '**/PubSubTest.class'
+    include '**/PubSubTest.class'
     maxHeapSize = "2048m"
 
 }
