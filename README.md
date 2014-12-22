@@ -20,7 +20,7 @@ To get Your Credentials Register at [KidoZen]("http://kidozen.com/")
 - Android SDK Build Tools 19.1 For more information on the Android SDK, [see]("http://developer.android.com/index.html">http://developer.android.com/index.html)
 - Google Play Services Library (User Android SDK Manager to get it)
 - Google Repository (User Android SDK Manager to get it)
-- To run the code examples, you also need the Android Studio 0.8.14 or above
+- To run the code examples, you also need the Android Studio 1.0.1 or above
 
 ## How to Include the KidoZen SDK for Android in an Existing Application
 The SDK now is packaged as a Gradle project, you can either include the full code or include a jar file
