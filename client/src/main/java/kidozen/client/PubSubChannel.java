@@ -8,9 +8,13 @@ import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import kidozen.client.authentication.KidoZenUser;
 import kidozen.client.internal.Constants;
@@ -47,6 +51,40 @@ public class PubSubChannel extends KZService {
         _wsEndpoint = wsEndpoint;
     }
 
+    String ep = "wss://christianmbair.localhost.com:8080";//"wss://kidowebsocket-tasks-testssl.kidocloud.com"; //"wss://echo.websocket.org"; //
+    List<BasicNameValuePair> extraHeaders = Arrays.asList(
+            new BasicNameValuePair("Cookie", "session=abcd")
+    );
+
+    final WebSocketClient client = new WebSocketClient(URI.create(ep), new WebSocketClient.Listener() {
+        @Override
+        public void onConnect() {
+            System.out.println("Connected!");
+            _apiCallback.onFinish(new ServiceEvent(this,200,"200",this));
+        }
+
+        @Override
+        public void onMessage(String message) {
+            System.out.println(String.format("Got string message! %s", message));
+        }
+
+        @Override
+        public void onMessage(byte[] data) {
+            System.out.println("Got binary message!");
+        }
+
+        @Override
+        public void onDisconnect(int code, String reason) {
+            System.out.println( String.format("Disconnected! Code: %d Reason: %s", code, reason));
+        }
+
+        @Override
+        public void onError(Exception error) {
+            System.out.println("Error!" + error.getMessage().toString());
+        }
+    }, extraHeaders);
+
+
 
     /**
      * Subscribes the specified callback in the current channel
@@ -55,45 +93,28 @@ public class PubSubChannel extends KZService {
      * @throws URISyntaxException
      */
     public void Subscribe(final ServiceEventListener callback) throws URISyntaxException {
-        String ep = "wss://kidowebsocket-tasks-testssl.kidocloud.com"; //"wss://echo.websocket.org"; //"wss://kidowebsocket-test1-contoso.local.kidozen.com";//
         connectWebSocket(ep);
         _apiCallback = callback;
+
     }
 
     private void connectWebSocket(String ep) {
-        List<BasicNameValuePair> extraHeaders = Arrays.asList(
-                new BasicNameValuePair("Cookie", "session=abcd")
-        );
 
-        WebSocketClient client = new WebSocketClient(URI.create(ep), new WebSocketClient.Listener() {
-            @Override
-            public void onConnect() {
-                System.out.println("Connected!");
-            }
+        WebSocketClient.setTrustManagers(new TrustManager[] {
+                new X509TrustManager() {
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                        System.out.println("checkClientTrusted");
+                    }
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                        System.out.println("checkServerTrusted");
+                    }
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[]{};
+                    }
+                }
+        });
 
-            @Override
-            public void onMessage(String message) {
-                System.out.println(String.format("Got string message! %s", message));
-            }
-
-            @Override
-            public void onMessage(byte[] data) {
-                System.out.println("Got binary message!");
-            }
-
-            @Override
-            public void onDisconnect(int code, String reason) {
-                System.out.println( String.format("Disconnected! Code: %d Reason: %s", code, reason));
-            }
-
-            @Override
-            public void onError(Exception error) {
-                System.out.println("Error!" + error.getMessage().toString());
-            }
-        }, extraHeaders);
-System.out.println("about to connect");
         client.connect();
-System.out.println("did  connect?");
     }
 
     /**
@@ -111,7 +132,7 @@ System.out.println("did  connect?");
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-
+        client.send("test message");
         new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
     }
 

@@ -4,12 +4,15 @@ import android.content.Context;
 import android.util.Log;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 
 import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
 import kidozen.client.PubSubChannel;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.SynchronousException;
+import kidozen.client.TimeoutException;
 import kidozen.client.authentication.GPlusAuthenticationResponseReceiver;
 
 /**
@@ -19,9 +22,9 @@ public class KidoZenHelper {
     private static final String TAG = "KidoZenHelper";
     private KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://contoso.local.kidozen.com";
-    private String application = "test1";
-    private String appkey = "DH4OvSVT678swmSmopkMo5BHKXzJhxd42zcLvAC5WFA=";//"upTbyOhvjn7/D2jia1D5LkzI66Di4HBoyf4AMFjkZN0=";//"NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
+    private String tenantMarketPlace = "https://testssl.kidocloud.com";
+    private String application = "tasks";
+    private String appkey = "upTbyOhvjn7/D2jia1D5LkzI66Di4HBoyf4AMFjkZN0=";//"NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
 
     private Boolean isInitialized    = false;
 
@@ -33,7 +36,7 @@ public class KidoZenHelper {
 
 
     public KidoZenHelper() {
-        kido = new KZApplication(tenantMarketPlace, application, appkey, false);
+        kido = new KZApplication(tenantMarketPlace, application, appkey,true);
         try {
             kido.Initialize(new kidozen.client.ServiceEventListener() {
                 @Override
@@ -65,10 +68,17 @@ public class KidoZenHelper {
 
     public void setDataVisualization(Context context, String name) {
         try {
-            PubSubChannel channel = kido.PubSubChannel("myAndroidChannel");
+            final PubSubChannel channel = kido.PubSubChannel("myAndroidChannel");
             channel.Subscribe(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
+                    try {
+                        channel.Publish(new JSONObject(),false);
+                    } catch (TimeoutException e1) {
+                        e1.printStackTrace();
+                    } catch (SynchronousException e1) {
+                        e1.printStackTrace();
+                    }
                     Log.d(TAG,e.Body);
                 }
             });
