@@ -1,18 +1,19 @@
 package kidozen.client;
 
-import android.util.Log;
-
 import org.apache.http.HttpStatus;
-import org.apache.http.message.BasicNameValuePair;
+import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -28,11 +29,29 @@ import kidozen.client.internal.SyncHelper;
  */
 public class PubSubChannel extends KZService {
     private static final String TAG = "PubSubChannel";
-    public static final String MESSAGE_CALLBACK_NOT_SET = "Message Callback has not been set. Check if you are using 'GetMessages' method in your application ";
-    private String _wsEndpoint;
-    private ServiceEventListener _messagesCallback;
-    private ServiceEventListener _apiCallback;
+    private String mWsEndpoint;
+    private ServiceEventListener mMessagesCallback;
+    private ServiceEventListener mSubscribeCallback;
+    WebSocketClient mClient;
+    private static String mBindCommand  = "bindToChannel::{\"application\":\"local\", \"channel\":\"%s\"}";
+    
+    
+    TrustManager[] mDefaultTrustsManagers = new TrustManager[]{
+            new X509TrustManager() {
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                    System.out.println("checkClientTrusted");
+                }
 
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                    System.out.println("checkServerTrusted");
+                }
+
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[]{};
+                }
+            }
+    };
+    
     /**
      * Constructor
      * You should not create a new instances of this constructor. Instead use the PubSubChannel() method of the KZApplication object.
@@ -48,73 +67,54 @@ public class PubSubChannel extends KZService {
      */
     public PubSubChannel(String ep, String wsEndpoint, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
         super(ep,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
-        _wsEndpoint = wsEndpoint;
+        mWsEndpoint = wsEndpoint;
     }
-
-    String ep = "wss://christianmbair.localhost.com:8080";//"wss://kidowebsocket-tasks-testssl.kidocloud.com"; //"wss://echo.websocket.org"; //
-    List<BasicNameValuePair> extraHeaders = Arrays.asList(
-            new BasicNameValuePair("Cookie", "session=abcd")
-    );
-
-    final WebSocketClient client = new WebSocketClient(URI.create(ep), new WebSocketClient.Listener() {
-        @Override
-        public void onConnect() {
-            System.out.println("Connected!");
-            _apiCallback.onFinish(new ServiceEvent(this,200,"200",this));
-        }
-
-        @Override
-        public void onMessage(String message) {
-            System.out.println(String.format("Got string message! %s", message));
-        }
-
-        @Override
-        public void onMessage(byte[] data) {
-            System.out.println("Got binary message!");
-        }
-
-        @Override
-        public void onDisconnect(int code, String reason) {
-            System.out.println( String.format("Disconnected! Code: %d Reason: %s", code, reason));
-        }
-
-        @Override
-        public void onError(Exception error) {
-            System.out.println("Error!" + error.getMessage().toString());
-        }
-    }, extraHeaders);
-
-
 
     /**
      * Subscribes the specified callback in the current channel
      *
      * @param callback
-     * @throws URISyntaxException
+     * @throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException
      */
-    public void Subscribe(final ServiceEventListener callback) throws URISyntaxException {
-        connectWebSocket(ep);
-        _apiCallback = callback;
-
+    public void Subscribe(final ServiceEventListener callback) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException  {
+        connectWebSocket(mWsEndpoint);
+        mSubscribeCallback = callback;
     }
 
-    private void connectWebSocket(String ep) {
+    private void connectWebSocket(String ep) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        WebSocketClientA.setTrustManagers(mDefaultTrustsManagers);
+        SSLContext sslContext = null;
+        sslContext = SSLContext.getInstance("TLS");
+        sslContext.init( null, mDefaultTrustsManagers, null );
+        
+        mClient = new WebSocketClient(new URI(ep)) {
+            @Override
+            public void onOpen(ServerHandshake handShakeData) {
+                System.out.println("onOpen");
+                String bindMessage = String.format(mBindCommand,mName);
+                mClient.send(bindMessage);
+                mSubscribeCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_OK,bindMessage,null));
+            }
 
-        WebSocketClient.setTrustManagers(new TrustManager[] {
-                new X509TrustManager() {
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) {
-                        System.out.println("checkClientTrusted");
-                    }
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) {
-                        System.out.println("checkServerTrusted");
-                    }
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[]{};
-                    }
-                }
-        });
+            @Override
+            public void onMessage(String message) {
+                System.out.println("onMessage: " + message);
+                mMessagesCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_OK,message, null));
+            }
 
-        client.connect();
+            @Override
+            public void onClose(int code, String reason, boolean remote) {
+                System.out.println("onClose");
+            }
+
+            @Override
+            public void onError(Exception ex) {
+                System.out.println("onError");
+                mSubscribeCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_INTERNAL_SERVER_ERROR,"",null));
+            }
+        };
+        mClient.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(sslContext));
+        mClient.connect();
     }
 
     /**
@@ -132,7 +132,6 @@ public class PubSubChannel extends KZService {
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         headers.put(Constants.ACCEPT, Constants.APPLICATION_JSON);
-        client.send("test message");
         new KZService.KZServiceAsyncTask(KZHttpMethod.POST, params, headers, message, callback, getStrictSSL()).execute(url);
     }
 
@@ -144,7 +143,7 @@ public class PubSubChannel extends KZService {
 
 
     public void GetMessages(ServiceEventListener callback) {
-        _messagesCallback = callback;
+        mMessagesCallback = callback;
     }
 
 }

@@ -26,7 +26,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-public class WebSocketClient {
+public class WebSocketClientA {
     private static final String TAG = "WebSocketClient";
 
     private URI                      mURI;
@@ -46,7 +46,7 @@ public class WebSocketClient {
         sTrustManagers = tm;
     }
 
-    public WebSocketClient(URI uri, Listener listener, List<BasicNameValuePair> extraHeaders) {
+    public WebSocketClientA(URI uri, Listener listener, List<BasicNameValuePair> extraHeaders) {
         mURI          = uri;
         mListener = listener;
         mExtraHeaders = extraHeaders;
@@ -230,19 +230,27 @@ public class WebSocketClient {
     }
 
     void sendFrame(final byte[] frame) {
+        System.out.print("Degugging SEND, about to post");
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
+                    System.out.print("Degugging SEND, mHandler.post");
+
                     synchronized (mSendLock) {
+                        System.out.print("Degugging SEND, synchronized (mSendLock)");
+
                         if (mSocket == null) {
+                            System.out.print("Degugging SEND, IllegalStateException");
                             throw new IllegalStateException("Socket not connected");
                         }
                         OutputStream outputStream = mSocket.getOutputStream();
                         outputStream.write(frame);
                         outputStream.flush();
+                        System.out.print("Degugging SEND, outputStream.flush()");
                     }
                 } catch (IOException e) {
+                    System.out.print("Degugging SEND" + e.getMessage());
                     mListener.onError(e);
                 }
             }

@@ -40,7 +40,7 @@ import java.util.List;
 public class HybiParser {
     private static final String TAG = "HybiParser";
 
-    private WebSocketClient mClient;
+    private WebSocketClientA mClient;
 
     private boolean mMasking = true;
 
@@ -92,7 +92,7 @@ public class HybiParser {
         OP_CONTINUATION, OP_TEXT, OP_BINARY
     );
 
-    public HybiParser(WebSocketClient client) {
+    public HybiParser(WebSocketClientA client) {
         mClient = client;
     }
 
