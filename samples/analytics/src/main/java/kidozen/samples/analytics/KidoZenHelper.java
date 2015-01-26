@@ -16,7 +16,7 @@ public class KidoZenHelper {
     private KZApplication kido = null;
     private String tenantMarketPlace = "https://kidodemo.kidocloud.com";
     private String application = "tasks";
-    private String appkey = "get this value from: marketplace -> application -> coding -> keys";
+    private String appkey = "wb8KTX2/21A6ISM7PncaNozhxxCxcL8+TtB2aKbZyu8=";
 
     private Boolean isInitialized    = false;
     private kidozen.samples.analytics.IAuthenticationEvents authEvents;
@@ -54,12 +54,14 @@ public class KidoZenHelper {
     }
 
 
+
+
     public void SignOut() {
         kido.SignOut();
     }
 
-    public void SignIn(Context context) throws InitializationException{
-        kido.Authenticate(context, new kidozen.client.ServiceEventListener() {
+    public void SignIn(Context context) throws InitializationException, SecurityException {
+        kido.Authenticate("Kidozen","demo@kidozen.com","pass", new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {

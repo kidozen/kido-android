@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,6 +31,7 @@ public class DeviceInfo {
     public String adminArea= "Unknown";
     public String subAdminArea= "Unknown";
     public String locale= "Unknown";
+    private final String TAG = this.getClass().getSimpleName();
 
     public DeviceInfo(Context context) {
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -56,23 +58,28 @@ public class DeviceInfo {
 
     private void getLocationInformation(Context context) {
         Location loc = getLastBestLocation(context, 30);
-        Geocoder gcd = new Geocoder(context, Locale.getDefault());
         try {
-            List<Address> addresses = gcd.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-            if (addresses.size() > 0)
-            {
-                Address address = addresses.get(0);
+            if (loc!=null) {
+                Geocoder gcd = new Geocoder(context, Locale.getDefault());
+                List<Address> addresses = gcd.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+                if (addresses.size() > 0) {
+                    Address address = addresses.get(0);
 
-                isoCountryCode = address.getCountryCode();
-                countryName = address.getCountryName();
-                locality = address.getLocality();
-                adminArea = address.getAdminArea();
-                subAdminArea = address.getSubAdminArea();
-                locale = address.getLocale().toString();
+                    isoCountryCode = address.getCountryCode();
+                    countryName = address.getCountryName();
+                    locality = address.getLocality();
+                    adminArea = address.getAdminArea();
+                    subAdminArea = address.getSubAdminArea();
+                    locale = address.getLocale().toString();
+                }
+            }
+            else {
+                Log.e(TAG,"Could not get location information. Did you enabled location services ?");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public Location getLastBestLocation(Context context, long minTime) {

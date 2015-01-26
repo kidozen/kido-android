@@ -3,6 +3,7 @@ package kidozen.client;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import org.apache.http.HttpStatus;
@@ -107,7 +108,11 @@ public class KZApplication {
     }
 
 
-    public void EnableAnalytics(Context context) throws IllegalStateException {
+    public void EnableAnalytics(Context context) throws IllegalStateException, SecurityException {
+        //Checks permissions
+        String[] permissions = {"android.permission.ACCESS_COARSE_LOCATION",  "android.permission.ACCESS_FINE_LOCATION"};
+        checksPermissions(context, permissions);
+
         if (mAnalyticsLog == null) {
             try {
                 mAnalyticsLog = new AnalyticsLog(
@@ -125,6 +130,17 @@ public class KZApplication {
             mAnalyticsLog.setStrictSSL(!StrictSSL);
         }
         mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog);
+    }
+
+    private void checksPermissions(Context context, String[] permissions) {
+        Boolean hasPermission = false;
+        for(String permission:permissions) {
+            int res = context.checkCallingOrSelfPermission(permission);
+            hasPermission = (PackageManager.PERMISSION_GRANTED==res);
+        }
+        if (!hasPermission) throw new SecurityException(
+                String.format("You must declare one of the following permissions in your manifest.xml: %s", permissions)
+        );
     }
 
     public void TagClick(String buttonName) {
