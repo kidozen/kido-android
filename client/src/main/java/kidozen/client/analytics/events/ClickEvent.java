@@ -5,10 +5,7 @@ package kidozen.client.analytics.events;
  */
 public class ClickEvent extends Event   {
     public ClickEvent(String data, String uuid) {
-        super();
-        setData(data);
-        setUUID(uuid);
+        super.Event(data, uuid);
         setEventName("Click");
     }
-
 }

@@ -5,9 +5,7 @@ package kidozen.client.analytics.events;
  */
 public class ActivityEvent extends Event   {
     public ActivityEvent(String data, String uuid) {
-        super();
-        setUUID(uuid);
-        setData(data);
+        super.Event(data, uuid);
         setEventName("View");
     }
 
