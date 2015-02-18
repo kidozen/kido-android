@@ -14,7 +14,7 @@ public class SessionStartEvent {
     private String sessionUUID;
     private String userid;
 
-    public SessionStartEvent(Context context, String uuid, String userid) {
+    public SessionStartEvent(Context context, String uuid, String userid, String appVersion) {
         this.eventAttr = new DeviceInfo(context);
         this.sessionUUID = uuid;
         this.userid = userid;

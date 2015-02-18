@@ -1,6 +1,8 @@
 package kidozen.client.analytics;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -35,6 +37,7 @@ public class Analytics {
     private AnalyticsLog mLogger;
     private KidoZenUser mUserIdentity;
 
+    private String appVersion;
 
     public void setmUserIdentity(KidoZenUser mUserIdentity) {
         this.mUserIdentity = mUserIdentity;
@@ -60,17 +63,31 @@ public class Analytics {
     public void Enable(Boolean enable, Context context, AnalyticsLog logger) {
         if (enable) {
             mContext = (!context.getClass().isInstance(android.app.Application.class) ? context.getApplicationContext() : context);
+            appVersion = getAppVersion(mContext);
             mLogger = logger;
             mSession = new Session(context);
             checkPendingSessions();
             mSession.StartNew(mUserIdentity.getUserHash());
             mUploader = Uploader.getInstance(mContext, mSession, mLogger);
             mUploader.StartUploaderTransitionTimer();
-            mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash()));
+            mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion));
 
         }
         else {
             mSession = null;
+        }
+    }
+
+
+    private String getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+
+            return new Integer(packageInfo.versionCode).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
         }
     }
 
@@ -127,7 +144,7 @@ public class Analytics {
         mUploader = Uploader.getInstance(mContext, mSession, mLogger);
         mUploader.StartUploaderTransitionTimer();
 
-        mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash()));
+        mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion));
 
     }
 
@@ -143,15 +160,15 @@ public class Analytics {
     }
 
     public void TagClick(String data) {
-        ClickEvent event = new ClickEvent(data, mSession.getUUID(), mUserIdentity.getUserHash());
+        ClickEvent event = new ClickEvent(data, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion);
         mSession.LogEvent(event);
     }
     public void TagActivity(String data) {
-        ActivityEvent event = new ActivityEvent(data, mSession.getUUID(), mUserIdentity.getUserHash());
+        ActivityEvent event = new ActivityEvent(data, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion);
         mSession.LogEvent(event);
     }
     public void TagEvent(String title, JSONObject data) {
-        CustomEvent event = new CustomEvent(title,data, mSession.getUUID(), mUserIdentity.getUserHash());
+        CustomEvent event = new CustomEvent(title,data, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion);
         mSession.LogEvent(event);
     }
 

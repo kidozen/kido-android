@@ -1,6 +1,8 @@
 package kidozen.client.analytics;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -31,6 +33,7 @@ public class DeviceInfo {
     public String adminArea= "Unknown";
     public String subAdminArea= "Unknown";
     public String locale= "Unknown";
+    public String appVersion = "";
     private final String TAG = this.getClass().getSimpleName();
 
     public DeviceInfo(Context context) {
@@ -53,8 +56,19 @@ public class DeviceInfo {
         getLocationInformation(context);
         deviceModel = getDeviceName();
         systemVersion = "Android " + Build.VERSION.RELEASE ;
+        appVersion = new Integer(this.getAppVersion(context)).toString();
     }
 
+    private int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
 
     private void getLocationInformation(Context context) {
         Location loc = getLastBestLocation(context, 30);

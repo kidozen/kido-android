@@ -11,11 +11,11 @@ public abstract class Event {
 
     protected EventAttributes eventAttr;
 
-    public void Event(String data, String UUID, String userid) {
+    public void Event(String data, String UUID, String userid, String appVersion) {
         eventValue = data;
         sessionUUID = UUID;
         this.userid = userid;
-        eventAttr = new EventAttributes();
+        eventAttr = new EventAttributes(appVersion);
     }
 
     public EventAttributes getEventAttr() {
