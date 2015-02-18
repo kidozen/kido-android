@@ -52,7 +52,7 @@ public class DeviceInfo {
         }
         getLocationInformation(context);
         deviceModel = getDeviceName();
-        systemVersion = Build.VERSION.RELEASE ;
+        systemVersion = "Android " + Build.VERSION.RELEASE ;
     }
 
 

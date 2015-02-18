@@ -7,11 +7,14 @@ public abstract class Event {
     protected String eventName = "Event";
     private String eventValue;
     private String sessionUUID;
+    private String userid;
+
     protected EventAttributes eventAttr;
 
-    public void Event(String data, String UUID) {
+    public void Event(String data, String UUID, String userid) {
         eventValue = data;
         sessionUUID = UUID;
+        this.userid = userid;
         eventAttr = new EventAttributes();
     }
 

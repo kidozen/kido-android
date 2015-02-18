@@ -12,10 +12,12 @@ public class SessionStartEvent {
     private DeviceInfo eventAttr;
     private String eventName = "sessionStart";
     private String sessionUUID;
+    private String userid;
 
-    public SessionStartEvent(Context context, String uuid) {
+    public SessionStartEvent(Context context, String uuid, String userid) {
         this.eventAttr = new DeviceInfo(context);
         this.sessionUUID = uuid;
+        this.userid = userid;
     }
 
     public DeviceInfo getEventAttr() {
@@ -42,4 +44,11 @@ public class SessionStartEvent {
         this.sessionUUID = sessionUUID;
     }
 
+    public String getUserid() {
+        return userid;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
 }

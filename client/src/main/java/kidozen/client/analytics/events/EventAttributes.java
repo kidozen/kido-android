@@ -7,6 +7,7 @@ import java.util.HashMap;
  */
 public class EventAttributes {
     private String platform;
+    private String userid;
 
     public EventAttributes() {
         this.platform = "Android";

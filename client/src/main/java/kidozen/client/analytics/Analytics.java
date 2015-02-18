@@ -19,6 +19,7 @@ import kidozen.client.analytics.events.ActivityEvent;
 import kidozen.client.analytics.events.ClickEvent;
 import kidozen.client.analytics.events.CustomEvent;
 import kidozen.client.analytics.events.SessionStartEvent;
+import kidozen.client.authentication.KidoZenUser;
 
 /**
  * Created by christian on 10/22/14.
@@ -32,6 +33,13 @@ public class Analytics {
 
     private Uploader mUploader = null;
     private AnalyticsLog mLogger;
+    private KidoZenUser mUserIdentity;
+
+
+    public void setmUserIdentity(KidoZenUser mUserIdentity) {
+        this.mUserIdentity = mUserIdentity;
+    }
+
 
     public static Analytics getInstance() {
         if (mSingleton == null) {
@@ -40,9 +48,10 @@ public class Analytics {
         return mSingleton;
     }
 
-    public static Analytics getInstance(Boolean enable, Context context, AnalyticsLog logger) {
+    public static Analytics getInstance(Boolean enable, Context context, AnalyticsLog logger, KidoZenUser user) {
         if (mSingleton == null) {
             mSingleton = new Analytics();
+            mSingleton.setmUserIdentity(user);
             mSingleton.Enable(enable,context,logger);
         }
         return mSingleton;
@@ -54,10 +63,10 @@ public class Analytics {
             mLogger = logger;
             mSession = new Session(context);
             checkPendingSessions();
-            mSession.StartNew();
+            mSession.StartNew(mUserIdentity.getUserHash());
             mUploader = Uploader.getInstance(mContext, mSession, mLogger);
             mUploader.StartUploaderTransitionTimer();
-            mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID()));
+            mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash()));
 
         }
         else {
@@ -118,7 +127,7 @@ public class Analytics {
         mUploader = Uploader.getInstance(mContext, mSession, mLogger);
         mUploader.StartUploaderTransitionTimer();
 
-        mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID()));
+        mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash()));
 
     }
 
@@ -134,15 +143,15 @@ public class Analytics {
     }
 
     public void TagClick(String data) {
-        ClickEvent event = new ClickEvent(data, mSession.getUUID());
+        ClickEvent event = new ClickEvent(data, mSession.getUUID(), mUserIdentity.getUserHash());
         mSession.LogEvent(event);
     }
     public void TagActivity(String data) {
-        ActivityEvent event = new ActivityEvent(data, mSession.getUUID());
+        ActivityEvent event = new ActivityEvent(data, mSession.getUUID(), mUserIdentity.getUserHash());
         mSession.LogEvent(event);
     }
     public void TagEvent(String title, JSONObject data) {
-        CustomEvent event = new CustomEvent(title,data, mSession.getUUID());
+        CustomEvent event = new CustomEvent(title,data, mSession.getUUID(), mUserIdentity.getUserHash());
         mSession.LogEvent(event);
     }
 

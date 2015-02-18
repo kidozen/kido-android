@@ -129,7 +129,7 @@ public class KZApplication {
             mAnalyticsLog.mUserIdentity = this.mUserIdentity;
             mAnalyticsLog.setStrictSSL(!StrictSSL);
         }
-        mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog);
+        mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog, mUserIdentity);
     }
 
     private void checksPermissions(Context context, String[] permissions) {
