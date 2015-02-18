@@ -18,6 +18,7 @@ import kidozen.client.ServiceEventListener;
 import kidozen.client.analytics.events.ActivityEvent;
 import kidozen.client.analytics.events.ClickEvent;
 import kidozen.client.analytics.events.CustomEvent;
+import kidozen.client.analytics.events.SessionStartEvent;
 
 /**
  * Created by christian on 10/22/14.
@@ -56,6 +57,8 @@ public class Analytics {
             mSession.StartNew();
             mUploader = Uploader.getInstance(mContext, mSession, mLogger);
             mUploader.StartUploaderTransitionTimer();
+            mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID()));
+
         }
         else {
             mSession = null;
@@ -114,6 +117,9 @@ public class Analytics {
         mSession.ResetEvents();
         mUploader = Uploader.getInstance(mContext, mSession, mLogger);
         mUploader.StartUploaderTransitionTimer();
+
+        mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID()));
+
     }
 
     public void StopSession() {

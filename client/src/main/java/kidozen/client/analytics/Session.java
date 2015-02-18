@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import kidozen.client.analytics.events.Event;
+import kidozen.client.analytics.events.SessionStartEvent;
 
 /**
  * Created by christian on 10/22/14.
@@ -76,6 +77,7 @@ public class Session {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public ArrayList<String> GetPendingSessions() throws IOException {
@@ -108,6 +110,15 @@ public class Session {
     }
 
     public void LogEvent(Event event) {
+        mEvents.add(event);
+        try {
+            Save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sessionStart(SessionStartEvent event) {
         mEvents.add(event);
         try {
             Save();

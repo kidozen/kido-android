@@ -7,8 +7,7 @@ public abstract class Event {
     protected String eventName = "Event";
     private String eventValue;
     private String sessionUUID;
-    private String testField = "testFieldValue";
-    private EventAttributes eventAttr;
+    protected EventAttributes eventAttr;
 
     public void Event(String data, String UUID) {
         eventValue = data;
@@ -16,15 +15,10 @@ public abstract class Event {
         eventAttr = new EventAttributes();
     }
 
-
-
     public EventAttributes getEventAttr() {
         return eventAttr;
     }
 
-    public void setEventAttr(EventAttributes eventAttr) {
-        this.eventAttr = eventAttr;
-    }
 
     public String getEventName() {
         return eventName;
