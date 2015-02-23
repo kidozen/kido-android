@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import example.com.datavisualizations.IAuthenticationEvents;
+import example.com.datavisualizations.R;
 import kidozen.client.InitializationException;
 import kidozen.client.authentication.GPlusAuthenticationResponseReceiver;
 import kidozen.client.datavisualization.Constants;
@@ -25,7 +27,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     MainActivity mSelf = this;
     TextView textView;
     EditText editVizName;
-    Button signIn , signOut, displayDataVisualization, pushbutton;
+    Button signIn , signOut, displayDataVisualization;
     Context mContext;
     private MyBroadcastReceiver mMyBroadcastReceiver;
     private boolean exit=false;
@@ -45,18 +47,6 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
                 try {
                     helper.SignIn(mSelf);
                 } catch (InitializationException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        pushbutton = (Button) findViewById(R.id.buttonPush);
-        pushbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    helper.Push();
-                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
