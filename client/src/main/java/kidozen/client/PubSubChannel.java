@@ -10,6 +10,7 @@
     import com.github.nkzawa.socketio.client.Socket;
 
     import org.apache.http.HttpStatus;
+    import org.json.JSONArray;
     import org.json.JSONException;
     import org.json.JSONObject;
 
@@ -29,19 +30,21 @@
     public class PubSubChannel extends KZService {
         private static final String TAG = "PubSubChannel";
         private static final String KIDO_BIND_ACCEPTED = "bindAccepted";
-        private static final String KIDO_BINDTOCHANNEL = "bindToChannel";
+        private static final String KIDO_BIND_TO_CHANNEL = "bindToChannel";
 
         private String mPubSubEndpoint;
         private ServiceEventListener mMessagesCallback;
-        private ServiceEventListener _apiCallback;
+        private ServiceEventListener mApiCallback;
         private Socket mSocket = null;
 
         private String mChannel = "";
         private String mKidoApplicationName = "";
+        private String mResponseChannelName = "*none*";
 
         /**
          * Constructor
          * You should not create a new instances of this constructor. Instead use the PubSubChannel() method of the KZApplication object.
+         *
          * @param ep
          * @param wsEndpoint
          * @param name
@@ -52,8 +55,8 @@
          * @param userIdentity
          * @param applicationIdentity
          */
-        public PubSubChannel(String ep, String wsEndpoint, String name,String provider , String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-            super(ep,name, provider, username, pass, clientId, userIdentity, applicationIdentity);
+        public PubSubChannel(String ep, String wsEndpoint, String name, String provider, String username, String pass, String clientId, KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
+            super(ep, name, provider, username, pass, clientId, userIdentity, applicationIdentity);
             mChannel = name;
             mPubSubEndpoint = ep;
         }
@@ -67,39 +70,44 @@
         public void Subscribe(final ServiceEventListener callback) throws URISyntaxException {
             String ep = mPubSubEndpoint.replace("/local", "");
             mSocket = IO.socket(ep);
-            _apiCallback = callback;
+            mApiCallback = callback;
 
             mSocket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    Transport transport = (Transport)args[0];
+                    Transport transport = (Transport) args[0];
                     transport.on(Transport.EVENT_OPEN, new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
                             //Map<String, String> headers = (Map<String, String>) args[0];
                             //headers.put(Constants.AUTHORIZATION_HEADER, mUserIdentity.Token);
-                            String bindMessage =  "{ \"application\": \"" + mKidoApplicationName + "\", \"channel\": \"" + mChannel + "\" }";
-                            mSocket.emit(KIDO_BINDTOCHANNEL,bindMessage);
+                            String bindMessage = "{ \"application\": \"" + mKidoApplicationName + "\", \"channel\": \"" + mChannel + "\" }";
+                            mSocket.emit(KIDO_BIND_TO_CHANNEL, bindMessage);
 
                         }
                     });
                     transport.on(Transport.EVENT_PACKET, new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
-                            Packet data = (Packet)args[0];
+                            Packet data = (Packet) args[0];
+                            if (data.type.equals("message") && data.data != null) {
 
-                            Log.i(TAG, String.valueOf(data.data));
-
+                                JSONObject messageAsJson = parseMessage(data.data);
+                                if (messageAsJson != null) {
+                                    ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_OK, messageAsJson.toString(), messageAsJson);
+                                    mMessagesCallback.onFinish(event);
+                                }
+                            }
+                            //Log.i(TAG, String.valueOf(data.data));
                         }
                     });
                 }
             });
 
             mSocket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-
                 @Override
                 public void call(Object... args) {
-                    Log.d(TAG, args.toString());
+                    Log.d(TAG, Socket.EVENT_DISCONNECT);
                 }
 
             });
@@ -107,54 +115,55 @@
             mSocket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    processConnectionError(args);
+                    if (mApiCallback != null)
+                        mApiCallback.onFinish(new ServiceEvent(this, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Socket connection error.", null));
                 }
             });
 
             mSocket.on(KIDO_BIND_ACCEPTED, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    processBindAccepted(args);
-                }
-            });
-
-
-            mSocket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    if (mMessagesCallback!=null)
-                    {
-                        ServiceEvent event = new ServiceEvent(this, HttpStatus.SC_OK, args.toString(), args);
-                        mMessagesCallback.onFinish(event);
+                    JSONObject jResponse = (JSONObject) args[0];
+                    try {
+                        mResponseChannelName = jResponse.getString("responseChannelName");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
             });
 
             mSocket.connect();
-            _apiCallback = callback;
+            mApiCallback = callback;
         }
 
-        private void processConnectionError(Object[] args) {
-            String errorMessage = "Unknown Error";
-            if (args.length>0) {
-                errorMessage = (String)args[0];
-            }
-            if (_apiCallback!=null)
-                _apiCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_INTERNAL_SERVER_ERROR,errorMessage,null ));
-        }
+        /*
+        * The  packet has the following format:
+        *
+        * 2/pubsub,["channel name (stored in mResponseChannelName) ", JSONObject]
+        *
+        * */
+        private JSONObject parseMessage(Object data) {
+            int messageInData = data.toString().lastIndexOf(mResponseChannelName);
 
-        private void processBindAccepted(Object[] args) {
-            if (args.length==1) {
+            if (messageInData > 0) {
+                int startArrayPosition = data.toString().indexOf("[");
+                int closeArrayPosition = data.toString().lastIndexOf("]") +1;
+                String rawMessage = data.toString().substring(startArrayPosition, closeArrayPosition);
                 try {
-                    JSONObject jResponse = (JSONObject)args[0];
-                    String theResponseChannel = jResponse.getString("responseChannelName");
+                    JSONArray messageAsArray = new JSONArray(rawMessage);
+                    // POSITION 0 has ChannelName
+                    // POSITION 1 has the message
+                    return messageAsArray.getJSONObject(1);
                 } catch (JSONException e) {
-                    processConnectionError(new Object[] {e.getMessage()});
+                    e.printStackTrace();
+                    return null;
                 }
-                if (_apiCallback!=null)
-                    _apiCallback.onFinish(new ServiceEvent(this,HttpStatus.SC_OK, "Connected to channel",null ));
+            }
+            else {
+                return null;
             }
         }
+
 
 
         /**
@@ -182,6 +191,9 @@
             return (helper.getStatusCode() == HttpStatus.SC_CREATED);
         }
 
+        public void Unsusbcribe() {
+            mSocket.disconnect();
+        }
 
         public void SetChannelMessageListener(ServiceEventListener callback) {
             mMessagesCallback = callback;

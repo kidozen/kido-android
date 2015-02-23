@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -94,7 +95,11 @@ public class KidoZenHelper {
 
     public void Push() {
         try {
-            channel.Publish(new JSONObject().put("bar","foo"), false, new ServiceEventListener() {
+            JSONObject message = new JSONObject().put("bar", "foo");
+            JSONArray item = new JSONArray("[0,1,2]");
+            message.put("itemAsArray", item);
+
+            channel.Publish(message, false, new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     Log.d(TAG,e.Body);
