@@ -75,7 +75,7 @@ This key is used for secure authentication in the KidoZen SDK’s, you must use 
 ###Authentication
 You must provide the identity provider that you will use the username and the password (Kidozen, Google, etc.). The SDK hides all the calls needed to authenticate the user against the selected identity provider and to create a security context to execute all the services call.
 
-    app.Authenticate(PROVIDER, USER, PASS, new ServiceEventListener() {
+    app.Authenticate(USER, PASS, PROVIDER, new ServiceEventListener() {
         @Override
         public void onFinish(ServiceEvent e) {
         }
