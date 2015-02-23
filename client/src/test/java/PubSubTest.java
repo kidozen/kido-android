@@ -72,7 +72,7 @@ public class PubSubTest {
 
         //Set ups listener
         final CountDownLatch lcdGetMessage = new CountDownLatch(1);
-        q.GetMessages(new ServiceEventListener() {
+        q.SetChannelMessageListener(new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 //System.out.println("The message!? :" +  e.Body);

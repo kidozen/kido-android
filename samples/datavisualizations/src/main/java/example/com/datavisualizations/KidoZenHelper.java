@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
@@ -19,13 +21,20 @@ public class KidoZenHelper {
     private static final String TAG = "KidoZenHelper";
     private KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://contoso.kidocloud.com";
-    private String application = "tasks";
-    String appkey = "get this value from your marketplace";
+    private String tenantMarketPlace = "https://contoso.local.kidozen.com";
+    private String application = "test1";
+    String appkey = "7AzOZiYBU0a6x/hg6Z7i1tlASgi9ojv/OSS12FqB/Ko=";
 
     private Boolean isInitialized    = false;
-
+    PubSubChannel channel;
     private IAuthenticationEvents authEvents;
+
+    private final ServiceEventListener myChannelListenner = new ServiceEventListener() {
+        @Override
+        public void onFinish(ServiceEvent e) {
+            Log.d(TAG,e.Body);
+        }
+    };
 
     public void setAuthEvents(IAuthenticationEvents authEvents) {
         this.authEvents = authEvents;
@@ -51,7 +60,7 @@ public class KidoZenHelper {
     }
 
     public void SignIn(Context context) throws InitializationException{
-        kido.Authenticate(context,false, new kidozen.client.ServiceEventListener() {
+        kido.Authenticate("contoso@kidozen.com","pass","Kidozen", new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {
@@ -65,11 +74,15 @@ public class KidoZenHelper {
 
     public void setDataVisualization(Context context, String name) {
         try {
-            PubSubChannel channel = kido.PubSubChannel("myAndroidChannel");
+
+            channel = kido.PubSubChannel("HoFinoPolvoDeOroSobreLasCopasVerdes");
+            channel.SetChannelMessageListener(myChannelListenner);
+
             channel.Subscribe(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     Log.d(TAG,e.Body);
+
                 }
             });
         } catch (Exception e) {
@@ -77,5 +90,19 @@ public class KidoZenHelper {
         }
 
         //kido.showDataVisualization(context,name);
+    }
+
+    public void Push() {
+        try {
+            channel.Publish(new JSONObject().put("bar","foo"), false, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    Log.d(TAG,e.Body);
+
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
