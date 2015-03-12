@@ -1,9 +1,12 @@
 package kidozen.samples.push;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,10 +18,13 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 public class MyBroadcastReceiver extends BroadcastReceiver {
     private String TAG = this.getClass().getSimpleName();
     private Context mContext;
-
+    private NotificationManager mNotificationManager;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        // Here we should create a kidozen instance and push the notificationOpened.
+
         mContext = context;
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 
@@ -54,5 +60,32 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
     public void showToast(String message){
         Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+        this.sendNotification(message);
+    }
+
+    // Put the message into a notification and post it.
+    // This is just one simple example of what you might choose to do with
+    // a GCM message.
+    private void sendNotification(String msg) {
+        mNotificationManager = (NotificationManager)
+                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+//        Intent intent = new Intent(mContext, MainActivity.class);
+        Intent intent = new Intent("kidozen.samples.push.MyAction");
+        intent.putExtra("kidoId", "myKidoId");
+
+
+        PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
+                intent, 0);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(mContext)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("GCM Notification")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(msg))
+                        .setContentText(msg);
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.notify(111, mBuilder.build());
     }
 }

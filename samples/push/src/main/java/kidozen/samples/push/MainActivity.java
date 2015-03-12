@@ -1,6 +1,7 @@
 package kidozen.samples.push;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,7 +25,22 @@ public class MainActivity extends Activity implements IPushEvents {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO: Call kzApplication.openedFromNotification(this);
+
         setContentView(R.layout.activity_main);
+        Intent intent = this.getIntent();
+        if (    intent != null &&
+                intent.getExtras() != null &&
+                intent.getExtras().containsKey("kidoId") &&
+                (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0)
+        {
+
+            String kidoId = this.getIntent().getExtras().getString("kidoId");
+            Log.e(TAG,"Kido id is ------> " + kidoId);
+        } else {
+            Log.e(TAG, "NO KIDO ID");
+        }
 
         helper.setPushEvents(mSelf);
 
