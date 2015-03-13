@@ -70,8 +70,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         mNotificationManager = (NotificationManager)
                 mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
-//        Intent intent = new Intent(mContext, MainActivity.class);
-        Intent intent = new Intent("kidozen.samples.push.MyAction");
+        Intent intent = new Intent(mContext, MainActivity.class);
         intent.putExtra("kidoId", "myKidoId");
 
 

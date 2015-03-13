@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import kidozen.client.InitializationException;
+import kidozen.client.Notification;
 
 
 public class MainActivity extends Activity implements IPushEvents {
@@ -25,22 +26,11 @@ public class MainActivity extends Activity implements IPushEvents {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: Call kzApplication.openedFromNotification(this);
-
         setContentView(R.layout.activity_main);
-        Intent intent = this.getIntent();
-        if (    intent != null &&
-                intent.getExtras() != null &&
-                intent.getExtras().containsKey("kidoId") &&
-                (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0)
-        {
 
-            String kidoId = this.getIntent().getExtras().getString("kidoId");
-            Log.e(TAG,"Kido id is ------> " + kidoId);
-        } else {
-            Log.e(TAG, "NO KIDO ID");
-        }
+        // In order to know whether your activity has been opened from a notification,
+        // You should call this static method.
+        Notification.openedFromNotification(helper.kido, this.getApplication());
 
         helper.setPushEvents(mSelf);
 
