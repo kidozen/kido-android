@@ -28,7 +28,7 @@ public class Notification extends KZService  {
 	private String _deviceId;
 	private String _channel;
 
-    public static void openedFromNotification(KZApplication kido, Application app) {
+    public static void openedFromNotification(final KZApplication kido, final Application app) {
 
         app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 
@@ -44,6 +44,7 @@ public class Notification extends KZService  {
 
                     Log.e("Notification ----> ", "Kido id is ------> " + kidoId);
                     // send to kidozen.
+//                    kido.EnableAnalytics(app.getApplicationContext());
 
                 } else {
                     Log.e("Notification ----> ", "NO KIDO ID");
