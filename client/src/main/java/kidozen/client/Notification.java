@@ -28,28 +28,35 @@ public class Notification extends KZService  {
 	private String _deviceId;
 	private String _channel;
 
+    private static final String NOTIFICATION_ID = "notificationId";
+
+    /*
+        This function will make the app listen for onCreate execution on all activities.
+     */
     public static void openedFromNotification(final KZApplication kido, final Application app) {
 
         app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 
+
             @Override
             public void onActivityCreated(Activity activity, Bundle bundle) {
+
                 Intent intent = activity.getIntent();
+
+                // Here we check whether the application has been opened from a push notification.
                 if (    intent != null &&
                         intent.getExtras() != null &&
-                        intent.getExtras().containsKey("kidoId") &&
+                        intent.getExtras().containsKey(NOTIFICATION_ID) &&
                         (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0)
                 {
-                    String kidoId = activity.getIntent().getExtras().getString("kidoId");
-
-                    Log.e("Notification ----> ", "Kido id is ------> " + kidoId);
+                    String notificationId = activity.getIntent().getExtras().getString(NOTIFICATION_ID);
+                    Log.e("Notification ----> ", "NotificationId is ------> " + notificationId);
                     // send to kidozen.
-//                    kido.EnableAnalytics(app.getApplicationContext());
+                    kido.applicationDidOpenWithNotificationId(notificationId);
 
                 } else {
-                    Log.e("Notification ----> ", "NO KIDO ID");
+                    Log.e("Notification ----> ", "NO NOTIFICATION ID");
                 }
-
             }
 
             @Override

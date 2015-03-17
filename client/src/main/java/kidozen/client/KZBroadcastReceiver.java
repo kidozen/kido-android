@@ -15,8 +15,21 @@ import com.kidozen.client.R;
 import java.util.Date;
 import java.util.HashMap;
 
+
+/**
+ * This class is an example of how to deal with Kidozen's notifications.
+ * The main idea is that the receiver will handle it by creating an item in
+ * Android's notification center.
+ * The intent you plan on starting up should be able to be referenced using this code:
+ *
+ *         Intent intent = new Intent("kidozen.client.MainAction");
+ *
+ * So you should add the Action name in your manifest.xml file.
+ *
+ */
 public class KZBroadcastReceiver extends BroadcastReceiver {
     private Context mContext;
+    private static final String KIDO_ID = "kidoId";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -32,7 +45,6 @@ public class KZBroadcastReceiver extends BroadcastReceiver {
                 Object value = bundle.get(key);
                 map.put(key, value.toString());
             }
-            map.put("kidoId", "232347x");
         }
         catch (Exception e) {
             // what to do here... ?
@@ -46,18 +58,23 @@ public class KZBroadcastReceiver extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager)
                 mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // You should add this corresponding action into your manifest.xml file.
+        String kidoIdString = map.get(KIDO_ID);
+
+        // You should add this corresponding action into your manifest.xml file,
+        // as it's the default activity that will be called.
         Intent intent = new Intent("kidozen.client.MainAction");
-        intent.putExtra("kidoId", map.get("kidoId"));
+        intent.putExtra(KIDO_ID, kidoIdString);
 
         PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
                 intent, 0);
+
+        // TODO: We should check how to show the notification
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(mContext)
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle(map.get("kidoId"))
+                        .setContentTitle(kidoIdString)
                         .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(map.get("kidoId")))
+                                .bigText(kidoIdString))
                         .setContentText(map.get("message"));
 
         mBuilder.setContentIntent(contentIntent);

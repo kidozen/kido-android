@@ -63,7 +63,7 @@ public class KZApplication {
 
     private KidoAppSettings mApplicationConfiguration;
     private Analytics mAnalytics = null;
-
+    private OpenedFromNotificationService mOpenedNotificationService;
 
     private DataVisualizationActivity dataVisualizationActivity;
 
@@ -130,6 +130,22 @@ public class KZApplication {
             mAnalyticsLog.setStrictSSL(!StrictSSL);
         }
         mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog, mUserIdentity);
+    }
+
+    public void applicationDidOpenWithNotificationId(String notificationId) {
+        if (mOpenedNotificationService == null) {
+            mOpenedNotificationService = new OpenedFromNotificationService(
+                    mProvider,
+                    mUsername,
+                    mPassword,
+                    mPassiveClientId,
+                    mUserIdentity,
+                    mApplicationIdentity
+            );
+        }
+
+        mOpenedNotificationService.didOpen(notificationId);
+
     }
 
     private void checksPermissions(Context context, String[] permissions) {
