@@ -132,7 +132,7 @@ public class KZApplication {
         mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog, mUserIdentity);
     }
 
-    public void applicationDidOpenWithNotificationId(String notificationId) {
+    public void applicationDidOpenWithNotificationId(Object trackContext) {
         if (mOpenedNotificationService == null) {
             mOpenedNotificationService = new OpenedFromNotificationService(
                     mProvider,
@@ -144,7 +144,7 @@ public class KZApplication {
             );
         }
 
-        mOpenedNotificationService.didOpen(notificationId);
+        mOpenedNotificationService.didOpen(trackContext);
 
     }
 

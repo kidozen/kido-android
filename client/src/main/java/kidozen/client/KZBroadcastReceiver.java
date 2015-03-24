@@ -29,42 +29,29 @@ import java.util.HashMap;
  */
 public class KZBroadcastReceiver extends BroadcastReceiver {
     private Context mContext;
-    private static final String KIDO_ID = "kidoId";
+    private static final String TRACK_CONTEXT = "trackContext";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         mContext = context;
 
-        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
-        HashMap<String, String> map = new HashMap<String, String>();
-
         Bundle bundle = intent.getExtras();
-
-        try {
-            for (String key : bundle.keySet()) {
-                Object value = bundle.get(key);
-                map.put(key, value.toString());
-            }
-        }
-        catch (Exception e) {
-            // what to do here... ?
-        }
-        finally {
-            this.sendNotification(map);
+        if (bundle.containsKey(TRACK_CONTEXT)) {
+            this.sendNotification(bundle);
         }
     }
 
-    private void sendNotification(HashMap<String, String> map) {
+    private void sendNotification(Bundle bundle) {
         NotificationManager notificationManager = (NotificationManager)
                 mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        String kidoIdString = map.get(KIDO_ID);
 
         // You should add this corresponding action into your manifest.xml file,
         // as it's the default activity that will be called.
         Intent intent = new Intent("kidozen.client.MainAction");
-        intent.putExtra(KIDO_ID, kidoIdString);
+        intent.putExtra(TRACK_CONTEXT, bundle);
 
+        String message = (String)bundle.get("message");
+        String title = (String)bundle.get("title");
         PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
                 intent, 0);
 
@@ -72,10 +59,10 @@ public class KZBroadcastReceiver extends BroadcastReceiver {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(mContext)
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle(kidoIdString)
+                        .setContentTitle(title)
                         .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(kidoIdString))
-                        .setContentText(map.get("message"));
+                                .bigText(title))
+                        .setContentText(message);
 
         mBuilder.setContentIntent(contentIntent);
         Notification notification = mBuilder.build();

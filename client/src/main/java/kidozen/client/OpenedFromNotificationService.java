@@ -11,15 +11,14 @@ public class OpenedFromNotificationService extends KZService {
 
     public OpenedFromNotificationService(String provider , String username, String pass, String clientId,
                                          KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
-        super("/notification", "", provider,  username, pass, clientId, userIdentity, applicationIdentity);
+
+        super("/notifications/track/open", "", provider,  username, pass, clientId, userIdentity, applicationIdentity);
     }
 
-    public void didOpen(String notificationId) {
-        if (mEndpoint.endsWith("/"))
-            mEndpoint = mEndpoint.substring(0,mEndpoint.length()-1);
-        String logEndpoint = String.format("%s/%@/android/opened",mEndpoint, notificationId);
+    public void didOpen(Object trackContext) {
+        HashMap<String, String> params = (HashMap< String, String>)trackContext;
 
-        new KZServiceAsyncTask(KZHttpMethod.POST, null, null, null, getStrictSSL()).execute(logEndpoint);
+        new KZServiceAsyncTask(KZHttpMethod.POST, params, null, null, getStrictSSL()).execute("");
     }
 
 }
