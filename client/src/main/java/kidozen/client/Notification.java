@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.internal.ge;
+
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,12 +51,13 @@ public class Notification extends KZService  {
                         intent.getExtras().containsKey(TRACK_CONTEXT) &&
                         (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0)
                 {
-//                    Bundle b = activity.getIntent().getExtras().getBundle(TRACK_CONTEXT);
-                    Object trackContext = bundle.get(TRACK_CONTEXT);
+                    try {
+                        JSONObject json = new JSONObject( intent.getExtras().getString("trackContext") );
+                        kido.applicationDidOpenWithNotificationId(json);
 
-                    Log.e("Notification ----> ", "NotificationId is ------> " + trackContext);
-                    // send to kidozen.
-                    kido.applicationDidOpenWithNotificationId(trackContext);
+                    } catch (Exception e) {
+                        Log.e("Notification ----> ", "Exception is ------> " + e);
+                    }
 
                 } else {
                     Log.e("Notification ----> ", "NO NOTIFICATION ID");

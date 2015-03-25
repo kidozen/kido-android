@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kidozen.samples.push" >
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
+    <!-- You must add this users-permission in order to be able to receive notifications -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <permission android:name="com.example.gcm.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
     <uses-permission android:name="com.example.gcm.permission.C2D_MESSAGE" />
@@ -29,6 +29,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- You must add the following intent-filter so that this specific activity is launched
+            when the user taps on the notification. -->
             <intent-filter>
                 <action android:name="kidozen.client.MainAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -36,6 +38,10 @@
 
 
         </activity>
+
+        <!-- Add the following broadcast receiver so that the device can handle the notification.
+            KZBroadcastReceiver will handle and create a notification in Android's Notification
+            Center so that the user can tap on it. -->
         <receiver
             android:name="kidozen.client.KZBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.kidozen.client.R;
@@ -48,10 +49,18 @@ public class KZBroadcastReceiver extends BroadcastReceiver {
         // You should add this corresponding action into your manifest.xml file,
         // as it's the default activity that will be called.
         Intent intent = new Intent("kidozen.client.MainAction");
-        intent.putExtra(TRACK_CONTEXT, bundle);
+
+
+        for (String key : bundle.keySet()) {
+            String value = (String) bundle.get(key);
+            intent.putExtra(key, value);
+        }
 
         String message = (String)bundle.get("message");
         String title = (String)bundle.get("title");
+        intent.putExtra("message", message);
+        intent.putExtra("title", title);
+
         PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
                 intent, 0);
 
