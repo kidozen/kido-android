@@ -14,6 +14,7 @@
         <activity android:name=".MainActivity"
             android:alwaysRetainTaskState="true"
             android:label="@string/app_name" >
+            <meta-data android:name="GDMonitorActivity" android:value="true" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

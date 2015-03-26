@@ -17,10 +17,44 @@ import java.util.Map;
 public class GoodAuthenticationActivity extends Activity implements GDStateListener, GDAuthTokenCallback {
     private static final String TAG = GoodAuthenticationActivity.class.getSimpleName();
 
+    private class StateListener implements GDStateListener {
+
+        @Override
+        public void onAuthorized() {
+
+        }
+
+        @Override
+        public void onLocked() {
+
+        }
+
+        @Override
+        public void onWiped() {
+
+        }
+
+        @Override
+        public void onUpdateConfig(Map<String, Object> stringObjectMap) {
+
+        }
+
+        @Override
+        public void onUpdatePolicy(Map<String, Object> stringObjectMap) {
+
+        }
+
+        @Override
+        public void onUpdateServices() {
+
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        GDAndroid.getInstance().setGDStateListener(new StateListener());
         GDAndroid.getInstance().activityInit(this);
 
     }
