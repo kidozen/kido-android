@@ -58,9 +58,7 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
             }
         });
 
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -85,6 +83,5 @@ public class MainActivity extends Activity implements IAuthenticationEvents {
     public void ReturnUserName(String username) {
         textView.setText( "Hello: " + username );
     }
-
 
 }

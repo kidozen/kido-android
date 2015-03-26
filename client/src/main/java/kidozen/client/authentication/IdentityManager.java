@@ -63,6 +63,7 @@ public class IdentityManager {
 
     private GPlusAuthenticationResponseReceiver mGPlusAuthenticationReceiver;
     private PassiveAuthenticationResponseReceiver mPassiveAuthenticationReceiver;
+    private GoodAuthResponseReceiver mGoodAuthenticationReceiver;
 
 
     // Private constructor suppresses
@@ -211,6 +212,7 @@ public class IdentityManager {
 
     public void AuthenticateGood(Context context, ServiceEventListener callback) throws JSONException {
         String cacheKey = "GOOD";
+        mContext = context;
         JSONObject cacheItem = mTokensCache.get(cacheKey);
         if (cacheItem!=null) {
             String rawToken = cacheItem.getString("rawToken");
@@ -219,15 +221,14 @@ public class IdentityManager {
             invokeCallback(callback, rawToken, usr);
         } else {
             IntentFilter filter = new IntentFilter(GoodAuthenticationActivity.ACTION_RESP);
-            GoodAuthResponseReceiver receiver = new GoodAuthResponseReceiver(callback);
-            context.registerReceiver(receiver, filter);
+            mGoodAuthenticationReceiver = new GoodAuthResponseReceiver(callback);
+            context.registerReceiver(mGoodAuthenticationReceiver, filter);
 
             Intent goodActivity = new Intent(context, GoodAuthenticationActivity.class);
             context.startActivity(goodActivity);
         }
 
     }
-
 
     private class GoodAuthResponseReceiver extends BroadcastReceiver {
 
@@ -260,6 +261,8 @@ public class IdentityManager {
             } catch (Exception e) {
                 Log.e(TAG, "ERROR on good auth receiver", e);
                 invokeCallbackWithException(callback,e);
+            } finally {
+                unregisterReceivers();
             }
         }
     }
@@ -517,6 +520,9 @@ public class IdentityManager {
         }
         if (mGPlusAuthenticationReceiver!=null) {
             mContext.unregisterReceiver(mGPlusAuthenticationReceiver);
+        }
+        if (mGoodAuthenticationReceiver!=null) {
+            mContext.unregisterReceiver(mGoodAuthenticationReceiver);
         }
     }
     public void SignOut(String cacheKey) {
