@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.good.gd"
+          android:versionCode="1"
+          android:versionName="1.0">
+
+	<!-- GD SDK supports a minimum of Android API level 14 -->
+    <uses-sdk android:minSdkVersion="14"/>
+    
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+    <application
+            >
+
+        <!-- GD Activity, displays GD UI e.g. Provisioning, unlock etc -->
+        <activity
+                android:name=".ui.GDInternalActivity"
+                android:windowSoftInputMode="adjustResize"/>
+
+        <!-- Main GD Service -->
+        <service
+                android:name=".service.GDService"
+                android:enabled="true"
+                android:exported="false">
+        </service>
+
+        <!-- GD feature App Kinetics required components -->
+        <activity
+                android:name="com.good.gt.ndkproxy.icc.IccActivity"
+                android:exported="true"
+                android:alwaysRetainTaskState="true"
+                android:theme="@android:style/Theme.NoDisplay"
+                android:excludeFromRecents="true"
+                >
+            <intent-filter>
+                <action android:name="com.good.gd.intent.action.ACTION_ICC_COMMAND"/>
+            </intent-filter>
+        </activity>
+        <activity
+                android:name="com.good.gd.GDIccReceivingActivity"
+                android:exported="true"
+                android:alwaysRetainTaskState="true"
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="com.good.gd.intent.action.ACTION_ICC_COMMAND"/>
+            </intent-filter>
+        </activity>
+
+        <service
+                android:name="com.good.gt.ndkproxy.icc.IccManagerService">
+        </service>
+
+    </application>
+</manifest>

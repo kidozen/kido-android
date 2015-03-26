@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingLeft="@dimen/easy_activation_login_default_margin"
+              android:paddingRight="@dimen/easy_activation_login_default_margin"
+              android:layout_marginTop="@dimen/easy_activation_login_default_margin"
+              android:id="@+id/gd_common_header">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+        <ImageView
+                android:id="@+id/gd_app_logo"
+                android:layout_width="155dp"
+                android:layout_height="58dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:contentDescription="@null"
+                android:src="@drawable/good_logo" />
+
+        <com.good.gd.widget.GDTextView
+                android:id="@+id/gd_simulation_label"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="right|center_vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                android:textColor="@color/gd_red" />
+    </LinearLayout>
+
+    <View
+            android:id="@+id/COM_GOOD_GD_SMALL_MARGIN"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+    <View
+            android:id="@+id/COM_GOOD_GD_BIG_MARGIN"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+</LinearLayout>

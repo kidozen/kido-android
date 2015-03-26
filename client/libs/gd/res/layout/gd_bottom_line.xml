@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2011. All Rights Reserved. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_gravity="bottom"
+    android:layout_marginTop="-16dp"
+    android:layout_alignParentBottom="true"
+    tools:ignore="ObsoleteLayoutParam">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/gd_bottom_line_label_background">
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/gd_bottom_line_action_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/gd_red"
+            android:visibility="gone"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:layout_marginBottom="4dp" />
+    </FrameLayout>
+
+    <View
+        android:id="@+id/gd_bottom_line"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@color/gd_red" />
+
+    <RelativeLayout
+        android:id="@+id/gd_bottom_margin"
+        android:layout_width="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/gd_secure_logo"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="12dp"
+            android:src="@drawable/secured_good_logo_phone"
+            android:contentDescription="@null" />
+
+    </RelativeLayout>
+</LinearLayout>

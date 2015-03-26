@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:background="@color/gd_common_background_color">
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <ImageView
+                android:id="@+id/gd_welcome_logo"
+                android:layout_width="@dimen/gd_welcome_logo_width"
+                android:layout_height="@dimen/gd_welcome_logo_height"
+                android:src="@drawable/good_logo_tablet"
+                android:layout_centerInParent="true"
+                android:contentDescription="@null" />
+
+        <View
+                android:id="@+id/gd_center_view"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_centerInParent="true" />
+
+        <ProgressBar
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_above="@+id/gd_bottom_border"
+                android:layout_below="@+id/gd_center_view"
+                android:layout_marginTop="60dp"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"
+                android:indeterminateDrawable="@drawable/gd_progress_bar"/>
+
+        <View
+                android:id="@+id/gd_bottom_border"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="invisible"
+                android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+            android:id="@+id/gd_welcome_banner"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@color/gd_splash_screen_red"
+            android:layout_gravity="bottom">
+
+        <com.good.gd.widget.GDTextView
+                android:id="@+id/gd_application_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:textColor="@android:color/white"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:textSize="20sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+            android:id="@+id/gd_bottom_margin"
+            android:layout_width="match_parent"
+            android:background="@android:color/transparent"
+            android:layout_height="75dp">
+
+        <ImageView
+                android:id="@+id/gd_secure_logo"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="24dp"
+                android:src="@drawable/secured_good_logo_phone"
+                android:contentDescription="@null" />
+
+    </RelativeLayout>
+</LinearLayout>

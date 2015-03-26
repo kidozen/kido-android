@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <include layout="@layout/gd_common_background" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:id="@+id/provision_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include layout="@layout/gd_common_header" />
+
+                <LinearLayout
+                    android:layout_width="@dimen/easy_activation_login_elements_container_tablets"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDTextView
+                        android:id="@+id/gd_application_unlock_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:gravity="left"
+                        android:textColor="@color/gd_dark_grey"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <com.good.gd.widget.GDTextView
+                        android:id="@+id/gd_application_unlock_message"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:autoLink="web"
+                        android:gravity="left"
+                        android:linksClickable="true"
+                        android:textColor="@color/gd_dark_grey"
+                        android:textColorLink="@color/gd_red"
+                        android:textSize="18sp"
+                        android:visibility="gone" />
+
+                    <com.good.gd.widget.GDEditText
+                        android:id="@+id/COM_GOOD_GD_EPROV_EMAIL_FIELD"
+                        style="@style/GDUIRedEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/easy_activation_elements_container_height"
+                        android:imeOptions="actionNext"
+                        android:inputType="textEmailAddress"
+                        android:nextFocusDown="@+id/editTextForPin1"
+                        android:nextFocusForward="@+id/editTextForPin1"
+                        android:nextFocusRight="@+id/editTextForPin1"
+                        android:singleLine="true" />
+
+                    <RelativeLayout
+                        android:id="@+id/COM_GOOD_GD_EPROV_PIN_FIELD"
+                        style="@style/GDUIRedEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/easy_activation_elements_container_height"
+                        android:focusableInTouchMode="false">
+
+                        <com.good.gd.ui.GDPinBoxView
+                            android:id="@+id/editTextForPin1"
+                            style="@style/GDUIEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentBottom="true"
+                            android:imeOptions="actionNext"
+                            android:inputType="textPassword"
+                            android:maxLength="6"
+                            android:singleLine="true" />
+
+                        <com.good.gd.ui.GDPinBoxView
+                            android:id="@+id/editTextForPin2"
+                            style="@style/GDUIEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="5dp"
+                            android:layout_toRightOf="@+id/editTextForPin1"
+                            android:enabled="false"
+                            android:imeOptions="actionNext"
+                            android:inputType="textPassword"
+                            android:maxLength="6"
+                            android:singleLine="true"
+                            android:visibility="gone" />
+
+                        <com.good.gd.ui.GDPinBoxView
+                            android:id="@+id/editTextForPin3"
+                            style="@style/GDUIEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="5dp"
+                            android:layout_toRightOf="@+id/editTextForPin2"
+                            android:enabled="false"
+                            android:imeOptions="actionNext"
+                            android:inputType="textPassword"
+                            android:maxLength="6"
+                            android:singleLine="true"
+                            android:visibility="gone" />
+
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:orientation="horizontal"
+                        android:paddingTop="10dp">
+
+                        <Button
+                            android:id="@+id/COM_GOOD_GD_GDE_PROVISION_VIEW_CANCEL_BUTTON"
+                            style="@style/GDButton"
+                            android:layout_gravity="right" />
+
+                        <Button
+                            android:id="@+id/COM_GOOD_GD_EPROV_ACCESS_BUTTON"
+                            style="@style/GDButton"
+                            android:layout_gravity="right"
+                            android:enabled="false" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@android:color/transparent" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <include layout="@layout/gd_bottom_line" />
+    </LinearLayout>
+</merge>

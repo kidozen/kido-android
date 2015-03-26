@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools">
+
+    <include layout="@layout/gd_common_background" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <ScrollView
+                android:id="@+id/provision_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center_horizontal">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include layout="@layout/gd_common_header" />
+
+                <LinearLayout
+                    android:id="@+id/clientAppLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginLeft="@dimen/alv_logo_layout_marginLeft"
+                    android:layout_marginRight="@dimen/alv_logo_layout_marginRight"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        tools:ignore="UseCompoundDrawables"
+                        android:id="@+id/reqAppLayout"
+                        android:gravity="center_vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="64dp">
+
+                        <ImageView
+                            android:id="@+id/reqAppIcon"
+                            android:layout_width="64dp"
+                            android:layout_height="match_parent"
+                            android:contentDescription="@null"
+                            android:src="@drawable/com_good_gd_default_logo" />
+
+                        <com.good.gd.widget.GDTextView
+                            android:id="@+id/reqAppNameText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="left|center_vertical"
+                            android:includeFontPadding="false"
+                            android:textStyle="normal"
+                            android:textColor="@color/gd_dark_grey"
+                            android:layout_marginLeft="24dp"
+                            android:textSize="18sp" />
+
+                    </LinearLayout>
+
+                    <com.good.gd.widget.GDTextView
+                        android:id="@+id/userInstructionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        android:layout_marginTop="@dimen/alv_InstrText_layout_marginTop"
+                        android:textColor="@color/gd_dark_grey"
+                        android:textSize="18sp" />
+
+                    <com.good.gd.widget.GDEditText
+                        style="@style/GDUIRedEditText"
+                        android:id="@+id/passwordEditor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/gd_edit_text_red_background"
+                        android:imeOptions="actionDone"
+                        android:paddingTop="10dp"
+                        android:layout_marginTop="10dp"
+                        android:textCursorDrawable="@null"
+                        android:textStyle="normal"
+                        android:inputType="textPassword">
+
+                        <requestFocus />
+                    </com.good.gd.widget.GDEditText>
+
+                    <LinearLayout
+                        android:id="@+id/LLayoutOkCancelButtons"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="15dp"
+                        android:gravity="right">
+
+                        <Button
+                                style="@style/GDButton"
+                                android:id="@+id/btnCancel" />
+
+                        <Button
+                                style="@style/GDButton"
+                                android:id="@+id/btnOk"
+                                android:enabled="false" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <include layout="@layout/gd_bottom_line" />
+    </LinearLayout>
+</merge>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<com.good.gd.widget.GDTextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/list_header_company_name"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingTop="@dimen/adv_lv_header_marginTop"
+          android:paddingBottom="@dimen/adv_lv_header_marginBottom"
+          android:paddingLeft="@dimen/adv_all_controls_marginLeft"
+          android:paddingRight="@dimen/adv_all_controls_marginRight"
+          android:textColor="@color/gd_dark_grey"
+          android:textStyle="bold"
+          android:textSize="18sp" />

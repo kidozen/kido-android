@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="adv_all_controls_marginLeft">16dp</dimen>
+    <dimen name="adv_all_controls_marginRight">16dp</dimen>
+      
+    <dimen name="adv_lv_header_marginTop">12dp</dimen>
+    <dimen name="adv_lv_header_marginBottom">8dp</dimen>
+    
+    <dimen name="adv_app_image_width">64dp</dimen>
+    <dimen name="adv_app_image_height">64dp</dimen>
+    <dimen name="adv_app_image_marginTop">16dp</dimen>
+    <dimen name="adv_app_image_marginBottom">16dp</dimen>
+    
+    <dimen name="adv_app_setup_using_marginLeft">24dp</dimen>
+
+    <dimen name="adv_setup_using_accesskey_marginTop">12dp</dimen>
+    <dimen name="adv_learnmore_layout_marginBottom">40dp</dimen>
+
+    <dimen name="alv_logo_layout_marginLeft">16dp</dimen>
+    <dimen name="alv_logo_layout_marginRight">16dp</dimen>
+    <dimen name="alv_logo_layout_marginTop">38dp</dimen>
+        
+    <dimen name="alv_InstrText_layout_marginTop">9dp</dimen>
+    
+</resources>

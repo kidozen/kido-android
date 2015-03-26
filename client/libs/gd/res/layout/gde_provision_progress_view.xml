@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2011. All Rights Reserved. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <include layout="@layout/gd_common_background"/>
+
+    <include
+            layout="@layout/gd_common_header"/>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="310dp"
+            android:layout_centerInParent="true">
+
+        <View
+                android:id="@+id/COM_GOOD_GD_TOP_GRADIENT"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_above="@+id/COM_GOOD_GD_TOP_DIVIDER"/>
+
+        <View
+                android:id="@+id/COM_GOOD_GD_TOP_DIVIDER"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gd_transparent_black"
+                android:layout_marginBottom="25dp"
+                android:layout_above="@+id/COM_GOOD_GD_CENTER_DIVIDER"/>
+
+        <View
+                android:id="@+id/COM_GOOD_GD_CENTER_DIVIDER"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_centerVertical="true"
+                android:visibility="invisible"/>
+
+        <View
+                android:id="@+id/COM_GOOD_GD_BOTTOM_DIVIDER"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gd_transparent_black"
+                android:layout_marginTop="25dp"
+                android:layout_below="@+id/COM_GOOD_GD_CENTER_DIVIDER"/>
+
+        <View
+                android:id="@+id/COM_GOOD_GD_BOTTOM_GRADIENT"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/COM_GOOD_GD_BOTTOM_DIVIDER"/>
+
+        <com.good.gd.ui.GDScrollView
+                android:id="@+id/COM_GOOD_GD_PROGRESS_SCROLL_VIEW"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <LinearLayout
+                    android:id="@+id/COM_GOOD_GD_PROVISION_STEPS"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+        </com.good.gd.ui.GDScrollView>
+    </RelativeLayout>
+
+    <include layout="@layout/gd_bottom_line"/>
+</merge>

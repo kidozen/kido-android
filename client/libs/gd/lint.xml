@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<lint>
+    <!-- All of these resources used inside the Good Dynamics jar library, so lint can't find usage in the project.-->
+    <issue id="UnusedResources" severity="ignore" />
+    <issue id="IconDuplicates" severity="ignore" />
+    <issue id="IconDipSize" severity="ignore" />
+
+    <!-- GDScrollView class is used in one of the library screen layout as a custom View. -->
+    <issue id="Instantiatable">
+        <ignore path="com/good/gd/ui/GDScrollView.class" />
+    </issue>
+
+    <!-- Lint seems to be getting this wrong, there isn't really a theme/layout overdraw conflict here -->
+    <issue id="Overdraw">
+        <ignore path="res/layout/gd_activation_delegate_list.xml" />
+        <ignore path="res/layout/gd_common_background.xml" />
+        <ignore path="res/layout/gd_starting_view.xml" />
+        <ignore path="res/layout/gd_welcome_view.xml" />
+        <ignore path="res/layout-large/gd_welcome_view.xml" />
+    </issue>
+
+    <issue id="UselessParent">
+        <ignore path="res/layout/gd_help_dialog.xml" />
+        <ignore path="res/layout/gd_activation_delegate_view.xml" />
+    </issue>
+</lint>

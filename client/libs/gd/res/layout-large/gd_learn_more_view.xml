@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <include layout="@layout/gd_common_background" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fadingEdgeLength="150dp"
+            android:requiresFadingEdge="vertical"
+            tools:ignore="NestedWeights">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include layout="@layout/gd_common_header" />
+
+                <LinearLayout
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDTextView
+                        android:id="@+id/gd_learn_more_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gd_dark_grey"
+                        android:textSize="@dimen/easy_activation_elements_text_size"
+                        android:textStyle="bold" />
+
+                    <com.good.gd.widget.GDTextView
+                        android:id="@+id/gd_learn_more_details"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gd_dark_grey"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="380dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/gd_done_button"
+                style="@style/GDButton"
+                android:layout_gravity="right"
+                android:layout_marginBottom="30dp"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+
+        <include layout="@layout/gd_bottom_line" />
+    </LinearLayout>
+</merge>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <include layout="@layout/gd_common_background" />
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true">
+
+        <include layout="@layout/gd_common_header" />
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <ListView
+                        android:id="@+id/List"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:divider="@color/gd_light_grey"
+                        android:cacheColorHint="#00000000"
+                        android:dividerHeight="1dp" />
+
+                <View
+                        android:id="@+id/listViewEndLine"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/gd_light_grey" />
+
+                <com.good.gd.widget.GDTextView
+                        android:id="@+id/activationKeyLink"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/adv_setup_using_accesskey_marginTop"
+                        android:layout_marginLeft="@dimen/adv_all_controls_marginLeft"
+                        android:layout_gravity="left"
+                        android:textColor="@color/gd_light_red"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="@dimen/adv_learnmore_layout_marginBottom"
+                        android:autoLink="web" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <include layout="@layout/gd_bottom_line" />
+    </LinearLayout>
+</merge>

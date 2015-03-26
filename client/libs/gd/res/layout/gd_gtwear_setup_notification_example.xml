@@ -1,0 +1,47 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/gdwear_setup_notification_example"
+    android:background="@color/gd_white">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginRight="3dp"
+        android:id="@+id/gdwear_setup_requested_text_layout">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gdwear_setup_requested_appname"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:textSize="16sp"
+        android:textColor="@color/gd_transparent_black"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gdwear_setup_requested"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:textSize="14sp"
+
+            android:textColor="@color/gd_black"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gdwear_setup_icon"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="3dp"
+        android:background="@drawable/gd_activation_start"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/gdwear_setup_requested_text_layout"/>
+
+</RelativeLayout>

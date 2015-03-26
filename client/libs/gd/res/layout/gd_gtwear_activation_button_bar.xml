@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:orientation="vertical"
+    android:layout_alignParentBottom="true"
+    android:background="@color/gd_background_grey"
+    android:id="@+id/gd_gtwear_activation_button_bar">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/gd_gtwear_activation_button1"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_marginLeft="16dp"
+            android:textSize="14sp"
+            android:textColor="@color/gd_dark_grey"
+            android:layout_alignParentLeft="true"
+            android:enabled="false"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/gd_gtwear_activation_button2"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_marginRight="16dp"
+            android:textSize="14sp"
+            android:textColor="@color/gd_dark_grey"
+            android:layout_alignParentRight="true"
+            android:enabled="false"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
