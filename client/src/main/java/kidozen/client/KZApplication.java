@@ -132,19 +132,31 @@ public class KZApplication {
         mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog, mUserIdentity);
     }
 
-    public void applicationDidOpenWithNotificationId(JSONObject trackContext) {
+    public void applicationDidOpenWithTrackContext(JSONObject trackContext) {
         if (mOpenedNotificationService == null) {
-            mOpenedNotificationService = new OpenedFromNotificationService(
-                    mProvider,
-                    mUsername,
-                    mPassword,
-                    mPassiveClientId,
-                    mUserIdentity,
-                    mApplicationIdentity
-            );
-        }
 
-        mOpenedNotificationService.didOpen(trackContext);
+            try {
+                String baseURL = mApplicationConfiguration.GetSettingAsString("url");
+
+                if (!baseURL.endsWith("/")) {
+                    baseURL = baseURL + "/";
+                }
+
+                mOpenedNotificationService = new OpenedFromNotificationService(baseURL,
+                        mProvider,
+                        mUsername,
+                        mPassword,
+                        mPassiveClientId,
+                        mUserIdentity,
+                        mApplicationIdentity
+                );
+                mOpenedNotificationService.didOpen(trackContext);
+
+            } catch (JSONException e) {
+                Log.e("KZApplication - applicationDidOpenWithTrackContext", e.toString());
+            }
+
+        }
 
     }
 

@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.internal.ge;
-
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,7 +51,7 @@ public class Notification extends KZService  {
                 {
                     try {
                         JSONObject json = new JSONObject( intent.getExtras().getString("trackContext") );
-                        kido.applicationDidOpenWithNotificationId(json);
+                        kido.applicationDidOpenWithTrackContext(json);
 
                     } catch (Exception e) {
                         Log.e("Notification ----> ", "Exception is ------> " + e);
