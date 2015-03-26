@@ -1,6 +1,7 @@
 package kidozen.samples.good;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.http.HttpStatus;
 
@@ -43,7 +44,9 @@ public class KidoZenHelper {
         kido.AuthenticateGood(context, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
+                Log.i("HELPER", "CALLING ON FINISH");
                 if (e.StatusCode == HttpStatus.SC_OK ) {
+                    Log.i("HELPER", "OK!");
                     if (authEvents!=null && isInitialized) {
                         authEvents.ReturnUserName(kido.GetKidoZenUser().Claims.get("name"));
                     }

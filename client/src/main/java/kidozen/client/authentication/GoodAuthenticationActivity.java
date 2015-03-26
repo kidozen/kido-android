@@ -1,6 +1,7 @@
 package kidozen.client.authentication;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -16,7 +17,10 @@ import java.util.Map;
  */
 public class GoodAuthenticationActivity extends Activity implements GDStateListener, GDAuthTokenCallback {
     private static final String TAG = GoodAuthenticationActivity.class.getSimpleName();
+    public static final String ACTION_RESP = "com.kidozen.intent.action.GOOD_AUTHENTICATION_RESULT";
+    public static final String EXTRA_GOOD_TOKEN = "EXTRA_GOOD_TOKEN";
 
+    //TODO try to put the logic here instead of the activity
     private class StateListener implements GDStateListener {
 
         @Override
@@ -59,26 +63,27 @@ public class GoodAuthenticationActivity extends Activity implements GDStateListe
 
     }
 
-    /*
-     * Activity specific implementation of GDStateListener.
-     *
-     * If a singleton event Listener is set by the application (as it is in this case) then setting
-     * Activity specific implementations of GDStateListener is optional
-     */
     @Override
     public void onAuthorized() {
         //If Activity specific GDStateListener is set then its onAuthorized( ) method is called when
         //the activity is started if the App is already authorized
         Log.i(TAG, "onAuthorized()");
         GDUtility util = new GDUtility();
+
+        //FIXME hardcoded url
         util.getGDAuthToken("challenge", "https://goodcontrol.kidozen.com", this);
     }
 
-    public void onGDAuthTokenSuccess(java.lang.String s) {
-        Log.i(TAG, "Got token " + s);
+    public void onGDAuthTokenSuccess(java.lang.String token) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(ACTION_RESP);
+        broadcastIntent.putExtra(EXTRA_GOOD_TOKEN, token);
+        sendBroadcast(broadcastIntent);
+
         this.finish();
     }
 
+    //TODO handle other cases
     public void onGDAuthTokenFailure(int i, java.lang.String s) {
 
     }

@@ -1,5 +1,6 @@
 package kidozen.client.authentication;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -25,6 +26,7 @@ import kidozen.client.InitializationException;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.internal.PassiveAuthenticationUtilities;
 import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.internal.Utilities;
 
@@ -128,15 +130,6 @@ public class IdentityManager {
                 }
             }
         }
-        catch (InterruptedException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (ExecutionException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (JSONException e) {
-            invokeCallbackWithException(callback,e);
-        }
         catch (Exception e) {
             invokeCallbackWithException(callback,e);
         }
@@ -217,11 +210,58 @@ public class IdentityManager {
     }
 
     public void AuthenticateGood(Context context, ServiceEventListener callback) throws JSONException {
-        //FIXME use callback
-        Intent goodActivity = new Intent(context, GoodAuthenticationActivity.class);
-        context.startActivity(goodActivity);
+        String cacheKey = "GOOD";
+        JSONObject cacheItem = mTokensCache.get(cacheKey);
+        if (cacheItem!=null) {
+            String rawToken = cacheItem.getString("rawToken");
+            KidoZenUser usr = (KidoZenUser) mTokensCache.get(cacheKey).get("user");
+            usr.PulledFromCache = true;
+            invokeCallback(callback, rawToken, usr);
+        } else {
+            IntentFilter filter = new IntentFilter(GoodAuthenticationActivity.ACTION_RESP);
+            GoodAuthResponseReceiver receiver = new GoodAuthResponseReceiver(callback);
+            context.registerReceiver(receiver, filter);
 
-        //TODO do federation stuff to get
+            Intent goodActivity = new Intent(context, GoodAuthenticationActivity.class);
+            context.startActivity(goodActivity);
+        }
+
+    }
+
+
+    private class GoodAuthResponseReceiver extends BroadcastReceiver {
+
+        private ServiceEventListener callback;
+
+        public GoodAuthResponseReceiver(ServiceEventListener callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String goodToken = intent.getStringExtra(GoodAuthenticationActivity.EXTRA_GOOD_TOKEN);
+
+            mAssertionFormat = "good";
+
+            FederatedIdentity id = new FederatedIdentity(goodToken);
+
+            try {
+                Object[] response = id.execute().get();
+                if (response[1] != null) {
+                    invokeCallbackWithException(callback, (Exception) response[1]);
+                } else {
+                    String token = response[0].toString();
+                    String cacheKey = "GOOD";
+
+                    addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
+                    String rawToken = getRawToken(token);
+                    invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "ERROR on good auth receiver", e);
+                invokeCallbackWithException(callback,e);
+            }
+        }
     }
 
     // Social / passive authentication
@@ -295,15 +335,6 @@ public class IdentityManager {
                     invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
                 }
             }
-        }
-        catch (InterruptedException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (ExecutionException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (JSONException e) {
-            invokeCallbackWithException(callback,e);
         }
         catch (Exception e) {
             invokeCallbackWithException(callback,e);
@@ -533,10 +564,16 @@ public class IdentityManager {
     //Calls IP and then KidoZen identity provider to get the token
     private class FederatedIdentity extends AsyncTask<Void, Void, Object[]> {
         BaseIdentityProvider _identityProvider;
-        String _userTokeFromAuthService, _statusCode;
+        String _userTokeFromAuthService, _statusCode, _idpToken;
 
         public FederatedIdentity(BaseIdentityProvider iIdentityProvider) {
             _identityProvider = iIdentityProvider;
+        }
+
+        public FederatedIdentity(String idpToken) {
+            //already have the token, no need to ask an idp
+            _identityProvider = null;
+            _idpToken = idpToken;
         }
 
         @Override
@@ -547,7 +584,13 @@ public class IdentityManager {
                 String authServiceScope = mAuthConfig.getString("applicationScope");
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
-                String wrapAssertionFromIp = _identityProvider.RequestToken();
+                String wrapAssertionFromIp;
+                if (_identityProvider != null) {
+                    wrapAssertionFromIp = _identityProvider.RequestToken();
+                } else {
+                    wrapAssertionFromIp = _idpToken;
+                }
+
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("wrap_scope", authServiceScope));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", mAssertionFormat));
