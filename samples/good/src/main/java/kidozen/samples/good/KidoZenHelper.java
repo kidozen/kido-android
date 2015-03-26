@@ -41,7 +41,7 @@ public class KidoZenHelper {
     }
 
     public void SignIn(Context context) throws InitializationException{
-        kido.AuthenticateGood(context, new kidozen.client.ServiceEventListener() {
+        kido.AuthenticateGood(context, "https://goodcontrol.kidozen.com", new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {

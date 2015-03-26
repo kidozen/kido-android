@@ -808,24 +808,24 @@ public class KZApplication {
      * @param callback The callback with the result of the service call
      * @throws InitializationException
      */
-    public void AuthenticateGood(final Context context, final ServiceEventListener callback) throws InitializationException {
+    public void AuthenticateGood(final Context context, final String serverUrl, final ServiceEventListener callback) throws InitializationException {
         if (!mApplicationConfiguration.IsInitialized)
             this.Initialize(new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
-                    InvokeGoodAuthentication(context, callback);
+                    InvokeGoodAuthentication(context, serverUrl, callback);
                 }
             });
         else
-            InvokeGoodAuthentication(context, callback);
+            InvokeGoodAuthentication(context, serverUrl, callback);
     }
 
-    private void InvokeGoodAuthentication(Context context, final ServiceEventListener callback) {
+    private void InvokeGoodAuthentication(Context context, String serverUrl, final ServiceEventListener callback) {
         try {
             JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
             authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
             IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
-            IdentityManager.getInstance().AuthenticateGood(context, new ServiceEventListener()   {
+            IdentityManager.getInstance().AuthenticateGood(context, serverUrl,  new ServiceEventListener()   {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     SetKidoZenUser((KidoZenUser) e.Response);

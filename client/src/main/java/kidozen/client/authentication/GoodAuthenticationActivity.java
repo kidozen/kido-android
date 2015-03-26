@@ -19,6 +19,7 @@ public class GoodAuthenticationActivity extends Activity  {
     private static final String TAG = GoodAuthenticationActivity.class.getSimpleName();
     public static final String ACTION_RESP = "com.kidozen.intent.action.GOOD_AUTHENTICATION_RESULT";
     public static final String EXTRA_GOOD_TOKEN = "EXTRA_GOOD_TOKEN";
+    public static final String EXTRA_SERVER_URL = "EXTRA_SERVER_URL";
 
     private class GoodStateListener implements GDStateListener, GDAuthTokenCallback {
 
@@ -33,9 +34,9 @@ public class GoodAuthenticationActivity extends Activity  {
             Log.d(TAG, "onAuthorized()");
             GDUtility util = new GDUtility();
 
-            //FIXME hardcoded url
+            String serverUrl = parent.getIntent().getStringExtra(EXTRA_SERVER_URL);
             //once authorized, request the good auth token
-            util.getGDAuthToken("challenge", "https://goodcontrol.kidozen.com", this);
+            util.getGDAuthToken("challenge", serverUrl, this);
         }
 
         public void onGDAuthTokenSuccess(java.lang.String token) {
@@ -48,35 +49,24 @@ public class GoodAuthenticationActivity extends Activity  {
             this.parent.finish();
         }
 
-        //TODO handle other cases
         public void onGDAuthTokenFailure(int i, java.lang.String s) {
-
-        }
-
-        @Override
-        public void onLocked() {
-
+            //TODO auth failure
         }
 
         @Override
         public void onWiped() {
-
+            // the authorization of the user has been permanently withdrawn
+            //TODO auth failure
         }
 
         @Override
-        public void onUpdateConfig(Map<String, Object> stringObjectMap) {
-
-        }
-
+        public void onLocked() {}
         @Override
-        public void onUpdatePolicy(Map<String, Object> stringObjectMap) {
-
-        }
-
+        public void onUpdateConfig(Map<String, Object> stringObjectMap) {}
         @Override
-        public void onUpdateServices() {
-
-        }
+        public void onUpdatePolicy(Map<String, Object> stringObjectMap) {}
+        @Override
+        public void onUpdateServices() {}
     }
 
     @Override

@@ -210,7 +210,7 @@ public class IdentityManager {
         this.Authenticate(context,true,userIdentifierType,callback);
     }
 
-    public void AuthenticateGood(Context context, ServiceEventListener callback) throws JSONException {
+    public void AuthenticateGood(Context context, String serverUrl, ServiceEventListener callback) throws JSONException {
         String cacheKey = "GOOD";
         mContext = context;
         JSONObject cacheItem = mTokensCache.get(cacheKey);
@@ -225,6 +225,7 @@ public class IdentityManager {
             context.registerReceiver(mGoodAuthenticationReceiver, filter);
 
             Intent goodActivity = new Intent(context, GoodAuthenticationActivity.class);
+            goodActivity.putExtra(GoodAuthenticationActivity.EXTRA_SERVER_URL, serverUrl);
             context.startActivity(goodActivity);
         }
 
