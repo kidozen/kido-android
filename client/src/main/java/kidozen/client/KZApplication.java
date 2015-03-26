@@ -137,6 +137,7 @@ public class KZApplication {
 
             try {
                 String baseURL = mApplicationConfiguration.GetSettingAsString("url");
+                Log.e("URL ---- ", "URL IS ------  " + baseURL);
 
                 if (!baseURL.endsWith("/")) {
                     baseURL = baseURL + "/";
@@ -150,13 +151,14 @@ public class KZApplication {
                         mUserIdentity,
                         mApplicationIdentity
                 );
-                mOpenedNotificationService.didOpen(trackContext);
 
             } catch (JSONException e) {
                 Log.e("KZApplication - applicationDidOpenWithTrackContext", e.toString());
             }
 
         }
+
+        mOpenedNotificationService.didOpen(trackContext);
 
     }
 

@@ -22,27 +22,27 @@ public class OpenedFromNotificationService extends KZService {
     public OpenedFromNotificationService(String baseURL, String provider , String username, String pass, String clientId,
                                          KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
 
-        super(baseURL + "notifications/track/open", "", provider,  username, pass, clientId, userIdentity, applicationIdentity);
+        super(baseURL + "api/v2/notifications/track/open", "", provider,  username, pass, clientId, userIdentity, applicationIdentity);
     }
 
     public void didOpen(JSONObject trackContext) {
-
-        Log.e("didOPen", "track context is " + trackContext);
-        Gson gson = new Gson();
-        Type stringStringMap = new TypeToken<Map<String, String>>(){}.getType();
-        Map<String,String> map = gson.fromJson(trackContext.toString(), stringStringMap);
-        HashMap<String, String> params = new HashMap<String, String>(map);
-
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
 
-
-        new KZServiceAsyncTask(KZHttpMethod.POST, params, headers, new ServiceEventListener() {
-            @Override
-            public void onFinish(ServiceEvent e) {
-                Log.e("OpenedFromNotificationService", "OpenedFromNotificationService finished. --> " + e);
-            }
-        }, getStrictSSL()).execute("");
+        this.ExecuteTask(this.mEndpoint,
+                KZHttpMethod.POST,
+                null,
+                headers,
+                new ServiceEventListener() {
+                    @Override
+                    public void onFinish(ServiceEvent e) {
+                        if (e != null) {
+//                            Log.e("OpenedFromNotificationService", "Finished didOpenFromNotification" + e.Exception.toString());
+                        }
+                    }
+                },
+                trackContext,
+                getStrictSSL());
     }
 
 }
