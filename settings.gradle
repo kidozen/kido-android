@@ -1,8 +1,10 @@
-include ':client', ':client.push', ':social', ':crash', ':push', ':gplus', ':analytics', ':datavisualizations'
+include ':client', ':client.push', ':social', ':good', ':crash', ':push', ':gplus', ':analytics', ':datavisualizations', ':GDLibrary'
 project(':client.push').projectDir = new File('client.push')
 project(':social').projectDir = new File('samples/social')
+project(':good').projectDir = new File('samples/good')
 project(':crash').projectDir = new File('samples/crash')
 project(':push').projectDir = new File('samples/push')
 project(':gplus').projectDir = new File('samples/gplus')
 project(':analytics').projectDir = new File('samples/analytics')
 project(':datavisualizations').projectDir = new File('samples/datavisualizations')
+project(':GDLibrary').projectDir = new File('/home/facundo/dev/adt-bundle-linux-x86_64-20140321/sdk/extras/good/dynamics_sdk/libs/handheld/gd')

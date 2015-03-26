@@ -216,6 +216,14 @@ public class IdentityManager {
         this.Authenticate(context,true,userIdentifierType,callback);
     }
 
+    public void AuthenticateGood(Context context, ServiceEventListener callback) throws JSONException {
+        //FIXME use callback
+        Intent goodActivity = new Intent(context, GoodAuthenticationActivity.class);
+        context.startActivity(goodActivity);
+
+        //TODO do federation stuff to get
+    }
+
     // Social / passive authentication
     public void Authenticate(Context context, Boolean cleanCookies, KZPassiveAuthTypes userIdentifierType, ServiceEventListener callback) throws JSONException {
         String key = String.valueOf(userIdentifierType);

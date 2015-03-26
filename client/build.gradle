@@ -95,6 +95,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     androidTestCompile 'org.robolectric:robolectric:2.3'
     compile 'com.github.nkzawa:socket.io-client:0.4.1'
+    compile project(':GDLibrary')
 }
 
 //only include files that are suffixed with Test.class and set the max heap size
