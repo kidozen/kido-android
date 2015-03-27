@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import example.com.datavisualizations.IAuthenticationEvents;
+import example.com.datavisualizations.R;
 import kidozen.client.InitializationException;
 import kidozen.client.authentication.GPlusAuthenticationResponseReceiver;
 import kidozen.client.datavisualization.Constants;

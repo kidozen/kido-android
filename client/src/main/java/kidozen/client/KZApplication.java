@@ -276,7 +276,7 @@ public class KZApplication {
                 mPassiveClientId,
                 mUserIdentity,
                 mApplicationIdentity);
-
+        channel.setApplicationName(this.getApplicationName());
         channel.mUserIdentity = this.mUserIdentity;
         channel.setStrictSSL(!StrictSSL);
 
@@ -776,13 +776,13 @@ public class KZApplication {
     /**
      * Authenticates a user using the specified provider
      *
-     * @param providerKey The key that identifies the Provider
      * @param username    The user account
      * @param password    The password for the user
+     * @param providerKey The key that identifies the Provider
      * @param callback    The callback with the result of the service call
      * @throws InitializationException
      */
-    public void Authenticate(final String providerKey, final String username, final String password, final ServiceEventListener callback)  throws InitializationException {
+    public void Authenticate(final String username, final String password, final String providerKey, final ServiceEventListener callback)  throws InitializationException {
         if (!mApplicationConfiguration.IsInitialized)
             this.Initialize(new ServiceEventListener() {
                 @Override
