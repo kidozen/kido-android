@@ -22,7 +22,7 @@ public class OpenedFromNotificationService extends KZService {
     public OpenedFromNotificationService(String baseURL, String provider , String username, String pass, String clientId,
                                          KidoZenUser userIdentity, KidoZenUser applicationIdentity) {
 
-        super(baseURL + "api/v2/notifications/track/open", "", provider,  username, pass, clientId, userIdentity, applicationIdentity);
+        super(baseURL + "track/open", "", provider,  username, pass, clientId, userIdentity, applicationIdentity);
     }
 
     public void didOpen(JSONObject trackContext) {
