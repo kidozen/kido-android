@@ -1002,7 +1002,7 @@ public class KZApplication {
 
     public CustomAPIService customAPIService(String name) throws Exception {
         checkMethodParameters(name);
-        String customAPIURL = mApplicationConfiguration.GetSettingAsString("customAPI");
+        String customAPIURL = mApplicationConfiguration.GetSettingAsString("customApi");
         CustomAPIService service = new CustomAPIService(customAPIURL,
                                         name,
                                         mProvider,
