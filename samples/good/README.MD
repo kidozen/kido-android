@@ -1,9 +1,9 @@
 # Kidozen SDK Social Sample
-This folder contains code sample about how to use Social Login (Passive Authentication)
+This folder contains code sample about how to use Good Authentication
 
 ## How to run the example
 
-Navigate to folder 'src/main/java' and edit the file 'example.com.datavisualizations.KidoZenHelper.java'. Update the following lines with the righ values
+Navigate to folder 'src/main/java' and edit the file 'kidozen.samples.good.KidoZenHelper.java'. Update the following lines with the right values
 
 		String tenantMarketPlace = "http://contoso.kidocloud.com";
 		String application = "myApplication";
