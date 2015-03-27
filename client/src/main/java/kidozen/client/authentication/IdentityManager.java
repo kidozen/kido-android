@@ -1,5 +1,6 @@
 package kidozen.client.authentication;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -25,6 +26,7 @@ import kidozen.client.InitializationException;
 import kidozen.client.KZHttpMethod;
 import kidozen.client.ServiceEvent;
 import kidozen.client.ServiceEventListener;
+import kidozen.client.internal.PassiveAuthenticationUtilities;
 import kidozen.client.internal.SNIConnectionManager;
 import kidozen.client.internal.Utilities;
 
@@ -61,6 +63,7 @@ public class IdentityManager {
 
     private GPlusAuthenticationResponseReceiver mGPlusAuthenticationReceiver;
     private PassiveAuthenticationResponseReceiver mPassiveAuthenticationReceiver;
+    private GoodAuthResponseReceiver mGoodAuthenticationReceiver;
 
 
     // Private constructor suppresses
@@ -114,28 +117,8 @@ public class IdentityManager {
                 mAssertionFormat = identityProvider.assertionFormat;
 
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
-                Object[] response = id.execute().get();
-                if (response[1]!=null)
-                {
-                    invokeCallbackWithException(callback, (Exception) response[1]);
-                }
-                else
-                {
-                    String token = response[0].toString();
-                    addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
-                    rawToken = getRawToken(token);
-                    invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
-                }
+                rawToken = this.processFederatedIdentity(id, callback, cacheKey);
             }
-        }
-        catch (InterruptedException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (ExecutionException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (JSONException e) {
-            invokeCallbackWithException(callback,e);
         }
         catch (Exception e) {
             invokeCallbackWithException(callback,e);
@@ -143,6 +126,23 @@ public class IdentityManager {
         finally {
             return rawToken;
         }
+    }
+
+    private String processFederatedIdentity(FederatedIdentity id, final ServiceEventListener callback, String cacheKey) throws Exception {
+        String rawToken = null;
+        Object[] response = id.execute().get();
+        if (response[1]!=null)
+        {
+            invokeCallbackWithException(callback, (Exception) response[1]);
+        }
+        else
+        {
+            String token = response[0].toString();
+            addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
+            rawToken = getRawToken(token);
+            invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
+        }
+        return rawToken;
     }
 
     private BaseIdentityProvider createIpWithUsername(String providerName, String username, String password, String serviceEndpoint,String applicationScope) throws Exception {
@@ -216,6 +216,60 @@ public class IdentityManager {
         this.Authenticate(context,true,userIdentifierType,callback);
     }
 
+    public void AuthenticateGood(Context context, String serverUrl, ServiceEventListener callback) throws JSONException {
+        String cacheKey = "GOOD";
+        mContext = context;
+        JSONObject cacheItem = mTokensCache.get(cacheKey);
+        if (cacheItem!=null) {
+            String rawToken = cacheItem.getString("rawToken");
+            KidoZenUser usr = (KidoZenUser) mTokensCache.get(cacheKey).get("user");
+            usr.PulledFromCache = true;
+            invokeCallback(callback, rawToken, usr);
+        } else {
+            IntentFilter filter = new IntentFilter(GoodAuthenticationActivity.ACTION_RESP);
+            mGoodAuthenticationReceiver = new GoodAuthResponseReceiver(callback);
+            context.registerReceiver(mGoodAuthenticationReceiver, filter);
+
+            Intent goodActivity = new Intent(context, GoodAuthenticationActivity.class);
+            goodActivity.putExtra(GoodAuthenticationActivity.EXTRA_SERVER_URL, serverUrl);
+            context.startActivity(goodActivity);
+        }
+
+    }
+
+    private class GoodAuthResponseReceiver extends BroadcastReceiver {
+
+        private ServiceEventListener callback;
+
+        public GoodAuthResponseReceiver(ServiceEventListener callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            unregisterReceivers();
+
+            boolean success = intent.getBooleanExtra(GoodAuthenticationActivity.EXTRA_GOOD_AUTH_SUCCESS, false);
+            if (!success) {
+                String errMsg = intent.getStringExtra(GoodAuthenticationActivity.EXTRA_GOOD_ERROR_MSG);
+                invokeCallbackWithException(callback, new Exception(errMsg));
+            } else {
+                String goodToken = intent.getStringExtra(GoodAuthenticationActivity.EXTRA_GOOD_TOKEN);
+
+                mAssertionFormat = "good";
+                FederatedIdentity id = new FederatedIdentity(goodToken);
+
+                try {
+                    processFederatedIdentity(id, callback, "GOOD");
+                } catch (Exception e) {
+                    Log.e(TAG, "ERROR on good auth receiver", e);
+                    invokeCallbackWithException(callback,e);
+                }
+            }
+
+        }
+    }
+
     // Social / passive authentication
     public void Authenticate(Context context, Boolean cleanCookies, KZPassiveAuthTypes userIdentifierType, ServiceEventListener callback) throws JSONException {
         String key = String.valueOf(userIdentifierType);
@@ -287,15 +341,6 @@ public class IdentityManager {
                     invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
                 }
             }
-        }
-        catch (InterruptedException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (ExecutionException e) {
-            invokeCallbackWithException(callback,e);
-        }
-        catch (JSONException e) {
-            invokeCallbackWithException(callback,e);
         }
         catch (Exception e) {
             invokeCallbackWithException(callback,e);
@@ -479,6 +524,9 @@ public class IdentityManager {
         if (mGPlusAuthenticationReceiver!=null) {
             mContext.unregisterReceiver(mGPlusAuthenticationReceiver);
         }
+        if (mGoodAuthenticationReceiver!=null) {
+            mContext.unregisterReceiver(mGoodAuthenticationReceiver);
+        }
     }
     public void SignOut(String cacheKey) {
         this.unregisterReceivers();
@@ -525,10 +573,16 @@ public class IdentityManager {
     //Calls IP and then KidoZen identity provider to get the token
     private class FederatedIdentity extends AsyncTask<Void, Void, Object[]> {
         BaseIdentityProvider _identityProvider;
-        String _userTokeFromAuthService, _statusCode;
+        String _userTokeFromAuthService, _statusCode, _idpToken;
 
         public FederatedIdentity(BaseIdentityProvider iIdentityProvider) {
             _identityProvider = iIdentityProvider;
+        }
+
+        public FederatedIdentity(String idpToken) {
+            //already have the token, no need to ask an idp
+            _identityProvider = null;
+            _idpToken = idpToken;
         }
 
         @Override
@@ -539,7 +593,13 @@ public class IdentityManager {
                 String authServiceScope = mAuthConfig.getString("applicationScope");
                 String authServiceEndpoint = mAuthConfig.getString("authServiceEndpoint");
 
-                String wrapAssertionFromIp = _identityProvider.RequestToken();
+                String wrapAssertionFromIp;
+                if (_identityProvider != null) {
+                    wrapAssertionFromIp = _identityProvider.RequestToken();
+                } else {
+                    wrapAssertionFromIp = _idpToken;
+                }
+
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("wrap_scope", authServiceScope));
                 nameValuePairs.add(new BasicNameValuePair("wrap_assertion_format", mAssertionFormat));

@@ -832,6 +832,45 @@ public class KZApplication {
     }
 
     /**
+     * Calls Good authentication.
+     *
+     * @param context Android context instance
+     * @param callback The callback with the result of the service call
+     * @throws InitializationException
+     */
+    public void AuthenticateGood(final Context context, final String serverUrl, final ServiceEventListener callback) throws InitializationException {
+        if (!mApplicationConfiguration.IsInitialized)
+            this.Initialize(new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    InvokeGoodAuthentication(context, serverUrl, callback);
+                }
+            });
+        else
+            InvokeGoodAuthentication(context, serverUrl, callback);
+    }
+
+    private void InvokeGoodAuthentication(Context context, String serverUrl, final ServiceEventListener callback) {
+        try {
+            JSONObject authConfig = mApplicationConfiguration.GetSettingAsJObject("authConfig");
+            authConfig.put("domain", mApplicationConfiguration.GetSettingAsString("domain"));
+            IdentityManager.getInstance().Setup(authConfig, StrictSSL, mApplicationKey);
+            IdentityManager.getInstance().AuthenticateGood(context, serverUrl,  new ServiceEventListener()   {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    SetKidoZenUser((KidoZenUser) e.Response);
+                    if (callback != null) callback.onFinish(e);
+                }
+            });
+        }
+        catch(Exception e)
+        {
+            if (callback!=null)
+                callback.onFinish(new ServiceEvent(this, HttpStatus.SC_BAD_REQUEST,e.getMessage(), e));
+        }
+    }
+
+    /**
      * Enables passive Authentication
      *
      * @param context Android context instance
