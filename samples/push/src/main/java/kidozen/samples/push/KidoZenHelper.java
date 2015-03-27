@@ -10,24 +10,27 @@ import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import kidozen.client.CustomAPIService;
 import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
+import kidozen.client.ServiceEvent;
+import kidozen.client.ServiceEventListener;
 
 /**
  * Created by christian on 7/8/14.
  */
 public class KidoZenHelper implements IGcmEvents {
     private final String TAG = this.getClass().getSimpleName();
-    private KZApplication kido = null;
+    public KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://kidodemo.kidocloud.com";
+    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
     private String application = "tasks";
-    private String appkey = "get this value from: marketplace -> application -> coding -> keys";
+    private String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
     private String user              = "loadtests@kidozen.com";
-    private String passw             = "secret";
+    private String passw             = "pass";
     private String provider          = "Kidozen";
 
-    private String projectid          = "****";
+    private String projectid          = "435703421965"; // TODO: rename to projectNumber. Check Documentation.
     private Boolean isInitialized    = false;
 
     private Activity mActivity;
@@ -69,7 +72,22 @@ public class KidoZenHelper implements IGcmEvents {
     }
 
     public void Initialize() {
-        mKidoGcm.Initialize();
+        try {
+            CustomAPIService service = kido.customAPIService("customScript1");
+            service.executeCustomAPI(null, new ServiceEventListener() {
+                @Override
+                public void onFinish(ServiceEvent e) {
+                    if (e != null) {
+                        Log.e("finished", "finished." + e.Body);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.e("Error", "error");
+
+        }
+
+//        mKidoGcm.Initialize();
     }
 
     public void Subscribe(String channel) {

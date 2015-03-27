@@ -1000,6 +1000,20 @@ public class KZApplication {
         IdentityManager.getInstance().RevokeAccessFromGPlus(context);
     }
 
+    public CustomAPIService customAPIService(String name) throws Exception {
+        checkMethodParameters(name);
+        String customAPIURL = mApplicationConfiguration.GetSettingAsString("customAPI");
+        CustomAPIService service = new CustomAPIService(customAPIURL,
+                                        name,
+                                        mProvider,
+                                        mUsername,
+                                        mPassword,
+                                        mPassiveClientId,
+                                        mUserIdentity,
+                                        mApplicationIdentity);
+        service.setStrictSSL(StrictSSL);
+        return service;
+    }
 
     /**
      * Returns the current application name
