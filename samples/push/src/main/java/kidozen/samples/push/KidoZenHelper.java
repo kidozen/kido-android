@@ -59,7 +59,7 @@ public class KidoZenHelper implements IGcmEvents {
     public void SignIn() throws InitializationException {
         mKidoGcm = new GCM(mActivity,kido,projectid);
         mKidoGcm.setGCMEvents(this);
-        kido.Authenticate(provider,user,passw, new kidozen.client.ServiceEventListener() {
+        kido.Authenticate(user,passw,provider, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {
@@ -74,7 +74,7 @@ public class KidoZenHelper implements IGcmEvents {
     public void Initialize() {
         try {
             CustomAPIService service = kido.customAPIService("customScript1");
-            service.executeCustomAPI(null, new ServiceEventListener() {
+            service.executeCustomAPI(new JSONObject(), new ServiceEventListener() {
                 @Override
                 public void onFinish(ServiceEvent e) {
                     if (e != null) {
@@ -83,7 +83,9 @@ public class KidoZenHelper implements IGcmEvents {
                 }
             });
         } catch (Exception e) {
-            Log.e("Error", "error");
+            if (e != null) {
+                Log.e("Error", "error" + e.getStackTrace());
+            }
 
         }
 
