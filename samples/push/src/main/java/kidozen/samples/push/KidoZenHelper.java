@@ -23,14 +23,14 @@ public class KidoZenHelper implements IGcmEvents {
     private final String TAG = this.getClass().getSimpleName();
     public KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://loadtests.qa.kidozen.com";
+    private String tenantMarketPlace = "";
     private String application = "tasks";
-    private String appkey = "NuSSOjO4d/4Zmm+lbG3ntlGkmeHCPn8x20cj82O4bIo=";
-    private String user              = "loadtests@kidozen.com";
+    private String appkey = "";
+    private String user              = "@kidozen.com";
     private String passw             = "pass";
     private String provider          = "Kidozen";
 
-    private String projectid          = "435703421965"; // TODO: rename to projectNumber. Check Documentation.
+    private String projectid          = "Your project number."; // TODO: rename to projectNumber. Check Documentation.
     private Boolean isInitialized    = false;
 
     private Activity mActivity;
