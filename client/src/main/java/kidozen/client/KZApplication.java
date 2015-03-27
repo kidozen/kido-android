@@ -136,7 +136,7 @@ public class KZApplication {
         if (mOpenedNotificationService == null) {
 
             try {
-                String baseURL = mApplicationConfiguration.GetSettingAsString("url");
+                String baseURL = mApplicationConfiguration.GetSettingAsString("notification");
                 Log.e("URL ---- ", "URL IS ------  " + baseURL);
 
                 if (!baseURL.endsWith("/")) {

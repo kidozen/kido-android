@@ -203,7 +203,7 @@ public class KZService {
                 @Override
                 public void Fire(String token) {
                     mRequestHeaders.put(Constants.AUTHORIZATION_HEADER, token);
-                    //System.out.println("KZService, onPreExecute, got token, " + token);
+                    System.out.println("KZService, onPreExecute, got token, " + token);
                 }
             });
             //System.out.println("KZService, onPreExecute");
@@ -297,7 +297,7 @@ public class KZService {
 
         @Override
         protected void onPostExecute(ServiceEvent result) {
-            //System.out.println("KZService, onPostExecute");
+            System.out.println("KZService, onPostExecute" + result.toString());
             if (mServiceEventCallback instanceof ServiceResponseHandler) {
                 //System.out.println("KZService, doInBackground,  onPostExecute. Is ServiceResponseHandler");
                 dispatchServiceResponseListener(result, (ServiceResponseHandler) mServiceEventCallback);
