@@ -13,11 +13,13 @@ import com.good.gd.utility.GDUtility;
 import java.util.Map;
 
 /**
- * Created by facundo on 25/03/15.
+ * Activity that displays the Good Authentication view and broadcasts the token if successful.
  */
 public class GoodAuthenticationActivity extends Activity  {
     private static final String TAG = GoodAuthenticationActivity.class.getSimpleName();
     public static final String ACTION_RESP = "com.kidozen.intent.action.GOOD_AUTHENTICATION_RESULT";
+    public static final String EXTRA_GOOD_AUTH_SUCCESS = "EXTRA_GOOD_AUTH_SUCCESS";
+    public static final String EXTRA_GOOD_ERROR_MSG = "EXTRA_GOOD_ERROR_MSG";
     public static final String EXTRA_GOOD_TOKEN = "EXTRA_GOOD_TOKEN";
     public static final String EXTRA_SERVER_URL = "EXTRA_SERVER_URL";
 
@@ -40,23 +42,37 @@ public class GoodAuthenticationActivity extends Activity  {
         }
 
         public void onGDAuthTokenSuccess(java.lang.String token) {
-            //broadcast the token to the receiver in IdentityManager
+            this.finishSuccess(token);
+        }
+
+        public void onGDAuthTokenFailure(int errCode, java.lang.String errMsg) {
+            this.finishFailure("Request for GD Auth token has failed: " + errMsg);
+        }
+
+        @Override
+        public void onWiped() {
+            this.finishFailure("The authorization of the user has been permanently withdrawn");
+        }
+
+        private void finishSuccess(String token) {
             Intent broadcastIntent = new Intent();
             broadcastIntent.setAction(ACTION_RESP);
+            broadcastIntent.putExtra(EXTRA_GOOD_AUTH_SUCCESS, true);
             broadcastIntent.putExtra(EXTRA_GOOD_TOKEN, token);
+            //broadcasts the token to the receiver in IdentityManager
             sendBroadcast(broadcastIntent);
 
             this.parent.finish();
         }
 
-        public void onGDAuthTokenFailure(int i, java.lang.String s) {
-            //TODO auth failure
-        }
+        private void finishFailure(String errMsg) {
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction(ACTION_RESP);
+            broadcastIntent.putExtra(EXTRA_GOOD_AUTH_SUCCESS, false);
+            broadcastIntent.putExtra(EXTRA_GOOD_ERROR_MSG, errMsg);
+            sendBroadcast(broadcastIntent);
 
-        @Override
-        public void onWiped() {
-            // the authorization of the user has been permanently withdrawn
-            //TODO auth failure
+            this.parent.finish();
         }
 
         @Override

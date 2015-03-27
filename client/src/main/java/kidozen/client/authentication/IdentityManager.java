@@ -117,18 +117,7 @@ public class IdentityManager {
                 mAssertionFormat = identityProvider.assertionFormat;
 
                 FederatedIdentity id = new FederatedIdentity(identityProvider);
-                Object[] response = id.execute().get();
-                if (response[1]!=null)
-                {
-                    invokeCallbackWithException(callback, (Exception) response[1]);
-                }
-                else
-                {
-                    String token = response[0].toString();
-                    addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
-                    rawToken = getRawToken(token);
-                    invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
-                }
+                rawToken = this.processFederatedIdentity(id, callback, cacheKey);
             }
         }
         catch (Exception e) {
@@ -137,6 +126,23 @@ public class IdentityManager {
         finally {
             return rawToken;
         }
+    }
+
+    private String processFederatedIdentity(FederatedIdentity id, final ServiceEventListener callback, String cacheKey) throws Exception {
+        String rawToken = null;
+        Object[] response = id.execute().get();
+        if (response[1]!=null)
+        {
+            invokeCallbackWithException(callback, (Exception) response[1]);
+        }
+        else
+        {
+            String token = response[0].toString();
+            addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
+            rawToken = getRawToken(token);
+            invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
+        }
+        return rawToken;
     }
 
     private BaseIdentityProvider createIpWithUsername(String providerName, String username, String password, String serviceEndpoint,String applicationScope) throws Exception {
@@ -241,30 +247,26 @@ public class IdentityManager {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String goodToken = intent.getStringExtra(GoodAuthenticationActivity.EXTRA_GOOD_TOKEN);
+            unregisterReceivers();
 
-            mAssertionFormat = "good";
+            boolean success = intent.getBooleanExtra(GoodAuthenticationActivity.EXTRA_GOOD_AUTH_SUCCESS, false);
+            if (!success) {
+                String errMsg = intent.getStringExtra(GoodAuthenticationActivity.EXTRA_GOOD_ERROR_MSG);
+                invokeCallbackWithException(callback, new Exception(errMsg));
+            } else {
+                String goodToken = intent.getStringExtra(GoodAuthenticationActivity.EXTRA_GOOD_TOKEN);
 
-            FederatedIdentity id = new FederatedIdentity(goodToken);
+                mAssertionFormat = "good";
+                FederatedIdentity id = new FederatedIdentity(goodToken);
 
-            try {
-                Object[] response = id.execute().get();
-                if (response[1] != null) {
-                    invokeCallbackWithException(callback, (Exception) response[1]);
-                } else {
-                    String token = response[0].toString();
-                    String cacheKey = "GOOD";
-
-                    addToTokensCache(cacheKey, token, "", KidoZenUserIdentityType.USER_IDENTITY);
-                    String rawToken = getRawToken(token);
-                    invokeCallback(callback, rawToken, mTokensCache.get(cacheKey).get("user"));
+                try {
+                    processFederatedIdentity(id, callback, "GOOD");
+                } catch (Exception e) {
+                    Log.e(TAG, "ERROR on good auth receiver", e);
+                    invokeCallbackWithException(callback,e);
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "ERROR on good auth receiver", e);
-                invokeCallbackWithException(callback,e);
-            } finally {
-                unregisterReceivers();
             }
+
         }
     }
 
