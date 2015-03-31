@@ -52,7 +52,7 @@ public class JsonStringToMap {
         return valueList;
     }
 
-    private Map<String, Object> parseJSONObject(JSONObject jsonObject) throws JSONException {
+    public Map<String, Object> parseJSONObject(JSONObject jsonObject) throws JSONException {
         Map<String, Object> valueObject = null;
         if (null != jsonObject) {
             valueObject = new HashMap<String, Object>();

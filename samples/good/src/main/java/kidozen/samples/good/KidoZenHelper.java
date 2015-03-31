@@ -8,9 +8,6 @@ import org.apache.http.HttpStatus;
 import kidozen.client.InitializationException;
 import kidozen.client.KZApplication;
 
-/**
- * Created by christian on 7/8/14.
- */
 public class KidoZenHelper {
     private KZApplication kido = null;
 
@@ -41,7 +38,7 @@ public class KidoZenHelper {
     }
 
     public void SignIn(Context context) throws InitializationException{
-        kido.AuthenticateGood(context, "https://goodcontrol.kidozen.com", new kidozen.client.ServiceEventListener() {
+        kido.AuthenticateGood(context, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {

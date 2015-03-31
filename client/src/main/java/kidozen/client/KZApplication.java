@@ -11,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -808,7 +810,10 @@ public class KZApplication {
      * @param callback The callback with the result of the service call
      * @throws InitializationException
      */
-    public void AuthenticateGood(final Context context, final String serverUrl, final ServiceEventListener callback) throws InitializationException {
+    public void AuthenticateGood(final Context context, final ServiceEventListener callback) throws InitializationException {
+
+        final String serverUrl = getGoodServerUrl(context);
+
         if (!mApplicationConfiguration.IsInitialized)
             this.Initialize(new ServiceEventListener() {
                 @Override
@@ -818,6 +823,21 @@ public class KZApplication {
             });
         else
             InvokeGoodAuthentication(context, serverUrl, callback);
+    }
+
+    private String getGoodServerUrl(Context context) {
+        try {
+            Map<String, Object> settings = Utilities.parseJSONAsset(context, "settings.json");
+            String url = (String) settings.get("GDServerUrl");
+            if (url == null) {
+                throw new IllegalStateException("GDServerUrl is missing in settings.json");
+            }
+            return url;
+        } catch (IOException e){
+            throw new IllegalStateException("settings.json asset is missing or invalid");
+        } catch (JSONException e) {
+            throw new IllegalStateException("settings.json is not a valid JSON file");
+        }
     }
 
     private void InvokeGoodAuthentication(Context context, String serverUrl, final ServiceEventListener callback) {

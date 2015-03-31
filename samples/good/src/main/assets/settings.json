@@ -1,11 +1,12 @@
 {
     "GDApplicationID":"com.kidozen.android.sample",
     "GDApplicationVersion":"1",
+    "GDServerUrl": "https://goodcontrol.kidozen.com",
     "GDLibraryMode": "GDEnterprise",
     "GDConsoleLogger": [
         "GDFilterErrors_",
         "GDFilterWarnings_",
         "GDFilterInfo_",
-        "GDFilterDetailed_",
+        "GDFilterDetailed_"
     ]
 }

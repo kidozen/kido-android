@@ -1,11 +1,13 @@
 package kidozen.client.internal;
 
+import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -63,6 +65,23 @@ public class Utilities {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getStringFromAsset(Context context, String assetName) throws IOException {
+        InputStream is = context.getAssets().open(assetName);
+        int size = is.available();
+        byte[] buffer = new byte[size];
+        is.read(buffer);
+        is.close();
+        return new String(buffer);
+    }
+
+    public static Map<String, Object> parseJSONAsset(Context context, String assetName) throws IOException, JSONException {
+        String jsonString = getStringFromAsset(context, assetName);
+        JsonStringToMap js2m = new JsonStringToMap();
+        JSONObject jsonObject = new JSONObject(jsonString);
+        js2m.parseJSONObject(jsonObject);
+        return js2m.parse(jsonString);
     }
 
     public static boolean unpackZip(String path, String zipname)
