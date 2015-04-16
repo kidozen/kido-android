@@ -60,7 +60,7 @@ public class AuthActiveTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(AppSettings.KZ_USER, AppSettings.KZ_PASS,AppSettings.KZ_PROVIDER,  new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -79,7 +79,7 @@ public class AuthActiveTest {
     public void ShouldAuthenticate() throws Exception {
         final CountDownLatch alcd = new CountDownLatch(1);
         kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate( AppSettings.KZ_USER, AppSettings.KZ_PASS,AppSettings.KZ_PROVIDER, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -94,7 +94,7 @@ public class AuthActiveTest {
     public void AuthenticationShouldFailWithInvalidUser() throws Exception {
         final CountDownLatch alcd = new CountDownLatch(1);
         kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, "none@kidozen.com", AppSettings.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate( "none@kidozen.com", AppSettings.KZ_PASS,AppSettings.KZ_PROVIDER, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -109,7 +109,7 @@ public class AuthActiveTest {
     public void ShouldSignOutUser() throws Exception {
         kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY,false);
         final CountDownLatch alcd = new CountDownLatch(1);
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate( AppSettings.KZ_USER, AppSettings.KZ_PASS, AppSettings.KZ_PROVIDER, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -129,7 +129,7 @@ public class AuthActiveTest {
     public void AuthenticationShouldFailAndReturnMessage() throws Exception {
         kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
         final CountDownLatch alcd = new CountDownLatch(1);
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, "1", new ServiceEventListener() {
+        kidozen.Authenticate( AppSettings.KZ_USER, "1",AppSettings.KZ_PROVIDER, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -149,7 +149,7 @@ public class AuthActiveTest {
         * */
         kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
         final CountDownLatch alcd = new CountDownLatch(1);
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, "contoso@kidozen.com", "Kidozen", new ServiceEventListener() {
+        kidozen.Authenticate(AppSettings.KZ_USER, AppSettings.KZ_PASS, "ups!", new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
@@ -175,7 +175,7 @@ public class AuthActiveTest {
         lcd.await(TEST_TIMEOUT_IN_MINUTES, TimeUnit.MINUTES);
         final CountDownLatch alcd = new CountDownLatch(1);
 
-        kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, new ServiceEventListener() {
+        kidozen.Authenticate(AppSettings.KZ_USER, AppSettings.KZ_PASS,AppSettings.KZ_PROVIDER, new ServiceEventListener() {
             @Override
             public void onFinish(ServiceEvent e) {
                 alcd.countDown();
