@@ -43,7 +43,7 @@ public class DsSvcResponseTest {
             data = new JSONObject().put("city", "London");
             final CountDownLatch signal = new CountDownLatch(1);
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
-            kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signal));
+            kidozen.Authenticate(AppSettings.KZ_USER, AppSettings.KZ_PASS,AppSettings.KZ_PROVIDER, kidoAuthCallback(signal));
             signal.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         }
         catch (Exception e)

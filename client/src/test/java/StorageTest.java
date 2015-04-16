@@ -52,7 +52,7 @@ public class StorageTest {
             kidozen = new KZApplication(AppSettings.KZ_TENANT, AppSettings.KZ_APP, AppSettings.KZ_KEY, false);
             signalInit.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
             final CountDownLatch signalAuth = new CountDownLatch(1);
-            kidozen.Authenticate(AppSettings.KZ_PROVIDER, AppSettings.KZ_USER, AppSettings.KZ_PASS, kidoAuthCallback(signalAuth));
+            kidozen.Authenticate(AppSettings.KZ_USER, AppSettings.KZ_PASS,AppSettings.KZ_PROVIDER, kidoAuthCallback(signalAuth));
             signalAuth.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
             _storage = kidozen.Storage(KZ_STORAGE_SERVICE_ID);
         }
