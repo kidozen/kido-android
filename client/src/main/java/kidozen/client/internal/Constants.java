@@ -17,6 +17,6 @@ public class Constants {
     public static final String X_KIDO_SDK_HEADER = "X-Kido-SDK";
     public static final String X_KIDO_SDK_VERSION_HEADER = "X-Kido-SDK-Version";
     public static final String X_KIDO_SDK_HEADER_VALUE = "Android";
-    public static final String X_KIDO_SDK_VERSION_HEADER_VALUE = "1.2.3";
+    public static final String X_KIDO_SDK_VERSION_HEADER_VALUE = "1.2.4";
 
 }
