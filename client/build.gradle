@@ -102,7 +102,7 @@ robolectric {
     exclude '**/PubSubTest.class'
     exclude '**/Ds**.class'
     exclude '**/EApiTest.class'
-    include '**/**Test.class'
+    include '**/AuthActiveTest.class'
     maxHeapSize = "2048m"
 
 }

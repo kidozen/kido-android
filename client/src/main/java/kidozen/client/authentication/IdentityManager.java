@@ -409,13 +409,9 @@ public class IdentityManager {
             if (indexOfClaimKeyword>-1) {
                 keyName = keyValue[0].substring(indexOfClaimKeyword + "/claims/".length(), keyName.length());
             }
-            String v ;
-            try {
-                v=  keyValue[1];
-            }
-            catch (IndexOutOfBoundsException e) {
-                v="";
-            }
+            String v ="";
+            try { v=  keyValue[1];}
+            catch (IndexOutOfBoundsException e) {}
             tokenClaims.put(keyName,v);
         }
         KidoZenUser user = new KidoZenUser();
@@ -425,9 +421,12 @@ public class IdentityManager {
         user.RefreshToken = refreshToken;
         user.Claims = tokenClaims;
         user.SetExpiration(Long.parseLong(tokenClaims.get("ExpiresOn")));
-        if (tokenClaims.get("role")!=null)
-        {
-            user.Roles = Arrays.asList(tokenClaims.get("role").split(","));
+
+        for(String claim : tokenClaims.keySet()){
+            if (claim.contains("://schemas.kidozen.com/role"))
+                user.Roles = Arrays.asList(tokenClaims.get(claim).split(","));
+            if (claim.contains("://schemas.microsoft.com/ws/2008/06/identity/claims/role"))
+                user.Roles.addAll( Arrays.asList(tokenClaims.get(claim).split(","))) ;
         }
         return user;
     }
