@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import kidozen.client.AnalyticsLog;
 import kidozen.client.ServiceEvent;
@@ -103,7 +104,7 @@ public class Analytics {
                 SessionDetails details =  gson.fromJson(sessionDetails,SessionDetails.class);
                 details.EndDate = new Date().getTime();
                 details.length = details.EndDate - details.StartDate;
-                details.eventAttr.sessionLength = String.valueOf(details.length);
+                details.eventAttr.sessionLength = TimeUnit.MILLISECONDS.toSeconds(details.length) % 60;
                 details.isPeding = true;
                 //serialize again to upload to server
                 sessionDetails =  gson.toJson(details);

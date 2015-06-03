@@ -3,3 +3,6 @@ build/
 # Local configuration file (sdk path, etc)
 local.properties
 bin
+.gradle/
+.gradle/2.2.1/*
+.gradle/2.2.1/taskArtifacts/*
