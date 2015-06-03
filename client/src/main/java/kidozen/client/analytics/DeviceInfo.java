@@ -24,7 +24,7 @@ public class DeviceInfo {
     public String platform = "Android";
     public String systemVersion = "Unknown";
     public String deviceModel = "Unknown";
-    public String sessionLength = "-1";
+    public long sessionLength = 0;
     public String isoCountryCode = "Unknown";
     public String countryName= "Unknown";
     public String locality= "Unknown";
