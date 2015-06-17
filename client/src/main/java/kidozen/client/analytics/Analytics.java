@@ -1,6 +1,8 @@
 package kidozen.client.analytics;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -19,6 +21,8 @@ import kidozen.client.ServiceEventListener;
 import kidozen.client.analytics.events.ActivityEvent;
 import kidozen.client.analytics.events.ClickEvent;
 import kidozen.client.analytics.events.CustomEvent;
+import kidozen.client.analytics.events.SessionStartEvent;
+import kidozen.client.authentication.KidoZenUser;
 
 /**
  * Created by christian on 10/22/14.
@@ -32,6 +36,14 @@ public class Analytics {
 
     private Uploader mUploader = null;
     private AnalyticsLog mLogger;
+    private KidoZenUser mUserIdentity;
+
+    private String appVersion;
+
+    public void setmUserIdentity(KidoZenUser mUserIdentity) {
+        this.mUserIdentity = mUserIdentity;
+    }
+
 
     public static Analytics getInstance() {
         if (mSingleton == null) {
@@ -40,9 +52,10 @@ public class Analytics {
         return mSingleton;
     }
 
-    public static Analytics getInstance(Boolean enable, Context context, AnalyticsLog logger) {
+    public static Analytics getInstance(Boolean enable, Context context, AnalyticsLog logger, KidoZenUser user) {
         if (mSingleton == null) {
             mSingleton = new Analytics();
+            mSingleton.setmUserIdentity(user);
             mSingleton.Enable(enable,context,logger);
         }
         return mSingleton;
@@ -51,15 +64,31 @@ public class Analytics {
     public void Enable(Boolean enable, Context context, AnalyticsLog logger) {
         if (enable) {
             mContext = (!context.getClass().isInstance(android.app.Application.class) ? context.getApplicationContext() : context);
+            appVersion = getAppVersion(mContext);
             mLogger = logger;
             mSession = new Session(context);
             checkPendingSessions();
-            mSession.StartNew();
+            mSession.StartNew(mUserIdentity.getUserHash());
             mUploader = Uploader.getInstance(mContext, mSession, mLogger);
             mUploader.StartUploaderTransitionTimer();
+            mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion));
+
         }
         else {
             mSession = null;
+        }
+    }
+
+
+    private String getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+
+            return new Integer(packageInfo.versionCode).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
         }
     }
 
@@ -115,6 +144,9 @@ public class Analytics {
         mSession.ResetEvents();
         mUploader = Uploader.getInstance(mContext, mSession, mLogger);
         mUploader.StartUploaderTransitionTimer();
+
+        mSession.sessionStart(new SessionStartEvent(mContext, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion));
+
     }
 
     public void StopSession() {
@@ -129,15 +161,15 @@ public class Analytics {
     }
 
     public void TagClick(String data) {
-        ClickEvent event = new ClickEvent(data, mSession.getUUID());
+        ClickEvent event = new ClickEvent(data, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion);
         mSession.LogEvent(event);
     }
     public void TagActivity(String data) {
-        ActivityEvent event = new ActivityEvent(data, mSession.getUUID());
+        ActivityEvent event = new ActivityEvent(data, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion);
         mSession.LogEvent(event);
     }
     public void TagEvent(String title, JSONObject data) {
-        CustomEvent event = new CustomEvent(title,data, mSession.getUUID());
+        CustomEvent event = new CustomEvent(title,data, mSession.getUUID(), mUserIdentity.getUserHash(), appVersion);
         mSession.LogEvent(event);
     }
 

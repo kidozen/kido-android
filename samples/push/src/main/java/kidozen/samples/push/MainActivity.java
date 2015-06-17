@@ -1,6 +1,7 @@
 package kidozen.samples.push;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import kidozen.client.InitializationException;
+import kidozen.client.Notification;
 
 
 public class MainActivity extends Activity implements IPushEvents {
@@ -25,6 +27,10 @@ public class MainActivity extends Activity implements IPushEvents {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // In order to know whether your activity has been opened from a notification,
+        // You should call this static method.
+        Notification.openedFromNotification(helper.kido, this.getApplication());
 
         helper.setPushEvents(mSelf);
 

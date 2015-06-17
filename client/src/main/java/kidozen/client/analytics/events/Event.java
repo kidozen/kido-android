@@ -1,7 +1,5 @@
 package kidozen.client.analytics.events;
 
-import org.json.JSONObject;
-
 /**
  * Created by christian on 10/22/14.
  */
@@ -9,11 +7,21 @@ public abstract class Event {
     protected String eventName = "Event";
     private String eventValue;
     private String sessionUUID;
+    private String userid;
 
-    public void Event(String data, String UUID) {
+    protected EventAttributes eventAttr;
+
+    public void Event(String data, String UUID, String userid, String appVersion) {
         eventValue = data;
         sessionUUID = UUID;
+        this.userid = userid;
+        eventAttr = new EventAttributes(appVersion);
     }
+
+    public EventAttributes getEventAttr() {
+        return eventAttr;
+    }
+
 
     public String getEventName() {
         return eventName;

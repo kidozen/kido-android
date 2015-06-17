@@ -63,7 +63,7 @@ public class KZApplication {
 
     private KidoAppSettings mApplicationConfiguration;
     private Analytics mAnalytics = null;
-
+    private OpenedFromNotificationService mOpenedNotificationService;
 
     private DataVisualizationActivity dataVisualizationActivity;
 
@@ -129,7 +129,37 @@ public class KZApplication {
             mAnalyticsLog.mUserIdentity = this.mUserIdentity;
             mAnalyticsLog.setStrictSSL(!StrictSSL);
         }
-        mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog);
+        mAnalytics = Analytics.getInstance(true,context,mAnalyticsLog, mUserIdentity);
+    }
+
+    public void applicationDidOpenWithTrackContext(JSONObject trackContext) {
+        if (mOpenedNotificationService == null) {
+
+            try {
+                String baseURL = mApplicationConfiguration.GetSettingAsString("notification");
+                Log.e("URL ---- ", "URL IS ------  " + baseURL);
+
+                if (!baseURL.endsWith("/")) {
+                    baseURL = baseURL + "/";
+                }
+
+                mOpenedNotificationService = new OpenedFromNotificationService(baseURL,
+                        mProvider,
+                        mUsername,
+                        mPassword,
+                        mPassiveClientId,
+                        mUserIdentity,
+                        mApplicationIdentity
+                );
+
+            } catch (JSONException e) {
+                Log.e("KZApplication - applicationDidOpenWithTrackContext", e.toString());
+            }
+
+        }
+
+        mOpenedNotificationService.didOpen(trackContext);
+
     }
 
     private void checksPermissions(Context context, String[] permissions) {

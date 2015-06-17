@@ -18,16 +18,16 @@ import kidozen.client.KZApplication;
  */
 public class KidoZenHelper implements IGcmEvents {
     private final String TAG = this.getClass().getSimpleName();
-    private KZApplication kido = null;
+    public KZApplication kido = null;
 
-    private String tenantMarketPlace = "https://kidodemo.kidocloud.com";
-    private String application = "tasks";
-    private String appkey = "get this value from: marketplace -> application -> coding -> keys";
-    private String user              = "loadtests@kidozen.com";
-    private String passw             = "secret";
+    private String tenantMarketPlace = "https://testssl.kidocloud.com";
+    private String application = "tasks";//"pushsample"; //
+    private String appkey =  "upTbyOhvjn7/D2jia1D5LkzI66Di4HBoyf4AMFjkZN0="; //"3YoXPmrYg0ZuhFDOiW73iMlJ4y/QWoglvEtYTHhdo1M=";
+    private String user              = "testssl@kidozen.com";
+    private String passw             = "pass";
     private String provider          = "Kidozen";
 
-    private String projectid          = "****";
+    private String projectid          = "19516354031";
     private Boolean isInitialized    = false;
 
     private Activity mActivity;
@@ -54,9 +54,9 @@ public class KidoZenHelper implements IGcmEvents {
     }
 
     public void SignIn() throws InitializationException {
-        mKidoGcm = new GCM(mActivity,kido,projectid);
+        mKidoGcm = new GCM(mActivity,kido, projectid);
         mKidoGcm.setGCMEvents(this);
-        kido.Authenticate(provider,user,passw, new kidozen.client.ServiceEventListener() {
+        kido.Authenticate(user,passw,provider, new kidozen.client.ServiceEventListener() {
             @Override
             public void onFinish(kidozen.client.ServiceEvent e) {
                 if (e.StatusCode == HttpStatus.SC_OK ) {

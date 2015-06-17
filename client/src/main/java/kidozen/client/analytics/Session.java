@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import kidozen.client.analytics.events.Event;
+import kidozen.client.analytics.events.SessionStartEvent;
 
 /**
  * Created by christian on 10/22/14.
@@ -55,7 +56,7 @@ public class Session {
         mEvents.clear();
     }
 
-    public void StartNew() {
+    public void StartNew(String userid) {
         mUUID = UUID.randomUUID().toString();
         mEventsFileName = String.format("%s.events", mUUID);
         mEvents = new ArrayList<Event>();
@@ -66,7 +67,7 @@ public class Session {
 
         // persists current session information for later usage
         mCurrentSessionInfoFilename = String.format("%s.session", mUUID);
-        mSessionDetails = new SessionDetails(mUUID,mContext);
+        mSessionDetails = new SessionDetails(mUUID,mContext,userid);
         try {
             FileOutputStream fos = mContext.openFileOutput(mCurrentSessionInfoFilename, Context.MODE_PRIVATE);
             Gson gson = new Gson();
@@ -76,6 +77,7 @@ public class Session {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public ArrayList<String> GetPendingSessions() throws IOException {
@@ -108,6 +110,15 @@ public class Session {
     }
 
     public void LogEvent(Event event) {
+        mEvents.add(event);
+        try {
+            Save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sessionStart(SessionStartEvent event) {
         mEvents.add(event);
         try {
             Save();

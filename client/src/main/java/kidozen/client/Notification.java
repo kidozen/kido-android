@@ -1,5 +1,11 @@
 package kidozen.client;
 
+import android.app.Activity;
+import android.app.Application;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,6 +27,72 @@ public class Notification extends KZService  {
 	private static final String PLATFORM_C2DM = "gcm";
 	private String _deviceId;
 	private String _channel;
+
+    private static final String TRACK_CONTEXT = "trackContext";
+
+    /*
+        This function will make the app listen for onCreate execution on all activities.
+     */
+    public static void openedFromNotification(final KZApplication kido, final Application app) {
+
+        app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+
+
+            @Override
+            public void onActivityCreated(Activity activity, Bundle bundle) {
+
+                Intent intent = activity.getIntent();
+
+                // Here we check whether the application has been opened from a push notification.
+                if (    intent != null &&
+                        intent.getExtras() != null &&
+                        intent.getExtras().containsKey(TRACK_CONTEXT) &&
+                        (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0)
+                {
+                    try {
+                        JSONObject json = new JSONObject( intent.getExtras().getString("trackContext") );
+                        kido.applicationDidOpenWithTrackContext(json);
+
+                    } catch (Exception e) {
+                        Log.e("Notification ----> ", "Exception is ------> " + e);
+                    }
+
+                } else {
+                    Log.e("Notification ----> ", "NO NOTIFICATION ID");
+                }
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
+    }
 
     /**
      * You should not create a new instances of this constructor. Instead use the Notification() method of the KZApplication object.
@@ -136,5 +208,6 @@ public class Notification extends KZService  {
         return new SyncHelper<JSONArray>(this, "GetSubscriptions", String.class, ServiceEventListener.class)
                 .Invoke(new Object[]{deviceId});
     }
+
 
 }
